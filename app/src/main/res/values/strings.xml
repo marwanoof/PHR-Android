@@ -1,3 +1,140 @@
 <resources>
     <string name="app_name">PHR</string>
+    <string name="title_oman">Oman</string>
+    <string name="title_enter_your_civil_id">Enter Civil ID</string>
+    <string name="title_get_otp">Get OTP</string>
+    <string name="title_enter_otp">Enter OTP</string>
+    <string name="alert_empty_field">Please this field can not be empty! </string>
+    <string name="title_login">Login</string>
+
+    <string name="title_terms">    </string>
+
+
+    <string name="title_accept">Accept</string>
+    <string name="title_decline">Decline</string>
+    <string name="title_procedures_reports">Procedures Reports</string>
+    <string name="title_vital_info">Vital Info</string>
+    <string name="title_body_measurements">Body Measurements</string>
+    <string name="title_health_records">Health Records</string>
+    <string name="title_lab_results">Lab Results</string>
+    <string name="title_medication">Medication</string>
+    <string name="title_allergy">Allergy</string>
+    <string name="title_appointments">Appointments</string>
+    <string name="credit_allergy_icon">Icons made by https://www.flaticon.com/authors/smashicons from https://www.flaticon.com/ is licensed by http://creativecommons.org/licenses/by/3.0/CC 3.0</string>
+    <string name="title_immunization">Immunization</string>
+    <string name="path_immunization">M490.783,123.385L512,102.167L409.834,0l-21.217,21.217l14.933,14.933l-53.012,53.012l-54.535,-54.535l-21.217,21.217l29.849,29.849L69.032,321.297l25.113,25.113l-50.226,50.227l25.114,25.113L0,490.783L21.217,512l69.032,-69.032l25.114,25.114l50.226,-50.226l25.113,25.113l235.603,-235.603l29.85,29.849l21.217,-21.217l-54.534,-54.535l53.012,-53.012L490.783,123.385zM115.363,425.646l-29.009,-29.009l29.009,-29.009l29.009,29.009L115.363,425.646zM190.703,400.533l-79.236,-79.236l30.285,-30.285l18.28,18.281l21.218,-21.217l-18.281,-18.281l21.457,-21.457l18.281,18.281l21.217,-21.218l-18.281,-18.28l21.458,-21.458l79.236,79.236L190.703,400.533zM327.555,263.681l-79.236,-79.236l21.457,-21.458l18.281,18.281l21.218,-21.217l-18.281,-18.281l34.857,-34.858l79.236,79.236L327.555,263.681zM401.621,140.246l-29.866,-29.866l53.012,-53.012l29.866,29.866L401.621,140.246z</string>
+    <string name="title_notification">Notification</string>
+    <string name="title_logout">Logout</string>
+    <string name="alert_no_connection">Error : no internet connection</string>
+    <string name="title_dependent_of">Dependents of </string>
+    <string name="title_linked_institutes">Linked Institutes</string>
+    <string name="title_pending">Pending</string>
+    <string name="title_patient_id">Patient Id</string>
+    <string name="title_card_expiry_date">Card Expiry date</string>
+    <string name="title_request_for_link">Request for Link</string>
+    <string name="title_select_institute">Select Institute</string>
+    <string name="title_institute_search">Institute name</string>
+    <string name="title_demographic">Demographic</string>
+    <string name="title_institutes">Institutes</string>
+    <string name="title_other_document">Documents</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="title_home">Home</string>
+    <string name="title_dependents">Dependents</string>
+    <string name="title_unavailable">- - - -</string>
+    <string name="title_00">00</string>
+    <string name="img_desc_back_icon">back button icon</string>
+    <string name="img_desc_toolbar_icon">toolbar icon</string>
+    <string name="img_desc_logo">Logo</string>
+    <string name="img_desc_moh_logo">MOH Logo</string>
+    <string name="img_desc_dgit_logo">DGIT Logo</string>
+    <string name="img_desc_blood_bag_icon">BloodBag</string>
+    <string name="img_desc_blood_doner_icon">Blood Doner</string>
+    <string name="img_desc_pagination_icon">Pagination icon</string>
+
+
+    <string name="title_prev_1">PREV 1</string>
+    <string name="title_prev_2">PREV 2</string>
+    <string name="title_recent">Recent</string>
+    <string name="title_vital_signs">Vital Signs</string>
+
+    <string name="title_prev_4">PREV 4</string>
+    <string name="title_prev_3">PREV 3</string>
+    <string name="title_appointments_date_and_time">Appointments Date and Time</string>
+    <string name="alert_not_available">Not Available</string>
+    <string name="title_select_department">Select Department</string>
+    <string name="title_select_clinic">Select Clinic</string>
+    <string name="title_remarks">Remarks</string>
+    <string name="title_appointment_confirm_message">Are you sure you want to request for an appointment on</string>
+    <string name="title_confirm">Confirm</string>
+    <string name="test_appointments">Hypertension Unit B | 01-jan-2020 | 09:50 | Al Wadi Al Kabeer Health Center</string>
+    <string name="title_referrals">Referrals</string>
+    <string name="title_reschedule">Reschedule</string>
+    <string name="title_cancel">Cancel</string>
+    <string name="title_reason">Reason</string>
+    <string name="title_appointment_cancel_message">Are you sure that you want to cancel the following appointment :</string>
+    <string name="alert_cancellation">Please write a reason for cancellation</string>
+    <string name="title_reschedule_label">Select your new preferred schedule</string>
+
+    <!--FCM-->
+    <string name="default_notification_channel_id" translatable="false">Chat</string>
+    <string name="default_notification_channel_name" translatable="true">Chat</string>
+    <string name="msg_token_fmt" translatable="false">InstanceID Token: %s</string>
+    <string name="fcm_message">FCM Message</string>
+    <string name="channel_chat">Chat</string>
+    <string name="channel_chat_desc">This is chat channel, you can enable/disable chat notification using this channel.</string>
+    <string name="channel_lab">Lab</string>
+    <string name="channel_appointment">Appointments</string>
+    <string name="channel_lab_desc">This is lab results channel, you can enable/disable lab results notification using this channel.</string>
+    <string name="channel_appointment_desc">This is lab results channel, you can enable/disable lab results notification using this channel</string>
+    <string name="hint_search">Search</string>
+    <string name="title_date_time">Date/Time</string>
+    <string name="title_range">Range</string>
+    <string name="title_unit">Unit</string>
+    <string name="title_value_body_msmt">name</string>
+    <string name="title_value">Value</string>
+    <string name="title_component">Component</string>
+    <string name="title_media">Media</string>
+    <string name="alert_dont_show_again">Do not show again</string>
+    <string name="title_all">All</string>
+    <string name="title_chat">Chat</string>
+    <string name="title_history">History</string>
+    <string name="title_problem">cc: Problems</string>
+    <string name="no_allergy_msg">No Allergy.</string>
+    <string name="no_history_msg">No History.</string>
+    <string name="no_problem_msg">No Problems.</string>
+    <string name="report_feild">Report</string>
+    <string name="released_by_feild">Released By:</string>
+    <string name="released_date_feild">Released Date:</string>
+    <string name="status_feild">Status:</string>
+    <string name="hospital_feild">Hospital:</string>
+    <string name="ordered_by_feild">Ordered By:</string>
+    <string name="ordered_date_feild">Ordered Date:</string>
+    <string name="title_back">Back</string>
+    <string name="immunization_given">Given</string>
+    <string name="immunization_schedule">Schedule</string>
+    <string name="summary">Summary</string>
+    <string name="doc_provider">Provider</string>
+    <string name="doc_self">Self</string>
+    <string name="delete_doc_msg">Are you sure you want to delete this Document ?</string>
+    <string name="yes_dialog">Yes</string>
+    <string name="no_dialog">No</string>
+    <string name="uploaded_docs">Uploaded Documents</string>
+    <string name="publish_doc_msg">Are you sure you want to Publish ?</string>
+    <string name="unpublish_doc_msg">Are you sure you want to Un Publish ?</string>
+    <string name="select_doc_type_msg">Please Select the Document Type !</string>
+    <string name="enter_reference_msg">Please Enter the Reference</string>
+    <string name="enter_remark_msg">Please Enter the Remarks</string>
+    <string name="select_file_msg">Please Select a File to upload !</string>
+    <string name="hrd_imp">IMP</string>
+    <string name="hrd_med">MED</string>
+    <string name="hrd_lab">LAB</string>
+    <string name="hrd_rad">RAD</string>
+    <string name="hrd_proc">PROC</string>
+    <string name="enter_msg_chat">Enter message</string>
+    <string name="send_chat">SEND</string>
+    <string name="chat_messages_title">Chat Messages</string>
+    <string name="enter_msg_to_send">Enter a message to send</string>
+    <string name="health_records_result_found">results found in</string>
+    <string name="results_found">results found!</string>
 </resources>

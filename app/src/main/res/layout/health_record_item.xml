@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/colorWhite"
+    android:orientation="vertical"
+    android:id="@+id/cl_heathrecordsItem">
+
+    <View
+        android:id="@+id/v_date_holder"
+        android:layout_width="@dimen/space_64"
+        android:layout_height="0dp"
+        android:background="@color/colorLiteGray"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_month"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/roboto_regular"
+        android:text="Oct"
+        android:textAlignment="center"
+        android:textSize="@dimen/text_size_16sp"
+        app:layout_constraintBottom_toBottomOf="@+id/v_date_holder"
+        app:layout_constraintEnd_toEndOf="@+id/v_date_holder"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/v_date_holder" />
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:textDirection="locale"
+        android:fontFamily="@font/roboto_regular"
+        android:textColor="@color/colorTextViewFontNormal"
+        android:textSize="@dimen/text_size_20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/v_date_holder"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_sub1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textDirection="locale"
+        android:fontFamily="@font/roboto_regular"
+        app:layout_constraintEnd_toEndOf="@+id/tv_title"
+        app:layout_constraintStart_toStartOf="@+id/tv_title"
+        app:layout_constraintTop_toBottomOf="@+id/tv_title" />
+
+    <TextView
+        android:id="@+id/tv_sub2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="8dp"
+        android:textDirection="locale"
+        android:fontFamily="@font/roboto_regular"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/tv_sub1"
+        app:layout_constraintStart_toStartOf="@+id/tv_sub1"
+        app:layout_constraintTop_toBottomOf="@+id/tv_sub1" />
+
+    <TextView
+        android:id="@+id/tv_day"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="31"
+        android:textAlignment="center"
+        app:layout_constraintEnd_toEndOf="@+id/tv_month"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/tv_month"
+        app:layout_constraintTop_toBottomOf="@+id/tv_month" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

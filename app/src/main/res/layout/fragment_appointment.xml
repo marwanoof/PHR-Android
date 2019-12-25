@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorBackground"
+    tools:context=".fragments.AppointmentNewFragment">
+
+    <include
+        android:id="@+id/inc_simple_toolbar"
+        layout="@layout/toolbar_custom" />
+
+    <!--Spinners <Start> -->
+    <View
+        android:id="@+id/v_spinner_container"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginStart="@dimen/space_16"
+        android:layout_marginTop="@dimen/space_16"
+        android:layout_marginEnd="@dimen/space_16"
+        android:background="@drawable/shape_rect_round"
+        android:backgroundTint="@color/colorWhite"
+        app:layout_constraintBottom_toBottomOf="@id/v_space"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/inc_simple_toolbar"
+        app:layout_goneMarginTop="@dimen/space_16" />
+
+    <Spinner
+        android:id="@+id/spnr_hospital"
+        android:layout_width="@dimen/space_0"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_8"
+        android:layout_marginTop="@dimen/space_8"
+        android:layout_marginEnd="@dimen/space_8"
+        app:layout_constraintEnd_toEndOf="@+id/v_spinner_container"
+        app:layout_constraintStart_toStartOf="@+id/v_spinner_container"
+        app:layout_constraintTop_toTopOf="@+id/v_spinner_container" />
+
+    <include
+        android:id="@+id/inc_div_1"
+        layout="@layout/divider_black"
+        android:layout_width="@dimen/space_0"
+        android:layout_height="@dimen/space_1"
+        android:layout_marginStart="@dimen/space_8"
+        android:layout_marginTop="@dimen/space_0"
+        android:layout_marginEnd="@dimen/space_8"
+        app:layout_constraintEnd_toEndOf="@+id/v_spinner_container"
+        app:layout_constraintStart_toStartOf="@+id/v_spinner_container"
+        app:layout_constraintTop_toBottomOf="@+id/spnr_hospital" />
+
+    <Spinner
+        android:id="@+id/spnr_department"
+        android:layout_width="@dimen/space_0"
+        android:layout_height="32dp"
+        android:layout_marginStart="@dimen/space_8"
+        android:layout_marginTop="@dimen/space_8"
+        android:layout_marginEnd="@dimen/space_8"
+        app:layout_constraintEnd_toEndOf="@+id/v_spinner_container"
+        app:layout_constraintStart_toStartOf="@+id/v_spinner_container"
+        app:layout_constraintTop_toBottomOf="@+id/inc_div_1" />
+
+    <include
+        android:id="@+id/inc_div_2"
+        layout="@layout/divider_black"
+        android:layout_width="@dimen/space_0"
+        android:layout_height="@dimen/space_1"
+        android:layout_marginStart="@dimen/space_8"
+        android:layout_marginTop="@dimen/space_0"
+        android:layout_marginEnd="@dimen/space_8"
+        app:layout_constraintEnd_toEndOf="@+id/v_spinner_container"
+        app:layout_constraintStart_toStartOf="@+id/v_spinner_container"
+        app:layout_constraintTop_toBottomOf="@+id/spnr_department" />
+
+    <Spinner
+        android:id="@+id/spnr_clinic"
+        android:layout_width="@dimen/space_0"
+        android:layout_height="32dp"
+        android:layout_marginStart="@dimen/space_8"
+        android:layout_marginTop="@dimen/space_8"
+        android:layout_marginEnd="@dimen/space_8"
+        app:layout_constraintEnd_toEndOf="@+id/v_spinner_container"
+        app:layout_constraintStart_toStartOf="@+id/v_spinner_container"
+        app:layout_constraintTop_toBottomOf="@+id/inc_div_2" />
+
+    <include
+        android:id="@+id/inc_div_3"
+        layout="@layout/divider_black"
+        android:layout_width="@dimen/space_0"
+        android:layout_height="@dimen/space_1"
+        android:layout_marginStart="@dimen/space_8"
+        android:layout_marginTop="@dimen/space_0"
+        android:layout_marginEnd="@dimen/space_8"
+        app:layout_constraintEnd_toEndOf="@+id/v_spinner_container"
+        app:layout_constraintStart_toStartOf="@+id/v_spinner_container"
+        app:layout_constraintTop_toBottomOf="@+id/spnr_clinic" />
+
+    <View
+        android:id="@+id/v_space"
+        android:layout_width="@dimen/space_0"
+        android:layout_height="@dimen/space_16"
+        app:layout_constraintEnd_toEndOf="@id/v_spinner_container"
+        app:layout_constraintStart_toStartOf="@id/v_spinner_container"
+        app:layout_constraintTop_toBottomOf="@+id/inc_div_3" />
+    <!--Spinners <End> -->
+
+    <TextView
+        android:id="@+id/tv_select_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_16"
+        android:layout_marginTop="@dimen/space_8"
+        android:fontFamily="@font/roboto_regular"
+        android:text="@string/title_appointments_date_and_time"
+        android:textColor="@color/colorTextViewFontNormal"
+        app:layout_constraintStart_toStartOf="@+id/v_spinner_container"
+        app:layout_constraintTop_toBottomOf="@+id/v_spinner_container" />
+
+
+    <View
+        android:id="@+id/v_appointmentContainer"
+        android:layout_width="@dimen/space_0"
+        android:layout_height="@dimen/space_0"
+        android:layout_marginStart="@dimen/space_16"
+        android:layout_marginTop="@dimen/space_8"
+        android:layout_marginEnd="@dimen/space_16"
+        android:layout_marginBottom="@dimen/space_8"
+        android:background="@drawable/shape_rect_round"
+        android:backgroundTint="@color/colorWhite"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_select_label" />
+
+    <Spinner
+        android:id="@+id/spnr_date_range"
+        android:layout_width="@dimen/space_0"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_8"
+        android:layout_marginTop="@dimen/space_16"
+        android:layout_marginEnd="@dimen/space_8"
+        app:layout_constraintEnd_toEndOf="@+id/v_appointmentContainer"
+        app:layout_constraintStart_toStartOf="@+id/v_appointmentContainer"
+        app:layout_constraintTop_toTopOf="@+id/v_appointmentContainer" />
+
+    <include
+        android:id="@+id/inc_div_4"
+        layout="@layout/divider_black"
+        android:layout_width="@dimen/space_0"
+        android:layout_height="@dimen/space_1"
+        android:layout_marginStart="@dimen/space_8"
+        android:layout_marginTop="@dimen/space_0"
+        android:layout_marginEnd="@dimen/space_8"
+        android:layout_marginBottom="@dimen/space_16"
+        app:layout_constraintEnd_toEndOf="@+id/v_appointmentContainer"
+        app:layout_constraintStart_toStartOf="@+id/v_appointmentContainer"
+        app:layout_constraintTop_toBottomOf="@+id/spnr_date_range" />
+
+
+    <om.gov.moh.phr.models.NonSwipeableViewPager
+        android:id="@+id/vp_container"
+        android:layout_width="@dimen/space_0"
+        android:layout_height="0dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/v_appointmentContainer"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/v_appointmentContainer"
+        app:layout_constraintTop_toBottomOf="@+id/inc_div_4" />
+
+
+    <ImageButton
+        android:id="@+id/ib_next"
+        android:layout_width="@dimen/space_32"
+        android:layout_height="@dimen/space_32"
+        android:layout_marginEnd="@dimen/space_4"
+        android:backgroundTint="@color/colorWhite"
+        android:src="@drawable/ic_keyboard_arrow_next"
+        app:layout_constraintEnd_toEndOf="@+id/v_appointmentContainer"
+        app:layout_constraintTop_toTopOf="@+id/vp_container" />
+
+    <ImageButton
+        android:id="@+id/ib_previous"
+        android:layout_width="@dimen/space_32"
+        android:layout_height="@dimen/space_32"
+        android:layout_marginStart="@dimen/space_4"
+        android:backgroundTint="@color/colorWhite"
+        android:src="@drawable/ic_keyboard_arrow_previous"
+        app:layout_constraintStart_toStartOf="@+id/v_appointmentContainer"
+        app:layout_constraintTop_toTopOf="@+id/vp_container" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

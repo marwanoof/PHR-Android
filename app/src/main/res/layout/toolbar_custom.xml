@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/tb_toolbar_simple"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/space_56"
+    android:background="@color/colorGray"
+    android:contentInsetStart="@dimen/space_0"
+    android:contentInsetLeft="@dimen/space_0"
+    android:contentInsetEnd="@dimen/space_0"
+    android:contentInsetRight="@dimen/space_0"
+    android:elevation="@dimen/space_0"
+    app:contentInsetEnd="@dimen/space_0"
+    app:contentInsetLeft="@dimen/space_0"
+    app:contentInsetRight="@dimen/space_0"
+    app:contentInsetStart="@dimen/space_0">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="@dimen/space_0"
+        android:padding="@dimen/space_0">
+
+        <ImageButton
+            android:id="@+id/ib_toolbar_back_button"
+            android:layout_width="@dimen/space_40"
+            android:layout_height="@dimen/space_40"
+            android:backgroundTint="@color/colorStatusBar"
+            android:contentDescription="@string/img_desc_back_icon"
+            android:tint="@color/colorRed"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_toolbar_title"
+            app:layout_constraintEnd_toStartOf="@+id/tv_toolbar_title"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tv_toolbar_title"
+            app:srcCompat="@drawable/ic_arrow_back" />
+
+        <TextView
+            android:id="@+id/tv_toolbar_title"
+            android:layout_width="@dimen/space_0"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/roboto_regular"
+            android:textColor="@color/colorRed"
+            android:textSize="@dimen/text_size_20sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/ib_toolbar_back_button"
+            app:layout_constraintTop_toTopOf="parent" />
+        <ImageButton
+            android:id="@+id/ib_refresh"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_refresh"
+            android:visibility="gone"
+            android:backgroundTint="@color/colorGray"
+            app:layout_constraintEnd_toStartOf="@id/ib_home"
+            app:layout_constraintTop_toTopOf="@id/ib_home"
+            app:layout_constraintBottom_toBottomOf="@id/ib_home"/>
+        <Switch
+            android:id="@+id/ib_publish"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:backgroundTint="@color/colorGray"
+            app:layout_constraintEnd_toStartOf="@id/ib_delete"
+            app:layout_constraintTop_toTopOf="@id/ib_home"
+            app:layout_constraintBottom_toBottomOf="@id/ib_home"/>
+        <ImageButton
+            android:id="@+id/ib_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_delete"
+            android:visibility="gone"
+            android:backgroundTint="@color/colorGray"
+            app:layout_constraintEnd_toStartOf="@id/ib_home"
+            app:layout_constraintTop_toTopOf="@id/ib_home"
+            app:layout_constraintBottom_toBottomOf="@id/ib_home"/>
+        <ImageButton
+            android:id="@+id/ib_home"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_home"
+            android:visibility="gone"
+            android:backgroundTint="@color/colorGray"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.appcompat.widget.Toolbar>

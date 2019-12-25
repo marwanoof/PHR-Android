@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragments.LoginFragment">
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="@dimen/space_96"
+        android:layout_height="@dimen/space_96"
+        android:layout_marginTop="@dimen/space_64"
+        android:background="@drawable/phr_ic"
+        android:contentDescription="@string/img_desc_logo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="@dimen/space_0"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_24"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView">
+
+        <TextView
+            android:id="@+id/tv_phr_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/space_4"
+            android:fontFamily="@font/roboto_regular"
+            android:text="@string/app_name"
+            android:textColor="@color/colorRed"
+            android:textSize="@dimen/text_size_32sp" />
+
+        <TextView
+            android:id="@+id/tv_oman_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_4"
+            android:fontFamily="@font/roboto_regular"
+            android:text="@string/title_oman"
+            android:textColor="@color/colorTextViewFontNormal"
+            android:textSize="@dimen/text_size_32sp" />
+    </LinearLayout>
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/til_civil_id"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_32"
+        android:layout_marginTop="@dimen/space_24"
+        android:layout_marginEnd="@dimen/space_32"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/tiet_civil_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/roboto_regular"
+            android:paddingStart="@dimen/space_24"
+            android:paddingEnd="@dimen/space_24"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:hint="@string/title_enter_your_civil_id"
+            android:inputType="number"
+            android:text="62163078" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/til_otp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_16"
+        android:layout_marginStart="@dimen/space_32"
+        android:layout_marginEnd="@dimen/space_32"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="@+id/til_civil_id"
+        app:layout_constraintStart_toStartOf="@+id/til_civil_id"
+        app:layout_constraintTop_toBottomOf="@+id/til_civil_id">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/tiet_otp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/roboto_regular"
+            android:hint="@string/title_enter_otp"
+            android:paddingStart="@dimen/space_24"
+            android:gravity="center"
+            android:paddingEnd="@dimen/space_24"
+            android:inputType="number"
+            android:text="1234" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+    <Button
+        android:id="@+id/btn_get_otp"
+        android:layout_width="@dimen/space_0"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_24"
+        android:layout_marginBottom="@dimen/space_4"
+        android:backgroundTint="@color/colorRed"
+        android:fontFamily="@font/roboto_regular"
+        android:text="@string/title_get_otp"
+        android:textAllCaps="false"
+        android:textColor="@color/colorWhite"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout2"
+        app:layout_constraintEnd_toEndOf="@+id/til_civil_id"
+        app:layout_constraintStart_toStartOf="@+id/til_civil_id"
+        app:layout_constraintTop_toBottomOf="@+id/til_otp" />
+
+    <Button
+        android:id="@+id/btn_login"
+        android:layout_width="@dimen/space_0"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_24"
+        android:layout_marginBottom="@dimen/space_4"
+        android:backgroundTint="@color/colorRed"
+        android:fontFamily="@font/roboto_regular"
+        android:text="@string/title_login"
+        android:textAllCaps="false"
+        android:textColor="@color/colorWhite"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout2"
+        app:layout_constraintEnd_toEndOf="@+id/til_civil_id"
+        app:layout_constraintStart_toStartOf="@+id/til_civil_id"
+        app:layout_constraintTop_toBottomOf="@+id/til_otp" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="@dimen/space_0"
+        android:layout_height="@dimen/space_0"
+        android:layout_marginStart="@dimen/space_8"
+        android:layout_marginTop="@dimen/space_8"
+        android:layout_marginEnd="@dimen/space_8"
+        android:layout_marginBottom="@dimen/space_8"
+        android:orientation="horizontal"
+        android:weightSum="2"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_get_otp">
+
+        <ImageView
+            android:id="@+id/iv_logo_moh"
+            android:layout_width="@dimen/space_0"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/space_4"
+            android:layout_weight="1"
+            android:contentDescription="@string/img_desc_moh_logo"
+            app:layout_constraintStart_toStartOf="@+id/btn_get_otp"
+            app:srcCompat="@drawable/logo_img_moh" />
+
+        <ImageView
+            android:id="@+id/iv_logo_digit"
+            android:layout_width="@dimen/space_0"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_4"
+            android:layout_weight="1"
+            android:contentDescription="@string/img_desc_dgit_logo"
+            app:layout_constraintStart_toStartOf="@+id/btn_get_otp"
+            app:srcCompat="@drawable/logo_img_dgit" />
+    </LinearLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

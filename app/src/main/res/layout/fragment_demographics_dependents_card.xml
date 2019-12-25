@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/space_32"
+    android:background="@drawable/shape_rect_round_top"
+    android:orientation="horizontal"
+    android:paddingTop="@dimen/space_8"
+    android:paddingBottom="@dimen/space_8">
+
+    <TextView
+        android:id="@+id/tv_dependant_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_weight="1"
+        android:fontFamily="@font/roboto_regular"
+        android:text="@string/title_dependents"
+        android:textColor="@color/colorTextViewFontNormal" />
+
+    <ImageButton
+        android:id="@+id/ib_arrow"
+        android:layout_width="@dimen/space_24"
+        android:layout_height="@dimen/space_24"
+        android:layout_gravity="center"
+        android:layout_marginEnd="16dp"
+        android:backgroundTint="@color/colorWhite"
+        android:src="@drawable/ic_keyboard_arrow_next"
+        android:tint="@color/colorLiteBlack" />
+
+</LinearLayout>

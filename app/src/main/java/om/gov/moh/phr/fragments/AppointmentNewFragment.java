@@ -1,0 +1,772 @@
+package om.gov.moh.phr.fragments;
+
+
+import android.content.Context;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.RetryPolicy;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.HurlStack;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.google.gson.Gson;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import om.gov.moh.phr.R;
+import om.gov.moh.phr.adapters.DateItemsGridViewAdapter;
+import om.gov.moh.phr.adapters.DatesViewPagerAdapter;
+import om.gov.moh.phr.apimodels.ApiAppointmentClinicsHolder;
+import om.gov.moh.phr.apimodels.ApiAppointmentDepartmentsHolder;
+import om.gov.moh.phr.apimodels.ApiDemographicsHolder;
+import om.gov.moh.phr.apimodels.ApiSlotsHolder;
+import om.gov.moh.phr.interfaces.AppointmentsListInterface;
+import om.gov.moh.phr.interfaces.MediatorInterface;
+import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
+import om.gov.moh.phr.models.MyProgressDialog;
+import om.gov.moh.phr.models.NonSwipeableViewPager;
+
+import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
+import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
+import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
+import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_MESSAGE;
+
+
+public class AppointmentNewFragment extends Fragment {
+    public static final String TEST_EST_CODE = "20068";
+    private static final String TEST_DEPT_ID = "36";
+    private static final String TEST_CLINIC_ID = "246";
+
+    private static final String API_URL_GET_DEMOGRAPHICS_INFO = API_NEHR_URL + "demographics/civilId/";
+    private static final int NUMBER_OF_COLUMNS = 3;
+
+
+    private Context mContext;
+
+    private DateItemsGridViewAdapter mDateAdapter;
+    private int mCurrentItem = 0;
+    private MediatorInterface mMediatorCallback;
+    private Spinner spnrDepartment;
+    private Spinner spnrClinic;
+    private Spinner spnrDatesRange;
+    private Spinner spnrHospital;
+    private MyProgressDialog mProgressDialog;
+    private RequestQueue mQueue;
+    private String mEstCode;
+    private String mClinicId;
+    private ImageButton ibNext;
+    private ImageButton ibPrevious;
+    private NonSwipeableViewPager vpContainer;
+    private String mAppointmentPeriod;
+    private TextView tvAppointmentsLabel;
+    private View vAppointmentContainer;
+    private ToolbarControllerInterface mToolbarControllerCallback;
+    private AppointmentsListInterface mListener;
+
+    public AppointmentNewFragment() {
+        // Required empty public constructor
+    }
+
+    public static AppointmentNewFragment newInstance() {
+        AppointmentNewFragment fragment = new AppointmentNewFragment();
+        Bundle args = new Bundle();
+//     args.putSerializable(PARAM_API_DEMOGRAPHICS_ITEM, apiDemographicItem);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mContext = context;
+        mMediatorCallback = (MediatorInterface) context;
+        mToolbarControllerCallback = (ToolbarControllerInterface) context;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+//            mApiDemographicItem = (ApiDemographicsHolder.ApiDemographicItem) getArguments().getSerializable(PARAM_API_DEMOGRAPHICS_ITEM);
+        }
+    }
+
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View parentView = inflater.inflate(R.layout.fragment_appointment, container, false);
+
+        mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
+        mProgressDialog = new MyProgressDialog(mContext);
+        spnrHospital = parentView.findViewById(R.id.spnr_hospital);
+        spnrDepartment = parentView.findViewById(R.id.spnr_department);
+        spnrClinic = parentView.findViewById(R.id.spnr_clinic);
+        spnrDatesRange = parentView.findViewById(R.id.spnr_date_range);
+        ibNext = parentView.findViewById(R.id.ib_next);
+        ibPrevious = parentView.findViewById(R.id.ib_previous);
+        vpContainer = parentView.findViewById(R.id.vp_container);
+        tvAppointmentsLabel = parentView.findViewById(R.id.tv_select_label);
+        vAppointmentContainer = parentView.findViewById(R.id.v_appointmentContainer);
+
+        //simple toolbar
+        ImageButton ibToolbarBackButton = parentView.findViewById(R.id.ib_toolbar_back_button);
+        ibToolbarBackButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mToolbarControllerCallback.customToolbarBackButtonClicked();
+            }
+        });
+        TextView tvToolBarTitle = parentView.findViewById(R.id.tv_toolbar_title);
+        tvToolBarTitle.setText(getString(R.string.title_appointments));
+        tvToolBarTitle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mToolbarControllerCallback.customToolbarBackButtonClicked();
+            }
+        });
+        setAppointmentGroupVisibility(View.GONE);
+        getDemographicResponse();
+
+
+        return parentView;
+    }
+
+    private void setupSelectDateRangeSpinner() {
+        final ArrayList<String> datesRange = new ArrayList<>();
+        datesRange.add("After 10 days");
+        datesRange.add("After 15 days");
+        datesRange.add("After 20 days");
+        datesRange.add("After 25 days");
+        datesRange.add("After 30 days");
+
+        // Initializing an ArrayAdapter
+        final ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(
+                mContext, android.R.layout.simple_spinner_dropdown_item, datesRange) {
+            @Override
+            public boolean isEnabled(int position) {
+               /* if (position == 0) {
+                    // Disable the first item from Spinner
+                    // First item will be use for hint
+                    return false;
+                } else {
+                    return true;
+                }*/
+                return true;
+            }
+
+            @Override
+            public View getDropDownView(int position, View convertView,
+                                        ViewGroup parent) {
+                View view = super.getDropDownView(position, convertView, parent);
+                TextView tv = (TextView) view;
+              /*  if (position == 0) {
+                    // Set the hint text color gray
+                    tv.setTextColor(Color.GRAY);
+                } else {
+                    tv.setTextColor(Color.BLACK);
+                }*/
+                tv.setTextColor(Color.BLACK);
+                return view;
+            }
+        };
+        spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spnrDatesRange.setAdapter(spinnerArrayAdapter);
+
+        spnrDatesRange.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedItemText = (String) parent.getItemAtPosition(position);
+                // If user change the default selection
+                // First item is disable and it is used for hint
+               /* if (position > 0) {
+                    // Notify the selected item text : selectedItemText
+                }*/
+                mAppointmentPeriod = getAppointmentPeriod();
+                getSlots();
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+
+    }
+
+
+    private void viewPagerPrevious() {
+        /*if (mCurrentItem > 0) {
+            mCurrentItem--;
+            vpContainer.setCurrentItem(mCurrentItem);
+        }*/
+
+        int next = Integer.parseInt(mAppointmentPeriod) - 5;
+        if (next >= 10) {
+            mAppointmentPeriod = String.valueOf(next);
+            getSlots();
+        }
+    }
+
+    private void viewPagerNext() {
+
+       /* datesViewPagerAdapter.setViewPagerPagesCount(pagesCount);
+        datesViewPagerAdapter.notifyDataSetChanged();
+        if (mCurrentItem < pagesCount) {
+            mCurrentItem++;
+            vpContainer.setCurrentItem(mCurrentItem);
+        }*/
+
+        int next = Integer.parseInt(mAppointmentPeriod) + 5;
+        mAppointmentPeriod = String.valueOf(next);
+
+        getSlots();
+    }
+
+    private void getDemographicResponse() {
+        mProgressDialog.showDialog();
+
+        String fullUrl = API_URL_GET_DEMOGRAPHICS_INFO + mMediatorCallback.getCurrentUser().getCivilId() + "?source=PHR";
+//        String fullUrl = API_URL_GET_DEMOGRAPHICS_INFO + "62163078" + "?source=PHR";
+        Log.d("fullURL-getDemo", fullUrl);
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, fullUrl, null
+                , new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    if (response.getInt(API_RESPONSE_CODE) == 0) {
+                        Gson gson = new Gson();
+                        ApiDemographicsHolder responseHolder = gson.fromJson(response.toString(), ApiDemographicsHolder.class);
+                        Log.d("appointmentFrag", "-Demo" + response.getJSONObject("result").toString());
+
+                        setupSelectHospitalSpinner(responseHolder.getmResult());
+
+
+                    } else {
+
+                        mProgressDialog.dismissDialog();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                mProgressDialog.dismissDialog();
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("resp-demographic", error.toString());
+                error.printStackTrace();
+                mProgressDialog.dismissDialog();
+            }
+        }) {
+            //
+            @Override
+            public Map<String, String> getHeaders() {
+                HashMap<String, String> headers = new HashMap<>();
+//                headers.put("Accept", "application/json");
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
+                return headers;
+            }
+
+        };
+        int socketTimeout = 30000;//30 seconds - change to what you want
+        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        jsonObjectRequest.setRetryPolicy(policy);
+
+        mQueue.add(jsonObjectRequest);
+    }
+
+    private void setupSelectHospitalSpinner(final ApiDemographicsHolder.ApiDemographicItem demographicItem) {
+        Log.d("appointmentFrag", "-setupSelectHospitalSpinner");
+
+        ArrayList<String> institutesNames = new ArrayList<>();
+        for (ApiDemographicsHolder.ApiDemographicItem.Patients patients : demographicItem.getInstitutesArrayList()) {
+            institutesNames.add(patients.getEstName());
+            Log.d("appointmentFrag", patients.getEstName());
+        }
+        institutesNames.add(0, getString(R.string.title_select_institute));
+
+
+        // Initializing an ArrayAdapter
+        final ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(
+                mContext, android.R.layout.simple_spinner_dropdown_item, institutesNames) {
+            @Override
+            public boolean isEnabled(int position) {
+                return position != 0;
+            }
+
+            @Override
+            public View getDropDownView(int position, View convertView,
+                                        ViewGroup parent) {
+                View view = super.getDropDownView(position, convertView, parent);
+                TextView tv = (TextView) view;
+                if (position == 0) {
+                    // Set the hint text color gray
+                    tv.setTextColor(Color.GRAY);
+                } else {
+                    tv.setTextColor(Color.BLACK);
+                }
+                return view;
+            }
+        };
+        spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spnrHospital.setAdapter(spinnerArrayAdapter);
+
+        spnrHospital.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedItemText = (String) parent.getItemAtPosition(position);
+                // If user change the default selection
+                // First item is disable and it is used for hint
+                if (position > 0) {
+                    // Notify the selected item text : selectedItemText
+
+                    if (spnrDepartment.getAdapter() != null) {
+                        spnrDepartment.setAdapter(null);
+                    }
+
+                    if (spnrClinic.getAdapter() != null) {
+                        spnrClinic.setAdapter(null);
+                    }
+                    Log.d("appointmentFrag", "-setOnItemSelectedListener");
+                    mEstCode = demographicItem.getInstitutesArrayList().get(position - 1).getEstCode();
+                    getDepartments(demographicItem.getInstitutesArrayList().get(position - 1).getEstCode());
+                    Log.d("saveAppointment", "spnrHospital.setOnItemSelectedListener : " + demographicItem.getInstitutesArrayList().get(position - 1).getEstCode());
+
+                    setAppointmentGroupVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+    }
+
+    private void getDepartments(final String estCode) {
+
+
+        String fullUrl = "http://10.99.9.36:9000/nehrapi/appointment/getDepts?estCode=" + TEST_EST_CODE;//Integer.parseInt(estCode);
+        Log.d("fullURL-getDep", fullUrl);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, fullUrl, null
+                , new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    Log.d("get-departments", response.getString(API_RESPONSE_MESSAGE));
+
+                    if (response.getInt(API_RESPONSE_CODE) == 0) {
+                        Gson gson = new Gson();
+                        ApiAppointmentDepartmentsHolder responseHolder = gson.fromJson(response.toString(), ApiAppointmentDepartmentsHolder.class);
+                        Log.d("get-departments", response.getJSONArray("result").toString());
+                        setupSelectDepartmentSpinner(responseHolder.getResult());
+
+                    } else {
+                        Log.d("get-departments", response.getString(API_RESPONSE_MESSAGE));
+                        mProgressDialog.dismissDialog();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Log.d("get-departments", "JSONException/" + e);
+                }
+
+                mProgressDialog.dismissDialog();
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+                Log.d("get-departments", "VolleyError/" + error);
+                mProgressDialog.dismissDialog();
+            }
+        }) {
+            //
+            @Override
+            public Map<String, String> getHeaders() {
+                HashMap<String, String> headers = new HashMap<>();
+//                headers.put("Accept", "application/json");
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
+//                headers.put("estCode", TEST_EST_CODE);
+                return headers;
+            }
+
+        };
+        int socketTimeout = 30000;//30 seconds - change to what you want
+        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        jsonObjectRequest.setRetryPolicy(policy);
+
+        mQueue.add(jsonObjectRequest);
+    }
+
+    private void setupSelectDepartmentSpinner(final ArrayList<ApiAppointmentDepartmentsHolder.Department> result) {
+        ArrayList<String> departmentsNames = new ArrayList<>();
+        for (ApiAppointmentDepartmentsHolder.Department d : result) {
+            departmentsNames.add(d.getDeptName());
+        }
+        departmentsNames.add(0, getString(R.string.title_select_department));
+
+
+        // Initializing an ArrayAdapter
+        final ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(
+                mContext, android.R.layout.simple_spinner_dropdown_item, departmentsNames) {
+            @Override
+            public boolean isEnabled(int position) {
+                return position != 0;
+            }
+
+            @Override
+            public View getDropDownView(int position, View convertView,
+                                        ViewGroup parent) {
+                View view = super.getDropDownView(position, convertView, parent);
+                TextView tv = (TextView) view;
+                if (position == 0) {
+                    // Set the hint text color gray
+                    tv.setTextColor(Color.GRAY);
+                } else {
+                    tv.setTextColor(Color.BLACK);
+                }
+                return view;
+            }
+        };
+        spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spnrDepartment.setAdapter(spinnerArrayAdapter);
+
+        spnrDepartment.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedItemText = (String) parent.getItemAtPosition(position);
+                // If user change the default selection
+                // First item is disable and it is used for hint
+                if (position > 0) {
+                    // Notify the selected item text : selectedItemText
+                    if (spnrClinic.getAdapter() != null) {
+                        spnrClinic.setAdapter(null);
+                    }
+                    Toast.makeText(mContext, "position/" + position, Toast.LENGTH_SHORT).show();
+                    setAppointmentGroupVisibility(View.GONE);
+                    getClinics(result.get(position - 1));
+
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+    }
+
+    private void getClinics(ApiAppointmentDepartmentsHolder.Department department) {
+
+        String fullUrl = "http://10.99.9.36:9000/nehrapi/appointment/getClinics?estCode=" + TEST_EST_CODE + "&deptId=" + TEST_DEPT_ID;//Integer.parseInt(estCode);
+        Log.d("fullURL-getCli", fullUrl);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, fullUrl, null
+                , new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+
+                    if (response.getInt(API_RESPONSE_CODE) == 0) {
+                        Gson gson = new Gson();
+                        ApiAppointmentClinicsHolder responseHolder = gson.fromJson(response.toString(), ApiAppointmentClinicsHolder.class);
+                        Log.d("get-clinics", response.getJSONArray("result").toString());
+                        setupSelectClinicSpinner(responseHolder.getResult());
+
+                    } else {
+                        mProgressDialog.dismissDialog();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                mProgressDialog.dismissDialog();
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+                mProgressDialog.dismissDialog();
+            }
+        }) {
+            //
+            @Override
+            public Map<String, String> getHeaders() {
+                HashMap<String, String> headers = new HashMap<>();
+//                headers.put("Accept", "application/json");
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
+               /* headers.put("estCode", TEST_EST_CODE);
+                headers.put("deptId", TEST_DEPT_ID);*/
+                return headers;
+            }
+
+        };
+        int socketTimeout = 30000;//30 seconds - change to what you want
+        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        jsonObjectRequest.setRetryPolicy(policy);
+
+        mQueue.add(jsonObjectRequest);
+    }
+
+    private void setupSelectClinicSpinner(final ArrayList<ApiAppointmentClinicsHolder.Clinic> result) {
+        final ArrayList<String> clinicsNames = new ArrayList<>();
+        for (ApiAppointmentClinicsHolder.Clinic c : result) {
+            clinicsNames.add(c.getDoctDeptName());
+        }
+        clinicsNames.add(0, getString(R.string.title_select_clinic));
+
+
+        // Initializing an ArrayAdapter
+        final ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(
+                mContext, android.R.layout.simple_spinner_dropdown_item, clinicsNames) {
+            @Override
+            public boolean isEnabled(int position) {
+                return position != 0;
+            }
+
+            @Override
+            public View getDropDownView(int position, View convertView,
+                                        ViewGroup parent) {
+                View view = super.getDropDownView(position, convertView, parent);
+                TextView tv = (TextView) view;
+                if (position == 0) {
+                    // Set the hint text color gray
+                    tv.setTextColor(Color.GRAY);
+                } else {
+                    tv.setTextColor(Color.BLACK);
+                }
+                return view;
+            }
+        };
+        spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spnrClinic.setAdapter(spinnerArrayAdapter);
+
+        spnrClinic.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedItemText = (String) parent.getItemAtPosition(position);
+                // If user change the default selection
+                // First item is disable and it is used for hint
+                if (position > 0) {
+                    // Notify the selected item text : selectedItemText
+
+                    mClinicId = result.get(position - 1).getDoctDeptId();
+
+                    setAppointmentGroupVisibility(View.VISIBLE);
+                    setupSelectDateRangeSpinner();
+
+
+                    Log.d("saveAppointment", "spnrClinic.setOnItemSelectedListener : " + result.get(position - 1).getDoctDeptId());
+
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+    }
+
+    private void getSlots() {
+        mProgressDialog.showDialog();
+
+        String fullUrl = "http://10.99.9.36:9000/nehrapi/appointment/getSlots";
+//        String fullUrl = API_URL_GET_DEMOGRAPHICS_INFO + "62163078" + "?source=PHR";
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, fullUrl, getJSONRequestParams()
+                , new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    if (response.getInt(API_RESPONSE_CODE) == 0) {
+                        Log.d("resp-slots", response.getJSONObject("result").toString());
+                        Gson gson = new Gson();
+                        final ApiSlotsHolder responseHolder = gson.fromJson(response.toString(), ApiSlotsHolder.class);
+
+
+                        mEstCode = spnrHospital.getSelectedItem().toString();
+                        mClinicId = spnrClinic.getSelectedItem().toString();
+
+
+                        vpContainer.setAdapter(null);
+                        final DatesViewPagerAdapter datesViewPagerAdapter =
+                                new DatesViewPagerAdapter(getChildFragmentManager(), responseHolder, mEstCode, mClinicId, mListener);
+                        vpContainer.setAdapter(datesViewPagerAdapter);
+
+
+                        final int pageCount = getPageCount(responseHolder.getResult().getSlotsArrayList());
+                        Log.d("PageCount", pageCount + "");
+
+                        ibNext.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                viewPagerNext();
+                            }
+                        });
+                        ibPrevious.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                viewPagerPrevious();
+                            }
+                        });
+
+
+                    } else {
+
+                        mProgressDialog.dismissDialog();
+                    }
+                } catch (JSONException e) {
+                    Log.d("resp-slots", e.getMessage());
+                    e.printStackTrace();
+                }
+
+                mProgressDialog.dismissDialog();
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("resp-slots", error.toString());
+                error.printStackTrace();
+                mProgressDialog.dismissDialog();
+            }
+        }) {
+            //
+            @Override
+            public Map<String, String> getHeaders() {
+                HashMap<String, String> headers = new HashMap<>();
+//                headers.put("Accept", "application/json");
+                headers.put("Content-Type", "application/json");
+//                headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessTokenString().getAccessTokenString());
+
+
+                return headers;
+            }
+
+        };
+        int socketTimeout = 30000;//30 seconds - change to what you want
+        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        jsonObjectRequest.setRetryPolicy(policy);
+
+        mQueue.add(jsonObjectRequest);
+    }
+
+    private int getPageCount(ArrayList<ApiSlotsHolder.Slot> slotsArrayList) {
+
+        int count = 0;
+        String day = "";
+        String month = "";
+        int size = slotsArrayList.size();
+        for (int i = 0; i < size; i++) {
+            ApiSlotsHolder.Slot slot = slotsArrayList.get(i);
+            if (!slot.getAppointmentDay().equals(day) && !slot.getAppointmentMonth().equals(month)) {
+                day = slot.getAppointmentDay();
+                month = slot.getAppointmentMonth();
+                count++;
+            }
+        }
+        int pageCount;
+        if (count < 5) {
+            pageCount = 1;
+        } else {
+            pageCount = (count / 5) + count % 5;
+        }
+        return pageCount;
+    }
+
+    private JSONObject getJSONRequestParams() {
+        Map<String, String> params = new HashMap<>();
+        params.put("estCode", TEST_EST_CODE);
+        params.put("clinicId", "246");
+        params.put("period", mAppointmentPeriod);
+        params.put("civilId", "62163078");
+        return new JSONObject(params);
+
+    }
+
+    private String getAppointmentPeriod() {
+
+        switch (spnrDatesRange.getSelectedItemPosition()) {
+
+            case 0:
+                return "10";
+            case 1:
+                return "15";
+            case 2:
+                return "20";
+            case 3:
+                return "25";
+            case 4:
+                return "30";
+            default:
+                return "2";
+        }
+
+//      return   spnrDatesRange.getSelectedItemPosition()+"0";
+
+    }
+
+
+    private void setAppointmentGroupVisibility(int visibility) {
+        tvAppointmentsLabel.setVisibility(visibility);
+        vAppointmentContainer.setVisibility(visibility);
+        spnrDatesRange.setVisibility(visibility);
+        vpContainer.setVisibility(visibility);
+        ibNext.setVisibility(visibility);
+        ibPrevious.setVisibility(visibility);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.GONE);
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mMediatorCallback.changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
+    }
+
+
+    public void setAppointmentListListener(AppointmentsListInterface listener) {
+        mListener = listener;
+
+    }
+}
+

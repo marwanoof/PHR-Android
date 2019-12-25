@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragments.OtherDocsDetailsFragment">
+
+    <include
+        android:id="@+id/simple_toolbar"
+        layout="@layout/toolbar_custom" />
+
+    <TextView
+        android:id="@+id/tv_docType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/space_16"
+        android:text="Procedure Name"
+        android:textSize="@dimen/text_size_16sp"
+        android:textStyle="bold|italic"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/simple_toolbar" />
+
+    <TextView
+        android:id="@+id/tv_source"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="@dimen/space_16"
+        android:paddingRight="@dimen/space_16"
+        android:paddingBottom="@dimen/space_16"
+        android:text="Source"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_docType" />
+
+    <TextView
+        android:id="@+id/tv_hospital"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="@dimen/space_16"
+        android:paddingRight="@dimen/space_16"
+        android:paddingBottom="@dimen/space_16"
+        android:text="Hospital"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_source" />
+
+    <TextView
+        android:id="@+id/tv_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="@dimen/space_16"
+        android:paddingRight="@dimen/space_16"
+        android:paddingBottom="@dimen/space_16"
+        android:text="Time"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_hospital" />
+
+    <TextView
+        android:id="@+id/tv_mediaSummary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorTimeItemGray"
+        android:padding="@dimen/space_10"
+        android:text="@string/summary"
+        android:textColor="@color/colorWhite"
+        app:layout_constraintTop_toBottomOf="@id/tv_time"></TextView>
+
+    <WebView
+        android:id="@+id/wv_report"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/space_0"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_mediaSummary" />
+
+    <TextView
+        android:id="@+id/tv_alert"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/space_0"
+        android:fontFamily="@font/roboto_regular"
+        android:text="@string/alert_no_connection"
+        android:textAlignment="center"
+        android:textColor="@color/colorTextViewFontNormal"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cv_views_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/colorLiteGray"
+    android:elevation="@dimen/space_4"
+    tools:mContext=".fragments.VitalsGraphFragment">
+
+
+    <TextView
+        android:fontFamily="@font/roboto_regular"
+        android:id="@+id/tv_title"
+        android:layout_width="@dimen/space_0"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="2dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:textColor="@color/colorLiteBlack"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/tv_row1_i1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <TextView
+        android:fontFamily="@font/roboto_regular"
+        android:id="@+id/tv_row1_i5"
+        android:layout_width="@dimen/space_64"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="2dp"
+        android:layout_marginBottom="16dp"
+        android:textAlignment="center"
+        android:textColor="@color/colorLiteBlack"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/tv_title"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <TextView
+        android:fontFamily="@font/roboto_regular"
+        android:id="@+id/tv_row2_i5"
+        android:layout_width="@dimen/space_64"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_2"
+        android:layout_marginBottom="8dp"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/tv_row1_i5"
+        app:layout_constraintStart_toStartOf="@+id/tv_row1_i5"
+        app:layout_constraintTop_toBottomOf="@+id/tv_row1_i5" />
+
+    <TextView
+        android:fontFamily="@font/roboto_regular"
+
+        android:id="@+id/tv_row1_i4"
+        android:layout_width="@dimen/space_64"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:textAlignment="center"
+        android:textColor="@color/colorLiteBlack"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_title"
+        app:layout_constraintEnd_toStartOf="@+id/tv_row1_i5"
+        app:layout_constraintTop_toTopOf="@+id/tv_title"
+        app:layout_constraintVertical_chainStyle="spread_inside" />
+
+    <TextView
+        android:fontFamily="@font/roboto_regular"
+        android:id="@+id/tv_row2_i4"
+        android:layout_width="@dimen/space_64"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_2"
+        android:layout_marginBottom="8dp"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/tv_row1_i4"
+        app:layout_constraintStart_toStartOf="@+id/tv_row1_i4"
+        app:layout_constraintTop_toBottomOf="@+id/tv_row1_i4" />
+
+
+    <TextView
+        android:fontFamily="@font/roboto_regular"
+        android:id="@+id/tv_row1_i3"
+        android:layout_width="@dimen/space_64"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:textAlignment="center"
+        android:textColor="@color/colorLiteBlack"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_title"
+        app:layout_constraintEnd_toStartOf="@+id/tv_row1_i4"
+        app:layout_constraintTop_toTopOf="@+id/tv_title"
+        app:layout_constraintVertical_chainStyle="spread_inside" />
+
+    <TextView
+        android:fontFamily="@font/roboto_regular"
+        android:id="@+id/tv_row2_i3"
+        android:layout_width="@dimen/space_64"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_2"
+        android:layout_marginBottom="8dp"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/tv_row1_i3"
+        app:layout_constraintStart_toStartOf="@+id/tv_row1_i3"
+        app:layout_constraintTop_toBottomOf="@+id/tv_row1_i3" />
+
+    <TextView
+        android:fontFamily="@font/roboto_regular"
+
+        android:id="@+id/tv_row1_i2"
+        android:layout_width="@dimen/space_64"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:textAlignment="center"
+        android:textColor="@color/colorLiteBlack"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_title"
+        app:layout_constraintEnd_toStartOf="@+id/tv_row1_i3"
+        app:layout_constraintTop_toTopOf="@+id/tv_title"
+        app:layout_constraintVertical_chainStyle="spread_inside" />
+
+    <TextView
+        android:fontFamily="@font/roboto_regular"
+        android:id="@+id/tv_row2_i2"
+        android:layout_width="@dimen/space_64"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_2"
+        android:layout_marginBottom="8dp"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/tv_row1_i2"
+        app:layout_constraintStart_toStartOf="@+id/tv_row1_i2"
+        app:layout_constraintTop_toBottomOf="@+id/tv_row1_i2" />
+
+
+    <TextView
+        android:fontFamily="@font/roboto_regular"
+        android:id="@+id/tv_row1_i1"
+        android:layout_width="@dimen/space_64"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:textAlignment="center"
+        android:textColor="@color/colorLiteBlack"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_title"
+        app:layout_constraintEnd_toStartOf="@+id/tv_row1_i2"
+        app:layout_constraintTop_toTopOf="@+id/tv_title"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <TextView
+        android:fontFamily="@font/roboto_regular"
+        android:id="@+id/tv_row2_i1"
+        android:layout_width="@dimen/space_64"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_2"
+        android:layout_marginBottom="8dp"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/tv_row1_i1"
+        app:layout_constraintStart_toStartOf="@+id/tv_row1_i1"
+        app:layout_constraintTop_toBottomOf="@+id/tv_row1_i1" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

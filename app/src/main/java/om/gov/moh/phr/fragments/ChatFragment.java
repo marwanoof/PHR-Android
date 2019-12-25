@@ -1,0 +1,186 @@
+package om.gov.moh.phr.fragments;
+
+
+import android.content.Context;
+import android.os.Bundle;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.RetryPolicy;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.HurlStack;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.google.gson.Gson;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import om.gov.moh.phr.R;
+import om.gov.moh.phr.adapters.ChatRecyclerViewAdapter;
+import om.gov.moh.phr.apimodels.ApiFriendChatListHolder;
+import om.gov.moh.phr.interfaces.MediatorInterface;
+import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
+import om.gov.moh.phr.models.MyProgressDialog;
+
+import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
+import static om.gov.moh.phr.models.MyConstants.API_NEHR_HEALTH_NET_URL;
+import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
+import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_RESULT;
+
+/**
+ * A simple {@link Fragment} subclass.
+ */
+public class ChatFragment extends Fragment {
+    private static final String API_URL_FRIEND_LIST = "http://10.99.9.36:9000/nehrapi/chat/getMessageByRecipient/";
+    private RequestQueue mQueue;
+    private MyProgressDialog mProgressDialog;
+    private Context mContext;
+    private MediatorInterface mMediatorCallback;
+    private ToolbarControllerInterface mToolbarControllerCallback;
+    private RecyclerView rvChatMessages;
+
+    public ChatFragment() {
+        // Required empty public constructor
+    }
+
+    public static ChatFragment newInstance() {
+        ChatFragment fragment = new ChatFragment();
+        Bundle args = new Bundle();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        mContext = context;
+        mMediatorCallback = (MediatorInterface) context;
+        mToolbarControllerCallback = (ToolbarControllerInterface) context;
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_chat, container, false);
+        TextView tvTitle = view.findViewById(R.id.tv_toolbar_title);
+        tvTitle.setText(getResources().getString(R.string.chat_messages_title));
+        ImageButton ibBack = view.findViewById(R.id.ib_toolbar_back_button);
+        tvTitle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mMediatorCallback.slideTo(0);
+            }
+        });
+        ibBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mMediatorCallback.slideTo(0);
+            }
+        });
+        rvChatMessages = view.findViewById(R.id.rv_chat_messages);
+        mProgressDialog = new MyProgressDialog(mContext);
+        mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
+        String url = API_URL_FRIEND_LIST + mMediatorCallback.getCurrentUser().getCivilId();
+        getChatFriendList(url);
+        return view;
+    }
+
+    private void getChatFriendList(String url) {
+        mProgressDialog.showDialog();
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null
+                , new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    if (response.getInt(API_RESPONSE_CODE) == 0) {
+                        try {
+                            Gson gson = new Gson();
+                            ApiFriendChatListHolder responseHolder = gson.fromJson(response.toString(), ApiFriendChatListHolder.class);
+                            Log.d("resp-dependants", response.getJSONArray(API_RESPONSE_RESULT).toString());
+                            setupRecyclerView(responseHolder.getmResult());
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+
+                        mProgressDialog.dismissDialog();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                mProgressDialog.dismissDialog();
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("get_friendList", error.toString());
+                error.printStackTrace();
+                mProgressDialog.dismissDialog();
+            }
+        }) {
+            //
+            @Override
+            public Map<String, String> getHeaders() {
+                HashMap<String, String> headers = new HashMap<>();
+//                headers.put("Accept", "application/json");
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
+                return headers;
+            }
+
+        };
+        int socketTimeout = 30000;//30 seconds - change to what you want
+        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        jsonObjectRequest.setRetryPolicy(policy);
+
+        mQueue.add(jsonObjectRequest);
+    }
+    private void setupRecyclerView(ArrayList<ApiFriendChatListHolder.ApiFriendListInfo> getmResult) {
+        ChatRecyclerViewAdapter mAdapter = new ChatRecyclerViewAdapter(getmResult, mContext, mMediatorCallback);
+        LinearLayoutManager layoutManager
+                = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
+        DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(rvChatMessages.getContext(),
+                layoutManager.getOrientation());
+        rvChatMessages.addItemDecoration(mDividerItemDecoration);
+        rvChatMessages.setLayoutManager(layoutManager);
+        rvChatMessages.setItemAnimator(new DefaultItemAnimator());
+        rvChatMessages.setAdapter(mAdapter);
+    }
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mMediatorCallback.changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
+        mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.GONE);
+    }
+}
