@@ -43,7 +43,8 @@ import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
 import om.gov.moh.phr.models.MyProgressDialog;
 import om.gov.moh.phr.models.NonSwipeableViewPager;
 
-import static om.gov.moh.phr.fragments.AppointmentNewFragment.TEST_EST_CODE;
+
+import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
 import static om.gov.moh.phr.models.MyConstants.PARAM_APPOINTMENTS;
 
@@ -117,7 +118,6 @@ public class AppointmentRescheduleFragment extends Fragment {
 
         TextView tvToolBarTitle = parentView.findViewById(R.id.tv_toolbar_title);
         tvToolBarTitle.setText(getString(R.string.title_reschedule));
-
         String title = mAppointments.getDescription() + mAppointments.getEstName();
         TextView tvAppointment = parentView.findViewById(R.id.tv_appointment);
         tvAppointment.setText(title);
@@ -194,7 +194,7 @@ public class AppointmentRescheduleFragment extends Fragment {
 
     private void getSlots() {
         mProgressDialog.showDialog();
-        String fullUrl = "http://10.99.9.36:9000/nehrapi/appointment/getRescheduleSlots";
+        String fullUrl = API_NEHR_URL+"appointment/getRescheduleSlots";
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, fullUrl, getJSONRequestParams()
                 , new Response.Listener<JSONObject>() {
@@ -326,7 +326,7 @@ public class AppointmentRescheduleFragment extends Fragment {
 
     private JSONObject getJSONRequestParams() {
         Map<String, String> params = new HashMap<>();
-        params.put("estCode", TEST_EST_CODE);
+        params.put("estCode", mAppointments.getEstCode());
         params.put("reservationId", mAppointments.getReservationId());
         params.put("period", mAppointmentPeriod);
         params.put("civilId", mMediatorCallback.getCurrentUser().getCivilId());

@@ -7,6 +7,7 @@ import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.util.Base64;
 import android.util.Log;
@@ -41,6 +42,7 @@ import java.util.Map;
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.apimodels.ApiOtherDocsHolder;
 import om.gov.moh.phr.apimodels.ApiProceduresReportsHolder;
+import om.gov.moh.phr.apimodels.Notification;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
 import om.gov.moh.phr.models.MyProgressDialog;
@@ -48,18 +50,19 @@ import om.gov.moh.phr.models.MyProgressDialog;
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
 import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
-import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_MESSAGE;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_RESULT;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class OtherDocsDetailsFragment extends Fragment {
+public class OtherDocsDetailsFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
     private static final String PARAM_API_DOC_ITEM_ITEM = "PARAM_API_PROCEDURE_REPORT_ITEM";
     private static final String API_DOC_INFO = API_NEHR_URL + "documentReference/id/";
     private static final String PARAM_API_PROCEDURE_REPORT_ITEM = "PARAM_API_PROCEDURE_REPORT_ITEM";
     private static final String DATA_KEY = "data";
     private MyProgressDialog mProgressDialog;
+    private static final String ARG_NOTIFICATION = "ARG_NOTIFICATION";
+    private Notification notificationObj;
     private ToolbarControllerInterface mToolbarControllerCallback;
     private MediatorInterface mMediatorCallback;
     private Context mContext;
@@ -68,6 +71,7 @@ public class OtherDocsDetailsFragment extends Fragment {
     private TextView tvAlert, tvDocType, tvTime, tvHospital, tvSource;
     private WebView wvDocView;
     private ImageButton ibHome, ibRefresh;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     public OtherDocsDetailsFragment() {
         // Required empty public constructor
@@ -81,11 +85,18 @@ public class OtherDocsDetailsFragment extends Fragment {
         return fragment;
     }
 
+    public static OtherDocsDetailsFragment newInstance(Notification notification) {
+        OtherDocsDetailsFragment fragment = new OtherDocsDetailsFragment();
+        Bundle args = new Bundle();
+        args.putSerializable(ARG_NOTIFICATION, notification);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         mContext = context;
-
         mMediatorCallback = (MediatorInterface) context;
         mToolbarControllerCallback = (ToolbarControllerInterface) context;
     }
@@ -93,9 +104,11 @@ public class OtherDocsDetailsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
+        if (getArguments().getSerializable(PARAM_API_PROCEDURE_REPORT_ITEM) != null) {
             mDocInfo = (ApiOtherDocsHolder.ApiDocInfo) getArguments().getSerializable(PARAM_API_PROCEDURE_REPORT_ITEM);
         }
+        if (getArguments().getSerializable(ARG_NOTIFICATION) != null)
+            notificationObj = (Notification) getArguments().getSerializable(ARG_NOTIFICATION);
     }
 
     @Override
@@ -115,10 +128,14 @@ public class OtherDocsDetailsFragment extends Fragment {
         ibToolbarBackButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mToolbarControllerCallback.customToolbarBackButtonClicked();
+                if (notificationObj != null)
+                    mMediatorCallback.changeFragmentTo(NotificationsFragment.newInstance(), NotificationsFragment.class.getSimpleName());
+                else
+                    mToolbarControllerCallback.customToolbarBackButtonClicked();
             }
         });
         enableHomeandRefresh(view);
+        swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
         mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
         mProgressDialog = new MyProgressDialog(mContext);
         tvAlert = view.findViewById(R.id.tv_alert);
@@ -127,18 +144,31 @@ public class OtherDocsDetailsFragment extends Fragment {
         tvHospital = view.findViewById(R.id.tv_hospital);
         tvSource = view.findViewById(R.id.tv_source);
         wvDocView = view.findViewById(R.id.wv_report);
-        tvDocType.setText(mDocInfo.getTypeD());
-        tvSource.setText(mDocInfo.getEstName());
-        tvHospital.setText(mDocInfo.getEstFullname());
-        Date date = new Date(mDocInfo.getIndexed());
-        SimpleDateFormat df2 = new SimpleDateFormat("dd /MM /yyyy");
-        String dateText = df2.format(date);
-        tvTime.setText(dateText);
-        final String fullUrl = API_DOC_INFO + mDocInfo.getDocumentRefId();
+        if (mDocInfo != null) {
+            tvDocType.setText(mDocInfo.getTitle());
+            tvSource.setText(getResources().getString(R.string.department_label) + " " + mDocInfo.getLocationName());
+            tvHospital.setText(getResources().getString(R.string.hospital_feild) + " " + mDocInfo.getEstFullname());
+            Date date = new Date(mDocInfo.getIndexed());
+            SimpleDateFormat df2 = new SimpleDateFormat("dd /MM /yyyy");
+            String dateText = df2.format(date);
+            tvTime.setText(getResources().getString(R.string.date_label) + " " + dateText);
+            final String fullUrl = API_DOC_INFO + mDocInfo.getDocumentRefId();
+            getReportDetails(fullUrl);
+        }
+        if (notificationObj != null) {
+            String providerDocsUrl = API_DOC_INFO + notificationObj.getKeyId();
+            getReportDetails(providerDocsUrl);
+        }
         ibRefresh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getReportDetails(fullUrl);
+                if (mDocInfo != null) {
+                    final String fullUrl = API_DOC_INFO + mDocInfo.getDocumentRefId();
+                    getReportDetails(fullUrl);
+                } else {
+                    String providerDocsUrl = API_DOC_INFO + notificationObj.getKeyId();
+                    getReportDetails(providerDocsUrl);
+                }
             }
         });
         ibHome.setOnClickListener(new View.OnClickListener() {
@@ -147,7 +177,21 @@ public class OtherDocsDetailsFragment extends Fragment {
                 backToHome();
             }
         });
-        getReportDetails(fullUrl);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        swipeRefreshLayout.setRefreshing(true);
+                                        if (mDocInfo != null) {
+                                            final String fullUrl = API_DOC_INFO + mDocInfo.getDocumentRefId();
+                                            getReportDetails(fullUrl);
+                                        } else {
+                                            String providerDocsUrl = API_DOC_INFO + notificationObj.getKeyId();
+                                            getReportDetails(providerDocsUrl);
+                                        }
+                                    }
+                                }
+        );
         return view;
     }
 
@@ -167,16 +211,26 @@ public class OtherDocsDetailsFragment extends Fragment {
 
     private void getReportDetails(String url) {
         mProgressDialog.showDialog();
-
+        swipeRefreshLayout.setRefreshing(true);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                try {
-                    if (response.getInt(API_RESPONSE_CODE) == 0) {
+                if (mContext != null) {
+                    try {
+                        if (response.getInt(API_RESPONSE_CODE) == 0) {
                         JSONArray array = response.getJSONArray(API_RESPONSE_RESULT);
                         JSONObject obj = array.getJSONObject(0);
                         try {
+                            if (notificationObj != null) {
+                                tvDocType.setText(obj.getString("title"));
+                                tvSource.setText(getResources().getString(R.string.department_label) + " " + obj.getString("locationName"));
+                                tvHospital.setText(getResources().getString(R.string.hospital_feild) + " " + obj.getString("estFullname"));
+                                Date date = new Date(obj.getLong("indexed"));
+                                SimpleDateFormat df2 = new SimpleDateFormat("dd /MM /yyyy");
+                                String dateText = df2.format(date);
+                                tvTime.setText(getResources().getString(R.string.date_label) + " " + dateText);
+                            }
                             byte[] data1 = Base64.decode(obj.getString(DATA_KEY), Base64.DEFAULT);
                             String text = new String(data1, "UTF-8");
                             //data == html data which you want to load
@@ -184,24 +238,28 @@ public class OtherDocsDetailsFragment extends Fragment {
                         } catch (UnsupportedEncodingException e) {
                             e.printStackTrace();
                         }
-                    } else {
-                        displayAlert(response.getString(API_RESPONSE_MESSAGE));
-                        mProgressDialog.dismissDialog();
+                        } else {
+                            displayAlert(getResources().getString(R.string.no_record_found));
+                            mProgressDialog.dismissDialog();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+
+                    mProgressDialog.dismissDialog();
+                    swipeRefreshLayout.setRefreshing(false);
                 }
-
-                mProgressDialog.dismissDialog();
-
             }
 
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("resp-demographic", error.toString());
-                error.printStackTrace();
-                mProgressDialog.dismissDialog();
+                if (mContext != null && isAdded()) {
+                    Log.d("resp-demographic", error.toString());
+                    error.printStackTrace();
+                    mProgressDialog.dismissDialog();
+                    swipeRefreshLayout.setRefreshing(false);
+                }
             }
         }) {
             //
@@ -230,5 +288,29 @@ public class OtherDocsDetailsFragment extends Fragment {
         tvSource.setVisibility(View.GONE);
         wvDocView.setVisibility(View.GONE);
         tvAlert.setText(msg);
+    }
+
+    @Override
+    public void onRefresh() {
+        if (mDocInfo != null) {
+            final String fullUrl = API_DOC_INFO + mDocInfo.getDocumentRefId();
+            getReportDetails(fullUrl);
+        } else {
+            String providerDocsUrl = API_DOC_INFO + notificationObj.getKeyId();
+            getReportDetails(providerDocsUrl);
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        if (notificationObj != null)
+            mMediatorCallback.changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.GONE);
     }
 }

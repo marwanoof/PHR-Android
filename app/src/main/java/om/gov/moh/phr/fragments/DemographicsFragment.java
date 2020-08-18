@@ -2,13 +2,14 @@ package om.gov.moh.phr.fragments;
 
 
 import android.content.Context;
-import android.content.SharedPreferences;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -27,6 +28,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 
 import org.json.JSONException;
@@ -37,21 +39,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 import om.gov.moh.phr.R;
+import om.gov.moh.phr.activities.MainActivity;
 import om.gov.moh.phr.apimodels.ApiDemographicsHolder;
 import om.gov.moh.phr.apimodels.ApiDependentsHolder;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
-import om.gov.moh.phr.models.AppCurrentUser;
 import om.gov.moh.phr.models.MyProgressDialog;
 
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
-import static om.gov.moh.phr.models.MyConstants.API_NEHR_HEALTH_NET_URL;
+import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
-import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_MESSAGE;
 import static om.gov.moh.phr.models.MyConstants.PARAM_API_DEMOGRAPHICS_ITEM;
-import static om.gov.moh.phr.models.MyConstants.PARAM_CIVIL_ID;
-import static om.gov.moh.phr.models.MyConstants.PREFS_CURRENT_USER;
-import static om.gov.moh.phr.models.MyConstants.PREFS_IS_PARENT;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -59,8 +57,8 @@ import static om.gov.moh.phr.models.MyConstants.PREFS_IS_PARENT;
  * create an instance of this fragment.
  */
 public class DemographicsFragment extends Fragment {
-    private static final String API_URL_DEPENDENT_INFO = API_NEHR_HEALTH_NET_URL + "demographics/dependent/civilId/";
-
+    private static final String API_URL_DEPENDENT_INFO = API_NEHR_URL + "demographics/dependent/civilId/";
+    private static final String DEPENDENT_CIVILID = "DependentCivilID";
     private Context mContext;
     private ApiDemographicsHolder.ApiDemographicItem mApiDemographicItem;
 
@@ -69,7 +67,7 @@ public class DemographicsFragment extends Fragment {
     private MyProgressDialog mProgressDialog;
     private ToolbarControllerInterface mToolbarControllerCallback;
     private MediatorInterface mMediatorCallback;
-
+    private TextView tvNoDependents;
     private ScrollView scrollView;
 
 
@@ -126,7 +124,8 @@ public class DemographicsFragment extends Fragment {
                 mToolbarControllerCallback.customToolbarBackButtonClicked();
             }
         });
-        setupPersonalInfo(parentView);
+        tvNoDependents = parentView.findViewById(R.id.tv_dependents_alert);
+        //setupPersonalInfo(parentView);
         LinearLayout llDependentsContainer = parentView.findViewById(R.id.ll_dependents_container);
         getDependents(container, inflater, llDependentsContainer);
 
@@ -136,7 +135,8 @@ public class DemographicsFragment extends Fragment {
         return parentView;
     }
 
-    private void setupPersonalInfo(View parentView) {
+    /*private void setupPersonalInfo(View parentView) {
+        ImageView ivProfile = parentView.findViewById(R.id.iv_avatar);
         TextView tvName = parentView.findViewById(R.id.tv_name);
         TextView tvCivilId = parentView.findViewById(R.id.tv_civil_id);
         TextView tvAge = parentView.findViewById(R.id.tv_age);
@@ -145,18 +145,70 @@ public class DemographicsFragment extends Fragment {
         TextView tvNationality = parentView.findViewById(R.id.tv_nationality);
         TextView tvNoOfDonations = parentView.findViewById(R.id.tv_blood_drop);
         TextView tvBloddGroup = parentView.findViewById(R.id.tv_blood_bag);
-
+        View G6PDView = parentView.findViewById(R.id.view3);
+        TextView tvG6PD = parentView.findViewById(R.id.tv_G6PD);
+        View chronicView = parentView.findViewById(R.id.view4);
+        ImageView ivChronic = parentView.findViewById(R.id.iv_chronic);
+        View pregnantView = parentView.findViewById(R.id.view5);
+        ImageView ivPregnant = parentView.findViewById(R.id.iv_pregnant);
         tvName.setText(mApiDemographicItem.getFullName());
-        tvCivilId.setText(mApiDemographicItem.getCivilId());
+        if (mApiDemographicItem.getAliasYn().equals("Y"))
+            tvCivilId.setText("XXXXXXXX");
+        else
+            tvCivilId.setText(mApiDemographicItem.getCivilId());
+        Glide.with(mContext).load(mApiDemographicItem.getPersonPhoto(mContext)).into(ivProfile);
         tvAge.setText(mApiDemographicItem.getNewAge());
         tvDOB.setText(mApiDemographicItem.getDob());
         tvGender.setText(mApiDemographicItem.getGenderfull());
         tvNationality.setText(mApiDemographicItem.getNationalityDesc());
         tvNoOfDonations.setText(mApiDemographicItem.getDonorCount());
         tvBloddGroup.setText(mApiDemographicItem.getBloodGroup());
-    }
+        if (mApiDemographicItem.getRecentVitalsArrayList() != null) {
+            for (int i = 0; i < mApiDemographicItem.getRecentVitalsArrayList().size(); i++) {
+                if (mApiDemographicItem.getRecentVitalsArrayList().get(i).getName().equals("G6PD")) {
+                    G6PDView.setVisibility(View.VISIBLE);
+                    tvG6PD.setVisibility(View.VISIBLE);
+                    final int finalI = i;
+                    G6PDView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Toast.makeText(mContext, mApiDemographicItem.getRecentVitalsArrayList().get(finalI).getValue(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    break;
+                }
+            }
+        }
+        if(mApiDemographicItem.getAlertsArrayList()!=null){
+            for (int i = 0; i < mApiDemographicItem.getAlertsArrayList().size(); i++) {
+                if (mApiDemographicItem.getAlertsArrayList().get(i).getCodeDescription().equals("Chronic Case DM")) {
+                    chronicView.setVisibility(View.VISIBLE);
+                    ivChronic.setVisibility(View.VISIBLE);
+                    final int finalI = i;
+                    chronicView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Toast.makeText(mContext, mApiDemographicItem.getAlertsArrayList().get(finalI).getCodeDescription(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+                if (mApiDemographicItem.getAlertsArrayList().get(i).getCodeDescription().equals("Pregnant")) {
+                    pregnantView.setVisibility(View.VISIBLE);
+                    ivPregnant.setVisibility(View.VISIBLE);
+                    final int finalI1 = i;
+                    pregnantView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Toast.makeText(mContext, mApiDemographicItem.getAlertsArrayList().get(finalI1).getCodeDescription(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }
+        }
 
-    public void getDependents(final ViewGroup container, final LayoutInflater inflater, final LinearLayout llDependentsContainer) {
+    }*/
+
+    private void getDependents(final ViewGroup container, final LayoutInflater inflater, final LinearLayout llDependentsContainer) {
         mProgressDialog.showDialog();
         String fullUrl = API_URL_DEPENDENT_INFO + mMediatorCallback.getCurrentUser().getCivilId();
 
@@ -164,32 +216,37 @@ public class DemographicsFragment extends Fragment {
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                try {
-                    if (response.getInt(API_RESPONSE_CODE) == 0) {
-                        Gson gson = new Gson();
-                        ApiDependentsHolder responseHolder = gson.fromJson(response.toString(), ApiDependentsHolder.class);
-                        Log.d("resp-dependants", response.getJSONArray("result").toString());
+                if (mContext != null && isAdded()) {
+                    try {
+                        if (response.getInt(API_RESPONSE_CODE) == 0) {
+                            Gson gson = new Gson();
+                            ApiDependentsHolder responseHolder = gson.fromJson(response.toString(), ApiDependentsHolder.class);
+                            Log.d("resp-dependants", response.getJSONArray("result").toString());
 
-                        prepareDependantsCards(responseHolder, container, inflater, llDependentsContainer);
+                            prepareDependantsCards(responseHolder, container, inflater, llDependentsContainer);
 
 
-                    } else {
-                        displayAlert(response.getString(API_RESPONSE_MESSAGE));
-                        mProgressDialog.dismissDialog();
+                        } else {
+                            tvNoDependents.setVisibility(View.VISIBLE);
+                            // displayAlert(getResources().getString(R.string.no_record_found));
+                            mProgressDialog.dismissDialog();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+
+                    mProgressDialog.dismissDialog();
+
                 }
-
-                mProgressDialog.dismissDialog();
-
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("resp-demographic", error.toString());
-                error.printStackTrace();
-                mProgressDialog.dismissDialog();
+                if (mContext != null && isAdded()) {
+                    Log.d("resp-demographic", error.toString());
+                    error.printStackTrace();
+                    mProgressDialog.dismissDialog();
+                }
             }
         }) {
             //
@@ -225,6 +282,7 @@ public class DemographicsFragment extends Fragment {
             }
         }
     }
+
 
     /**
      * this function will add programmatically dependent card to dependants container
@@ -262,19 +320,10 @@ public class DemographicsFragment extends Fragment {
     }
 
     private void updateCurrentUser(String civilId) {
-        SharedPreferences.Editor editor;
-        boolean isParent = mMediatorCallback.getAccessToken().getAccessCivilId().equalsIgnoreCase(civilId);
 
-        SharedPreferences sharedPrefCurrentUser = mContext.getSharedPreferences(PREFS_CURRENT_USER, Context.MODE_PRIVATE);
-        editor = sharedPrefCurrentUser.edit();
-        editor.putString(PARAM_CIVIL_ID, civilId);
-        editor.putBoolean(PREFS_IS_PARENT, isParent);
-        editor.apply();
-
-
-        AppCurrentUser appCurrentUser = AppCurrentUser.getInstance();
-        appCurrentUser.setIsParent(isParent);
-        appCurrentUser.setCivilId(civilId);
+        Intent intent = new Intent(mContext, MainActivity.class);
+        intent.putExtra(DEPENDENT_CIVILID, civilId);
+        startActivity(intent);
     }
 
 
@@ -305,11 +354,11 @@ public class DemographicsFragment extends Fragment {
         instituteCard.setBackground(ContextCompat.getDrawable(mContext, cardShape));
 
         TextView tvDName = instituteCard.findViewById(R.id.tv_dependant_name);
-        tvDName.setText(patients.getEstName());
+        tvDName.setText(patients.getEstName() + "\n" + patients.getEstPatientId());
         instituteCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(mContext, patients.getEstName() + "/" + patients.getEstPatientId() + "/" + patients.getIsPending(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, patients.getEstName() + "/" + patients.getEstPatientId(), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -320,37 +369,6 @@ public class DemographicsFragment extends Fragment {
 
         View divider = inflater.inflate(R.layout.divider, container, false);
         llInstitutesContainer.addView(divider);
-    }
-
-    @NonNull
-    private ArrayList<ApiDependentsHolder.Dependent> getDependentsArrayList() {
-        ArrayList<ApiDependentsHolder.Dependent> dependentsArrayList = new ArrayList<>();
-        ApiDependentsHolder.Dependent dependent;
-
-        dependent = new ApiDependentsHolder().new Dependent();
-        dependent.setDependentCivilId("11111");
-        dependent.setDependentName("Ahmed");
-        dependent.setDependentCivilId("Son");
-        dependentsArrayList.add(dependent);
-
-        dependent = new ApiDependentsHolder().new Dependent();
-        dependent.setDependentCivilId("22222");
-        dependent.setDependentName("Said");
-        dependent.setDependentCivilId("Son");
-        dependentsArrayList.add(dependent);
-
-        dependent = new ApiDependentsHolder().new Dependent();
-        dependent.setDependentCivilId("33333");
-        dependent.setDependentName("Sara");
-        dependent.setDependentCivilId("Daughter");
-        dependentsArrayList.add(dependent);
-
-        dependent = new ApiDependentsHolder().new Dependent();
-        dependent.setDependentCivilId("44444");
-        dependent.setDependentName("Muna");
-        dependent.setDependentCivilId("Daughter");
-        dependentsArrayList.add(dependent);
-        return dependentsArrayList;
     }
 
     private void displayAlert(String msg) {

@@ -11,24 +11,23 @@ import om.gov.moh.phr.fragments.AppointmentsListFragment;
 import om.gov.moh.phr.fragments.ChatFragment;
 import om.gov.moh.phr.fragments.HomeFragment;
 import om.gov.moh.phr.fragments.NotificationsFragment;
-import om.gov.moh.phr.fragments.VitalInfoFragment;
 
 public class HomePagerAdapter extends FragmentPagerAdapter {
-    private String[] mFragmentTitles = new String[4];
-    private Fragment[] mFragmentsArray = new Fragment[4];
+    private String[] mFragmentTitles = new String[1];
+    private Fragment[] mFragmentsArray = new Fragment[1];
 
     public HomePagerAdapter(FragmentManager fm, Context context) {
         super(fm);
         mFragmentTitles[0] = (context.getString(R.string.title_home));//val : 1
-        mFragmentTitles[1] = (context.getString(R.string.title_appointments));//val : 2
-        mFragmentTitles[2] = (context.getString(R.string.title_notification));//val : 3
-        mFragmentTitles[3] = (context.getString(R.string.title_chat));//val : 4
+        //mFragmentTitles[1] = (context.getString(R.string.title_appointments));//val : 2
+        //mFragmentTitles[2] = (context.getString(R.string.title_notification));//val : 3
+        //mFragmentTitles[3] = (context.getString(R.string.title_chat));//val : 4
 
 
         mFragmentsArray[0] = new HomeFragment().newInstance();//val : 1
-        mFragmentsArray[1] = new AppointmentsListFragment().newInstance();//val : 2
-        mFragmentsArray[2] = new NotificationsFragment().newInstance();//val : 3
-        mFragmentsArray[3] = new ChatFragment().newInstance();//val : 4
+        //mFragmentsArray[1] = new AppointmentsListFragment().newInstance();//val : 2
+        //mFragmentsArray[2] = new NotificationsFragment().newInstance();//val : 3
+        //mFragmentsArray[3] = new ChatFragment().newInstance();//val : 4
 
 
     }

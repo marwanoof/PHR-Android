@@ -80,7 +80,33 @@ public class ApiAppointmentsListHolder {
         }
     }
 
-    public class Referrals {
+    public class Referrals implements Serializable {
+        @SerializedName("referralBy")
+        private String referralBy;
 
+        @SerializedName("sendDate")
+        private long sendDate;
+
+        @SerializedName("refInstitute")
+        private String refInstitute;
+
+        public String getReferralBy() {
+            return referralBy;
+        }
+
+        public long getSendDate() {
+            return sendDate;
+        }
+
+        public String getRefInstitute() {
+            return refInstitute;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        @SerializedName("description")
+        private String description;
     }
 }

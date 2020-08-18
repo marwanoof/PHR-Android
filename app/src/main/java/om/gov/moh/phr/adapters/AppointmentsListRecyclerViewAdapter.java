@@ -1,16 +1,20 @@
 package om.gov.moh.phr.adapters;
 
 import android.content.Context;
+import android.os.IBinder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.apimodels.ApiAppointmentsListHolder;
 import om.gov.moh.phr.interfaces.AdapterToFragmentConnectorInterface;
@@ -25,8 +29,7 @@ public class AppointmentsListRecyclerViewAdapter extends
     private ArrayList<ApiAppointmentsListHolder.Appointments> mItemsArrayList = new ArrayList<>();
     private Context mContext;
     private AdapterToFragmentConnectorInterface mCallback;
-
-    //the constructor of the LastRecordsRecyclerViewAdapter
+   //the constructor of the LastRecordsRecyclerViewAdapter
     public AppointmentsListRecyclerViewAdapter(AdapterToFragmentConnectorInterface fragment, Context context) {
         this.mContext = context;
         mCallback = fragment;
@@ -48,7 +51,20 @@ public class AppointmentsListRecyclerViewAdapter extends
         String title = result.getDescription() + result.getEstName();
         holder.tvTitle.setText(title);
 
-
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(holder.btnReschedule.getVisibility()==View.VISIBLE){
+                    holder.ibArrow.setVisibility(View.VISIBLE);
+                    holder.btnReschedule.setVisibility(View.GONE);
+                    holder.btnDelete.setVisibility(View.GONE);
+                }else {
+                    holder.ibArrow.setVisibility(View.GONE);
+                    holder.btnReschedule.setVisibility(View.VISIBLE);
+                    holder.btnDelete.setVisibility(View.VISIBLE);
+                }
+            }
+        });
         holder.btnReschedule.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -69,6 +85,7 @@ public class AppointmentsListRecyclerViewAdapter extends
                 mCallback.onMyListItemClicked(result, "");
             }
         });*/
+
     }
 
 
@@ -93,13 +110,16 @@ public class AppointmentsListRecyclerViewAdapter extends
         private Button btnReschedule;
         private Button btnDelete;
         private TextView tvTitle;
-
+        private ImageButton ibArrow;
 
         public MyViewHolder(View view) {
             super(view);
             btnReschedule = itemView.findViewById(R.id.btn_reschedule);
             btnDelete = itemView.findViewById(R.id.btn_delete);
             tvTitle = itemView.findViewById(R.id.tv_title);
+            ibArrow = itemView.findViewById(R.id.imageButton);
+            btnReschedule.setVisibility(View.GONE);
+            btnDelete.setVisibility(View.GONE);
         }
     }
 }

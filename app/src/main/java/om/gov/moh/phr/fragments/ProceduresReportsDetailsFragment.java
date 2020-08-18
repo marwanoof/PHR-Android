@@ -2,8 +2,6 @@ package om.gov.moh.phr.fragments;
 
 
 import android.content.Context;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -12,14 +10,14 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import android.text.Html;
+
 import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -38,12 +36,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -53,7 +47,6 @@ import java.util.Map;
 
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.adapters.ProceduresReportsRecyclerView;
-import om.gov.moh.phr.apimodels.ApiLabOrdersListHolder;
 import om.gov.moh.phr.apimodels.ApiProceduresReportsHolder;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
@@ -62,13 +55,12 @@ import om.gov.moh.phr.models.MyProgressDialog;
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
 import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
-import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_MESSAGE;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_RESULT;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ProceduresReportsDetailsFragment extends Fragment {
+public class ProceduresReportsDetailsFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
     private static final String API_PROCEDURES_REPORTS_WEBVIEW = API_NEHR_URL + "diagnosticReport/report/";
     private static final String API_PROCEDURES_REPORTS_RECYCLERVIEW = API_NEHR_URL + "procedure/nurseNotes/";
     private static final String API_PROCEDURES_REPORTS_TEXT = API_NEHR_URL + "procedure/notes/";
@@ -86,8 +78,10 @@ public class ProceduresReportsDetailsFragment extends Fragment {
     private TextView tvAlert, tvProcedureName, tvTime, tvHospital, tvSummary, tvReport;
     private WebView wvReportPic;
     private boolean isWebView = false;
+    private boolean isNotes = false;
     private ImageButton ibHome, ibRefresh;
     private boolean isRAD;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     public ProceduresReportsDetailsFragment() {
         // Required empty public constructor
@@ -149,6 +143,7 @@ public class ProceduresReportsDetailsFragment extends Fragment {
             }
         });
         enableHomeandRefresh(view);
+        swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
         rvRportDetails = view.findViewById(R.id.rv_reportDetails);
         mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
         mProgressDialog = new MyProgressDialog(mContext);
@@ -159,6 +154,15 @@ public class ProceduresReportsDetailsFragment extends Fragment {
         wvReportPic = view.findViewById(R.id.wv_report);
         tvSummary = view.findViewById(R.id.tv_mediaSummary);
         tvReport = view.findViewById(R.id.tv_report);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        swipeRefreshLayout.setRefreshing(true);
+                                        setupPage();
+                                    }
+                                }
+        );
         setupPage();
         ibRefresh.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -192,11 +196,11 @@ public class ProceduresReportsDetailsFragment extends Fragment {
     private void setupPage() {
         if (isRAD) {
             tvProcedureName.setText(mProcedureReport.getProcName());
-            tvHospital.setText(mProcedureReport.getEstName());
+            tvHospital.setText(getResources().getString(R.string.hospital_feild) + " " + mProcedureReport.getEstFullname());
             Date date = new Date(mProcedureReport.getProcedureDoneDate());
             SimpleDateFormat df2 = new SimpleDateFormat("dd /MM /yyyy - HH:mm:ss", Locale.US);
             String dateText = df2.format(date);
-            tvTime.setText(dateText);
+            tvTime.setText(getResources().getString(R.string.title_date_time) + ": " + dateText);
             if (mProcedureReport.getReportId() != null) {
                 isWebView = true;
                 String fullUrl = API_PROCEDURES_REPORTS_WEBVIEW + mProcedureReport.getReportId();
@@ -208,11 +212,11 @@ public class ProceduresReportsDetailsFragment extends Fragment {
             }
         } else {
             tvProcedureName.setText(mProcedureReport.getName());
-            tvHospital.setText(mProcedureReport.getEstName());
+            tvHospital.setText(getResources().getString(R.string.hospital_feild) + " " + mProcedureReport.getEstFullname());
             Date date = new Date(mProcedureReport.getStartTime());
             SimpleDateFormat df2 = new SimpleDateFormat("dd /MM /yyyy - HH:mm:ss", Locale.US);
             String dateText = df2.format(date);
-            tvTime.setText(dateText);
+            tvTime.setText(getResources().getString(R.string.title_date_time) + ": " + dateText);
             if (mProcedureReport.getName().equals("ECG")) {
                 isWebView = true;
                 try {
@@ -225,6 +229,7 @@ public class ProceduresReportsDetailsFragment extends Fragment {
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
+                swipeRefreshLayout.setRefreshing(false);
             } else if (mProcedureReport.getProfileCode() == 101) {
                 isWebView = true;
                 String fullUrl = API_PROCEDURES_REPORTS_WEBVIEW + mProcedureReport.getReportId();
@@ -235,71 +240,26 @@ public class ProceduresReportsDetailsFragment extends Fragment {
                 wvReportPic.setVisibility(View.GONE);
                 tvSummary.setVisibility(View.GONE);
                 rvRportDetails.setVisibility(View.VISIBLE);
-                String fullUrl = API_PROCEDURES_REPORTS_RECYCLERVIEW + mMediatorCallback.getCurrentUser().getCivilId();
+                String fullUrl = API_PROCEDURES_REPORTS_RECYCLERVIEW + mProcedureReport.getPatientId();
                 getReportDetails(fullUrl);
             } else {
                 isWebView = false;
+                tvHospital.setVisibility(View.GONE);
+                tvTime.setVisibility(View.GONE);
                 wvReportPic.setVisibility(View.GONE);
-                tvReport.setVisibility(View.VISIBLE);
-                getReportText();
+                tvSummary.setVisibility(View.GONE);
+                wvReportPic.setVisibility(View.GONE);
+                rvRportDetails.setVisibility(View.VISIBLE);
+                isNotes = true;
+                String url = API_PROCEDURES_REPORTS_TEXT + mProcedureReport.getProcedureId();
+                getReportDetails(url);
             }
         }
     }
 
-    private void getReportText() {
-        mProgressDialog.showDialog();
-        String url = API_PROCEDURES_REPORTS_TEXT + mProcedureReport.getProcedureId();
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null
-                , new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                try {
-                    if (response.getInt(API_RESPONSE_CODE) == 0) {
-                        JSONArray array = response.getJSONArray(API_RESPONSE_RESULT);
-                        JSONObject obj = array.getJSONObject(0);
-                        tvReport.setText(obj.getString("text"));
-
-                    } else {
-                        displayAlert(response.getString(API_RESPONSE_MESSAGE));
-                        mProgressDialog.dismissDialog();
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-                mProgressDialog.dismissDialog();
-
-            }
-
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d("resp-demographic", error.toString());
-                error.printStackTrace();
-                mProgressDialog.dismissDialog();
-            }
-        }) {
-            //
-            @Override
-            public Map<String, String> getHeaders() {
-                HashMap<String, String> headers = new HashMap<>();
-//                headers.put("Accept", "application/json");
-                headers.put("Content-Type", "application/json");
-                headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
-                return headers;
-            }
-
-        };
-        int socketTimeout = 30000;//30 seconds - change to what you want
-        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
-        jsonObjectRequest.setRetryPolicy(policy);
-
-        mQueue.add(jsonObjectRequest);
-    }
-
     private void getReportDetails(String url) {
         mProgressDialog.showDialog();
-
+        swipeRefreshLayout.setRefreshing(true);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null
                 , new Response.Listener<JSONObject>() {
             @Override
@@ -319,17 +279,23 @@ public class ProceduresReportsDetailsFragment extends Fragment {
                             }
                         } else {
                             JSONArray jsonElements = response.getJSONArray(API_RESPONSE_RESULT);
-                            ArrayList<String> reportsArrayList = new ArrayList<>();
+                            ArrayList<ReportData> reportsArrayList = new ArrayList<>();
                             for (int i = 0; i < jsonElements.length(); i++) {
                                 JSONObject jsonObject = jsonElements.getJSONObject(i);
                                 String ReportText = jsonObject.getString(TEXT_KEY);
-                                reportsArrayList.add(ReportText);
+                                ReportData reportData = new ReportData();
+                                reportData.setReportText(ReportText);
+                                if (!isNotes) {
+                                    long ReportTime = jsonObject.getLong("time");
+                                    reportData.setReportTime(ReportTime);
+                                }
+                                reportsArrayList.add(reportData);
                             }
                             setupRecyclerView(reportsArrayList);
                         }
 
                     } else {
-                        displayAlert(response.getString(API_RESPONSE_MESSAGE));
+                        displayAlert(getResources().getString(R.string.no_record_found));
                         mProgressDialog.dismissDialog();
                     }
                 } catch (JSONException e) {
@@ -337,7 +303,7 @@ public class ProceduresReportsDetailsFragment extends Fragment {
                 }
 
                 mProgressDialog.dismissDialog();
-
+                swipeRefreshLayout.setRefreshing(false);
             }
 
         }, new Response.ErrorListener() {
@@ -346,6 +312,7 @@ public class ProceduresReportsDetailsFragment extends Fragment {
                 Log.d("resp-demographic", error.toString());
                 error.printStackTrace();
                 mProgressDialog.dismissDialog();
+                swipeRefreshLayout.setRefreshing(false);
             }
         }) {
             //
@@ -377,7 +344,7 @@ public class ProceduresReportsDetailsFragment extends Fragment {
         tvAlert.setText(msg);
     }
 
-    private void setupRecyclerView(ArrayList<String> reportsArrayList) {
+    private void setupRecyclerView(ArrayList<ReportData> reportsArrayList) {
         ProceduresReportsRecyclerView mAdapter =
                 new ProceduresReportsRecyclerView(reportsArrayList, mContext);
         LinearLayoutManager layoutManager
@@ -390,5 +357,29 @@ public class ProceduresReportsDetailsFragment extends Fragment {
         rvRportDetails.setAdapter(mAdapter);
     }
 
+    @Override
+    public void onRefresh() {
+        setupPage();
+    }
 
+    public class ReportData {
+        private String reportText;
+        private Long reportTime;
+
+        public String getReportText() {
+            return reportText;
+        }
+
+        private void setReportText(String reportText) {
+            this.reportText = reportText;
+        }
+
+        public Long getReportTime() {
+            return reportTime;
+        }
+
+        private void setReportTime(Long reportTime) {
+            this.reportTime = reportTime;
+        }
+    }
 }

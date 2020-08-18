@@ -1,144 +1,221 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/swipe_refresh_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorBackground"
     tools:context=".fragments.VitalInfoFragment">
 
-    <include
-        android:id="@+id/include"
-        layout="@layout/toolbar_custom"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_height="wrap_content">
 
-    <ScrollView
-        android:id="@+id/scroll_view"
-        android:layout_width="@dimen/space_0"
-        android:layout_height="@dimen/space_0"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/include">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <include
+            android:id="@+id/include"
+            layout="@layout/toolbar_simple"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-            <LinearLayout
-                android:id="@+id/ll_allergy"
+        <ScrollView
+            android:id="@+id/scroll_view"
+            android:layout_width="@dimen/space_0"
+            android:layout_height="@dimen/space_0"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/include">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/colorRed"
-                android:orientation="horizontal"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                android:paddingBottom="10dp">
 
-                <ImageView
-                    android:id="@+id/iv_allergy"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:id="@+id/ll_allergy"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="@dimen/space_10"
-                    android:src="@drawable/ic_allergy" />
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
 
-                <TextView
-                    android:id="@+id/tv_allergy"
-                    android:layout_width="wrap_content"
+                    <TextView
+                        android:id="@+id/tv_allergy"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginEnd="@dimen/space_16"
+                        android:layout_weight="2"
+                        android:text="@string/title_allergy"
+                        android:textAllCaps="true"
+                        android:textColor="@color/colorSecendary"
+                        android:textSize="@dimen/text_size_16sp" />
+
+                    <ImageButton
+                        android:id="@+id/btn_allergy_expand"
+                        android:layout_width="15dp"
+                        android:layout_height="15dp"
+                        android:layout_weight="0"
+                        android:background="#00FFFFFF"
+                        android:scaleType="fitEnd"
+                        android:src="@drawable/ic_arrow_down" />
+                </LinearLayout>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardView_allergy"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginEnd="@dimen/space_16"
-                    android:text="@string/title_allergy"
-                    android:textColor="@color/colorWhite"
-                    android:textSize="@dimen/text_size_16sp" />
-            </LinearLayout>
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="20dp"
+                    app:cardCornerRadius="10dp"
+                    app:cardElevation="10dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/ll_allergy">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_allergy_recycler_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/ll_allergy" />
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_allergy_recycler_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="8dp">
 
-            <LinearLayout
-                android:id="@+id/ll_history"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/colorDarkPeach"
-                android:orientation="horizontal"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/rv_allergy_recycler_view">
+                    </androidx.recyclerview.widget.RecyclerView>
+                </androidx.cardview.widget.CardView>
 
-                <ImageView
-                    android:id="@+id/iv_history"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:id="@+id/ll_history"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="@dimen/space_10"
-                    android:src="@drawable/ic_history" />
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginEnd="20dp"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/cardView_allergy">
 
-                <TextView
-                    android:id="@+id/tv_history"
-                    android:layout_width="wrap_content"
+                    <TextView
+                        android:id="@+id/tv_history"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginEnd="@dimen/space_16"
+                        android:layout_weight="2"
+                        android:text="@string/title_history"
+                        android:textAllCaps="true"
+                        android:textColor="@color/colorSecendary"
+                        android:textSize="@dimen/text_size_16sp" />
+
+                    <ImageButton
+                        android:id="@+id/btn_medicalhistory_expand"
+                        android:layout_width="15dp"
+                        android:layout_height="15dp"
+                        android:layout_weight="0"
+                        android:background="#00FFFFFF"
+                        android:scaleType="fitEnd"
+                        android:src="@drawable/ic_arrow_down" />
+                </LinearLayout>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardView_medical"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginEnd="@dimen/space_16"
-                    android:text="@string/title_history"
-                    android:textColor="@color/colorWhite"
-                    android:textSize="@dimen/text_size_16sp" />
-            </LinearLayout>
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="20dp"
+                    app:cardCornerRadius="10dp"
+                    app:cardElevation="10dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/ll_history">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_history_recycler_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/ll_history" />
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_history_recycler_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="8dp" />
+                </androidx.cardview.widget.CardView>
 
-            <LinearLayout
-                android:id="@+id/ll_problem"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/colorBlue"
-                android:orientation="horizontal"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/rv_history_recycler_view">
-
-                <TextView
-                    android:id="@+id/tv_problem"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:id="@+id/ll_problem"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="@dimen/space_4"
-                    android:layout_marginEnd="@dimen/space_16"
-                    android:padding="@dimen/space_10"
-                    android:text="@string/title_problem"
-                    android:textColor="@color/colorWhite"
-                    android:textSize="@dimen/text_size_16sp" />
-            </LinearLayout>
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginEnd="20dp"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/cardView_medical">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_problem_recycler_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/ll_problem" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </ScrollView>
+                    <TextView
+                        android:id="@+id/tv_problem"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginEnd="@dimen/space_16"
+                        android:layout_weight="2"
+                        android:text="@string/title_problem"
+                        android:textAllCaps="true"
+                        android:textColor="@color/colorSecendary"
+                        android:textSize="@dimen/text_size_16sp" />
 
-    <TextView
-        android:id="@+id/tv_alert"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/space_32"
-        android:fontFamily="@font/roboto_regular"
-        android:text="@string/alert_no_connection"
-        android:textAlignment="center"
-        android:textColor="@color/colorTextViewFontNormal"
-        android:textStyle="bold"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/scroll_view" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+                    <ImageButton
+                        android:id="@+id/btn_final_expand"
+                        android:layout_width="15dp"
+                        android:layout_height="15dp"
+                        android:layout_weight="0"
+                        android:background="#00FFFFFF"
+                        android:scaleType="fitEnd"
+                        android:src="@drawable/ic_arrow_down" />
+                </LinearLayout>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardView_final"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginBottom="20dp"
+                    app:cardCornerRadius="10dp"
+                    app:cardElevation="10dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/ll_problem">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_problem_recycler_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="8dp" />
+                </androidx.cardview.widget.CardView>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </ScrollView>
+
+        <TextView
+            android:id="@+id/tv_alert"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_32"
+            android:fontFamily="@font/roboto_regular"
+            android:text="@string/alert_no_connection"
+            android:textAlignment="center"
+            android:textColor="@color/colorTextViewFontNormal"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/scroll_view" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

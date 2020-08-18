@@ -1,10 +1,10 @@
 <resources>
-    <string name="app_name">PHR</string>
-    <string name="title_oman">Oman</string>
+    <string name="app_name">Afiyati</string>
+    <string name="title_phr">[ Personal Health Record ]</string>
     <string name="title_enter_your_civil_id">Enter Civil ID</string>
     <string name="title_get_otp">Get OTP</string>
     <string name="title_enter_otp">Enter OTP</string>
-    <string name="alert_empty_field">Please this field can not be empty! </string>
+    <string name="alert_empty_field">This field can not be empty! </string>
     <string name="title_login">Login</string>
 
     <string name="title_terms">    </string>
@@ -13,8 +13,8 @@
     <string name="title_accept">Accept</string>
     <string name="title_decline">Decline</string>
     <string name="title_procedures_reports">Procedures Reports</string>
-    <string name="title_vital_info">Vital Info</string>
-    <string name="title_body_measurements">Body Measurements</string>
+    <string name="title_vital_info">Medical History</string>
+    <string name="title_body_measurements">Vital Signs</string>
     <string name="title_health_records">Health Records</string>
     <string name="title_lab_results">Lab Results</string>
     <string name="title_medication">Medication</string>
@@ -36,7 +36,7 @@
     <string name="title_institute_search">Institute name</string>
     <string name="title_demographic">Demographic</string>
     <string name="title_institutes">Institutes</string>
-    <string name="title_other_document">Documents</string>
+    <string name="title_other_document">Other Documents</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="title_home">Home</string>
@@ -53,13 +53,13 @@
     <string name="img_desc_pagination_icon">Pagination icon</string>
 
 
-    <string name="title_prev_1">PREV 1</string>
-    <string name="title_prev_2">PREV 2</string>
+    <string name="title_prev_1">Prev 1</string>
+    <string name="title_prev_2">Prev 2</string>
     <string name="title_recent">Recent</string>
     <string name="title_vital_signs">Vital Signs</string>
 
-    <string name="title_prev_4">PREV 4</string>
-    <string name="title_prev_3">PREV 3</string>
+    <string name="title_prev_4">Prev 4</string>
+    <string name="title_prev_3">Prev 3</string>
     <string name="title_appointments_date_and_time">Appointments Date and Time</string>
     <string name="alert_not_available">Not Available</string>
     <string name="title_select_department">Select Department</string>
@@ -91,15 +91,15 @@
     <string name="title_date_time">Date/Time</string>
     <string name="title_range">Range</string>
     <string name="title_unit">Unit</string>
-    <string name="title_value_body_msmt">name</string>
+    <string name="title_value_body_msmt">Name</string>
     <string name="title_value">Value</string>
     <string name="title_component">Component</string>
     <string name="title_media">Media</string>
     <string name="alert_dont_show_again">Do not show again</string>
     <string name="title_all">All</string>
     <string name="title_chat">Chat</string>
-    <string name="title_history">History</string>
-    <string name="title_problem">cc: Problems</string>
+    <string name="title_history">Medical History</string>
+    <string name="title_problem">Final Diagnosis</string>
     <string name="no_allergy_msg">No Allergy.</string>
     <string name="no_history_msg">No History.</string>
     <string name="no_problem_msg">No Problems.</string>
@@ -126,15 +126,78 @@
     <string name="enter_reference_msg">Please Enter the Reference</string>
     <string name="enter_remark_msg">Please Enter the Remarks</string>
     <string name="select_file_msg">Please Select a File to upload !</string>
-    <string name="hrd_imp">IMP</string>
+    <string name="hrd_imp">NOTE</string>
     <string name="hrd_med">MED</string>
     <string name="hrd_lab">LAB</string>
     <string name="hrd_rad">RAD</string>
     <string name="hrd_proc">PROC</string>
-    <string name="enter_msg_chat">Enter message</string>
+    <string name="enter_msg_chat">Type something …</string>
     <string name="send_chat">SEND</string>
     <string name="chat_messages_title">Chat Messages</string>
     <string name="enter_msg_to_send">Enter a message to send</string>
     <string name="health_records_result_found">results found in</string>
     <string name="results_found">results found!</string>
+
+
+    <string name="health_education">Health Education</string>
+    <string name="find_pharmacy">Find Pharmacy</string>
+    <string name="ask_doctor">Ask Doctor</string>
+    <string name="forms">Forms</string>
+    <string name="heath_facilities">Heath Facilities</string>
+    <string name="no_notification">No Notification.</string>
+    <string name="cancel_done_msg">Cancellation Done</string>
+    <string name="upload">Upload</string>
+    <string name="too_large_file">Too Large File !</string>
+    <string name="upload_an_image">Upload an Image</string>
+    <string name="reference">Reference</string>
+    <string name="remark">Remark</string>
+    <string name="file_name">File Name</string>
+    <string name="refresh_msg">refreshed</string>
+    <string name="confirm_logout_msg">Are you sure you want to logout?</string>
+    <string name="success_upload_msg">File Uploaded Successfully.</string>
+    <string name="success_publish_msg">File Published Successfully.</string>
+    <string name="success_delete_msg">File Deleted Successfully.</string>
+    <string name="success_notification_delete_msg">Notification Deleted Successfully.</string>
+    <string name="success_unpublish_msg">File UnPublished Successfully.</string>
+    <string name="after_10_days">After 10 days</string>
+    <string name="after_15_days">After 15 days</string>
+    <string name="after_20_days">After 20 days</string>
+    <string name="after_25_days">After 25 days</string>
+    <string name="after_30_days">After 30 days</string>
+    <string name="english">English</string>
+    <string name="arabic">العربية</string>
+    <string name="no_record_found">No Record Found.</string>
+    <string name="active">Active</string>
+    <string name="phr_feedback">PHR Feedback</string>
+    <string name="bmi_calculator">BMI Calculator</string>
+    <string name="edd_calculator">EDD Calculator</string>
+    <string name="submit">Submit</string>
+    <string name="enter_your_email">Enter Your Email</string>
+    <string name="enter_your_mobile_no">Enter Your Mobile No</string>
+    <string name="feedback_saved_msg">Thank you for your Feedback.</string>
+    <string name="answer_all_questions_msg">Please Answer All Questions ..</string>
+    <string name="at">at</string>
+    <string name="not_given_msg">Not yet given.</string>
+    <string name="given_msg">Given On</string>
+    <string name="delete">Delete</string>
+    <string name="delete_notification_msg">Are you sure that you want to delete this notification?</string>
+    <string name="invalid_email">Your Email Id is Invalid.</string>
+    <string name="invalid_phoneNo">Your Mobile Number is Invalid.</string>
+    <string name="select_time_slot">Select Time slot</string>
+    <string name="beta">BETA</string>
+    <string name="no_dependents_record_found">No dependents Record Found.</string>
+    <string name="department_label">Department:</string>
+    <string name="date_label">Date:</string>
+    <string name="no_appointment_msg">No Appointment Scheduled.</string>
+    <string name="no_refferals">No Referrals</string>
+    <string name="patients_rights">Patients Rights</string>
+    <string name="publish">Publish</string>
+    <string name="about_the_app">About The App</string>
+    <string name="about_app_info">Afiyati App is developed by Ministry of Health - DGIT.  This BETA version of the app allows all users with a valid civil ID and registered Oman mobile number, to view their own medical record and information.</string>
+    <string name="ok">OK</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_organ">Organ Donation</string>
+    <string name="sub_title_phr">your health record wallet</string>
 </resources>

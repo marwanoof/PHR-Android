@@ -10,7 +10,7 @@
     <View
         android:id="@+id/v_container"
         android:layout_width="@dimen/space_64"
-        android:layout_height="@dimen/space_32"
+        android:layout_height="25dp"
         android:background="@drawable/shape_rect_year"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -23,7 +23,7 @@
         android:layout_height="wrap_content"
         android:fontFamily="@font/roboto_regular"
         android:text="2019"
-        android:textColor="@color/colorWhite"
+        android:textColor="#000000"
         app:layout_constraintBottom_toBottomOf="@+id/v_container"
         app:layout_constraintEnd_toEndOf="@+id/v_container"
         app:layout_constraintStart_toStartOf="@+id/v_container"

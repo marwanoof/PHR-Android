@@ -34,6 +34,10 @@ public class ApiProceduresReportsHolder implements Serializable {
     @SerializedName("procedureDoneDate")
     private long procedureDoneDate;
 
+    public void setProcedureId(String procedureId) {
+        this.procedureId = procedureId;
+    }
+
     public String getReportId() {
         return reportId;
     }
@@ -54,8 +58,22 @@ public class ApiProceduresReportsHolder implements Serializable {
     @SerializedName("estName")
     private String estName;
 
+    @SerializedName("estFullname")
+    private String estFullname;
+
+    @SerializedName("patientId")
+    private String patientId;
+
     @SerializedName("profileCode")
     private long profileCode;
+
+    public String getPatientId() {
+        return patientId;
+    }
+
+    public void setPatientId(String patientId) {
+        this.patientId = patientId;
+    }
 
     @SerializedName("procedureId")
     private String procedureId;
@@ -69,6 +87,14 @@ public class ApiProceduresReportsHolder implements Serializable {
 
     @SerializedName("name")
     private String name;
+
+    public String getEstFullname() {
+        return estFullname;
+    }
+
+    public void setEstFullname(String estFullname) {
+        this.estFullname = estFullname;
+    }
 
     @SerializedName("procName")
     private String procName;

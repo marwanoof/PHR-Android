@@ -4,9 +4,11 @@ package om.gov.moh.phr.fragments;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -19,6 +21,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -60,7 +63,7 @@ import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_MESSAGE;
  * Use the {@link VitalsGraphFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class VitalsGraphFragment extends Fragment implements AdapterToFragmentConnectorInterface {
+public class VitalsGraphFragment extends Fragment implements AdapterToFragmentConnectorInterface, SwipeRefreshLayout.OnRefreshListener {
     //    public static final String API_URL = "https://5.162.223.156/nehrapi/";
     private static final String API_URL_GET_VITAL_SIGNS_PIVOT_LIST = API_NEHR_URL + "vitalSigns/pivot/";
     private static final String API_URL_GET_VITAL_SIGNS_CHART = API_NEHR_URL + "chart/vitalChart/";
@@ -75,7 +78,8 @@ public class VitalsGraphFragment extends Fragment implements AdapterToFragmentCo
     private TextView tvAlert;
     private ImageButton ibHome, ibRefresh;
     private String selectedItem;
-    private int itemPosition=100;
+    private int itemPosition = 100;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     public VitalsGraphFragment() {
         // Required empty public constructor
@@ -151,7 +155,17 @@ public class VitalsGraphFragment extends Fragment implements AdapterToFragmentCo
 //        setupWebView(wvGraphViewHolder);
 //        setupWebView(wvGraphViewHolder);
 //
+        swipeRefreshLayout = parentView.findViewById(R.id.swipe_refresh_layout);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        swipeRefreshLayout.setRefreshing(true);
 
+                                        getPivotData();
+                                    }
+                                }
+        );
         getPivotData();
         return parentView;
     }
@@ -172,7 +186,8 @@ public class VitalsGraphFragment extends Fragment implements AdapterToFragmentCo
 
     private void getPivotData() {
         mProgressDialog.showDialog();
-
+// showing refresh animation before making http call
+        swipeRefreshLayout.setRefreshing(true);
         String fullUrl = API_URL_GET_VITAL_SIGNS_PIVOT_LIST + mMediatorCallback.getCurrentUser().getCivilId();//mMediatorCallback.getAccessTokenString().getAccessCivilId();
         Log.d("repo-graph", fullUrl);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, fullUrl, null
@@ -195,7 +210,7 @@ public class VitalsGraphFragment extends Fragment implements AdapterToFragmentCo
 
 
                     } else {
-                        displayAlert(response.getString(API_RESPONSE_MESSAGE));
+                        displayAlert(getResources().getString(R.string.no_record_found));
                         Log.d("repo-graph", response.getString(API_RESPONSE_MESSAGE));
                         mProgressDialog.dismissDialog();
                     }
@@ -206,7 +221,8 @@ public class VitalsGraphFragment extends Fragment implements AdapterToFragmentCo
                 }
 
                 mProgressDialog.dismissDialog();
-
+                // stopping swipe refresh
+                swipeRefreshLayout.setRefreshing(false);
             }
         }, new Response.ErrorListener() {
             @Override
@@ -214,6 +230,8 @@ public class VitalsGraphFragment extends Fragment implements AdapterToFragmentCo
 //                Log.d("enc", error.toString());
                 error.printStackTrace();
                 mProgressDialog.dismissDialog();
+                // stopping swipe refresh
+                swipeRefreshLayout.setRefreshing(false);
             }
         }) {
             //
@@ -238,13 +256,14 @@ public class VitalsGraphFragment extends Fragment implements AdapterToFragmentCo
         mProgressDialog.showDialog();
         WebSettings settings = wvGraphViewHolder.getSettings();
         settings.setJavaScriptEnabled(true);
-        settings.setUseWideViewPort(true);
-        settings.setLoadWithOverviewMode(true);
+        settings.setUseWideViewPort(false);
+        settings.setLoadWithOverviewMode(false);
+       // settings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.SINGLE_COLUMN);
 
         wvGraphViewHolder.setVerticalScrollBarEnabled(false);
         wvGraphViewHolder.setHorizontalScrollBarEnabled(false);
-        wvGraphViewHolder.getSettings().setLoadWithOverviewMode(true);
-        wvGraphViewHolder.getSettings().setUseWideViewPort(true);
+        wvGraphViewHolder.getSettings().setLoadWithOverviewMode(false);
+        wvGraphViewHolder.getSettings().setUseWideViewPort(false);
         wvGraphViewHolder.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
         wvGraphViewHolder.setScrollbarFadingEnabled(false);
 
@@ -268,7 +287,6 @@ public class VitalsGraphFragment extends Fragment implements AdapterToFragmentCo
 
     }
 
-
     private JSONArray getItemsArrayList(ApiVitalsPivotHolder.Pivot pivot) {
         JSONArray container = new JSONArray();
         JSONArray item;
@@ -277,57 +295,66 @@ public class VitalsGraphFragment extends Fragment implements AdapterToFragmentCo
         item.put(pivot.getVitalSign()); // y axis
         container.put(item);
         try {
-            item = new JSONArray();
-            item.put(1); // y axis
-            item.put(pivot.getValue1());// x axis
-            container.put(item);
-
-            item = new JSONArray();
-            item.put(2); // y axis
-            item.put(pivot.getValue2());// x axis
-            container.put(item);
-
-            item = new JSONArray();
-            item.put(3); // y axis
-            item.put(pivot.getValue3());// x axis
-            container.put(item);
-
-            item = new JSONArray();
-            item.put(4); // y axis
-            item.put(pivot.getValue4());// x axis
-            container.put(item);
-
-
-            item = new JSONArray();
-            item.put(5); // y axis
-            item.put(pivot.getValue5());// x axis
-            container.put(item);
-
-            item = new JSONArray();
-            item.put(6); // y axis
-            item.put(pivot.getValue6());// x axis
-            container.put(item);
-
-            item = new JSONArray();
-            item.put(7); // y axis
-            item.put(pivot.getValue7());// x axis
-            container.put(item);
-
-            item = new JSONArray();
-            item.put(8); // y axis
-            item.put(pivot.getValue8());// x axis
-            container.put(item);
-
-            item = new JSONArray();
-            item.put(9); // y axis
-            item.put(pivot.getValue9());// x axis
-            container.put(item);
-
-            item = new JSONArray();
-            item.put(10); // y axis
-            item.put(pivot.getValue10());// x axis
-            container.put(item);
-
+            if (pivot.getValue1() != 0) {
+                item = new JSONArray();
+                item.put(1); // y axis
+                item.put(pivot.getValue1());// x axis
+                container.put(item);
+            }
+            if (pivot.getValue2() != 0) {
+                item = new JSONArray();
+                item.put(2); // y axis
+                item.put(pivot.getValue2());// x axis
+                container.put(item);
+            }
+            if (pivot.getValue3() != 0) {
+                item = new JSONArray();
+                item.put(3); // y axis
+                item.put(pivot.getValue3());// x axis
+                container.put(item);
+            }
+            if (pivot.getValue4() != 0) {
+                item = new JSONArray();
+                item.put(4); // y axis
+                item.put(pivot.getValue4());// x axis
+                container.put(item);
+            }
+            if (pivot.getValue5() != 0) {
+                item = new JSONArray();
+                item.put(5); // y axis
+                item.put(pivot.getValue5());// x axis
+                container.put(item);
+            }
+            if (pivot.getValue6() != 0) {
+                item = new JSONArray();
+                item.put(6); // y axis
+                item.put(pivot.getValue6());// x axis
+                container.put(item);
+            }
+            if (pivot.getValue7() != 0) {
+                item = new JSONArray();
+                item.put(7); // y axis
+                item.put(pivot.getValue7());// x axis
+                container.put(item);
+            }
+            if (pivot.getValue8() != 0) {
+                item = new JSONArray();
+                item.put(8); // y axis
+                item.put(pivot.getValue8());// x axis
+                container.put(item);
+            }
+            if (pivot.getValue9() != 0) {
+                item = new JSONArray();
+                item.put(9); // y axis
+                item.put(pivot.getValue9());// x axis
+                container.put(item);
+            }
+            if (pivot.getValue10() != 0) {
+                item = new JSONArray();
+                item.put(10); // y axis
+                item.put(pivot.getValue10());// x axis
+                container.put(item);
+            }
             /*for(int i =0; i < container.length();i++){
                 try {
 
@@ -354,15 +381,15 @@ public class VitalsGraphFragment extends Fragment implements AdapterToFragmentCo
 
     private void setRecyclerView(ArrayList<ApiVitalsPivotHolder.Pivot> result, int activatedItem) {
         VitalsGraphRecyclerViewAdapter mAdapter =
-                new VitalsGraphRecyclerViewAdapter(VitalsGraphFragment.this, mContext, result, activatedItem);
+                new VitalsGraphRecyclerViewAdapter(VitalsGraphFragment.this, mContext, result, activatedItem, selectedItem);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(mContext);
         DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(mContext,
                 ((LinearLayoutManager) mLayoutManager).getOrientation());
         rvVitalsList.addItemDecoration(mDividerItemDecoration);
         rvVitalsList.setLayoutManager(mLayoutManager);
         rvVitalsList.setItemAnimator(new DefaultItemAnimator());
-        if(activatedItem!=100)
-        rvVitalsList.smoothScrollToPosition(activatedItem);
+        if (activatedItem != 100)
+            rvVitalsList.smoothScrollToPosition(activatedItem);
         rvVitalsList.setAdapter(mAdapter);
         mProgressDialog.dismissDialog();
     }
@@ -376,5 +403,10 @@ public class VitalsGraphFragment extends Fragment implements AdapterToFragmentCo
     @Override
     public <T> void onMyListItemClicked(T dataToPass, String dataTitle, int position) {
 
+    }
+
+    @Override
+    public void onRefresh() {
+        getPivotData();
     }
 }

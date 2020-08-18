@@ -1,0 +1,16 @@
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <TextView
+        android:id="@+id/chat_badge"
+        android:layout_width="@dimen/space_16"
+        android:layout_height="@dimen/space_16"
+        android:layout_gravity="top|center_horizontal"
+        android:layout_marginStart="10dp"
+        android:textColor="@color/colorWhite"
+        android:background="@drawable/bg_circle"
+        android:gravity="center"
+        android:padding="3dp"
+        android:textSize="8sp" />
+</merge>

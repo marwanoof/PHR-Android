@@ -219,7 +219,7 @@ public class AppointmentDateFragment extends Fragment implements AdapterToFragme
 
             @Override
             public void onAccept() {
-                onDecline();
+              //  onDecline();
 
                 mMediatorCallback.slideTo(0);
 

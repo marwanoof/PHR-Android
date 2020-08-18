@@ -37,6 +37,7 @@ import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.models.MyProgressDialog;
 
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
+import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
 import static om.gov.moh.phr.models.MyConstants.PARAM_EST_CODE;
 
@@ -133,7 +134,7 @@ public class SaveAppointmentDialogFragment extends DialogFragment {
         mProgressDialog = new MyProgressDialog(mContext);
 
 
-        String title = " " + mDate + " at " + mTime;
+        String title = " " + mDate + getResources().getString(R.string.at) + mTime;
         TextView tvConfirmMessage = parentView.findViewById(R.id.tv_confirm_message);
         tvConfirmMessage.append(title);
         final TextInputEditText tietRemarks = parentView.findViewById(R.id.tiet_remarks);
@@ -162,7 +163,7 @@ public class SaveAppointmentDialogFragment extends DialogFragment {
     private void saveAppointment(String remarks) {
 
 
-        String fullUrl = "http://10.99.9.36:9000/nehrapi/appointment/save?estCode=20068&runId=" + mRunId + "&patientId=" + mPatientId + "&clinicId=530&remarks=" + remarks;
+        String fullUrl = API_NEHR_URL + "appointment/save?estCode="+mEstCode+"&runId=" + mRunId + "&patientId=" + mPatientId + "&clinicId=530&remarks=" + remarks;
         Log.d("saveAppointment", "link : " + fullUrl);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, fullUrl, null
                 , new Response.Listener<JSONObject>() {

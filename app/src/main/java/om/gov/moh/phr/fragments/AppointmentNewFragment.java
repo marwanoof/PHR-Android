@@ -2,6 +2,7 @@ package om.gov.moh.phr.fragments;
 
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
 import com.android.volley.DefaultRetryPolicy;
@@ -53,12 +55,13 @@ import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
 import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_MESSAGE;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_ARABIC;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_PREFS;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_SELECTED;
 
 
 public class AppointmentNewFragment extends Fragment {
-    public static final String TEST_EST_CODE = "20068";
-    private static final String TEST_DEPT_ID = "36";
-    private static final String TEST_CLINIC_ID = "246";
+
 
     private static final String API_URL_GET_DEMOGRAPHICS_INFO = API_NEHR_URL + "demographics/civilId/";
     private static final int NUMBER_OF_COLUMNS = 3;
@@ -82,9 +85,10 @@ public class AppointmentNewFragment extends Fragment {
     private NonSwipeableViewPager vpContainer;
     private String mAppointmentPeriod;
     private TextView tvAppointmentsLabel;
-    private View vAppointmentContainer;
+   // private View vAppointmentContainer;
     private ToolbarControllerInterface mToolbarControllerCallback;
     private AppointmentsListInterface mListener;
+    private CardView vAppointmentContainer;
 
     public AppointmentNewFragment() {
         // Required empty public constructor
@@ -130,7 +134,7 @@ public class AppointmentNewFragment extends Fragment {
         ibPrevious = parentView.findViewById(R.id.ib_previous);
         vpContainer = parentView.findViewById(R.id.vp_container);
         tvAppointmentsLabel = parentView.findViewById(R.id.tv_select_label);
-        vAppointmentContainer = parentView.findViewById(R.id.v_appointmentContainer);
+        vAppointmentContainer = parentView.findViewById(R.id.appointmentDate_cardView);
 
         //simple toolbar
         ImageButton ibToolbarBackButton = parentView.findViewById(R.id.ib_toolbar_back_button);
@@ -157,11 +161,11 @@ public class AppointmentNewFragment extends Fragment {
 
     private void setupSelectDateRangeSpinner() {
         final ArrayList<String> datesRange = new ArrayList<>();
-        datesRange.add("After 10 days");
-        datesRange.add("After 15 days");
-        datesRange.add("After 20 days");
-        datesRange.add("After 25 days");
-        datesRange.add("After 30 days");
+        datesRange.add(getResources().getString(R.string.after_10_days));
+        datesRange.add(getResources().getString(R.string.after_15_days));
+        datesRange.add(getResources().getString(R.string.after_20_days));
+        datesRange.add(getResources().getString(R.string.after_25_days));
+        datesRange.add(getResources().getString(R.string.after_30_days));
 
         // Initializing an ArrayAdapter
         final ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(
@@ -309,11 +313,17 @@ public class AppointmentNewFragment extends Fragment {
         Log.d("appointmentFrag", "-setupSelectHospitalSpinner");
 
         ArrayList<String> institutesNames = new ArrayList<>();
-        for (ApiDemographicsHolder.ApiDemographicItem.Patients patients : demographicItem.getInstitutesArrayList()) {
-            institutesNames.add(patients.getEstName());
-            Log.d("appointmentFrag", patients.getEstName());
-        }
         institutesNames.add(0, getString(R.string.title_select_institute));
+        for (ApiDemographicsHolder.ApiDemographicItem.Patients patients : demographicItem.getInstitutesArrayList()) {
+            if (patients.getEstTypeCode() == 106) {
+                if (getStoredLanguage().equals(LANGUAGE_ARABIC)&& !patients.getEstNameNls().isEmpty())
+                    institutesNames.add(patients.getEstNameNls());
+                else
+                    institutesNames.add(patients.getEstName());
+                Log.d("appointmentFrag", patients.getEstName());
+                Log.d("appointmentFrag", patients.getEstNameNls());
+            }
+        }
 
 
         // Initializing an ArrayAdapter
@@ -377,7 +387,7 @@ public class AppointmentNewFragment extends Fragment {
     private void getDepartments(final String estCode) {
 
 
-        String fullUrl = "http://10.99.9.36:9000/nehrapi/appointment/getDepts?estCode=" + TEST_EST_CODE;//Integer.parseInt(estCode);
+        String fullUrl = API_NEHR_URL + "appointment/getDepts?estCode=" + estCode;//Integer.parseInt(estCode);
         Log.d("fullURL-getDep", fullUrl);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, fullUrl, null
                 , new Response.Listener<JSONObject>() {
@@ -390,7 +400,7 @@ public class AppointmentNewFragment extends Fragment {
                         Gson gson = new Gson();
                         ApiAppointmentDepartmentsHolder responseHolder = gson.fromJson(response.toString(), ApiAppointmentDepartmentsHolder.class);
                         Log.d("get-departments", response.getJSONArray("result").toString());
-                        setupSelectDepartmentSpinner(responseHolder.getResult());
+                        setupSelectDepartmentSpinner(responseHolder.getResult(), estCode);
 
                     } else {
                         Log.d("get-departments", response.getString(API_RESPONSE_MESSAGE));
@@ -431,10 +441,13 @@ public class AppointmentNewFragment extends Fragment {
         mQueue.add(jsonObjectRequest);
     }
 
-    private void setupSelectDepartmentSpinner(final ArrayList<ApiAppointmentDepartmentsHolder.Department> result) {
+    private void setupSelectDepartmentSpinner(final ArrayList<ApiAppointmentDepartmentsHolder.Department> result, final String mEstCode) {
         ArrayList<String> departmentsNames = new ArrayList<>();
         for (ApiAppointmentDepartmentsHolder.Department d : result) {
-            departmentsNames.add(d.getDeptName());
+            if (getStoredLanguage().equals(LANGUAGE_ARABIC) && !d.getDeptnameNl().isEmpty())
+                departmentsNames.add(d.getDeptnameNl());
+             else
+                departmentsNames.add(d.getDeptName());
         }
         departmentsNames.add(0, getString(R.string.title_select_department));
 
@@ -477,7 +490,7 @@ public class AppointmentNewFragment extends Fragment {
                     }
                     Toast.makeText(mContext, "position/" + position, Toast.LENGTH_SHORT).show();
                     setAppointmentGroupVisibility(View.GONE);
-                    getClinics(result.get(position - 1));
+                    getClinics(result.get(position - 1), mEstCode);
 
                 }
             }
@@ -489,9 +502,9 @@ public class AppointmentNewFragment extends Fragment {
         });
     }
 
-    private void getClinics(ApiAppointmentDepartmentsHolder.Department department) {
+    private void getClinics(ApiAppointmentDepartmentsHolder.Department department, String mEstCode) {
 
-        String fullUrl = "http://10.99.9.36:9000/nehrapi/appointment/getClinics?estCode=" + TEST_EST_CODE + "&deptId=" + TEST_DEPT_ID;//Integer.parseInt(estCode);
+        String fullUrl = API_NEHR_URL + "appointment/getClinics?estCode=" + mEstCode + "&deptId=" + department.getDeptId();//Integer.parseInt(estCode);
         Log.d("fullURL-getCli", fullUrl);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, fullUrl, null
                 , new Response.Listener<JSONObject>() {
@@ -545,7 +558,10 @@ public class AppointmentNewFragment extends Fragment {
     private void setupSelectClinicSpinner(final ArrayList<ApiAppointmentClinicsHolder.Clinic> result) {
         final ArrayList<String> clinicsNames = new ArrayList<>();
         for (ApiAppointmentClinicsHolder.Clinic c : result) {
-            clinicsNames.add(c.getDoctDeptName());
+            if (getStoredLanguage().equals(LANGUAGE_ARABIC)&& !c.getDoctdeptnameNl().isEmpty())
+                    clinicsNames.add(c.getDoctdeptnameNl());
+            else
+                clinicsNames.add(c.getDoctDeptName());
         }
         clinicsNames.add(0, getString(R.string.title_select_clinic));
 
@@ -605,7 +621,7 @@ public class AppointmentNewFragment extends Fragment {
     private void getSlots() {
         mProgressDialog.showDialog();
 
-        String fullUrl = "http://10.99.9.36:9000/nehrapi/appointment/getSlots";
+        String fullUrl = API_NEHR_URL + "appointment/getSlots";
 //        String fullUrl = API_URL_GET_DEMOGRAPHICS_INFO + "62163078" + "?source=PHR";
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, fullUrl, getJSONRequestParams()
@@ -711,10 +727,10 @@ public class AppointmentNewFragment extends Fragment {
 
     private JSONObject getJSONRequestParams() {
         Map<String, String> params = new HashMap<>();
-        params.put("estCode", TEST_EST_CODE);
-        params.put("clinicId", "246");
+        params.put("estCode", mEstCode);
+        params.put("clinicId", mClinicId);
         params.put("period", mAppointmentPeriod);
-        params.put("civilId", "62163078");
+        params.put("civilId", mMediatorCallback.getCurrentUser().getCivilId());
         return new JSONObject(params);
 
     }
@@ -767,6 +783,11 @@ public class AppointmentNewFragment extends Fragment {
     public void setAppointmentListListener(AppointmentsListInterface listener) {
         mListener = listener;
 
+    }
+
+    private String getStoredLanguage() {
+        SharedPreferences sharedPref = mContext.getSharedPreferences(LANGUAGE_PREFS, Context.MODE_PRIVATE);
+        return sharedPref.getString(LANGUAGE_SELECTED, LANGUAGE_ARABIC);
     }
 }
 

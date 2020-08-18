@@ -25,8 +25,8 @@ public class ApiDemographicsHolder {
 
         @SerializedName("patients")
         ArrayList<Patients> institutesArrayList = new ArrayList<>();
-        @SerializedName("addresses")
-        ArrayList<Addressees> addressesArrayList = new ArrayList<>();
+  /*      @SerializedName("addresses")
+        ArrayList<Addressees> addressesArrayList = new ArrayList<>();*/
         @SerializedName("recentVitals")
         ArrayList<RecentVitals> recentVitalsArrayList = new ArrayList<>();
         @SerializedName("flags")
@@ -50,6 +50,15 @@ public class ApiDemographicsHolder {
         @SerializedName("donorCount")
         private String donorCount;
 
+        public String getAliasYn() {
+            if (TextUtils.isEmpty(aliasYn))
+                return "--";
+            else
+            return aliasYn;
+        }
+
+        @SerializedName("aliasYn")
+        private String aliasYn;
         public String getBloodGroup() {
             if (TextUtils.isEmpty(bloodGroup))
                 return "--";
@@ -146,21 +155,18 @@ public class ApiDemographicsHolder {
             this.institutesArrayList = institutesArrayList;
         }
 
-        public ArrayList<Addressees> getAddressesArrayList() {
+       /* public ArrayList<Addressees> getAddressesArrayList() {
             return addressesArrayList;
         }
 
         public void setAddressesArrayList(ArrayList<Addressees> addressesArrayList) {
             this.addressesArrayList = addressesArrayList;
-        }
+        }*/
 
         public ArrayList<Alerts> getAlertsArrayList() {
             return alertsArrayList;
         }
 
-        public void setAlertsArrayList(ArrayList<Alerts> alertsArrayList) {
-            this.alertsArrayList = alertsArrayList;
-        }
 
         public ArrayList<RecentVitals> getRecentVitalsArrayList() {
             return recentVitalsArrayList;
@@ -174,16 +180,33 @@ public class ApiDemographicsHolder {
             @SerializedName("estName")
             private String estName;
 
+            @SerializedName("estNameNls")
+            private String estNameNls;
+
             @SerializedName("estCode")
             private String estCode;
 
+            @SerializedName("estTypeCode")
+            private int estTypeCode;
+
             private boolean isPending;
+
+            public String getEstNameNls() {
+                if (TextUtils.isEmpty(estNameNls))
+                    return "";
+                else
+                return estNameNls;
+            }
 
             public String getEstPatientId() {
                 if (TextUtils.isEmpty(estPatientId))
                     return "";
                 else
                     return estPatientId;
+            }
+
+            public int getEstTypeCode() {
+                return estTypeCode;
             }
 
             public void setEstPatientId(String estPatientId) {
@@ -217,7 +240,7 @@ public class ApiDemographicsHolder {
             }
         }
 
-        public class Addressees {
+        /*public class Addressees {
             private String walayatName;
             private String villageName;
 
@@ -242,9 +265,9 @@ public class ApiDemographicsHolder {
             public void setVillageName(String villageName) {
                 this.villageName = villageName;
             }
-        }
+        }*/
 
-        public class Alerts {
+        public class Alerts implements Serializable{
             @SerializedName("codeDescription")
             private String codeDescription;
 
@@ -256,7 +279,7 @@ public class ApiDemographicsHolder {
             }
         }
 
-        public class RecentVitals {
+        public class RecentVitals implements Serializable{
             @SerializedName("name")
             private String name;
 
@@ -266,12 +289,24 @@ public class ApiDemographicsHolder {
             @SerializedName("value")
             private String value;
 
+
+            public String getVitalNameNls() {
+                if (TextUtils.isEmpty(vitalNameNls))
+                    return "";
+                else
+                return vitalNameNls;
+            }
+
+            @SerializedName("vitalNameNls")
+            private String vitalNameNls;
+
             //TODO delete constructor
             public RecentVitals() {
             }
 
-            public RecentVitals(String name, String value, String unit) {
+            public RecentVitals(String name, String vitalNameNls, String value, String unit) {
                 this.name = name;
+                this.vitalNameNls = vitalNameNls;
                 this.value = value;
                 this.unit = unit;
             }

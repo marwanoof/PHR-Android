@@ -48,7 +48,6 @@ import om.gov.moh.phr.models.MyProgressDialog;
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
 import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
-import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_MESSAGE;
 
 public class LinkedInstitutesFragment extends Fragment implements AdapterToFragmentConnectorInterface {
 
@@ -156,7 +155,7 @@ public class LinkedInstitutesFragment extends Fragment implements AdapterToFragm
                         updateInstitutesList(responseHolder.getResult());
 
                     } else {
-                        displayAlert(response.getString(API_RESPONSE_MESSAGE));
+                        displayAlert(getResources().getString(R.string.no_record_found));
                         mProgressDialog.dismissDialog();
                     }
                 } catch (JSONException e) {

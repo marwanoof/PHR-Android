@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -11,7 +12,13 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import om.gov.moh.phr.R;
@@ -24,6 +31,7 @@ public class UploadedDocsRecyclerViewAdapter extends RecyclerView.Adapter<Upload
     private Context context;
     private ArrayList<ApiUploadsDocsHolder.ApiUploadDocInfo> arraylist;
     private MediatorInterface mediatorInterface;
+    private int row_index = -1;
 
     public UploadedDocsRecyclerViewAdapter(MediatorInterface mMediatorCallback, ArrayList<ApiUploadsDocsHolder.ApiUploadDocInfo> uploadedDocsList, Context context) {
         this.uploadedDocsArrayList = uploadedDocsList;
@@ -42,19 +50,29 @@ public class UploadedDocsRecyclerViewAdapter extends RecyclerView.Adapter<Upload
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull MyViewHolder holder, final int position) {
         final ApiUploadsDocsHolder.ApiUploadDocInfo docObj = uploadedDocsArrayList.get(position);
-        if(docObj.getStatus().equals("P"))
+        if (docObj.getStatus().equals("P"))
             holder.ivDocStatus.setVisibility(View.VISIBLE);
+        else holder.ivDocStatus.setVisibility(View.INVISIBLE);
         holder.tvDocType.setText(docObj.getDocTypeName());
         holder.tvDocInfo.setText(docObj.getSource());
         holder.tvDocDate.setText(docObj.getCreatedDate());
         holder.cl_uploadedItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                row_index = position;
+                notifyDataSetChanged();
                 mediatorInterface.changeFragmentTo(UploadedDocDetailsFragment.newInstance(docObj), docObj.getDocTypeName());
             }
         });
+        if (row_index == position) {
+            holder.imageButton.setBackgroundTintList(context.getResources().getColorStateList(R.color.colorPeach));
+            holder.cl_uploadedItem.setBackgroundColor(context.getResources().getColor(R.color.colorPeach));
+        } else {
+            holder.imageButton.setBackgroundTintList(context.getResources().getColorStateList(R.color.colorWhite));
+            holder.cl_uploadedItem.setBackgroundColor(context.getResources().getColor(R.color.colorWhite));
+        }
     }
 
     @Override
@@ -66,6 +84,7 @@ public class UploadedDocsRecyclerViewAdapter extends RecyclerView.Adapter<Upload
         TextView tvDocType, tvDocInfo, tvDocDate;
         ConstraintLayout cl_uploadedItem;
         ImageView ivDocStatus;
+        ImageButton imageButton;
 
         public MyViewHolder(View view) {
             super(view);
@@ -74,8 +93,10 @@ public class UploadedDocsRecyclerViewAdapter extends RecyclerView.Adapter<Upload
             tvDocDate = view.findViewById(R.id.tv_estName);
             cl_uploadedItem = view.findViewById(R.id.cl_uploadedItem);
             ivDocStatus = view.findViewById(R.id.iv_docStatus);
+            imageButton = view.findViewById(R.id.imageButton);
         }
     }
+
     // Filter Class
     public void filter(String charText) {
         charText = charText.toLowerCase(Locale.getDefault());

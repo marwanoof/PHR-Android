@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorBackground"
     tools:context=".fragments.AddDocFragment">
 
     <include
@@ -15,120 +16,168 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/tv_uploadImage"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Upload an Image"
-        android:textSize="@dimen/text_size_20sp"
-        android:textStyle="bold|italic"
-        android:textAlignment="center"
-        app:layout_constraintTop_toBottomOf="@id/include" />
-
-    <Spinner
-        android:id="@+id/spnr_DocType"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/space_8"
-        android:layout_marginTop="@dimen/space_8"
-        android:layout_marginEnd="@dimen/space_8"
-        app:layout_constraintTop_toBottomOf="@+id/tv_uploadImage" />
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/colorLiteGray"
-        android:layout_marginStart="@dimen/space_8"
-        android:layout_marginEnd="@dimen/space_8"
-        android:backgroundTint="#808080"
-        app:layout_constraintStart_toStartOf="@id/spnr_DocType"
-        app:layout_constraintEnd_toEndOf="@id/spnr_DocType"
-        app:layout_constraintTop_toBottomOf="@id/spnr_DocType"/>
-    <EditText
-        android:id="@+id/et_reference"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/space_8"
-        android:layout_marginTop="@dimen/space_8"
-        android:layout_marginEnd="@dimen/space_8"
-        android:paddingBottom="@dimen/space_16"
-        android:hint="Reference"
-        app:layout_constraintTop_toBottomOf="@+id/spnr_DocType" />
-
-    <EditText
-        android:id="@+id/et_remark"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/space_8"
-        android:layout_marginTop="@dimen/space_8"
-        android:layout_marginEnd="@dimen/space_8"
-        android:paddingBottom="@dimen/space_16"
-        android:hint="Remark"
-        app:layout_constraintTop_toBottomOf="@+id/et_reference" />
-
-    <EditText
-        android:id="@+id/et_fileName"
-        android:layout_width="@dimen/space_0"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/space_8"
-        android:layout_marginTop="@dimen/space_8"
-        android:layout_marginEnd="@dimen/space_8"
-        android:hint="File Name"
-        android:paddingBottom="@dimen/space_16"
-        android:editable="false"
-        app:layout_constraintEnd_toStartOf="@id/ib_galleryFile"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/et_remark" />
-
-    <ImageButton
-        android:id="@+id/ib_galleryFile"
-        android:layout_width="@dimen/space_56"
-        android:layout_height="@dimen/space_56"
-        android:backgroundTint="@color/colorWhite"
-        android:src="@drawable/ic_gallery"
-        app:layout_constraintEnd_toStartOf="@id/ib_cameraFile"
-        app:layout_constraintTop_toTopOf="@id/et_fileName" />
-
-    <ImageButton
-        android:id="@+id/ib_cameraFile"
-        android:layout_width="@dimen/space_56"
-        android:layout_height="@dimen/space_56"
-        android:backgroundTint="@color/colorWhite"
-        android:src="@drawable/ic_camera"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/et_fileName" />
 
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"
         android:layout_height="@dimen/space_0"
-        app:layout_constraintBottom_toTopOf="@id/btn_upload"
         android:scaleType="fitCenter"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/et_fileName" />
-
-    <Button
-        android:id="@+id/btn_upload"
-        android:layout_width="@dimen/space_0"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginBottom="@dimen/space_16"
-        android:text="Upload"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/btn_cancel"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_goneMarginStart="@dimen/space_16" />
-
-    <Button
-        android:id="@+id/btn_cancel"
-        android:layout_width="@dimen/space_0"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="@dimen/space_16"
-        android:text="Cancel"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/btn_upload" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout6" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView4"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/include">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/textView6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Add New Document"
+                android:textColor="#000000"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Spinner
+                android:id="@+id/spnr_DocType"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="20dp"
+                android:background="@drawable/edit_text_round"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView6" />
+
+            <EditText
+                android:id="@+id/et_reference"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="20dp"
+                android:background="@drawable/edit_text_round"
+                android:fontFamily="@font/roboto_regular"
+                android:hint="@string/reference"
+                android:paddingStart="5dp"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/spnr_DocType" />
+
+            <EditText
+                android:id="@+id/et_remark"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="20dp"
+                android:background="@drawable/edit_text_round"
+                android:fontFamily="@font/roboto_regular"
+                android:hint="@string/remark"
+                android:padding="5dp"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/et_reference" />
+
+            <EditText
+                android:id="@+id/et_fileName"
+                android:layout_width="@dimen/space_0"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="5dp"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/edit_text_round"
+                android:editable="false"
+                android:fontFamily="@font/roboto_regular"
+                android:hint="@string/file_name"
+                android:padding="5dp"
+                android:textSize="14sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/linearLayout5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/et_remark" />
+
+            <LinearLayout
+                android:id="@+id/linearLayout5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="20dp"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/et_remark">
+
+                <ImageButton
+                    android:id="@+id/ib_galleryFile"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:backgroundTint="@color/colorWhite"
+                    android:src="@drawable/ic_gallery" />
+
+                <ImageButton
+                    android:id="@+id/ib_cameraFile"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:backgroundTint="@color/colorWhite"
+                    android:src="@drawable/ic_camera" />
+            </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
+    <LinearLayout
+        android:id="@+id/linearLayout6"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cardView4">
+
+        <Button
+            android:id="@+id/btn_upload"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_marginEnd="5dp"
+            android:layout_weight="1"
+            android:background="@drawable/upload_btn"
+            android:fontFamily="@font/roboto_regular"
+            android:text="@string/upload"
+            android:textColor="#FFFFFF" />
+
+        <Button
+            android:id="@+id/btn_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:background="@drawable/cancel_btn"
+            android:fontFamily="@font/roboto_regular"
+            android:text="@string/title_cancel"
+            android:textColor="@color/colorPrimary" />
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

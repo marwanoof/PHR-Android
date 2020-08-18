@@ -7,12 +7,14 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.android.volley.DefaultRetryPolicy;
@@ -51,19 +54,19 @@ import om.gov.moh.phr.models.MyProgressDialog;
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
 import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
-import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_MESSAGE;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_RESULT;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ProceduresReportsFragment extends Fragment implements SearchView.OnQueryTextListener {
+public class ProceduresReportsFragment extends Fragment implements SearchView.OnQueryTextListener, SwipeRefreshLayout.OnRefreshListener {
 
     private static final String API_URL_GET_ALL_PROCEDURES_REPORTS_INFO = API_NEHR_URL + "procedure/civilId/";
     private static final String API_URL_GET_PROC_HRD_INFO = API_NEHR_URL + "procedure/encounterId/";
     private static final String PRPCEDURE_KEY = "procedure";
     private static final String REPORT_NAME_KEY = "name";
     private static final String EST_NAME_KEY = "estName";
+    private static final String EST_FULL_NAME_KEY = "estFullname";
     private static final String PROFILE_CODE_KEY = "profileCode";
     private static final String START_TIME_KEY = "startTime";
     private static final String REPORTID_KEY = "reportId";
@@ -78,8 +81,9 @@ public class ProceduresReportsFragment extends Fragment implements SearchView.On
     private TextView tvAlert;
     private ArrayList<ApiProceduresReportsHolder> reportsArrayList;
     private ProceduresReportsRecyclerView mAdapter;
-    private View view;
     private ApiEncountersHolder.Encounter encounterInfo;
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private View view;
 
     public ProceduresReportsFragment() {
         // Required empty public constructor
@@ -118,10 +122,10 @@ public class ProceduresReportsFragment extends Fragment implements SearchView.On
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // if (view == null) {
+        if (view == null) {
         // Inflate the layout for this fragment
-        view = inflater.inflate(R.layout.fragment_procedures_reports, container, false);
-        ImageButton ibToolbarBackButton = view.findViewById(R.id.ib_toolbar_back_button);
+         view = inflater.inflate(R.layout.fragment_procedures_reports, container, false);
+
         TextView tvTitle = view.findViewById(R.id.tv_Title);
         tvTitle.setText(getResources().getString(R.string.title_procedures_reports));
         mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
@@ -130,35 +134,45 @@ public class ProceduresReportsFragment extends Fragment implements SearchView.On
         rvProceduresReportsList = view.findViewById(R.id.rv_reportsList);
         SearchView searchView = (SearchView) view.findViewById(R.id.sv_searchView);
         searchView.setOnQueryTextListener(this);
+        swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
+        if (encounterInfo != null) {
+            tvTitle.setVisibility(View.GONE);
+            searchView.setVisibility(View.GONE);
+        }
         if (mMediatorCallback.isConnected()) {
-       if (encounterInfo != null) {
-                tvTitle.setText(encounterInfo.getDepartmentArrayList().get(0) + ", " + encounterInfo.getEstShortName());
-                searchView.setVisibility(View.GONE);
+            if (encounterInfo != null) {
                 String procHRDUrl = API_URL_GET_PROC_HRD_INFO + encounterInfo.getEncounterId();
                 getProceduresReportsList(procHRDUrl);
-                ibToolbarBackButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        mMediatorCallback.changeFragmentTo(HealthRecordDetailsFragment.newInstance(encounterInfo), encounterInfo.getEstFullname());
-                    }
-                });
+
             } else {
                 String recentProceduresReportsUrl = API_URL_GET_ALL_PROCEDURES_REPORTS_INFO + mMediatorCallback.getCurrentUser().getCivilId() + "?data=recent";
                 getProceduresReportsList(recentProceduresReportsUrl);
-                ibToolbarBackButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        mToolbarControllerCallback.customToolbarBackButtonClicked();
-                    }
-                });
-            }
 
+            }
+            swipeRefreshLayout.setOnRefreshListener(this);
+            swipeRefreshLayout.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            swipeRefreshLayout.setRefreshing(true);
+                                            rvProceduresReportsList.setVisibility(View.VISIBLE);
+                                            tvAlert.setVisibility(View.GONE);
+                                            if (encounterInfo != null) {
+                                                String procHRDUrl = API_URL_GET_PROC_HRD_INFO + encounterInfo.getEncounterId();
+                                                getProceduresReportsList(procHRDUrl);
+                                            } else {
+                                                String recentProceduresReportsUrl = API_URL_GET_ALL_PROCEDURES_REPORTS_INFO + mMediatorCallback.getCurrentUser().getCivilId() + "?data=recent";
+                                                getProceduresReportsList(recentProceduresReportsUrl);
+                                            }
+                                        }
+                                    }
+            );
         } else {
             displayAlert(getString(R.string.alert_no_connection));
         }
-       /* } else {
+        } else {
+            if(view.getParent()!=null)
             ((ViewGroup) view.getParent()).removeView(view);
-        }*/
+        }
         return view;
     }
 
@@ -170,7 +184,7 @@ public class ProceduresReportsFragment extends Fragment implements SearchView.On
 
     private void getProceduresReportsList(String url) {
         mProgressDialog.showDialog();
-
+        swipeRefreshLayout.setRefreshing(true);
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null
                 , new Response.Listener<JSONObject>() {
@@ -184,21 +198,24 @@ public class ProceduresReportsFragment extends Fragment implements SearchView.On
                             JSONObject jsonObject = jsonElements.getJSONObject(i);
                             ApiProceduresReportsHolder reportDetails = new ApiProceduresReportsHolder();
 
-                                String ReportName = jsonObject.getJSONArray(PRPCEDURE_KEY).getJSONObject(0).getString(REPORT_NAME_KEY);
-                                reportDetails.setName(ReportName);
-                                reportDetails.setEstName(jsonObject.getString(EST_NAME_KEY));
-                                reportDetails.setProfileCode(jsonObject.getInt(PROFILE_CODE_KEY));
-                                reportDetails.setStartTime(jsonObject.getLong(START_TIME_KEY));
-                                if (jsonObject.getInt(PROFILE_CODE_KEY) == 101) {
-                                    reportDetails.setReportId(jsonObject.getString(REPORTID_KEY));
-                                    reportDetails.setProcedureDoneDate(jsonObject.getLong(PROCEDURE_DONEDATE_KEY));
-                                }
+                            String ReportName = jsonObject.getJSONArray(PRPCEDURE_KEY).getJSONObject(0).getString(REPORT_NAME_KEY);
+                            reportDetails.setName(ReportName);
+                            reportDetails.setEstName(jsonObject.getString(EST_NAME_KEY));
+                            reportDetails.setEstFullname(jsonObject.getString(EST_FULL_NAME_KEY));
+                            reportDetails.setProfileCode(jsonObject.getInt(PROFILE_CODE_KEY));
+                            reportDetails.setStartTime(jsonObject.getLong(START_TIME_KEY));
+                            reportDetails.setProcedureId(jsonObject.getString("procedureId"));
+                            reportDetails.setPatientId(jsonObject.getString("patientId"));
+                            if (jsonObject.getInt(PROFILE_CODE_KEY) == 101) {
+                                reportDetails.setReportId(jsonObject.getString(REPORTID_KEY));
+                                reportDetails.setProcedureDoneDate(jsonObject.getLong(PROCEDURE_DONEDATE_KEY));
+                            }
                             reportsArrayList.add(reportDetails);
                         }
                         setupRecyclerView(reportsArrayList);
 
                     } else {
-                        displayAlert(response.getString(API_RESPONSE_MESSAGE));
+                        displayAlert(getResources().getString(R.string.no_record_found));
                         mProgressDialog.dismissDialog();
                     }
                 } catch (JSONException e) {
@@ -206,7 +223,7 @@ public class ProceduresReportsFragment extends Fragment implements SearchView.On
                 }
 
                 mProgressDialog.dismissDialog();
-
+                swipeRefreshLayout.setRefreshing(false);
             }
 
 
@@ -216,6 +233,7 @@ public class ProceduresReportsFragment extends Fragment implements SearchView.On
                 Log.d("resp-demographic", error.toString());
                 error.printStackTrace();
                 mProgressDialog.dismissDialog();
+                swipeRefreshLayout.setRefreshing(false);
             }
         }) {
             //
@@ -240,9 +258,7 @@ public class ProceduresReportsFragment extends Fragment implements SearchView.On
         mAdapter = new ProceduresReportsRecyclerView(mMediatorCallback, getmResult, mContext, false);
         LinearLayoutManager layoutManager
                 = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
-        DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(rvProceduresReportsList.getContext(),
-                layoutManager.getOrientation());
-        rvProceduresReportsList.addItemDecoration(mDividerItemDecoration);
+
         rvProceduresReportsList.setLayoutManager(layoutManager);
         rvProceduresReportsList.setItemAnimator(new DefaultItemAnimator());
         rvProceduresReportsList.setAdapter(mAdapter);
@@ -252,8 +268,10 @@ public class ProceduresReportsFragment extends Fragment implements SearchView.On
     @Override
     public void onDetach() {
         super.onDetach();
-        mMediatorCallback.changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
-        mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
+        if (encounterInfo == null) {
+            mMediatorCallback.changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
+            mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -268,4 +286,16 @@ public class ProceduresReportsFragment extends Fragment implements SearchView.On
         return false;
     }
 
+    @Override
+    public void onRefresh() {
+        rvProceduresReportsList.setVisibility(View.VISIBLE);
+        tvAlert.setVisibility(View.GONE);
+        if (encounterInfo != null) {
+            String procHRDUrl = API_URL_GET_PROC_HRD_INFO + encounterInfo.getEncounterId();
+            getProceduresReportsList(procHRDUrl);
+        } else {
+            String recentProceduresReportsUrl = API_URL_GET_ALL_PROCEDURES_REPORTS_INFO + mMediatorCallback.getCurrentUser().getCivilId() + "?data=recent";
+            getProceduresReportsList(recentProceduresReportsUrl);
+        }
+    }
 }

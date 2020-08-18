@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -48,14 +49,13 @@ import om.gov.moh.phr.models.MyProgressDialog;
 
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
-import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_MESSAGE;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link HealthRecordListFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class HealthRecordListFragment extends Fragment implements AdapterToFragmentConnectorInterface {
+public class HealthRecordListFragment extends Fragment implements AdapterToFragmentConnectorInterface, SwipeRefreshLayout.OnRefreshListener {
 
     private HealthRecordsRecyclerViewAdapter mHelathRecordsAdapter;
     private RequestQueue mQueue;
@@ -71,6 +71,7 @@ public class HealthRecordListFragment extends Fragment implements AdapterToFragm
     private ArrayList<ApiEncountersHolder.Encounter> mEncountersList;
     private YearsRecyclerViewAdapter mYearsAdapter;
     private ArrayList<ApiEncountersHolder.Encounter> result;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     public HealthRecordListFragment() {
         // Required empty public constructor
@@ -133,10 +134,20 @@ public class HealthRecordListFragment extends Fragment implements AdapterToFragm
         setupListView();
         vResultsFound = parentView.findViewById(R.id.v_results_found);
         tvResultsFound = parentView.findViewById(R.id.tv_results_found);
-
+        swipeRefreshLayout = parentView.findViewById(R.id.swipe_refresh_layout);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        swipeRefreshLayout.setRefreshing(true);
+                                        getEncounterResponse();
+                                    }
+                                }
+        );
         getEncounterResponse();
+
         return parentView;
-    }
+}
 
     private void setupListView() {
         mYearsAdapter = new YearsRecyclerViewAdapter(HealthRecordListFragment.this, mContext);
@@ -148,6 +159,8 @@ public class HealthRecordListFragment extends Fragment implements AdapterToFragm
 
     private void getEncounterResponse() {
         mProgressDialog.showDialog();
+        // showing refresh animation before making http call
+        swipeRefreshLayout.setRefreshing(true);
         Log.d("enc", "Called");
         String fullUrl = "https://5.162.223.156/nehrapi/encounter/civilId/" + mMediatorCallback.getCurrentUser().getCivilId();
 
@@ -172,7 +185,7 @@ public class HealthRecordListFragment extends Fragment implements AdapterToFragm
                             //setUpAddresseesList(responseHolder.getmResult());
 
                         } else {
-                            displayAlert(response.getString(API_RESPONSE_MESSAGE), View.VISIBLE, View.GONE);
+                            displayAlert(getResources().getString(R.string.no_record_found), View.VISIBLE, View.GONE);
                             mProgressDialog.dismissDialog();
                         }
                     } catch (JSONException e) {
@@ -182,6 +195,8 @@ public class HealthRecordListFragment extends Fragment implements AdapterToFragm
                     }
 
                     mProgressDialog.dismissDialog();
+                    // showing refresh animation before making http call
+                    swipeRefreshLayout.setRefreshing(false);
                 }
             }
         }, new Response.ErrorListener() {
@@ -189,9 +204,12 @@ public class HealthRecordListFragment extends Fragment implements AdapterToFragm
             public void onErrorResponse(VolleyError error) {
 //                Log.d("enc", error.toString());
                 Activity activity = getActivity();
-                if (activity != null && isAdded())
+                if (activity != null && isAdded()) {
                     mProgressDialog.dismissDialog();
-                error.printStackTrace();
+                    // showing refresh animation before making http call
+                    swipeRefreshLayout.setRefreshing(false);
+                    error.printStackTrace();
+                }
             }
         }) {
             //
@@ -227,7 +245,7 @@ public class HealthRecordListFragment extends Fragment implements AdapterToFragm
     private void setRecyclerView() {
         rvHealthRecords.setVisibility(View.VISIBLE);
 
-        mHelathRecordsAdapter = new HealthRecordsRecyclerViewAdapter(mContext, mMediatorCallback);
+        mHelathRecordsAdapter = new HealthRecordsRecyclerViewAdapter(HealthRecordListFragment.this, mContext, mMediatorCallback);
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
         DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(rvHealthRecords.getContext(),
                 mLayoutManager.getOrientation());
@@ -277,6 +295,7 @@ public class HealthRecordListFragment extends Fragment implements AdapterToFragm
 
     @Override
     public <T> void onMyListItemClicked(T dataToPass, String dataTitle, int position) {
+        mMediatorCallback.changeFragmentTo(HealthRecordDetailsFragment.newInstance(result.get(position)), "HeathRecordsDetails");
     }
 
     @Override
@@ -284,5 +303,10 @@ public class HealthRecordListFragment extends Fragment implements AdapterToFragm
         super.onDetach();
         mMediatorCallback.changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
         mToolbarCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onRefresh() {
+        getEncounterResponse();
     }
 }

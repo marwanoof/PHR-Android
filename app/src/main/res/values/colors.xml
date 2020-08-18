@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#e03a3a</color> <!--008577 , ff0000-->
+    <color name="colorPrimary">#be322d</color> <!--008577 , ff0000-->
     <color name="colorPrimaryDark">@color/colorPrimary</color> <!--00574B-->
     <color name="colorAccent">@color/colorPrimary</color> <!--D81B60-->
-
-    <color name="colorBackground">#faf6f7</color>
+    <color name="colorSecendary">#6b6a6f</color>
+    <color name="colorBackground">#f2f2f2</color>
 
     <color name="colorWhite">#fff</color>
     <color name="colorLiteBlack">#424242</color>
     <color name="colorBlack">#000</color>
     <color name="colorGray">#f9f8f8</color>
     <color name="colorRed">#e03a3a</color>
-    <color name="colorGreen">#33cd5f</color>
-
-    <color name="colorLiteGray">#ebebeb</color>
+    <color name="colorGreen">#23B64D</color>
+    <color name="grayColor">#DBDBDB</color>
+    <color name="colorLiteGray">#F5F5F5</color>
+    <color name="grayColorLight">#90FFFFFF</color>
     <color name="colorPeach">#ffe5b4</color>
     <color name="colorDarkPeach">#D38D67</color>
     <color name="colorBlue">#2196F3</color>

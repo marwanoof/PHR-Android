@@ -21,6 +21,16 @@ public class ApiAppointmentDepartmentsHolder {
         @SerializedName("deptName")
         private String deptName;
 
+        @SerializedName("deptnameNl")
+        private String deptnameNl;
+
+        public String getDeptnameNl() {
+            if (TextUtils.isEmpty(deptnameNl))
+                return "";
+            else
+            return deptnameNl;
+        }
+
         @SerializedName("clinicDept")
         private String clinicDept;
 

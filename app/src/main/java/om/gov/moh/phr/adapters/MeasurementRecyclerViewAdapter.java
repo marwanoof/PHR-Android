@@ -1,21 +1,28 @@
 package om.gov.moh.phr.adapters;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.drawable.GradientDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.apimodels.ApiDemographicsHolder;
 import om.gov.moh.phr.interfaces.AdapterToFragmentConnectorInterface;
+
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_ARABIC;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_PREFS;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_SELECTED;
 
 public class MeasurementRecyclerViewAdapter extends
         RecyclerView.Adapter<MeasurementRecyclerViewAdapter.MyViewHolder> {
@@ -49,8 +56,10 @@ public class MeasurementRecyclerViewAdapter extends
         //in order to get color correctly add 0xff at the beginning
         holder.vRoundRect.setBackground(new DrawableGradient(getColorsArray(position)));
 
-
-        holder.tvTitle.setText(result.getName());
+        if (getStoredLanguage().equals(LANGUAGE_ARABIC))
+            holder.tvTitle.setText(result.getVitalNameNls());
+        else
+            holder.tvTitle.setText(result.getName());
         holder.tvValue.setText(result.getValue());
         holder.tvUnit.setText(result.getUnit());
 
@@ -61,6 +70,34 @@ public class MeasurementRecyclerViewAdapter extends
                 mCallback.onMyListItemClicked(result, result.getName(), position);
             }
         });
+
+        switch (result.getName()){
+            case "Heart rate":
+                holder.imgIcon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_v_heart));
+                break;
+            case "Oxygen saturation":
+                holder.imgIcon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_v_oxygen));
+                break;
+            case "Body height":
+                holder.imgIcon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_v_height));
+                break;
+            case "Body temperature":
+                holder.imgIcon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_v_temp));
+                holder.tvUnit.setText("\u2103");
+                break;
+            case "Respiratory rate":
+                holder.imgIcon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_v_respiratory));
+                break;
+            case "Diastolic blood pressure":
+                holder.imgIcon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_v_blood_low));
+                break;
+            case "Systolic blood pressure":
+                holder.imgIcon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_v_blood_up));
+                break;
+            case "Weight Measured":
+                holder.imgIcon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_v_weight));
+                break;
+        }
     }
 
 
@@ -110,17 +147,19 @@ public class MeasurementRecyclerViewAdapter extends
 
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
-        private final View vRoundRect;
+        private final CardView vRoundRect;
         private final TextView tvTitle;
         private final TextView tvValue;
         private final TextView tvUnit;
+        private final ImageView imgIcon;
 
         public MyViewHolder(View view) {
             super(view);
             tvTitle = itemView.findViewById(R.id.tv_title);
             tvValue = itemView.findViewById(R.id.tv_value);
             tvUnit = itemView.findViewById(R.id.tv_unit);
-            vRoundRect = itemView.findViewById(R.id.v_container);
+            vRoundRect = itemView.findViewById(R.id.bodyM_cardView);
+            imgIcon = itemView.findViewById(R.id.img_vitel);
         }
     }
 
@@ -140,4 +179,8 @@ public class MeasurementRecyclerViewAdapter extends
 
     }
 
+    private String getStoredLanguage() {
+        SharedPreferences sharedPref = mContext.getSharedPreferences(LANGUAGE_PREFS, Context.MODE_PRIVATE);
+        return sharedPref.getString(LANGUAGE_SELECTED, LANGUAGE_ARABIC);
+    }
 }

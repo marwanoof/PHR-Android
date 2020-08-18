@@ -51,10 +51,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 import java.util.UUID;
 
 import om.gov.moh.phr.R;
@@ -68,7 +70,6 @@ import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
 import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
-import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_MESSAGE;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_RESULT;
 import static om.gov.moh.phr.models.MyConstants.CAMERA;
 import static om.gov.moh.phr.models.MyConstants.GALLERY;
@@ -77,7 +78,6 @@ import static om.gov.moh.phr.models.MyConstants.GALLERY;
  * A simple {@link Fragment} subclass.
  */
 public class AddDocFragment extends Fragment {
-
     private ImageButton ibHome;
     private ImageButton ibGalleryFile;
     private ImageButton ibCameraFile;
@@ -120,7 +120,7 @@ public class AddDocFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_add_doc, container, false);
         TextView tvToolbarTitle = view.findViewById(R.id.tv_toolbar_title);
-        tvToolbarTitle.setText(getResources().getString(R.string.title_back));
+        tvToolbarTitle.setText(getResources().getString(R.string.upload_an_image));
         ImageButton ibToolbarBackButton = view.findViewById(R.id.ib_toolbar_back_button);
         tvToolbarTitle.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -170,6 +170,17 @@ public class AddDocFragment extends Fragment {
             }
         });
         Button btnCancel = view.findViewById(R.id.btn_cancel);
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                spnDocTypes.setSelection(0);
+                etReference.setText(null);
+                etRemark.setText(null);
+                etFileName.setText(null);
+                imageStoragePath = null;
+                ivImageView.setImageBitmap(null);
+            }
+        });
         ivImageView = view.findViewById(R.id.imageView);
         getDocType();
         return view;
@@ -200,24 +211,26 @@ public class AddDocFragment extends Fragment {
             @Override
             public void onResponse(JSONObject response) {
                 try {
-                    if (response.getInt(API_RESPONSE_CODE) == 0) {
-                        JSONArray documentsTypesArray = response.getJSONArray(API_RESPONSE_RESULT);
-                        ArrayList<String> documentsTypes = new ArrayList<>();
-                        documentsTypesCodes = new ArrayList<>();
-                        documentsTypes.add(getResources().getString(R.string.select_doc_type_msg));
-                        documentsTypesCodes.add("None");
-                        for (int i = 0; i < documentsTypesArray.length(); i++) {
-                            JSONObject documentTypeObj = documentsTypesArray.getJSONObject(i);
-                            documentsTypes.add(documentTypeObj.getString("typeName"));
-                            documentsTypesCodes.add(documentTypeObj.getString("typeCode"));
+                    if (mContext != null) {
+                        if (response.getInt(API_RESPONSE_CODE) == 0) {
+                            JSONArray documentsTypesArray = response.getJSONArray(API_RESPONSE_RESULT);
+                            ArrayList<String> documentsTypes = new ArrayList<>();
+                            documentsTypesCodes = new ArrayList<>();
+                            documentsTypes.add(getResources().getString(R.string.select_doc_type_msg));
+                            documentsTypesCodes.add("None");
+                            for (int i = 0; i < documentsTypesArray.length(); i++) {
+                                JSONObject documentTypeObj = documentsTypesArray.getJSONObject(i);
+                                documentsTypes.add(documentTypeObj.getString("typeName"));
+                                documentsTypesCodes.add(documentTypeObj.getString("typeCode"));
+                            }
+                            Log.d("AddDocFrag", "-Demo" + response.getJSONArray(API_RESPONSE_RESULT));
+                            setupSelectDocTypeSpinner(documentsTypes, documentsTypesCodes);
+
+
+                        } else {
+
+                            mProgressDialog.dismissDialog();
                         }
-                        Log.d("AddDocFrag", "-Demo" + response.getJSONArray(API_RESPONSE_RESULT));
-                        setupSelectDocTypeSpinner(documentsTypes, documentsTypesCodes);
-
-
-                    } else {
-
-                        mProgressDialog.dismissDialog();
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -229,9 +242,11 @@ public class AddDocFragment extends Fragment {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("add_doc", error.toString());
-                error.printStackTrace();
-                mProgressDialog.dismissDialog();
+                if (mContext != null && isAdded()) {
+                    Log.d("add_doc", error.toString());
+                    error.printStackTrace();
+                    mProgressDialog.dismissDialog();
+                }
             }
         }) {
             //
@@ -258,7 +273,14 @@ public class AddDocFragment extends Fragment {
                 mContext, android.R.layout.simple_spinner_dropdown_item, documentsTypes) {
             @Override
             public boolean isEnabled(int position) {
-                return position != 0;
+
+                if (position == 0) {
+                    // Disable the first item from Spinner
+                    // First item will be use for hint
+                    return false;
+                } else {
+                    return true;
+                }
             }
 
             @Override
@@ -288,60 +310,60 @@ public class AddDocFragment extends Fragment {
             Toast.makeText(mContext, getResources().getString(R.string.enter_remark_msg), Toast.LENGTH_SHORT).show();
         } else if (etFileName.getText().toString().isEmpty()) {
             Toast.makeText(mContext, getResources().getString(R.string.select_file_msg), Toast.LENGTH_SHORT).show();
-        } else {
-            getDocTypeCode();
-            mProgressDialog.showDialog();
+        } else if (imageStoragePath != null) {
+            File img = new File(imageStoragePath);
+            long length = img.length();
+            if (length > 5 * 1000 * 1000) {
+                Toast.makeText(mContext, getResources().getString(R.string.too_large_file), Toast.LENGTH_SHORT).show();
+            } else {
+                getDocTypeCode();
+                mProgressDialog.showDialog();
 
-            String fullUrl = "http://10.99.9.36:9000/nehrapi/file/uploadAndroid";
-
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, fullUrl, getJSONRequestParams()
-                    , new Response.Listener<JSONObject>() {
-                @Override
-                public void onResponse(JSONObject response) {
-                    try {
-                        if (response.getInt(API_RESPONSE_CODE) == 0) {
-                            Log.d("upload", response.getJSONObject(API_RESPONSE_MESSAGE).toString());
-                            Toast.makeText(mContext, response.getString(API_RESPONSE_MESSAGE), Toast.LENGTH_SHORT).show();
-
-                        } else {
-
+                String fullUrl = API_NEHR_URL + "file/uploadAndroid";
+                Log.d("fileUpload", fullUrl);
+                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, fullUrl, getJSONRequestParams()
+                        , new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Toast.makeText(mContext, getResources().getString(R.string.success_upload_msg), Toast.LENGTH_SHORT).show();
+                        mToolbarControllerCallback.customToolbarBackButtonClicked();
+                        mProgressDialog.dismissDialog();
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        if(mContext!=null&&isAdded()) {
+                            Log.d("upload_error", error.toString());
+                            Log.i("jsonObjectRequest", "Error, Status Code " + error.networkResponse.statusCode);
+                      //      Log.i("jsonObjectRequest", "URL: " + payOp.getURL());
+                     //       Log.i("jsonObjectRequest", "Payload: " + payOp.getJson().toString());
+                            Log.i("jsonObjectRequest", "Net Response to String: " + error.networkResponse.toString());
+                            Log.i("jsonObjectRequest", "Error bytes: " + new String(error.networkResponse.data));
+                            error.printStackTrace();
+                            Toast.makeText(mContext, error.toString(), Toast.LENGTH_SHORT).show();
                             mProgressDialog.dismissDialog();
                         }
-                    } catch (JSONException e) {
-                        Log.d("upload", e.getMessage());
-                        e.printStackTrace();
+                    }
+                }) {
+                    //
+                    @Override
+                    public Map<String, String> getHeaders() {
+                        HashMap<String, String> headers = new HashMap<>();
+//                headers.put("Accept", "application/json");
+                        headers.put("Content-Type", "application/json");
+                        //         headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
+
+
+                        return headers;
                     }
 
-                    mProgressDialog.dismissDialog();
+                };
+                int socketTimeout = 30000;//30 seconds - change to what you want
+                RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+                jsonObjectRequest.setRetryPolicy(policy);
 
-                }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Log.d("upload_error", error.toString());
-                    error.printStackTrace();
-                    Toast.makeText(mContext, "error", Toast.LENGTH_SHORT).show();
-                    mProgressDialog.dismissDialog();
-                }
-            }) {
-                //
-                @Override
-                public Map<String, String> getHeaders() {
-                    HashMap<String, String> headers = new HashMap<>();
-//                headers.put("Accept", "application/json");
-                    headers.put("Content-Type", "application/json");
-                    //         headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
-
-
-                    return headers;
-                }
-
-            };
-            int socketTimeout = 30000;//30 seconds - change to what you want
-            RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
-            jsonObjectRequest.setRetryPolicy(policy);
-
-            mQueue.add(jsonObjectRequest);
+                mQueue.add(jsonObjectRequest);
+            }
         }
     }
 
@@ -356,15 +378,15 @@ public class AddDocFragment extends Fragment {
     }
 
     private JSONObject getJSONRequestParams() {
-        Map<String, String> params = new HashMap<>();
-        params.put("civilId", mMediatorCallback.getCurrentUser().getCivilId());
+        Map<String, Object> params = new HashMap<>();
+        params.put("civilId", Long.parseLong(mMediatorCallback.getCurrentUser().getCivilId()));
         params.put("docType", mDocType);
-        params.put("fileName", etFileName.getText().toString() + ".jpg");
+        params.put("fileName", etFileName.getText().toString());
         params.put("imageString", convertPic(imageStoragePath));
         params.put("remarks", etRemark.getText().toString());
         params.put("sourceRef", etReference.getText().toString());
+        Log.d("fileUpload", new JSONObject(params).toString());
         return new JSONObject(params);
-
     }
 
     private void choosePhotoFromGallery() {
@@ -417,10 +439,22 @@ public class AddDocFragment extends Fragment {
         } else if (requestCode == CAMERA) {
             Bitmap cameraBitmap = CameraUtils.optimizeBitmap(8,
                     imageStoragePath);
+            Uri imageRealUri = getImageUri(mContext, cameraBitmap);
+            imageStoragePath=getRealPathFromURI(imageRealUri);
             ivImageView.setImageBitmap(cameraBitmap);
             ibGalleryFile.setEnabled(false);
         }
-        etFileName.setText("file" + UUID.randomUUID().toString());
+
+        char[] chars = "abcdefghijklmnopqrstuvwxyz".toCharArray();
+        StringBuilder sb = new StringBuilder(3);
+        Random random = new Random();
+        for (int i = 0; i < 3; i++) {
+            char c = chars[random.nextInt(chars.length)];
+            sb.append(c);
+        }
+        String output = "File" + mMediatorCallback.getCurrentUser().getCivilId() + sb.toString() + ".jpg";
+        etFileName.setText(output);
+
 
     }
 

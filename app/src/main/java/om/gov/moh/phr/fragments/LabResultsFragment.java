@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -39,11 +40,13 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.adapters.OrderLabRecyclerViewAdapter;
 import om.gov.moh.phr.apimodels.ApiEncountersHolder;
 import om.gov.moh.phr.apimodels.ApiLabOrdersListHolder;
+import om.gov.moh.phr.interfaces.AdapterToFragmentConnectorInterface;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
 import om.gov.moh.phr.models.MyProgressDialog;
@@ -51,13 +54,12 @@ import om.gov.moh.phr.models.MyProgressDialog;
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
 import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
-import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_MESSAGE;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_RESULT;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class LabResultsFragment extends Fragment implements SearchView.OnQueryTextListener {
+public class LabResultsFragment extends Fragment implements SearchView.OnQueryTextListener, SwipeRefreshLayout.OnRefreshListener {
     private static final String API_URL_GET_LAB_ORDERS_INFO = API_NEHR_URL + "labOrder/civilId/";
     private static final String API_URL_GET_LAB_ENCOUNTER_INFO = API_NEHR_URL + "labOrder/encounterId/";
     private static final String ARG_PARAM1 = "ARG_PARAM1";
@@ -70,10 +72,12 @@ public class LabResultsFragment extends Fragment implements SearchView.OnQueryTe
     private RecyclerView rvLabOrders;
     private TextView tvAlert;
     private OrderLabRecyclerViewAdapter mAdapter;
-    private View parentView;
-    private boolean isRecent;
+    private boolean isRecent = false;
     private ApiEncountersHolder.Encounter encounterInfo;
     private String labResultsType;
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private ApiLabOrdersListHolder responseHolder;
+    private View parentView;
 
     public LabResultsFragment() {
         // Required empty public constructor
@@ -107,7 +111,7 @@ public class LabResultsFragment extends Fragment implements SearchView.OnQueryTe
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            if(getArguments().getString(ARG_PARAM1)!=null) {
+            if (getArguments().getString(ARG_PARAM1) != null) {
                 labResultsType = getArguments().getString(ARG_PARAM1);
                 isRecent = labResultsType.equals("Recent");
             }
@@ -120,97 +124,119 @@ public class LabResultsFragment extends Fragment implements SearchView.OnQueryTe
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-       // if (parentView == null) {
-            parentView = inflater.inflate(R.layout.fragment_lab_results, container, false);
-            ImageButton ibToolbarBackButton = parentView.findViewById(R.id.ib_toolbar_back_button);
-            TextView tvTitle = parentView.findViewById(R.id.tv_Title);
-            mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
-            mProgressDialog = new MyProgressDialog(mContext);
-            tvAlert = parentView.findViewById(R.id.tv_alert);
-            rvLabOrders = parentView.findViewById(R.id.rv_lab_oreders);
-            SearchView searchView = (SearchView) parentView.findViewById(R.id.sv_searchView);
-            searchView.setOnQueryTextListener(this);
-            if (mMediatorCallback.isConnected()) {
-                if (labResultsType != null) {
-                    tvTitle.setText(getResources().getString(R.string.title_lab_results));
-                    if (isRecent) {
-                        String fullUrl = API_URL_GET_LAB_ORDERS_INFO + mMediatorCallback.getCurrentUser().getCivilId() + "?data=recent";
-                        getLabOrdersList(fullUrl);
-                    }
-                    {
-                        String fullUrl = API_URL_GET_LAB_ORDERS_INFO + mMediatorCallback.getCurrentUser().getCivilId();
-                        getLabOrdersList(fullUrl);
-                    }
-                    ibToolbarBackButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            mToolbarControllerCallback.customToolbarBackButtonClicked();
-                        }
-                    });
-                } else {
-                    tvTitle.setText(encounterInfo.getDepartmentArrayList().get(0) + ", " + encounterInfo.getEstShortName());
-                    searchView.setVisibility(View.GONE);
-                    String fullUrl = API_URL_GET_LAB_ENCOUNTER_INFO + encounterInfo.getEncounterId();
+        if (parentView == null) {
+        parentView = inflater.inflate(R.layout.fragment_lab_results, container, false);
+        TextView tvTitle = parentView.findViewById(R.id.tv_Title);
+        mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
+        mProgressDialog = new MyProgressDialog(mContext);
+        tvAlert = parentView.findViewById(R.id.tv_alert);
+        rvLabOrders = parentView.findViewById(R.id.rv_lab_oreders);
+        SearchView searchView = (SearchView) parentView.findViewById(R.id.sv_searchView);
+        searchView.setOnQueryTextListener(this);
+        swipeRefreshLayout = parentView.findViewById(R.id.swipe_refresh_layout);
+        if (labResultsType != null) {
+
+        } else {
+            tvTitle.setVisibility(View.GONE);
+            // ibToolbarBackButton.setVisibility(View.GONE);
+            searchView.setVisibility(View.GONE);
+        }
+        setupRecyclerView(rvLabOrders);
+        if (mMediatorCallback.isConnected()) {
+            if (labResultsType != null) {
+                tvTitle.setText(getResources().getString(R.string.title_lab_results));
+                if (isRecent) {
+                    String fullUrl = API_URL_GET_LAB_ORDERS_INFO + mMediatorCallback.getCurrentUser().getCivilId() + "?data=recent";
                     getLabOrdersList(fullUrl);
-                    ibToolbarBackButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            mMediatorCallback.changeFragmentTo(HealthRecordDetailsFragment.newInstance(encounterInfo), encounterInfo.getEstFullname());
-                        }
-                    });
+                } else {
+                    String fullUrl = API_URL_GET_LAB_ORDERS_INFO + mMediatorCallback.getCurrentUser().getCivilId() + "?data=all";
+                    getLabOrdersList(fullUrl);
                 }
+
             } else {
-                displayAlert(getString(R.string.alert_no_connection));
+                String fullUrl = API_URL_GET_LAB_ENCOUNTER_INFO + encounterInfo.getEncounterId();
+                getLabOrdersList(fullUrl);
             }
-     /*   } else {
+            swipeRefreshLayout.setOnRefreshListener(this);
+            swipeRefreshLayout.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            swipeRefreshLayout.setRefreshing(true);
+                                            rvLabOrders.setVisibility(View.VISIBLE);
+                                            tvAlert.setVisibility(View.GONE);
+                                            if (labResultsType != null) {
+                                                if (isRecent) {
+                                                    String fullUrl = API_URL_GET_LAB_ORDERS_INFO + mMediatorCallback.getCurrentUser().getCivilId() + "?data=recent";
+                                                    getLabOrdersList(fullUrl);
+                                                } else {
+                                                    String fullUrl = API_URL_GET_LAB_ORDERS_INFO + mMediatorCallback.getCurrentUser().getCivilId() + "?data=all";
+                                                    getLabOrdersList(fullUrl);
+                                                }
+                                            } else {
+                                                String fullUrl = API_URL_GET_LAB_ENCOUNTER_INFO + encounterInfo.getEncounterId();
+                                                getLabOrdersList(fullUrl);
+                                            }
+                                        }
+                                    }
+            );
+        } else {
+            displayAlert(getString(R.string.alert_no_connection));
+        }
+        } else {
+            if(parentView.getParent()!=null)
             ((ViewGroup) parentView.getParent()).removeView(parentView);
-        }*/
+        }
 
         return parentView;
     }
 
     private void getLabOrdersList(String url) {
         mProgressDialog.showDialog();
-
+        // showing refresh animation before making http call
+        swipeRefreshLayout.setRefreshing(true);
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                try {
-                    if (response.getInt(API_RESPONSE_CODE) == 0) {
+                if (mContext != null && isAdded()) {
+                    try {
+                        if (response.getInt(API_RESPONSE_CODE) == 0) {
 
-                        Gson gson = new Gson();
-                        ApiLabOrdersListHolder responseHolder = gson.fromJson(response.toString(), ApiLabOrdersListHolder.class);
-                        Log.d("resp-dependants", response.getJSONArray(API_RESPONSE_RESULT).toString());
-                        setupRecyclerView(responseHolder.getmResult());
+                            Gson gson = new Gson();
+                            responseHolder = gson.fromJson(response.toString(), ApiLabOrdersListHolder.class);
+                            Log.d("resp-dependants", response.getJSONArray(API_RESPONSE_RESULT).toString());
+                            updateRecyclerView(responseHolder.getmResult());
 
-                    } else {
-                        displayAlert(response.getString(API_RESPONSE_MESSAGE));
-                        mProgressDialog.dismissDialog();
+                        } else {
+                            displayAlert(getResources().getString(R.string.no_record_found));
+                            mProgressDialog.dismissDialog();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+
+                    mProgressDialog.dismissDialog();
+                    swipeRefreshLayout.setRefreshing(false);
                 }
 
-                mProgressDialog.dismissDialog();
-
             }
-
-
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("resp-demographic", error.toString());
-                error.printStackTrace();
-                mProgressDialog.dismissDialog();
+                if (mContext != null && isAdded()) {
+                    Log.d("resp-demographic", error.toString());
+                    error.printStackTrace();
+                    mProgressDialog.dismissDialog();
+                    swipeRefreshLayout.setRefreshing(false);
+                }
             }
         }) {
             //
             @Override
             public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
-//                headers.put("Accept", "application/json");
+                //     headers.put("Accept", "application/json");
                 headers.put("Content-Type", "application/json");
                 headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
                 return headers;
@@ -224,18 +250,22 @@ public class LabResultsFragment extends Fragment implements SearchView.OnQueryTe
         mQueue.add(jsonObjectRequest);
     }
 
-    private void setupRecyclerView(ArrayList<ApiLabOrdersListHolder.ApiOredresList> getmResult) {
+    private void setupRecyclerView(RecyclerView recyclerView) {
         mAdapter =
-                new OrderLabRecyclerViewAdapter(mMediatorCallback, getmResult, mContext);
+                new OrderLabRecyclerViewAdapter(mMediatorCallback, mContext);
         LinearLayoutManager layoutManager
                 = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
         DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(rvLabOrders.getContext(),
                 layoutManager.getOrientation());
-        rvLabOrders.addItemDecoration(mDividerItemDecoration);
-        rvLabOrders.setLayoutManager(layoutManager);
-        rvLabOrders.setItemAnimator(new DefaultItemAnimator());
-        rvLabOrders.setAdapter(mAdapter);
+        //recyclerView.addItemDecoration(mDividerItemDecoration);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(mAdapter);
 
+    }
+
+    private void updateRecyclerView(ArrayList<ApiLabOrdersListHolder.ApiOredresList> items) {
+        mAdapter.updateItemsList(items);
     }
 
     private void displayAlert(String msg) {
@@ -247,8 +277,10 @@ public class LabResultsFragment extends Fragment implements SearchView.OnQueryTe
     @Override
     public void onDetach() {
         super.onDetach();
-        mMediatorCallback.changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
-        mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
+        if (labResultsType != null) {
+            mMediatorCallback.changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
+            mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -261,5 +293,23 @@ public class LabResultsFragment extends Fragment implements SearchView.OnQueryTe
         if (mAdapter != null)
             mAdapter.filter(newText);
         return false;
+    }
+
+    @Override
+    public void onRefresh() {
+        rvLabOrders.setVisibility(View.VISIBLE);
+        tvAlert.setVisibility(View.GONE);
+        if (labResultsType != null) {
+            if (isRecent) {
+                String fullUrl = API_URL_GET_LAB_ORDERS_INFO + mMediatorCallback.getCurrentUser().getCivilId() + "?data=recent";
+                getLabOrdersList(fullUrl);
+            } else {
+                String fullUrl = API_URL_GET_LAB_ORDERS_INFO + mMediatorCallback.getCurrentUser().getCivilId() + "?data=all";
+                getLabOrdersList(fullUrl);
+            }
+        } else {
+            String fullUrl = API_URL_GET_LAB_ENCOUNTER_INFO + encounterInfo.getEncounterId();
+            getLabOrdersList(fullUrl);
+        }
     }
 }

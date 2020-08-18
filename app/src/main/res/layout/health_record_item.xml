@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/colorWhite"
@@ -11,7 +12,7 @@
         android:id="@+id/v_date_holder"
         android:layout_width="@dimen/space_64"
         android:layout_height="0dp"
-        android:background="@color/colorLiteGray"
+        android:background="@color/colorSecendary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -23,6 +24,7 @@
         android:fontFamily="@font/roboto_regular"
         android:text="Oct"
         android:textAlignment="center"
+        android:textColor="#FFFFFF"
         android:textSize="@dimen/text_size_16sp"
         app:layout_constraintBottom_toBottomOf="@+id/v_date_holder"
         app:layout_constraintEnd_toEndOf="@+id/v_date_holder"
@@ -36,11 +38,12 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
-        android:textDirection="locale"
         android:fontFamily="@font/roboto_regular"
-        android:textColor="@color/colorTextViewFontNormal"
-        android:textSize="@dimen/text_size_20sp"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:textColor="#000000"
+        android:textDirection="locale"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@id/imageView5"
         app:layout_constraintStart_toEndOf="@+id/v_date_holder"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -48,9 +51,10 @@
         android:id="@+id/tv_sub1"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:textDirection="locale"
+        android:layout_marginTop="3dp"
         android:fontFamily="@font/roboto_regular"
+        android:textDirection="locale"
+        android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="@+id/tv_title"
         app:layout_constraintStart_toStartOf="@+id/tv_title"
         app:layout_constraintTop_toBottomOf="@+id/tv_title" />
@@ -61,8 +65,9 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:layout_marginBottom="8dp"
-        android:textDirection="locale"
         android:fontFamily="@font/roboto_regular"
+        android:textDirection="locale"
+        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/tv_sub1"
         app:layout_constraintStart_toStartOf="@+id/tv_sub1"
@@ -74,9 +79,20 @@
         android:layout_height="wrap_content"
         android:text="31"
         android:textAlignment="center"
+        android:textColor="#FFFFFF"
         app:layout_constraintEnd_toEndOf="@+id/tv_month"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/tv_month"
         app:layout_constraintTop_toBottomOf="@+id/tv_month" />
+
+    <ImageView
+        android:id="@+id/imageView5"
+        android:layout_width="wrap_content"
+        android:layout_height="20dp"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_arrow_right" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

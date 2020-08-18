@@ -3,6 +3,7 @@ package om.gov.moh.phr.dialogfragments;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +18,11 @@ import java.util.Locale;
 
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.interfaces.DialogFragmentInterface;
+
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_ARABIC;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_ENGLISH;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_PREFS;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_SELECTED;
 
 public class DisclaimerDialogFragment extends DialogFragment {
 
@@ -96,7 +102,7 @@ public class DisclaimerDialogFragment extends DialogFragment {
         settings.setDefaultFontSize((int) fontSize);
 
 //        wvTerms.loadDataWithBaseURL("file:///android_asset/terms.html", "", "text/html", "UTF-8", null);
-        if (Locale.getDefault().getDisplayLanguage().contains("العربية"))
+        if (getStoredLanguage().equals(LANGUAGE_ARABIC))
             wvTerms.loadUrl("file:///android_asset/terms-ar.html");
         else
             wvTerms.loadUrl("file:///android_asset/terms.html");
@@ -104,6 +110,10 @@ public class DisclaimerDialogFragment extends DialogFragment {
 
     public void setDialogFragmentListener(DialogFragmentInterface listener) {
         mDialogListener = listener;
+    }
+    private String getStoredLanguage() {
+        SharedPreferences sharedPref = mContext.getSharedPreferences(LANGUAGE_PREFS, Context.MODE_PRIVATE);
+        return sharedPref.getString(LANGUAGE_SELECTED, LANGUAGE_ARABIC);
     }
 }
 

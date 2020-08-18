@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.ProceduresReportsDetailsFragment">
-
+    tools:context=".fragments.ProceduresReportsDetailsFragment"
+    android:id="@+id/swipe_refresh_layout">
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
     <include
         android:id="@+id/simple_toolbar"
         layout="@layout/toolbar_custom" />
@@ -15,9 +18,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="@dimen/space_16"
-        android:text="Procedure Name"
+        android:textColor="@color/colorBlack"
         android:textSize="@dimen/text_size_16sp"
-        android:textStyle="bold|italic"
+        android:fontFamily="@font/roboto_regular"
+        android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/simple_toolbar" />
 
@@ -28,7 +32,8 @@
         android:paddingLeft="@dimen/space_16"
         android:paddingRight="@dimen/space_16"
         android:paddingBottom="@dimen/space_16"
-        android:text="Hospital"
+        android:textColor="@color/colorBlack"
+        android:fontFamily="@font/roboto_regular"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_procedureName" />
 
@@ -39,7 +44,8 @@
         android:paddingLeft="@dimen/space_16"
         android:paddingRight="@dimen/space_16"
         android:paddingBottom="@dimen/space_16"
-        android:text="Time"
+        android:textColor="@color/colorBlack"
+        android:fontFamily="@font/roboto_regular"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_hospital" />
 
@@ -49,7 +55,8 @@
         android:layout_height="wrap_content"
         android:background="@color/colorTimeItemGray"
         android:padding="@dimen/space_10"
-        android:text=" Summary"
+        android:text="@string/summary"
+        android:fontFamily="@font/roboto_regular"
         android:textColor="@color/colorWhite"
         app:layout_constraintTop_toBottomOf="@id/tv_time"></TextView>
 
@@ -67,6 +74,7 @@
         android:id="@+id/wv_report"
         android:layout_width="match_parent"
         android:layout_height="@dimen/space_0"
+        android:fontFamily="@font/roboto_regular"
         app:layout_constraintTop_toBottomOf="@id/tv_mediaSummary"
         app:layout_constraintBottom_toBottomOf="parent"/>
     <TextView
@@ -75,6 +83,8 @@
         android:layout_height="@dimen/space_0"
         android:textAlignment="center"
         android:textSize="@dimen/text_size_32sp"
+        android:textColor="@color/colorBlack"
+        android:fontFamily="@font/roboto_regular"
         app:layout_constraintTop_toBottomOf="@id/tv_mediaSummary"
         app:layout_constraintBottom_toBottomOf="parent"/>
     <TextView
@@ -93,3 +103,4 @@
         app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

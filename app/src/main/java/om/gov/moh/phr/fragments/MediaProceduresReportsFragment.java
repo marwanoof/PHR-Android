@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -47,13 +48,12 @@ import om.gov.moh.phr.models.MyProgressDialog;
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
 import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
-import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_MESSAGE;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_RESULT;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class MediaProceduresReportsFragment extends Fragment implements SearchView.OnQueryTextListener {
+public class MediaProceduresReportsFragment extends Fragment implements SearchView.OnQueryTextListener, SwipeRefreshLayout.OnRefreshListener {
     private RequestQueue mQueue;
     private MyProgressDialog mProgressDialog;
     private Context mContext;
@@ -64,7 +64,8 @@ public class MediaProceduresReportsFragment extends Fragment implements SearchVi
     private static final String API_URL_GET_MEDIA_PROCEDURES_REPORTS_INFO = API_NEHR_URL + "diagnosticOrder/media/";
     private ArrayList<ApiProceduresReportsHolder> reportsArrayList;
     private ProceduresReportsRecyclerView mAdapter;
-
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private View view;
     public MediaProceduresReportsFragment() {
         // Required empty public constructor
     }
@@ -85,15 +86,9 @@ public class MediaProceduresReportsFragment extends Fragment implements SearchVi
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-     //   if (view == null) {
-        View view = inflater.inflate(R.layout.fragment_media_procedures_reports, container, false);
-            ImageButton ibToolbarBackButton = view.findViewById(R.id.ib_toolbar_back_button);
-            ibToolbarBackButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mToolbarControllerCallback.customToolbarBackButtonClicked();
-                }
-            });
+        if (view == null) {
+         view = inflater.inflate(R.layout.fragment_media_procedures_reports, container, false);
+
             TextView tvTitle = view.findViewById(R.id.tv_Title);
             tvTitle.setText(getResources().getString(R.string.title_media));
             tvAlert = view.findViewById(R.id.tv_alert);
@@ -102,15 +97,28 @@ public class MediaProceduresReportsFragment extends Fragment implements SearchVi
             mProgressDialog = new MyProgressDialog(mContext);
             SearchView searchView = (SearchView) view.findViewById(R.id.sv_searchView);
             searchView.setOnQueryTextListener(this);
+        swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
             if (mMediatorCallback.isConnected()) {
                 String mediaProceduresReportsUrl = API_URL_GET_MEDIA_PROCEDURES_REPORTS_INFO + mMediatorCallback.getCurrentUser().getCivilId();
                 getProceduresReportsList(mediaProceduresReportsUrl);
+                swipeRefreshLayout.setOnRefreshListener(this);
+                swipeRefreshLayout.post(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                swipeRefreshLayout.setRefreshing(true);
+                                                rvProceduresReportsList.setVisibility(View.VISIBLE);
+                                                tvAlert.setVisibility(View.GONE);
+                                                String mediaProceduresReportsUrl = API_URL_GET_MEDIA_PROCEDURES_REPORTS_INFO + mMediatorCallback.getCurrentUser().getCivilId();
+                                                getProceduresReportsList(mediaProceduresReportsUrl);
+                                            }
+                                        }
+                );
             } else {
                 displayAlert(getString(R.string.alert_no_connection));
             }
-  /*      }else {
+        }else {
             ((ViewGroup)view.getParent()).removeView(view);
-        }*/
+        }
         return view;
     }
     private void displayAlert(String msg) {
@@ -120,47 +128,52 @@ public class MediaProceduresReportsFragment extends Fragment implements SearchVi
     }
     private void getProceduresReportsList(String url) {
         mProgressDialog.showDialog();
-
+        swipeRefreshLayout.setRefreshing(true);
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                try {
-                    if (response.getInt(API_RESPONSE_CODE) == 0) {
-                        JSONArray jsonElements = response.getJSONArray(API_RESPONSE_RESULT);
-                        reportsArrayList = new ArrayList<>();
-                        for (int i = 0; i < jsonElements.length(); i++) {
-                            JSONObject jsonObject = jsonElements.getJSONObject(i);
-                            ApiProceduresReportsHolder reportDetails = new ApiProceduresReportsHolder();
-                            String mediaSubType = jsonObject.getString("mediaSubType");
-                            reportDetails.setName(mediaSubType);
-                            reportDetails.setStartTime(jsonObject.getLong("creationTime"));
-                            reportDetails.setEstName(jsonObject.getString("estCode"));
-                            reportDetails.setMediaString(jsonObject.getString("mediaString"));
-                            reportsArrayList.add(reportDetails);
+                if (mContext != null) {
+                    try {
+                        if (response.getInt(API_RESPONSE_CODE) == 0) {
+                            JSONArray jsonElements = response.getJSONArray(API_RESPONSE_RESULT);
+                            reportsArrayList = new ArrayList<>();
+                            for (int i = 0; i < jsonElements.length(); i++) {
+                                JSONObject jsonObject = jsonElements.getJSONObject(i);
+                                ApiProceduresReportsHolder reportDetails = new ApiProceduresReportsHolder();
+                                String mediaSubType = jsonObject.getString("mediaSubType");
+                                reportDetails.setName(mediaSubType);
+                                reportDetails.setStartTime(jsonObject.getLong("creationTime"));
+                                reportDetails.setEstName(jsonObject.getString("estCode"));
+                                reportDetails.setMediaString(jsonObject.getString("mediaString"));
+                                reportDetails.setEstFullname(jsonObject.getString("estFullname"));
+                                reportsArrayList.add(reportDetails);
+                            }
+                            setupRecyclerView(reportsArrayList);
+
+                        } else {
+                            displayAlert(getResources().getString(R.string.no_record_found));
+                            mProgressDialog.dismissDialog();
                         }
-                        setupRecyclerView(reportsArrayList);
-
-                    } else {
-                        displayAlert(response.getString(API_RESPONSE_MESSAGE));
-                        mProgressDialog.dismissDialog();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+
+                    mProgressDialog.dismissDialog();
+                    swipeRefreshLayout.setRefreshing(false);
                 }
-
-                mProgressDialog.dismissDialog();
-
             }
-
 
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("resp-demographic", error.toString());
-                error.printStackTrace();
-                mProgressDialog.dismissDialog();
+                if(mContext!=null&&isAdded()) {
+                    Log.d("resp-demographic", error.toString());
+                    error.printStackTrace();
+                    mProgressDialog.dismissDialog();
+                    swipeRefreshLayout.setRefreshing(false);
+                }
             }
         }) {
             //
@@ -210,5 +223,13 @@ public class MediaProceduresReportsFragment extends Fragment implements SearchVi
         super.onDetach();
         mMediatorCallback.changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
         mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onRefresh() {
+        rvProceduresReportsList.setVisibility(View.VISIBLE);
+        tvAlert.setVisibility(View.GONE);
+        String mediaProceduresReportsUrl = API_URL_GET_MEDIA_PROCEDURES_REPORTS_INFO + mMediatorCallback.getCurrentUser().getCivilId();
+        getProceduresReportsList(mediaProceduresReportsUrl);
     }
 }

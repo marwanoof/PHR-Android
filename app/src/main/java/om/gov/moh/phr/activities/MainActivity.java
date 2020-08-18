@@ -2,9 +2,11 @@ package om.gov.moh.phr.activities;
 
 import android.app.Activity;
 import android.app.FragmentManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -13,14 +15,19 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.SubMenu;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -33,6 +40,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.viewpager.widget.ViewPager;
 
 import com.android.volley.DefaultRetryPolicy;
@@ -55,6 +63,7 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -73,6 +82,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -83,8 +93,11 @@ import javax.net.ssl.TrustManagerFactory;
 
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.apimodels.AccessToken;
+import om.gov.moh.phr.fragments.ChatMessagesFragment;
+import om.gov.moh.phr.fragments.FeedbackFragment;
 import om.gov.moh.phr.fragments.HomeFragment;
 import om.gov.moh.phr.fragments.LoginFragment;
+import om.gov.moh.phr.fragments.WebSideMenuFragment;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
 import om.gov.moh.phr.models.AppCurrentUser;
@@ -99,6 +112,7 @@ import static om.gov.moh.phr.models.MyConstants.API_ANDROID_APP_CODE;
 import static om.gov.moh.phr.models.MyConstants.API_ANDROID_FLAG;
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_ACCESS_TOKEN;
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
+import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_MESSAGE;
 import static om.gov.moh.phr.models.MyConstants.LANGUAGE_ARABIC;
@@ -106,11 +120,14 @@ import static om.gov.moh.phr.models.MyConstants.LANGUAGE_ENGLISH;
 import static om.gov.moh.phr.models.MyConstants.LANGUAGE_PREFS;
 import static om.gov.moh.phr.models.MyConstants.LANGUAGE_SELECTED;
 import static om.gov.moh.phr.models.MyConstants.PARAM_CIVIL_ID;
+import static om.gov.moh.phr.models.MyConstants.PARAM_IMAGE;
+import static om.gov.moh.phr.models.MyConstants.PARAM_PERSON_NAME;
 import static om.gov.moh.phr.models.MyConstants.PREFS_API_GET_TOKEN;
 import static om.gov.moh.phr.models.MyConstants.PREFS_API_REGISTER_DEVICE;
 import static om.gov.moh.phr.models.MyConstants.PREFS_CURRENT_USER;
 import static om.gov.moh.phr.models.MyConstants.PREFS_DEVICE_ID;
 import static om.gov.moh.phr.models.MyConstants.PREFS_IS_PARENT;
+import static om.gov.moh.phr.models.MyConstants.PREFS_SIDE_MENU;
 
 
 /**
@@ -133,6 +150,7 @@ import static om.gov.moh.phr.models.MyConstants.PREFS_IS_PARENT;
 public class MainActivity extends AppCompatActivity implements MediatorInterface, ToolbarControllerInterface, NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = "MainActivity";
+    private static final String DEPENDENT_CIVILID = "DependentCivilID";
     private ViewPagerCustomDuration mViewPager;
     private DrawerLayout mDrawer;
     private Toolbar toolbar;
@@ -140,9 +158,17 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
     private MyProgressDialog mProgressDialog;
     private RequestQueue mQueue;
     private Context mContext = MainActivity.this;
-    String settingsLanguage = Locale.getDefault().getDisplayLanguage();
+    private TextView tvCountReceivedNotification;
+    private TextView tvCountReceivedChatNotification;
+    private TextView tvCountReceivedAppointmentNotification;
+    private View chatBadge, appointmentBadge, notificationBadge;
+    private String currentLanguage = getDeviceLanguage();
+    private DataUpdateReceiver dataUpdateReceiver;
+    private String menus;
+    private HomeFragment homeFragment;
+
     //BottomNavigationView :  link bottom nav bar with view pager
-    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
+    /*private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
         @Override
@@ -154,6 +180,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
                 case R.id.navigation_home: {
                     //code here ...
 //                    changeButtonNavVisibilityTo(View.VISIBLE, View.VISIBLE);
+                    changeSideMenuToolBarVisibility(View.VISIBLE);
                     mViewPager.setCurrentItem(0);
 
                     return true;
@@ -178,7 +205,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
             }
             return false;
         }
-    };
+    };*/
 
 
     //FCM
@@ -213,18 +240,13 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        androidx.fragment.app.FragmentManager fm = getSupportFragmentManager();
-        for (int i = 0; i < fm.getBackStackEntryCount(); ++i) {
-            fm.popBackStack();
-        }
-        if(settingsLanguage.contains("العربية"))
-            changeLanguageTo(LANGUAGE_ARABIC);
-        else
-            changeLanguageTo(LANGUAGE_ENGLISH);
+        changeLanguageTo(getStoredLanguage(), false);
         setContentView(R.layout.side_menu_main_page);
-
+        storeLanguage(currentLanguage);
+        setAppLanguage(currentLanguage);
         requestNotificationPermission();
 
+        homeFragment = new HomeFragment();
         //steps to change status bar color << start >>
         Window window = getWindow();
         //clear FLAG_TRANSLUCENT_STATUS flag :
@@ -241,12 +263,12 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
             decor.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
         }
 
-
         //TODO: delete this to remove the toolbar
         //*************************************
 
         toolbar = findViewById(R.id.toolbar);
         setTitle("");
+        ImageView ivLogout = findViewById(R.id.iv_logout);
         //TODO: delete this to remove the toolbar
         //*************************************
 
@@ -262,16 +284,41 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, getSocketFactory())); // initializes mQueue : we need to use  Volley.newRequestQueue(this, new HurlStack(null, getSocketFactory())) because we need to connect the app to secure server "https".
 
 
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-
-
         //BottomNavigationView
 
         bottomNavigation = findViewById(R.id.bottom_navigation);
-        bottomNavigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        bottomNavigation.setVisibility(View.GONE);
+        //bottomNavigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        Intent intent = getIntent();
+        if (intent.getStringExtra(DEPENDENT_CIVILID) != null) {
+            ivLogout.setImageResource(R.drawable.ic_close);
+            String civilId = intent.getStringExtra(DEPENDENT_CIVILID);
+            SharedPreferences.Editor editor;
+            boolean isParent = getAccessToken().getAccessCivilId().equalsIgnoreCase(civilId);
+
+            SharedPreferences sharedPrefCurrentUser = mContext.getSharedPreferences(PREFS_CURRENT_USER, Context.MODE_PRIVATE);
+            editor = sharedPrefCurrentUser.edit();
+            editor.putString(PARAM_CIVIL_ID, civilId);
+            editor.putBoolean(PREFS_IS_PARENT, isParent);
+            editor.apply();
 
 
+            AppCurrentUser appCurrentUser = AppCurrentUser.getInstance();
+            appCurrentUser.setIsParent(isParent);
+            appCurrentUser.setCivilId(civilId);
+        } else {
+            SharedPreferences.Editor editor;
+
+            SharedPreferences sharedPrefCurrentUser = mContext.getSharedPreferences(PREFS_CURRENT_USER, Context.MODE_PRIVATE);
+            editor = sharedPrefCurrentUser.edit();
+            editor.putString(PARAM_CIVIL_ID, getCurrentUser().getCivilId());
+            editor.putBoolean(PREFS_IS_PARENT, true);
+            editor.apply();
+
+            AppCurrentUser appCurrentUser = AppCurrentUser.getInstance();
+            appCurrentUser.setIsParent(true);
+            appCurrentUser.setCivilId(getAccessToken().getAccessCivilId());
+        }
         if (getSharedPreferences(PREFS_API_GET_TOKEN, Context.MODE_PRIVATE).contains(API_GET_TOKEN_ACCESS_TOKEN)) {
 
             setupMainActivity();
@@ -280,13 +327,129 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
             setupLoginFragment();
 
         }
-       if(settingsLanguage.contains("العربية")) {
-           storeLanguage(LANGUAGE_ARABIC);
-           setAppLanguage(LANGUAGE_ARABIC);
-       }else {
-           storeLanguage(LANGUAGE_ENGLISH);
-           setAppLanguage(LANGUAGE_ENGLISH);
-       }
+
+    }
+
+    private void setUpNavigationView() {
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        Menu menu = navigationView.getMenu();
+        SharedPreferences sharedPrefSideMenu = mContext.getSharedPreferences(PREFS_SIDE_MENU, Context.MODE_PRIVATE);
+        menus = sharedPrefSideMenu.getString("PARAM_SIDEMENU", "");
+        Log.d("sideMenu", menus);
+        try {
+            JSONArray array = new JSONArray(menus);
+            for(int i=0; i<array.length(); i++){
+                JSONObject jsonObj  = array.getJSONObject(i);
+                int nav_id = jsonObj.getInt("menuId");
+                String nav_name = jsonObj.getString("menuName");
+                String nav_name_ar = jsonObj.getString("menuNameNls");
+                String nav_icon = jsonObj.getString("iconClass");
+                String nav_Url = jsonObj.getString("templateUrl");
+                String nav_Url_ar = jsonObj.getString("templateUrlNls");
+                if (nav_icon.contains("sm_bmi")) {  // the resource exists...
+                    if (getStoredLanguage().equals(LANGUAGE_ENGLISH))
+                        menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name).setIcon(R.drawable.bmi_ic);
+                    else
+                        menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name_ar).setIcon(R.drawable.bmi_ic);
+                }else  if (nav_icon.contains("sm_righ")) {  // the resource exists...
+                    if (getStoredLanguage().equals(LANGUAGE_ENGLISH))
+                        menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name).setIcon(R.drawable.terms_of_use_ic);
+                    else
+                        menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name_ar).setIcon(R.drawable.terms_of_use_ic);
+                }else  if (nav_icon.contains("sm_faci")) {  // the resource exists...
+                    if (getStoredLanguage().equals(LANGUAGE_ENGLISH))
+                        menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name).setIcon(R.drawable.svg_ic_institute);
+                    else
+                        menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name_ar).setIcon(R.drawable.svg_ic_institute);
+                } else  if (nav_icon.contains("sm_phar")) {  // the resource exists...
+                    if (getStoredLanguage().equals(LANGUAGE_ENGLISH))
+                        menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name).setIcon(R.drawable.search_pharmacy);
+                    else
+                        menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name_ar).setIcon(R.drawable.search_pharmacy);
+                }else  if (nav_icon.contains("sm_edd")) {  // the resource exists...
+                    if (getStoredLanguage().equals(LANGUAGE_ENGLISH))
+                        menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name).setIcon(R.drawable.edd_ic);
+                    else
+                        menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name_ar).setIcon(R.drawable.edd_ic);
+                }else  if (nav_icon.contains("sm_form")) {  // the resource exists...
+                    if (getStoredLanguage().equals(LANGUAGE_ENGLISH))
+                        menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name).setIcon(R.drawable.forms);
+                    else
+                        menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name_ar).setIcon(R.drawable.forms);
+                }else  if (nav_icon.contains("sm_ask")) {  // the resource exists...
+                    if (getStoredLanguage().equals(LANGUAGE_ENGLISH))
+                        menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name).setIcon(R.drawable.ask_doctor);
+                    else
+                        menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name_ar).setIcon(R.drawable.ask_doctor);
+                }else  if (nav_icon.contains("sm_educ")) {  // the resource exists...
+                    if (getStoredLanguage().equals(LANGUAGE_ENGLISH))
+                        menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name).setIcon(R.drawable.health_education);
+                    else
+                        menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name_ar).setIcon(R.drawable.health_education);
+                }else {  // checkExistence == 0  // the resource does NOT exist!!
+                    if (getStoredLanguage().equals(LANGUAGE_ENGLISH))
+                        menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name).setIcon(R.drawable.terms_of_use_ic);
+                    else
+                        menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name_ar).setIcon(R.drawable.terms_of_use_ic);
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+      /*  if (menusData != null) {
+            for (int i = 0; i < menusData.length(); i++) {
+                JSONObject jsonObject = null;
+                try {
+                    jsonObject = menusData.getJSONObject(i);
+                    int nav_id = jsonObject.getInt("menuId");
+                    String nav_name = jsonObject.getString("menuName");
+                    String nav_name_ar = jsonObject.getString("menuNameNls");
+                    String nav_icon = jsonObject.getString("iconClass");
+                    String nav_Url = jsonObject.getString("templateUrl");
+                    String nav_Url_ar = jsonObject.getString("templateUrlNls");
+                    int checkExistence = mContext.getResources().getIdentifier(nav_icon, "drawable", mContext.getPackageName());
+
+                    if (checkExistence != 0) {  // the resource exists...
+                        if (getStoredLanguage().equals(LANGUAGE_ENGLISH))
+                            menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name).setIcon(checkExistence);
+                        else
+                            menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name_ar).setIcon(checkExistence);
+                    } else {  // checkExistence == 0  // the resource does NOT exist!!
+                        if (getStoredLanguage().equals(LANGUAGE_ENGLISH))
+                            menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name).setIcon(R.drawable.terms_of_use_ic);
+                        else
+                            menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name_ar).setIcon(R.drawable.terms_of_use_ic);
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }*/
+
+
+       /* menu.add(1, 1, 0, R.string.health_education).setIcon(R.drawable.health_education);
+        menu.add(R.string.find_pharmacy).setIcon(R.drawable.search_pharmacy);
+        menu.add(R.string.ask_doctor).setIcon(R.drawable.ask_doctor);
+        menu.add(R.string.heath_facilities).setIcon(R.drawable.hospital_facilities);
+        menu.add(R.string.forms).setIcon(R.drawable.forms);
+        menu.add(R.string.bmi_calculator).setIcon(R.drawable.bmi_ic);
+        menu.add(R.string.edd_calculator).setIcon(R.drawable.edd_ic);*/
+
+        // adding a section and items into it
+        final SubMenu subMenu = menu.addSubMenu("");
+        if (getStoredLanguage().equals(LANGUAGE_ARABIC))
+            subMenu.add(R.string.english).setIcon(R.drawable.langauge_ic);
+        if (getStoredLanguage().equals(LANGUAGE_ENGLISH))
+            subMenu.add(R.string.arabic).setIcon(R.drawable.langauge_ic);
+        subMenu.add(R.string.about_the_app).setIcon(R.drawable.about_ic);
+        subMenu.add(R.string.phr_feedback).setIcon(R.drawable.ic_feedback);
+       // subMenu.add(R.string.patients_rights).setIcon(R.drawable.terms_of_use_ic);
+        subMenu.add(R.string.title_logout).setIcon(R.drawable.logout);
+        navigationView.setNavigationItemSelectedListener(this);
     }
 
     private void requestNotificationPermission() {
@@ -335,15 +498,17 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
     }
 
     private void setupMainActivity() {
+        setUpNavigationView();
         mViewPager = findViewById(R.id.swipe_container);
         HomePagerAdapter mHomePagerAdapter =
                 new HomePagerAdapter(getSupportFragmentManager(), this);
         // Set up the ViewPager with the sections adapter.
         mViewPager.setAdapter(mHomePagerAdapter);
-
-
+        //to add the badge of notifications
+        if (AppCurrentUser.getInstance().getIsParent())
+            checkNotificationsCounter();
         // to link view pager with bottom nav bar
-        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+/*        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int i, float v, int i1) {
 
@@ -355,10 +520,21 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
                 BottomNavigationMenuView menuView = (BottomNavigationMenuView) bottomNavigation.getChildAt(0);
                 BottomNavigationItemView item = (BottomNavigationItemView) menuView.getChildAt(i);
                 bottomNavigation.setSelectedItemId(item.getId());
-
                 if (i > 0) {
                     changeSideMenuToolBarVisibility(View.GONE);
                     shouldLockDrawer(true);
+                    if (i == 1 && appointmentBadge != null) {
+                        tvCountReceivedAppointmentNotification.setBackground(null);
+                        clearNotificationSharedPrefs(1);
+                    }
+                    if (i == 2 && notificationBadge != null) {
+                        tvCountReceivedNotification.setBackground(null);
+                        clearNotificationSharedPrefs(2);
+                    }
+                    if (i == 3 && chatBadge != null) {
+                        tvCountReceivedChatNotification.setBackground(null);
+                        clearNotificationSharedPrefs(3);
+                    }
                 } else {
                     changeSideMenuToolBarVisibility(View.VISIBLE);
                     shouldLockDrawer(false);
@@ -368,50 +544,85 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
             @Override
             public void onPageScrollStateChanged(int i) {
             }
-        });
+        });*/
 
 
         if (checkPlayServices(this)) {
             // FCM
 //            createChannelToShowNotifications();
             // FCM
-            handelDataExtras();
+            //   handelDataExtras();
             // FCM
             getNotificationCurrentToken();
+        }
+
+    }
+
+    private void checkNotificationsCounter() {
+        SharedPreferences sharedPref = mContext.getSharedPreferences("Counting", Context.MODE_PRIVATE);
+        int NoOfAppointmentsNotifications = sharedPref.getInt("appointmentCount", 0);
+        int NoOfNotifications = sharedPref.getInt("notificationCount", 0);
+        int NoOfChatNotifications = sharedPref.getInt("chatCount", 0);
+        if (NoOfChatNotifications > 0) {
+            if (getCurrentFragment() != null && getCurrentFragment() instanceof ChatMessagesFragment) {
+                clearNotificationSharedPrefs(3);
+                tvCountReceivedChatNotification.setBackground(null);
+            } else {
+
+                BottomNavigationMenuView menuView = (BottomNavigationMenuView) bottomNavigation.getChildAt(0);
+                BottomNavigationItemView item = (BottomNavigationItemView) menuView.getChildAt(3);
+                if (chatBadge == null)
+                    chatBadge = LayoutInflater.from(mContext).inflate(R.layout.bagde, item, true);
+                if (tvCountReceivedChatNotification == null)
+                    tvCountReceivedChatNotification = chatBadge.findViewById(R.id.chat_badge);
+                tvCountReceivedChatNotification.setBackground(getResources().getDrawable(R.drawable.bg_circle));
+                tvCountReceivedChatNotification.setText(String.valueOf(NoOfChatNotifications));
+            }
+
+        }
+        if (NoOfAppointmentsNotifications > 0) {
+            BottomNavigationMenuView menuView = (BottomNavigationMenuView) bottomNavigation.getChildAt(0);
+            BottomNavigationItemView item = (BottomNavigationItemView) menuView.getChildAt(1);
+            if (appointmentBadge == null)
+                appointmentBadge = LayoutInflater.from(mContext).inflate(R.layout.bagde, item, true);
+            if (tvCountReceivedAppointmentNotification == null)
+                tvCountReceivedAppointmentNotification = appointmentBadge.findViewById(R.id.chat_badge);
+            tvCountReceivedAppointmentNotification.setBackground(getResources().getDrawable(R.drawable.bg_circle));
+            tvCountReceivedAppointmentNotification.setText(String.valueOf(NoOfAppointmentsNotifications));
+        }
+        if (NoOfNotifications > 0) {
+            BottomNavigationMenuView menuView = (BottomNavigationMenuView) bottomNavigation.getChildAt(0);
+            BottomNavigationItemView item = (BottomNavigationItemView) menuView.getChildAt(2);
+            if (notificationBadge == null)
+                notificationBadge = LayoutInflater.from(mContext).inflate(R.layout.bagde, item, true);
+            if (tvCountReceivedNotification == null)
+                tvCountReceivedNotification = notificationBadge.findViewById(R.id.chat_badge);
+            tvCountReceivedNotification.setBackground(getResources().getDrawable(R.drawable.bg_circle));
+            tvCountReceivedNotification.setText(String.valueOf(NoOfNotifications));
         }
     }
 
     @Override
     public SSLSocketFactory getSocketFactory() {
-
         CertificateFactory cf = null;
         try {
-
             cf = CertificateFactory.getInstance("X.509");
             InputStream caInput = getResources().openRawResource(R.raw.cert);
             Certificate ca;
             try {
-
                 ca = cf.generateCertificate(caInput);
                 Log.e("CERT", "ca=" + ((X509Certificate) ca).getSubjectDN());
-
-
             } finally {
                 caInput.close();
             }
-
-
             String keyStoreType = KeyStore.getDefaultType();
             KeyStore keyStore = KeyStore.getInstance(keyStoreType);
             keyStore.load(null, null);
             keyStore.setCertificateEntry("ca", ca);
 
-
             String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
             TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
             tmf.init(keyStore);
-
-
             HostnameVerifier hostnameVerifier = new HostnameVerifier() {
                 @Override
                 public boolean verify(String hostname, SSLSession session) {
@@ -421,20 +632,13 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
 
                 }
             };
-
-
             HttpsURLConnection.setDefaultHostnameVerifier(hostnameVerifier);
             SSLContext context = null;
             context = SSLContext.getInstance("TLS");
-
             context.init(null, tmf.getTrustManagers(), null);
             HttpsURLConnection.setDefaultSSLSocketFactory(context.getSocketFactory());
-
             SSLSocketFactory sf = context.getSocketFactory();
-
-
             return sf;
-
         } catch (CertificateException e) {
             e.printStackTrace();
         } catch (NoSuchAlgorithmException e) {
@@ -448,7 +652,6 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         } catch (KeyManagementException e) {
             e.printStackTrace();
         }
-
         return null;
     }
 
@@ -462,6 +665,8 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
             AccessToken accessToken = AccessToken.getInstance();
             accessToken.setAccessTokenString(sharedPref.getString(API_GET_TOKEN_ACCESS_TOKEN, ""));
             accessToken.setAccessCivilId(sharedPref.getString(PARAM_CIVIL_ID, ""));
+            accessToken.setPersonName(sharedPref.getString(PARAM_PERSON_NAME, ""));
+            accessToken.setImage(sharedPref.getString(PARAM_IMAGE, ""));
             return accessToken;
         }
     }
@@ -534,10 +739,9 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         toolbar.setVisibility(visibility);
     }
 
-
     @Override
     public void onBackPressed() {
-        if (getCurrentFragment() instanceof HomeFragment) {
+        if (getCurrentFragment() instanceof HomeFragment || getCurrentFragment() instanceof LoginFragment) {
             moveTaskToBack(true);
         } else {
             super.onBackPressed();
@@ -547,27 +751,80 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
     //side menu
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
+        changeFragmentContainerVisibility(View.VISIBLE, View.GONE);
+        changeSideMenuToolBarVisibility(View.GONE);
         // Handle navigation view item clicks here.
         int id = item.getItemId();
+        String title = item.getTitle().toString();
 //        changeButtonNavVisibilityTo(View.GONE, View.GONE);
+        if (menus != null) {
+            try {
+                JSONArray array = new JSONArray(menus);
+                for (int i = 0; i < array.length(); i++) {
+                    JSONObject jsonObject = null;
+                    try {
+                        jsonObject = array.getJSONObject(i);
+                        int nav_id = jsonObject.getInt("menuId");
+                        String nav_name = jsonObject.getString("menuName");
+                        String nav_name_ar = jsonObject.getString("menuNameNls");
+                        String nav_icon = jsonObject.getString("iconClass");
+                        String nav_Url = jsonObject.getString("templateUrl");
+                        String nav_Url_ar = jsonObject.getString("templateUrlNls");
+                        if (id == nav_id) {
+                            // Handle the camera action
+                            if (getStoredLanguage().equals(LANGUAGE_ENGLISH))
+                                changeFragmentTo(WebSideMenuFragment.newInstance(nav_Url), WebSideMenuFragment.class.getSimpleName());
+                            else
+                                changeFragmentTo(WebSideMenuFragment.newInstance(nav_Url_ar), WebSideMenuFragment.class.getSimpleName());
+                        }/* else if (title.equals(getResources().getString(R.string.find_pharmacy))) {
+                        changeFragmentTo(WebSideMenuFragment.newInstance(2), WebSideMenuFragment.class.getSimpleName());
+                    } else if (title.equals(getResources().getString(R.string.ask_doctor))) {
+                        changeFragmentTo(WebSideMenuFragment.newInstance(3), WebSideMenuFragment.class.getSimpleName());
+                    } else if (title.equals(getResources().getString(R.string.heath_facilities))) {
+                        changeFragmentTo(WebSideMenuFragment.newInstance(4), WebSideMenuFragment.class.getSimpleName());
+                    } else if (title.equals(getResources().getString(R.string.forms))) {
+                        changeFragmentTo(WebSideMenuFragment.newInstance(5), WebSideMenuFragment.class.getSimpleName());
+                    } else if (title.equals(getResources().getString(R.string.bmi_calculator))) {
+                        changeFragmentTo(WebSideMenuFragment.newInstance(6), WebSideMenuFragment.class.getSimpleName());
+                    } else if (title.equals(getResources().getString(R.string.edd_calculator))) {
+                        changeFragmentTo(WebSideMenuFragment.newInstance(7), WebSideMenuFragment.class.getSimpleName());
+                    }*/ else if (title.equals(getResources().getString(R.string.english))) {
+                            storeLanguage(LANGUAGE_ENGLISH);
+                            changeLanguageTo(LANGUAGE_ENGLISH, true);
+                        } else if (title.equals(getResources().getString(R.string.arabic))) {
+                            storeLanguage(LANGUAGE_ARABIC);
+                            changeLanguageTo(LANGUAGE_ARABIC, true);
+                        } else if (title.equals(getResources().getString(R.string.about_the_app))) {
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-          //  changeFragmentTo(VitalInfoFragment.newInstance("Home Side Menu"), VitalInfoFragment.class.getSimpleName());
+                            displayAboutAppDialog();
+                        } else if (title.equals(getResources().getString(R.string.phr_feedback))) {
+                            changeFragmentTo(FeedbackFragment.newInstance(), FeedbackFragment.class.getSimpleName());
+                        } else if (title.equals(getResources().getString(R.string.patients_rights))) {
+                            //   changeFragmentTo(WebSideMenuFragment.newInstance(8), WebSideMenuFragment.class.getSimpleName());
+                        } else if (title.equals(getResources().getString(R.string.title_logout))) {
+                            changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
+                            changeSideMenuToolBarVisibility(View.VISIBLE);
+                            if (AppCurrentUser.getInstance().getIsParent())
+                                logout();
+                            else {
+                                finish();
+                                Intent ParentHome = new Intent(MainActivity.this, MainActivity.class);
+                                startActivity(ParentHome);
+                            }
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
 
-        } else if (id == R.id.nav_gallery) {
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
 
-        } else if (id == R.id.nav_slideshow) {
 
-        } else if (id == R.id.nav_manage) {
 
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
-        } else if (id == R.id.nav_logout) {
-            logout();
         }
+
 
         mDrawer.closeDrawer(GravityCompat.START);
         return true;
@@ -594,14 +851,57 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
     }
 
     private void logout() {
-        unRegisterDeviceId();
-        clearSharedPrefs();
-        clearBackStack();
-        setupLoginFragment();
+        displayLogoutDialog();
+    }
+
+    private void displayLogoutDialog() {
+        android.app.AlertDialog.Builder builder1 = new android.app.AlertDialog.Builder(mContext);
+        builder1.setMessage(getResources().getString(R.string.confirm_logout_msg));
+        builder1.setCancelable(false);
+
+        builder1.setPositiveButton(
+                getResources().getString(R.string.yes_dialog),
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        unRegisterDeviceId();
+                        clearSharedPrefs();
+                        clearBackStack();
+                        setupLoginFragment();
+                        clearNotificationSharedPrefs(9);
+                    }
+                });
+
+        builder1.setNegativeButton(
+                getResources().getString(R.string.no_dialog),
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                    }
+                });
+
+        android.app.AlertDialog alert11 = builder1.create();
+        alert11.show();
+    }
+
+    private void displayAboutAppDialog() {
+        changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
+        changeSideMenuToolBarVisibility(View.VISIBLE);
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(mContext);
+        builder.setMessage(getResources().getString(R.string.about_app_info));
+        builder.setCancelable(true);
+        builder.setPositiveButton(
+                getResources().getString(R.string.ok),
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                    }
+                });
+        android.app.AlertDialog alert = builder.create();
+        alert.show();
     }
 
     private void unRegisterDeviceId() {
-        String fullUrl = "http://10.99.9.36:9000/nehrapi/device/unRegister?deviceId=" + getDeviceId() + "&flag=" + API_ANDROID_FLAG + "&appShortCode=" + API_ANDROID_APP_CODE + "&civilId=" + getCurrentUser().getCivilId();
+        String fullUrl = API_NEHR_URL + "device/unRegister?deviceId=" + getDeviceId() + "&flag=" + API_ANDROID_FLAG + "&appShortCode=" + API_ANDROID_APP_CODE + "&civilId=" + getCurrentUser().getCivilId();
         Log.d("unRegisterDevice-url", fullUrl);
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, fullUrl, null
@@ -690,14 +990,43 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        LocalBroadcastManager.getInstance(this).registerReceiver((mMessageReceiver),
+                new IntentFilter("MyNewToken")
+        );
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
+    }
+
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            mProgressDialog.dismissDialog();
+            String newToken = Objects.requireNonNull(intent.getExtras()).getString("token");
+            unRegisterDeviceId();
+            clearSharedPrefs();
+            registerDevice(newToken);
+        }
+    };
+
+    @Override
     protected void onResume() {
         super.onResume();
+
         if (getSharedPreferences(PREFS_API_GET_TOKEN, Context.MODE_PRIVATE).contains(API_GET_TOKEN_ACCESS_TOKEN)) {
             if (checkPlayServices(this)) {
                 // FCM
 //            createChannelToShowNotifications();
                 // FCM
-                handelDataExtras();
+                //handelDataExtras();
+                if (dataUpdateReceiver == null) dataUpdateReceiver = new DataUpdateReceiver();
+                IntentFilter intentFilter = new IntentFilter("TEST");
+                registerReceiver(dataUpdateReceiver, intentFilter);
                 // FCM
                 getNotificationCurrentToken();
             }
@@ -724,6 +1053,13 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         }
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (dataUpdateReceiver != null)
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(dataUpdateReceiver);
+    }
+
     private void setupLoginFragment() {
         changeFragmentContainerVisibility(View.VISIBLE, View.GONE);
         changeSideMenuToolBarVisibility(View.GONE);
@@ -744,13 +1080,26 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         // Handle possible data accompanying notification message.
         // [START handle_data_extras]
         if (getIntent().getExtras() != null) {
+            Log.d(TAG + "intent", "NOTIFICATION: " + getIntent().getExtras());
             for (String key : getIntent().getExtras().keySet()) {
                 Object value = getIntent().getExtras().get(key);
                 Log.d(TAG + "-intent", "Key: " + key + " Value: " + value);
+          /*      if (key.equals("type")) {
+                    changeFragmentContainerVisibility(View.VISIBLE, View.GONE);
+                    changeSideMenuToolBarVisibility(View.GONE);
+                    if (value.equals(1))
+                        slideTo(1);
+                    if (value.equals("2"))
+                        slideTo(2);
+                    if (value.equals("3"))
+                        slideTo(3);
+                }*/
             }
+
         }
-// [END handle_data_extras]
     }
+// [END handle_data_extras]
+
 
     // FCM
     private void getNotificationCurrentToken() {
@@ -769,7 +1118,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
                         String deviceId = task.getResult().getToken();
 
                         registerDevice(deviceId);
-
+                        Log.d(TAG + "deviceID", deviceId);
                         // Log and toast
                         String msg = getString(R.string.msg_token_fmt, deviceId);
                         Log.d(TAG + "-token", msg);
@@ -782,7 +1131,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
 
     private void registerDevice(final String deviceId) {
 
-        String fullUrl = "http://10.99.9.36:9000/nehrapi/device/register?deviceId=" + deviceId + "&flag=" + API_ANDROID_FLAG + "&appShortCode=" + API_ANDROID_APP_CODE + "&civilId=" + getCurrentUser().getCivilId();
+        String fullUrl = API_NEHR_URL + "device/register?deviceId=" + deviceId + "&flag=" + API_ANDROID_FLAG + "&appShortCode=" + API_ANDROID_APP_CODE + "&civilId=" + getCurrentUser().getCivilId();
         Log.d("registerDevice-url", fullUrl);
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, fullUrl, null
@@ -846,8 +1195,15 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
     }
 
     public void logoutUser(View view) {
-        logout();
+        if (AppCurrentUser.getInstance().getIsParent())
+            logout();
+        else {
+            finish();
+            Intent ParentHome = new Intent(MainActivity.this, MainActivity.class);
+            startActivity(ParentHome);
+        }
     }
+
     // to prevent appearing the keyboard on undesired Screens
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
@@ -858,21 +1214,62 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
             float x = ev.getRawX() + view.getLeft() - scrcoords[0];
             float y = ev.getRawY() + view.getTop() - scrcoords[1];
             if (x < view.getLeft() || x > view.getRight() || y < view.getTop() || y > view.getBottom())
-                ((InputMethodManager)this.getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow((this.getWindow().getDecorView().getApplicationWindowToken()), 0);
+                ((InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow((this.getWindow().getDecorView().getApplicationWindowToken()), 0);
         }
         return super.dispatchTouchEvent(ev);
     }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        //handelDataExtras();
+    }
+
+    private void clearNotificationSharedPrefs(int notificationType) {
+        SharedPreferences sharedPref;
+        SharedPreferences.Editor editor;
+
+        sharedPref = mContext.getSharedPreferences("Counting", Context.MODE_PRIVATE);
+        editor = sharedPref.edit();
+        switch (notificationType) {
+            case 1:
+                editor.remove("appointmentCount");
+                editor.apply();
+                break;
+            case 2:
+                editor.remove("notificationCount");
+                editor.apply();
+                break;
+            case 3:
+                editor.remove("chatCount");
+                editor.apply();
+                break;
+            default:
+                editor.remove("appointmentCount");
+                editor.remove("notificationCount");
+                editor.remove("chatCount");
+                editor.apply();
+        }
+    }
+
     private void setAppLanguage(String language) {
         AppLanguage appLanguage = AppLanguage.getInstance();
         appLanguage.setSelectedLanguage(language);
     }
 
-    private void changeLanguageTo(String language) {
+    private void changeLanguageTo(String language, boolean recreate) {
+        currentLanguage = language;
         Locale locale = new Locale(language);
         Locale.setDefault(locale);
         Configuration configuration = new Configuration();
         configuration.locale = locale;
-        getBaseContext().getResources().updateConfiguration(configuration, getBaseContext().getResources().getDisplayMetrics());
+        configuration.setLocale(locale);
+        mContext.getResources().updateConfiguration(configuration, mContext.getResources().getDisplayMetrics());
+        if (recreate) {
+            Intent intent = getIntent();
+            finish();
+            startActivity(intent);
+        }
     }
 
 
@@ -881,6 +1278,30 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(LANGUAGE_SELECTED, language);
         editor.apply();
+    }
+
+    private String getStoredLanguage() {
+        SharedPreferences sharedPref = getSharedPreferences(LANGUAGE_PREFS, Context.MODE_PRIVATE);
+        return sharedPref.getString(LANGUAGE_SELECTED, getDeviceLanguage());
+    }
+
+
+    private class DataUpdateReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals("TEST")) {
+                if (AppCurrentUser.getInstance().getIsParent())
+                    checkNotificationsCounter();
+            }
+        }
+    }
+
+    private String getDeviceLanguage() {
+        return Locale.getDefault().getLanguage();
+    }
+
+    public void expandCollapseBtn(View view){
+        homeFragment.expandCollapseBtn(view);
     }
 }
 

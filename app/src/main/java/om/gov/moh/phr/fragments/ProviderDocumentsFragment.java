@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -44,19 +46,20 @@ import om.gov.moh.phr.adapters.OtherDocsRecyclerViewAdapter;
 import om.gov.moh.phr.adapters.UploadedDocsRecyclerViewAdapter;
 import om.gov.moh.phr.apimodels.ApiOtherDocsHolder;
 import om.gov.moh.phr.apimodels.ApiUploadsDocsHolder;
+import om.gov.moh.phr.apimodels.Notification;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
 import om.gov.moh.phr.models.MyProgressDialog;
 
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
 import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
+import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_RESULT;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ProviderDocumentsFragment extends Fragment implements SearchView.OnQueryTextListener {
-
+public class ProviderDocumentsFragment extends Fragment implements SearchView.OnQueryTextListener, SwipeRefreshLayout.OnRefreshListener {
     private static final String API_URL_GET_OTHER_DOCS = API_NEHR_URL + "documentReference/civilId/";
     private RequestQueue mQueue;
     private MyProgressDialog mProgressDialog;
@@ -66,7 +69,9 @@ public class ProviderDocumentsFragment extends Fragment implements SearchView.On
     private RecyclerView rvOtherDocsList;
     private TextView tvAlert;
     private OtherDocsRecyclerViewAdapter mAdapter;
+    private SwipeRefreshLayout swipeRefreshLayout;
     private View view;
+
     public ProviderDocumentsFragment() {
         // Required empty public constructor
     }
@@ -90,32 +95,40 @@ public class ProviderDocumentsFragment extends Fragment implements SearchView.On
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-      //  if (view == null) {
-            view = inflater.inflate(R.layout.fragment_other_documents, container, false);
-            ImageButton ibToolbarBackButton = view.findViewById(R.id.ib_toolbar_back_button);
-            ibToolbarBackButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mToolbarControllerCallback.customToolbarBackButtonClicked();
-                }
-            });
-            TextView tvTitle = view.findViewById(R.id.tv_Title);
-            tvTitle.setText(getResources().getString(R.string.title_other_document));
+        if (view == null) {
+             view = inflater.inflate(R.layout.fragment_other_documents, container, false);
+
+            //  TextView tvTitle = view.findViewById(R.id.tv_Title);
+            // tvTitle.setText(getResources().getString(R.string.title_other_document));
             mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
             mProgressDialog = new MyProgressDialog(mContext);
             tvAlert = view.findViewById(R.id.tv_alert);
             rvOtherDocsList = view.findViewById(R.id.rv_DocsList);
+            swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
+
             if (mMediatorCallback.isConnected()) {
                 String providerDocs = API_URL_GET_OTHER_DOCS + mMediatorCallback.getCurrentUser().getCivilId();
                 getProviderDocsList(providerDocs);
+                swipeRefreshLayout.setOnRefreshListener(this);
+                swipeRefreshLayout.post(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                swipeRefreshLayout.setRefreshing(true);
+                                                rvOtherDocsList.setVisibility(View.VISIBLE);
+                                                tvAlert.setVisibility(View.GONE);
+                                                String providerDocs = API_URL_GET_OTHER_DOCS + mMediatorCallback.getCurrentUser().getCivilId();
+                                                getProviderDocsList(providerDocs);
+                                            }
+                                        }
+                );
             } else {
                 displayAlert(getString(R.string.alert_no_connection));
             }
             SearchView searchView = (SearchView) view.findViewById(R.id.sv_searchView);
             searchView.setOnQueryTextListener(this);
-      /*  }else {
-            ((ViewGroup)view.getParent()).removeView(view);
-        }*/
+        } else {
+            ((ViewGroup) view.getParent()).removeView(view);
+        }
         return view;
     }
 
@@ -127,23 +140,30 @@ public class ProviderDocumentsFragment extends Fragment implements SearchView.On
 
     private void getProviderDocsList(String url) {
         mProgressDialog.showDialog();
-
+        swipeRefreshLayout.setRefreshing(true);
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 try {
-                    Gson gson = new Gson();
-                    ApiOtherDocsHolder responseHolder = gson.fromJson(response.toString(), ApiOtherDocsHolder.class);
-                    Log.d("resp-dependants", response.getJSONArray(API_RESPONSE_RESULT).toString());
-                    setupRecyclerView(responseHolder.getmResult());
+                    if (response.getInt(API_RESPONSE_CODE) == 0) {
+                        Gson gson = new Gson();
+                        ApiOtherDocsHolder responseHolder = gson.fromJson(response.toString(), ApiOtherDocsHolder.class);
+                        Log.d("resp-dependants", response.getJSONArray(API_RESPONSE_RESULT).toString());
+                        setupRecyclerView(responseHolder.getmResult());
+
+                    } else {
+                        displayAlert(getResources().getString(R.string.no_record_found));
+                        mProgressDialog.dismissDialog();
+
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
 
                 mProgressDialog.dismissDialog();
-
+                swipeRefreshLayout.setRefreshing(false);
             }
 
 
@@ -153,6 +173,7 @@ public class ProviderDocumentsFragment extends Fragment implements SearchView.On
                 Log.d("resp-demographic", error.toString());
                 error.printStackTrace();
                 mProgressDialog.dismissDialog();
+                swipeRefreshLayout.setRefreshing(false);
             }
         }) {
             //
@@ -199,10 +220,20 @@ public class ProviderDocumentsFragment extends Fragment implements SearchView.On
             mAdapter.filter(newText);
         return false;
     }
+
     @Override
     public void onDetach() {
         super.onDetach();
         mMediatorCallback.changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
         mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
+
+    }
+
+    @Override
+    public void onRefresh() {
+        rvOtherDocsList.setVisibility(View.VISIBLE);
+        tvAlert.setVisibility(View.GONE);
+        String providerDocs = API_URL_GET_OTHER_DOCS + mMediatorCallback.getCurrentUser().getCivilId();
+        getProviderDocsList(providerDocs);
     }
 }

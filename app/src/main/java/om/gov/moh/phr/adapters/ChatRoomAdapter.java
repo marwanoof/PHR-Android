@@ -67,10 +67,7 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.MyView
     public int getItemCount() {
         return messagesArrayList.size();
     }
-    public void updateList(ArrayList<ApiFriendChatListHolder.ApiFriendListInfo> newItems) {
-        messagesArrayList = newItems;
-        notifyDataSetChanged();
-    }
+
     public class MyViewHolder extends RecyclerView.ViewHolder {
         TextView message, timestamp;
 

@@ -25,11 +25,21 @@ public class ApiOtherDocsHolder {
         @SerializedName("estFullname")
         private String estFullname;
 
+        public String getLocationName() {
+            return locationName;
+        }
+
         @SerializedName("indexed")
         private long indexed;
 
         @SerializedName("documentRefId")
         private String documentRefId;
+
+        @SerializedName("locationName")
+        private String locationName;
+
+        @SerializedName("title")
+        private String title;
 
         public String getDocumentRefId() {
             return documentRefId;
@@ -47,6 +57,10 @@ public class ApiOtherDocsHolder {
                 return "";
             else
             return estName;
+        }
+
+        public String getTitle() {
+            return title;
         }
 
         public String getEstFullname() {

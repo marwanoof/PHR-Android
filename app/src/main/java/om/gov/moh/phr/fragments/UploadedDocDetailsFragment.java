@@ -11,6 +11,7 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.util.Base64;
 import android.util.Log;
@@ -57,7 +58,7 @@ import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_RESULT;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class UploadedDocDetailsFragment extends Fragment {
+public class UploadedDocDetailsFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
     private static final String PARAM_API_UPLOADED_DOC_ITEM = "PARAM_API_UPLOADED_DOC_ITEM";
     private static final String API_DOC_INFO = API_NEHR_URL + "file/downloadBFile/";
     private static final String API_DELETE_DOC_INFO = API_NEHR_URL + "file/delete/";
@@ -72,6 +73,7 @@ public class UploadedDocDetailsFragment extends Fragment {
     private ApiUploadsDocsHolder.ApiUploadDocInfo mUploadedDocInfo;
     private ImageView ivFileUploaded;
     private TextView tvAlert;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     public UploadedDocDetailsFragment() {
         // Required empty public constructor
@@ -131,6 +133,17 @@ public class UploadedDocDetailsFragment extends Fragment {
             }
         });
         ibHome = view.findViewById(R.id.ib_home);
+        swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        swipeRefreshLayout.setRefreshing(true);
+                                        String fileUrl = API_DOC_INFO + mUploadedDocInfo.getDocId();
+                                        getFileUploaded(fileUrl);
+                                    }
+                                }
+        );
         ibHome.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -139,18 +152,18 @@ public class UploadedDocDetailsFragment extends Fragment {
         });
         ivFileUploaded = view.findViewById(R.id.iv_uploadedFile);
         tvAlert = view.findViewById(R.id.tv_alert);
-        setToolBarItemsVisibility(view);
+        setToolBarItemsVisibility();
         mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
         mProgressDialog = new MyProgressDialog(mContext);
         String fileUrl = API_DOC_INFO + mUploadedDocInfo.getDocId();
-        if(mUploadedDocInfo.getStatus().equals("P"))
+        if (mUploadedDocInfo.getStatus().equals("P"))
             switchPublish.setChecked(true);
         switchPublish.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked)
                     displayPublishDialog();
-                if(!isChecked)
+                if (!isChecked)
                     displayUnPublishDialog();
             }
         });
@@ -167,7 +180,7 @@ public class UploadedDocDetailsFragment extends Fragment {
                 getResources().getString(R.string.yes_dialog),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        String fileUrl = "http://10.99.9.36:9000/nehrapi/file/publish/" + mUploadedDocInfo.getDocId();
+                        String fileUrl = API_NEHR_URL + "file/publish/" + mUploadedDocInfo.getDocId();
                         publishDocRequest(fileUrl);
                     }
                 });
@@ -176,23 +189,26 @@ public class UploadedDocDetailsFragment extends Fragment {
                 getResources().getString(R.string.no_dialog),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();
+                        Toast.makeText(mContext, getResources().getString(R.string.cancel_done_msg), Toast.LENGTH_SHORT).show();
+                        mToolbarControllerCallback.customToolbarBackButtonClicked();
+                        dialog.dismiss();
                     }
                 });
 
         AlertDialog alert11 = builder1.create();
         alert11.show();
     }
+
     private void displayUnPublishDialog() {
         AlertDialog.Builder builder1 = new AlertDialog.Builder(mContext);
         builder1.setMessage(getResources().getString(R.string.unpublish_doc_msg));
-        builder1.setCancelable(true);
+        builder1.setCancelable(false);
 
         builder1.setPositiveButton(
                 getResources().getString(R.string.yes_dialog),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        String fileUrl = "http://10.99.9.36:9000/nehrapi/file/unPublish/" + mUploadedDocInfo.getDocId();
+                        String fileUrl = API_NEHR_URL + "file/unPublish/" + mUploadedDocInfo.getDocId();
                         publishDocRequest(fileUrl);
                     }
                 });
@@ -201,7 +217,9 @@ public class UploadedDocDetailsFragment extends Fragment {
                 getResources().getString(R.string.no_dialog),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();
+                        Toast.makeText(mContext, getResources().getString(R.string.cancel_done_msg), Toast.LENGTH_SHORT).show();
+                        mToolbarControllerCallback.customToolbarBackButtonClicked();
+                        dialog.dismiss();
                     }
                 });
 
@@ -209,7 +227,7 @@ public class UploadedDocDetailsFragment extends Fragment {
         alert11.show();
     }
 
-    private void publishDocRequest(String fullUrl) {
+    private void publishDocRequest(final String fullUrl) {
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, fullUrl, null
                 , new Response.Listener<JSONObject>() {
             @Override
@@ -217,7 +235,10 @@ public class UploadedDocDetailsFragment extends Fragment {
                 try {
                     if (response.getInt(API_RESPONSE_CODE) == 0) {
                         Log.d("publish", response.getString(API_RESPONSE_MESSAGE));
-                        Toast.makeText(mContext, response.getString(API_RESPONSE_MESSAGE), Toast.LENGTH_SHORT).show();
+                        if (fullUrl.contains("file/unPublish/"))
+                            Toast.makeText(mContext, getResources().getString(R.string.success_unpublish_msg), Toast.LENGTH_SHORT).show();
+                        else
+                            Toast.makeText(mContext, getResources().getString(R.string.success_publish_msg), Toast.LENGTH_SHORT).show();
                         mToolbarControllerCallback.customToolbarBackButtonClicked();
                     } else {
 
@@ -293,7 +314,7 @@ public class UploadedDocDetailsFragment extends Fragment {
         }
     }
 
-    private void setToolBarItemsVisibility(View view) {
+    private void setToolBarItemsVisibility() {
         switchPublish.setVisibility(View.VISIBLE);
         ibDelete.setVisibility(View.VISIBLE);
         ibHome.setVisibility(View.VISIBLE);
@@ -301,13 +322,13 @@ public class UploadedDocDetailsFragment extends Fragment {
 
     private void getFileUploaded(String fileUrl) {
         mProgressDialog.showDialog();
-
+        swipeRefreshLayout.setRefreshing(true);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, fileUrl, null
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 try {
-                   if (response.getInt(API_RESPONSE_CODE) == 0) {
+                    if (response.getInt(API_RESPONSE_CODE) == 0) {
                         String uploadedFile = response.getJSONObject(API_RESPONSE_RESULT).getString(UPLOADED_FILE_KEY);
                         byte[] decodedString = Base64.decode(uploadedFile.getBytes(), Base64.DEFAULT);
                         if (response.getJSONObject(API_RESPONSE_RESULT).getString("contentType").contains("pdf")) {
@@ -319,7 +340,7 @@ public class UploadedDocDetailsFragment extends Fragment {
                         }
                     } else {
                         mProgressDialog.dismissDialog();
-                        displayAlert(response.getString(API_RESPONSE_MESSAGE));
+                        displayAlert(getResources().getString(R.string.no_record_found));
 
                     }
                 } catch (JSONException e) {
@@ -327,7 +348,7 @@ public class UploadedDocDetailsFragment extends Fragment {
                 }
 
                 mProgressDialog.dismissDialog();
-
+                swipeRefreshLayout.setRefreshing(false);
             }
 
         }, new Response.ErrorListener() {
@@ -336,6 +357,7 @@ public class UploadedDocDetailsFragment extends Fragment {
                 Log.d("getUploadedFiles", error.toString());
                 error.printStackTrace();
                 mProgressDialog.dismissDialog();
+                swipeRefreshLayout.setRefreshing(false);
             }
         }) {
             //
@@ -364,13 +386,13 @@ public class UploadedDocDetailsFragment extends Fragment {
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                 try {
+                try {
                     if (response.getInt(API_RESPONSE_CODE) == 0) {
-                        Toast.makeText(mContext, response.getString(API_RESPONSE_MESSAGE).toString(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(mContext, getResources().getString(R.string.success_delete_msg), Toast.LENGTH_SHORT).show();
                         mToolbarControllerCallback.customToolbarBackButtonClicked();
                     } else {
                         mProgressDialog.dismissDialog();
-                        displayAlert(response.getString(API_RESPONSE_MESSAGE));
+                        displayAlert(getResources().getString(R.string.no_record_found));
 
                     }
                 } catch (JSONException e) {
@@ -413,5 +435,11 @@ public class UploadedDocDetailsFragment extends Fragment {
         ivFileUploaded.setVisibility(View.GONE);
         tvAlert.setVisibility(View.VISIBLE);
         tvAlert.setText(msg);
+    }
+
+    @Override
+    public void onRefresh() {
+        String fileUrl = API_DOC_INFO + mUploadedDocInfo.getDocId();
+        getFileUploaded(fileUrl);
     }
 }

@@ -12,6 +12,7 @@
         android:layout_height="@dimen/space_88"
         android:layout_marginStart="@dimen/space_16"
         android:src="@drawable/avatar"
+        android:background="@color/colorGray"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -90,6 +91,8 @@
         android:textColor="@color/colorTextViewFontNormal"
         app:layout_constraintBottom_toBottomOf="@+id/tv_age"
         app:layout_constraintStart_toEndOf="@+id/tv_gender"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="@dimen/space_8"
         app:layout_constraintTop_toTopOf="@+id/tv_age" />
 
     <View
@@ -164,5 +167,77 @@
         app:layout_constraintBottom_toBottomOf="@+id/ib_blood_bag"
         app:layout_constraintStart_toEndOf="@+id/ib_blood_bag"
         app:layout_constraintTop_toTopOf="@+id/ib_blood_bag" />
+    <View
+        android:id="@+id/view3"
+        android:layout_width="@dimen/space_56"
+        android:layout_height="@dimen/space_24"
+        android:layout_marginEnd="@dimen/space_16"
+        android:background="@drawable/shape_rect_oval"
+        app:layout_constraintBottom_toBottomOf="@+id/view"
+       app:layout_constraintEnd_toStartOf="@id/view"
+        app:layout_constraintTop_toBottomOf="@+id/tv_month"
+        app:layout_constraintTop_toTopOf="@+id/view"
+        android:visibility="gone"/>
 
+    <TextView
+        android:id="@+id/tv_G6PD"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_2"
+        android:fontFamily="@font/roboto_regular"
+        android:text="G6PD"
+        android:visibility="gone"
+        android:textColor="@color/colorTextViewFontNormal"
+        android:textSize="@dimen/text_size_10sp"
+        app:layout_constraintBottom_toBottomOf="@+id/view3"
+        app:layout_constraintStart_toStartOf="@+id/view3"
+        app:layout_constraintEnd_toEndOf="@+id/view3"
+        app:layout_constraintTop_toTopOf="@+id/view3" />
+
+    <View
+        android:id="@+id/view4"
+        android:layout_width="@dimen/space_40"
+        android:layout_height="@dimen/space_24"
+        android:layout_marginTop="@dimen/space_8"
+        android:layout_marginEnd="@dimen/space_8"
+        android:layout_marginBottom="@dimen/space_4"
+        android:background="@drawable/shape_rect_oval"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/view3"
+        android:visibility="gone"/>
+    <ImageView
+        android:id="@+id/iv_chronic"
+        android:layout_width="@dimen/space_24"
+        android:layout_height="@dimen/space_24"
+        android:backgroundTint="@color/colorGray"
+        android:contentDescription="@string/img_desc_blood_doner_icon"
+        app:layout_constraintBottom_toBottomOf="@+id/view4"
+        app:layout_constraintStart_toStartOf="@+id/view4"
+        app:layout_constraintEnd_toEndOf="@id/view4"
+        app:layout_constraintTop_toTopOf="@+id/view4"
+        app:srcCompat="@drawable/nechro"
+        android:visibility="gone"/>
+    <View
+        android:id="@+id/view5"
+        android:layout_width="@dimen/space_40"
+        android:layout_height="@dimen/space_24"
+        android:layout_marginTop="@dimen/space_8"
+        android:layout_marginEnd="@dimen/space_8"
+        android:layout_marginBottom="@dimen/space_4"
+        android:background="@drawable/shape_rect_oval"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/view4"
+        android:visibility="gone"/>
+    <ImageView
+        android:id="@+id/iv_pregnant"
+        android:layout_width="@dimen/space_24"
+        android:layout_height="@dimen/space_24"
+        android:backgroundTint="@color/colorGray"
+        android:contentDescription="@string/img_desc_blood_doner_icon"
+        app:layout_constraintBottom_toBottomOf="@+id/view5"
+        app:layout_constraintStart_toStartOf="@+id/view5"
+        app:layout_constraintEnd_toEndOf="@id/view5"
+        app:layout_constraintTop_toTopOf="@+id/view5"
+        app:srcCompat="@drawable/pregnant"
+        android:visibility="gone"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

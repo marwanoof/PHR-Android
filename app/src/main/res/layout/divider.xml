@@ -5,4 +5,4 @@
     android:id="@+id/v_divider"
     android:layout_width="match_parent"
     android:layout_height="@dimen/space_1"
-    android:background="@color/colorPeach" />
+    android:background="@color/colorLiteGray" />

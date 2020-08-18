@@ -15,12 +15,11 @@ import om.gov.moh.phr.R;
 import om.gov.moh.phr.apimodels.DLabResultsHolder;
 
 public class LabResultsDetailsRecyclerViewAdapter extends RecyclerView.Adapter<LabResultsDetailsRecyclerViewAdapter.MyViewHolder> {
-    private ArrayList<DLabResultsHolder> labResultArrayList;
+    private ArrayList<DLabResultsHolder.TabularData> labResultArrayList=new ArrayList<>();
     private Context context;
 
 
-    public LabResultsDetailsRecyclerViewAdapter(ArrayList<DLabResultsHolder> labResultsArrayList, Context mContext) {
-        this.labResultArrayList = labResultsArrayList;
+    public LabResultsDetailsRecyclerViewAdapter( Context mContext) {
         this.context = mContext;
     }
 
@@ -35,7 +34,7 @@ public class LabResultsDetailsRecyclerViewAdapter extends RecyclerView.Adapter<L
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        DLabResultsHolder object = labResultArrayList.get(position);
+        DLabResultsHolder.TabularData object = labResultArrayList.get(position);
         if (object.getInterpretation().equals("A")) {
             setTextColorItem(holder.tvTestName);
             setTextColorItem(holder.tvResult);
@@ -56,7 +55,10 @@ public class LabResultsDetailsRecyclerViewAdapter extends RecyclerView.Adapter<L
     public int getItemCount() {
         return labResultArrayList.size();
     }
-
+    public void updateItemsList(ArrayList<DLabResultsHolder.TabularData> items) {
+        labResultArrayList = items;
+        notifyDataSetChanged();
+    }
     public class MyViewHolder extends RecyclerView.ViewHolder {
         TextView tvTestName, tvResult, tvUnit, tvRange;
 

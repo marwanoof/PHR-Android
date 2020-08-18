@@ -1,41 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".fragments.ProviderDocumentsFragment">
-    <ImageButton
-        android:id="@+id/ib_toolbar_back_button"
-        android:layout_width="@dimen/space_40"
-        android:layout_height="@dimen/space_40"
-        android:backgroundTint="@color/colorWhite"
-        android:contentDescription="@string/img_desc_back_icon"
-        android:tint="@color/colorRed"
-        app:srcCompat="@drawable/ic_arrow_back"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
-
-    <TextView
-        android:id="@+id/tv_Title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/space_8"
-        android:textStyle="italic|bold"
-        android:textSize="@dimen/text_size_20sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="?android:attr/actionBarSize"/>
-    <androidx.appcompat.widget.SearchView
-        android:id="@+id/sv_searchView"
+    tools:context=".fragments.ProviderDocumentsFragment"
+    android:id="@+id/swipe_refresh_layout">
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/space_24"
-        app:iconifiedByDefault="false"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_Title"
-        app:queryHint="@string/hint_search" />
+        android:layout_height="match_parent">
+
+
+        <androidx.appcompat.widget.SearchView
+            android:id="@+id/sv_searchView"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="20dp"
+            android:background="@drawable/selector_card"
+            android:fontFamily="@font/roboto_regular"
+            app:iconifiedByDefault="false"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:queryHint="@string/hint_search" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_DocsList"
@@ -63,3 +52,4 @@
         app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

@@ -1,6 +1,7 @@
 package om.gov.moh.phr.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,9 +13,12 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.Calendar;
+
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.apimodels.ApiEncountersHolder;
 import om.gov.moh.phr.fragments.HealthRecordDetailsFragment;
+import om.gov.moh.phr.fragments.HealthRecordListFragment;
 import om.gov.moh.phr.interfaces.AdapterToFragmentConnectorInterface;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 
@@ -32,12 +36,13 @@ public class HealthRecordsRecyclerViewAdapter extends ListAdapter<ApiEncountersH
     };
     private AdapterToFragmentConnectorInterface mListener;
     private Context mContxt;
+    private AdapterToFragmentConnectorInterface mCallback;
     private MediatorInterface mediatorInterface;
-
-    public HealthRecordsRecyclerViewAdapter(Context context, MediatorInterface mMediatorCallback) {
+    public HealthRecordsRecyclerViewAdapter(HealthRecordListFragment healthRecordListFragment, Context context, MediatorInterface mMediatorCallback) {
         super(DIFF_CALLBACK);
         this.mContxt = context;
         this.mediatorInterface = mMediatorCallback;
+        mCallback = healthRecordListFragment;
     }
 
 
@@ -75,16 +80,23 @@ public class HealthRecordsRecyclerViewAdapter extends ListAdapter<ApiEncountersH
         holder.tvSub2.setText(sub2);
         holder.tvMonth.setText(result.getEncounterMonth());
         holder.tvDay.setText(result.getEncounterDay());
-      /*  holder.itemView.setOnClickListener(new View.OnClickListener() {
+
+        int currentYear = Calendar.getInstance().get(Calendar.YEAR);
+        int recordYear = Integer.valueOf(result.getEncounterYear());
+
+        int yearDiff = currentYear - recordYear;
+
+        if (holder.isOdd(yearDiff)){
+            holder.dateView.setBackgroundColor(holder.grayColor);
+        }else {
+            holder.dateView.setBackgroundColor(holder.redColor);
+        }
+
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mediatorInterface.changeFragmentTo(HealthRecordDetailsFragment.newInstance(result), "HeathRecordsDetails");
-            }
-        });*/
-        holder.clHRItem.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mediatorInterface.changeFragmentTo(HealthRecordDetailsFragment.newInstance(result), "HeathRecordsDetails");
+                mCallback.onMyListItemClicked(result, result.getEstShortName(), position);
             }
         });
     }
@@ -103,7 +115,14 @@ public class HealthRecordsRecyclerViewAdapter extends ListAdapter<ApiEncountersH
         private final TextView tvSub2;
         private final TextView tvMonth;
         private final TextView tvDay;
-        private ConstraintLayout clHRItem;
+        private final View dateView;
+        private int grayColor = mContxt.getResources().getColor(R.color.colorSecendary);
+        private int redColor = mContxt.getResources().getColor(R.color.colorPrimary);
+
+        public boolean isOdd(int value){
+            return value % 2 != 0;
+        }
+
 
         public MyViewHolder(View view) {
             super(view);
@@ -112,7 +131,7 @@ public class HealthRecordsRecyclerViewAdapter extends ListAdapter<ApiEncountersH
             tvSub2 = itemView.findViewById(R.id.tv_sub2);
             tvMonth = itemView.findViewById(R.id.tv_month);
             tvDay = itemView.findViewById(R.id.tv_day);
-            clHRItem = view.findViewById(R.id.cl_heathrecordsItem);
+            dateView = itemView.findViewById(R.id.v_date_holder);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

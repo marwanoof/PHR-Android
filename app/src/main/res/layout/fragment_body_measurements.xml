@@ -5,10 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".fragments.BodyMeasurementsFragment">
-
     <include
         android:id="@+id/inc_simple_toolbar"
-        layout="@layout/toolbar_custom" />
+        layout="@layout/toolbar_simple" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"
@@ -22,4 +21,18 @@
         app:layout_constraintTop_toBottomOf="@+id/inc_simple_toolbar"
         tools:listitem="@layout/fragment_body_measurements_list_item" />
 
+    <TextView
+        android:id="@+id/tv_alert"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/roboto_regular"
+        android:textAlignment="center"
+        android:textColor="@color/colorTextViewFontNormal"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

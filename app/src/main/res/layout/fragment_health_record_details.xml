@@ -4,24 +4,74 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorBackground"
     tools:context=".fragments.HealthRecordDetailsFragment">
+
+    <ImageButton
+        android:id="@+id/ib_toolbar_back_button"
+        android:layout_width="@dimen/space_40"
+        android:layout_height="@dimen/space_40"
+        android:background="@color/colorBackground"
+        android:contentDescription="@string/img_desc_back_icon"
+        android:tint="@color/colorRed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_arrow_back" />
+
+    <ImageButton
+        android:id="@+id/ib_home"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/colorBackground"
+        android:src="@drawable/ic_home"
+        app:layout_constraintBottom_toBottomOf="@id/ib_toolbar_back_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/ib_toolbar_back_button" />
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_8"
+        android:layout_marginTop="10dp"
+        android:fontFamily="@font/roboto_regular"
+        android:padding="@dimen/space_8"
+        android:textColor="@color/colorBlack"
+        android:textSize="@dimen/text_size_20sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tabs" />
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabs"
         style="@style/MyCustomTabLayout"
         android:layout_width="@dimen/space_0"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:layout_marginStart="@dimen/space_32"
+        android:layout_marginTop="50dp"
         android:layout_marginEnd="@dimen/space_32"
+        android:background="@drawable/selector_card"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"></com.google.android.material.tabs.TabLayout>
+        app:layout_constraintTop_toTopOf="parent"
+        app:tabBackground="@drawable/tab_layout_selector"
+        app:tabGravity="center"
+        app:tabIndicatorColor="#00FFFFFF"
+        app:tabIndicatorHeight="5dp"
+        app:tabRippleColor="@null"
+        app:tabSelectedTextColor="#FFFFFF"
+        app:tabTextColor="#000000"></com.google.android.material.tabs.TabLayout>
 
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginBottom="20dp"
+        android:isScrollContainer="true"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        app:layout_constraintTop_toBottomOf="@id/tabs" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_title" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -5,6 +5,8 @@ import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
@@ -24,11 +26,13 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -40,6 +44,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.adapters.LabResultsDetailsRecyclerViewAdapter;
@@ -47,6 +52,7 @@ import om.gov.moh.phr.adapters.TextualDataRecyclerViewAdapter;
 import om.gov.moh.phr.apimodels.ApiLabOrdersListHolder;
 import om.gov.moh.phr.apimodels.ApiTextualDataHolder;
 import om.gov.moh.phr.apimodels.DLabResultsHolder;
+import om.gov.moh.phr.apimodels.Notification;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
 import om.gov.moh.phr.models.MyProgressDialog;
@@ -55,33 +61,20 @@ import static om.gov.moh.phr.models.MyConstants.API_CULTURE_TEMPLATE;
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
 import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
-import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_MESSAGE;
-import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_RESULT;
 import static om.gov.moh.phr.models.MyConstants.API_TABULAR_TEMPLATE;
 import static om.gov.moh.phr.models.MyConstants.API_TEXTUAL_TEMPLATE;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class LabResultDetailsFragment extends Fragment {
+public class LabResultDetailsFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
-    private static final String API_URL_GET_LAB_RESULTS_TAMPLATE_D = API_NEHR_URL + "labReport/tabular/";
-    private static final String API_URL_GET_LAB_RESULTS_TAMPLATE_C = API_NEHR_URL + "labReport/culture/";
-    private static final String API_URL_GET_LAB_RESULTS_TAMPLATE_H = API_NEHR_URL + "labReport/textual/";
+    private static final String API_URL_GET_LAB_RESULTS_TAMPLATE_D = API_NEHR_URL + "labReport/patient/tabular/";
+    private static final String API_URL_GET_LAB_RESULTS_TAMPLATE_C = API_NEHR_URL + "labReport/patient/culture/";
+    private static final String API_URL_GET_LAB_RESULTS_TAMPLATE_H = API_NEHR_URL + "labReport/patient/textual/";
     private static final String PARAM_API_ORDERLAB_ITEM = "OrderObj";
-    private static final String STATUS_KEY = "status";
-    private static final String RELEASED_DATE_KEY = "releasedTime";
-    private static final String RELEASED_BY_KEY = "releasedBy";
-    private static final String CONCLUSION_KEY = "conclusion";
-    private static final String TEXTUALDATA_ARRAY_KEY = "textualData";
-    private static final String TEXTUAL_ITEM_NAME_KEY = "paramName";
-    private static final String RESULT_KEY = "result";
-    private static final String TABULARDATA_ARRAY_KEY = "tabularData";
-    private static final String TABULARDATA_TESTNAME_KEY = "testName";
-    private static final String TABULARDATA_TESTUNIT_KEY = "unit";
-    private static final String TABULARDATA_TESTRANGELOW_KEY = "rangeLow";
-    private static final String TABULARDATA_TESTRANGEHIGH = "rangeHigh";
-    private static final String TABULARDATA_INTERPRETATION = "interpretation";
+    private static final String PARAM_API_NOTIFICATION_ITEM = "NotificationObj";
+    private LabResultsDetailsRecyclerViewAdapter labResultsDetailsRecyclerViewAdapter;
     private ApiLabOrdersListHolder.ApiOredresList mApiOderItem;
     private MyProgressDialog mProgressDialog;
     private ToolbarControllerInterface mToolbarControllerCallback;
@@ -92,6 +85,9 @@ public class LabResultDetailsFragment extends Fragment {
     private RequestQueue mQueue;
     private RecyclerView rvLabResults, rvTextualResults;
     private ImageButton ibHome, ibRefresh;
+    private Notification notificationObj;
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private TextualDataRecyclerViewAdapter mAdapter;
 
     public LabResultDetailsFragment() {
         // Required empty public constructor
@@ -101,6 +97,14 @@ public class LabResultDetailsFragment extends Fragment {
         LabResultDetailsFragment fragment = new LabResultDetailsFragment();
         Bundle args = new Bundle();
         args.putSerializable(PARAM_API_ORDERLAB_ITEM, orderObj);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public static LabResultDetailsFragment newInstance(Notification notification) {
+        LabResultDetailsFragment fragment = new LabResultDetailsFragment();
+        Bundle args = new Bundle();
+        args.putSerializable(PARAM_API_NOTIFICATION_ITEM, notification);
         fragment.setArguments(args);
         return fragment;
     }
@@ -117,9 +121,11 @@ public class LabResultDetailsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
+        assert getArguments() != null;
+        if (getArguments().getSerializable(PARAM_API_ORDERLAB_ITEM) != null)
             mApiOderItem = (ApiLabOrdersListHolder.ApiOredresList) getArguments().getSerializable(PARAM_API_ORDERLAB_ITEM);
-        }
+        if (getArguments().getSerializable(PARAM_API_NOTIFICATION_ITEM) != null)
+            notificationObj = (Notification) getArguments().getSerializable(PARAM_API_NOTIFICATION_ITEM);
     }
 
     @Override
@@ -158,25 +164,43 @@ public class LabResultDetailsFragment extends Fragment {
         tvHospital = view.findViewById(R.id.tv_hospital);
         tvReport = view.findViewById(R.id.tv_report);
         rvTextualResults = view.findViewById(R.id.rv_textual_recyclerView);
+        swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        swipeRefreshLayout.setRefreshing(true);
+                                        setupPage();
+                                    }
+                                }
+        );
         setupPage();
-        tvProcName.setText(mApiOderItem.getProcName());
-        Date date = new Date(mApiOderItem.getOrderDate());
-        SimpleDateFormat df2 = new SimpleDateFormat("dd/ MM /yyyy  HH:mm");
-        String dateText = df2.format(date);
-        tvOrderDate.setText(getResources().getString(R.string.ordered_date_feild) + "   " + dateText);
-        tvOrderBy.setText(getResources().getString(R.string.ordered_by_feild) + "   " + mApiOderItem.getOrderedBy());
-        tvHospital.setText(getResources().getString(R.string.hospital_feild) + "   " + mApiOderItem.getEstName());
+        if (mApiOderItem != null) {
+            tvProcName.setText(mApiOderItem.getProcName());
+            Date date = new Date(mApiOderItem.getOrderDate());
+            SimpleDateFormat df2 = new SimpleDateFormat("dd/ MM /yyyy  HH:mm");
+            String dateText = df2.format(date);
+            tvOrderDate.setText(getResources().getString(R.string.ordered_date_feild) + "   " + dateText);
+            tvOrderBy.setText(getResources().getString(R.string.ordered_by_feild) + "   " + mApiOderItem.getOrderedBy());
+            tvHospital.setText(getResources().getString(R.string.hospital_feild) + "   " + mApiOderItem.getEstName());
+        }
+        if (notificationObj != null) {
+            tvProcName.setText(notificationObj.getTitle());
+        }
         ibRefresh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 setupPage();
-                tvProcName.setText(mApiOderItem.getProcName());
-                Date date = new Date(mApiOderItem.getOrderDate());
-                SimpleDateFormat df2 = new SimpleDateFormat("dd/ MM /yyyy  HH:mm");
-                String dateText = df2.format(date);
-                tvOrderDate.setText(getResources().getString(R.string.ordered_date_feild) + "   " + dateText);
-                tvOrderBy.setText(getResources().getString(R.string.ordered_by_feild) + "   " + mApiOderItem.getOrderedBy());
-                tvHospital.setText(getResources().getString(R.string.hospital_feild) + "   " + mApiOderItem.getEstName());
+                if (mApiOderItem != null) {
+                    tvProcName.setText(mApiOderItem.getProcName());
+                    Date date = new Date(mApiOderItem.getOrderDate());
+                    SimpleDateFormat df2 = new SimpleDateFormat("dd/ MM /yyyy  HH:mm");
+                    String dateText = df2.format(date);
+                    tvOrderDate.setText(getResources().getString(R.string.ordered_date_feild) + "   " + dateText);
+                    tvOrderBy.setText(getResources().getString(R.string.ordered_by_feild) + "   " + mApiOderItem.getOrderedBy());
+                    tvHospital.setText(getResources().getString(R.string.hospital_feild) + "   " + mApiOderItem.getEstName());
+                } else if (notificationObj != null)
+                    tvProcName.setText(notificationObj.getTitle());
             }
         });
         ibHome.setOnClickListener(new View.OnClickListener() {
@@ -203,18 +227,37 @@ public class LabResultDetailsFragment extends Fragment {
     }
 
     private void setupPage() {
-        if (mApiOderItem.getTemplateType().equals(API_TABULAR_TEMPLATE)) {
-            setVisibleItems(true);
-        } else {
-            setVisibleItems(false);
-            if (mApiOderItem.getTemplateType().equals(API_CULTURE_TEMPLATE)) {
-                String fullUrl = API_URL_GET_LAB_RESULTS_TAMPLATE_C + mApiOderItem.getOrderId();
-                setReportsDetailsForTextual(fullUrl);
-            } else if (mApiOderItem.getTemplateType().equals(API_TEXTUAL_TEMPLATE)) {
-                String fullUrl = API_URL_GET_LAB_RESULTS_TAMPLATE_H + mApiOderItem.getOrderId();
-                rvTextualResults.setVisibility(View.VISIBLE);
-                tvReport.setVisibility(View.GONE);
-                setReportsDetailsForTextual(fullUrl);
+        if (mApiOderItem != null) {
+            if (mApiOderItem.getTemplateType().equals(API_TABULAR_TEMPLATE)) {
+                setVisibleItems(true);
+            } else {
+                setVisibleItems(false);
+                if (mApiOderItem.getTemplateType().equals(API_CULTURE_TEMPLATE)) {
+                    String fullUrl = API_URL_GET_LAB_RESULTS_TAMPLATE_C + mApiOderItem.getOrderId() + "/" + mApiOderItem.getPatientId();
+                    setReportsDetailsForTextual(fullUrl);
+                } else if (mApiOderItem.getTemplateType().equals(API_TEXTUAL_TEMPLATE)) {
+                    String fullUrl = API_URL_GET_LAB_RESULTS_TAMPLATE_H + mApiOderItem.getOrderId() + "/" + mApiOderItem.getPatientId();
+                    rvTextualResults.setVisibility(View.VISIBLE);
+                    setupTextualRecyclerView();
+                    tvReport.setVisibility(View.GONE);
+                    setReportsDetailsForTextual(fullUrl);
+                }
+            }
+        }
+        if (notificationObj != null) {
+            if (notificationObj.getLabType().equals(API_TABULAR_TEMPLATE)) {
+                setVisibleItems(true);
+            } else {
+                setVisibleItems(false);
+                if (notificationObj.getLabType().equals(API_CULTURE_TEMPLATE)) {
+                    String fullUrl =API_NEHR_URL + "labReport/culture/" + notificationObj.getKeyId();
+                    setReportsDetailsForTextual(fullUrl);
+                } else if (notificationObj.getLabType().equals(API_TEXTUAL_TEMPLATE)) {
+                    String fullUrl = API_NEHR_URL + "labReport/textual/" + notificationObj.getKeyId();
+                    rvTextualResults.setVisibility(View.VISIBLE);
+                    tvReport.setVisibility(View.GONE);
+                    setReportsDetailsForTextual(fullUrl);
+                }
             }
         }
     }
@@ -224,6 +267,8 @@ public class LabResultDetailsFragment extends Fragment {
             tvConclusion.setVisibility(View.VISIBLE);
             ll_testColumns.setVisibility(View.VISIBLE);
             rvLabResults.setVisibility(View.VISIBLE);
+            tvReleasedDate.setBackground(null);
+            setupTabualrRecyclerView();
             setReportsDetailsForTabular();
         } else {
             tvConclusion.setVisibility(View.GONE);
@@ -237,6 +282,26 @@ public class LabResultDetailsFragment extends Fragment {
             tvHospital.setVisibility(View.VISIBLE);
             tvReport.setVisibility(View.VISIBLE);
         }
+    }
+
+    private void setupTabualrRecyclerView() {
+        labResultsDetailsRecyclerViewAdapter = new LabResultsDetailsRecyclerViewAdapter(mContext);
+        rvLabResults.addItemDecoration(new DividerItemDecoration(mContext,LinearLayoutManager.VERTICAL));
+        rvLabResults.setLayoutManager(new LinearLayoutManager(mContext,
+                RecyclerView.VERTICAL, false));
+        rvLabResults.setAdapter(labResultsDetailsRecyclerViewAdapter);
+    }
+
+    private void setupTextualRecyclerView() {
+        mAdapter = new TextualDataRecyclerViewAdapter(mContext);
+        LinearLayoutManager layoutManager
+                = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
+        DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(rvTextualResults.getContext(),
+                layoutManager.getOrientation());
+        rvTextualResults.addItemDecoration(mDividerItemDecoration);
+        rvTextualResults.setLayoutManager(layoutManager);
+        rvTextualResults.setItemAnimator(new DefaultItemAnimator());
+        rvTextualResults.setAdapter(mAdapter);
     }
 
     private void displayAlert(String msg) {
@@ -257,42 +322,51 @@ public class LabResultDetailsFragment extends Fragment {
 
     private void setReportsDetailsForTextual(String url) {
         mProgressDialog.showDialog();
-
+        swipeRefreshLayout.setRefreshing(true);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                try {
-                    if (response.getInt(API_RESPONSE_CODE) == 0) {
-                        JSONObject obj = response.getJSONObject(API_RESPONSE_RESULT);
-                        tvStatus.setText(getResources().getString(R.string.status_feild) + "  " + obj.getString(STATUS_KEY));
-                        Date date = new Date(obj.getLong(RELEASED_DATE_KEY));
-                        SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yyyy");
-                        String releasedTime = df2.format(date);
-                        tvReleasedDate.setText(getResources().getString(R.string.released_date_feild) + "   " + releasedTime);
-                        tvReleasedBy.setText(getResources().getString(R.string.released_by_feild) + "   " + obj.getString(RELEASED_BY_KEY));
-                        tvReport.setText(getResources().getString(R.string.report_feild) + " \n \n " + obj.getString(CONCLUSION_KEY));
-                        if (mApiOderItem.getTemplateType().equals(API_TEXTUAL_TEMPLATE))
-                            getTextualData(obj);
+                if (mContext != null && isAdded()) {
+                    try {
+                        if (response.getInt(API_RESPONSE_CODE) == 0) {
+                            Gson gson = new Gson();
+                            DLabResultsHolder resultsHolder = gson.fromJson(response.toString(), DLabResultsHolder.class);
+                        //    Log.d("resultResponse", resultsHolder.getResult().getConclusion() + ", " + resultsHolder.getResult().getReleasedTime() + ", " + resultsHolder.getResult().getStatus()+ ", " + ", " + resultsHolder.getResult().getTextualData().get(0).getParamName()+", "+ resultsHolder.getResult().getTextualData().get(0).getResult());
 
-                    } else {
-                        displayAlert(response.getString(API_RESPONSE_MESSAGE));
-                        mProgressDialog.dismissDialog();
+                            DLabResultsHolder.LabResultDetails obj = resultsHolder.getResult();
+                            tvStatus.setText(getResources().getString(R.string.status_feild) + "  " + obj.getStatus());
+                            Date date = new Date(obj.getReleasedTime());
+                            SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yyyy");
+                            String releasedTime = df2.format(date);
+                            tvReleasedDate.setText(getResources().getString(R.string.released_date_feild) + "   " + releasedTime);
+                            tvReleasedBy.setText(getResources().getString(R.string.released_by_feild) + "   " + obj.getReleasedBy());
+                            tvReport.setText(getResources().getString(R.string.report_feild) + " \n \n " + obj.getConclusion());
+
+                            if (mApiOderItem.getTemplateType().equals(API_TEXTUAL_TEMPLATE))
+                                updateTextualRecyclerView(obj.getTextualData());
+
+                        } else {
+                            displayAlert(getResources().getString(R.string.no_record_found));
+                            mProgressDialog.dismissDialog();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+
+                    mProgressDialog.dismissDialog();
+                    swipeRefreshLayout.setRefreshing(false);
                 }
-
-                mProgressDialog.dismissDialog();
-
             }
-
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("resp-demographic", error.toString());
-                error.printStackTrace();
-                mProgressDialog.dismissDialog();
+                if (mContext != null && isAdded()) {
+                    Log.d("resp-demographic", error.toString());
+                    error.printStackTrace();
+                    mProgressDialog.dismissDialog();
+                    swipeRefreshLayout.setRefreshing(false);
+                }
             }
         }) {
             //
@@ -304,102 +378,67 @@ public class LabResultDetailsFragment extends Fragment {
                 headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
                 return headers;
             }
-
         };
         int socketTimeout = 30000;//30 seconds - change to what you want
         RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
         jsonObjectRequest.setRetryPolicy(policy);
 
         mQueue.add(jsonObjectRequest);
-    }
-
-    private void getTextualData(JSONObject response) {
-        try {
-            JSONArray jsonArray = response.getJSONArray(TEXTUALDATA_ARRAY_KEY);
-            ArrayList<ApiTextualDataHolder> textualDataArrayList = new ArrayList<>();
-            for (int i = 0; i < jsonArray.length(); i++) {
-
-                JSONObject jsonObject = jsonArray.getJSONObject(i);
-                ApiTextualDataHolder textualobj = new ApiTextualDataHolder();
-                textualobj.setParamName(jsonObject.getString(TEXTUAL_ITEM_NAME_KEY));
-                textualobj.setResult(jsonObject.getString(RESULT_KEY));
-                textualDataArrayList.add(textualobj);
-            }
-            setupRecyclerView(textualDataArrayList);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    private void setupRecyclerView(ArrayList<ApiTextualDataHolder> textualData) {
-        TextualDataRecyclerViewAdapter mAdapter = new TextualDataRecyclerViewAdapter(textualData, mContext);
-        LinearLayoutManager layoutManager
-                = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
-        DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(rvTextualResults.getContext(),
-                layoutManager.getOrientation());
-        rvTextualResults.addItemDecoration(mDividerItemDecoration);
-        rvTextualResults.setLayoutManager(layoutManager);
-        rvTextualResults.setItemAnimator(new DefaultItemAnimator());
-        rvTextualResults.setAdapter(mAdapter);
     }
 
     private void setReportsDetailsForTabular() {
         mProgressDialog.showDialog();
-        String fullUrl = API_URL_GET_LAB_RESULTS_TAMPLATE_D + mApiOderItem.getOrderId();
-
+        swipeRefreshLayout.setRefreshing(true);
+        String fullUrl = null;
+        if (mApiOderItem != null)
+            fullUrl = API_URL_GET_LAB_RESULTS_TAMPLATE_D + mApiOderItem.getOrderId() + "/" + mApiOderItem.getPatientId();
+        else if (notificationObj != null)
+            fullUrl = API_NEHR_URL + "labReport/tabular/" + notificationObj.getKeyId();
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, fullUrl, null
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                try {
-                    if (response.getInt(API_RESPONSE_CODE) == 0) {
-                        String objConclusion = response.getJSONObject(API_RESPONSE_RESULT).getString(CONCLUSION_KEY);
-                        if (objConclusion.equals("Abnormal"))
-                            tvConclusion.setTextColor(getResources().getColor(R.color.colorRed));
-                        else
-                            tvConclusion.setTextColor(getResources().getColor(R.color.colorGreen));
-                        tvConclusion.setText(objConclusion);
-                        JSONArray jsonLabResultsArray = response.getJSONObject(API_RESPONSE_RESULT).getJSONArray(TABULARDATA_ARRAY_KEY);
-                        ArrayList<DLabResultsHolder> labResultsArrayList = new ArrayList<>();
-                        for (int i = 0; i < jsonLabResultsArray.length(); i++) {
-                            JSONObject jsonObject = jsonLabResultsArray.getJSONObject(i);
-                            DLabResultsHolder obj = new DLabResultsHolder();
-                            obj.setTestName(jsonObject.getString(TABULARDATA_TESTNAME_KEY));
-                            obj.setResult(jsonObject.getString(RESULT_KEY));
-                            obj.setUnit(jsonObject.getString(TABULARDATA_TESTUNIT_KEY));
-                            obj.setRangeLow(jsonObject.getString(TABULARDATA_TESTRANGELOW_KEY));
-                            obj.setRangeHigh(jsonObject.getString(TABULARDATA_TESTRANGEHIGH));
-                            obj.setInterpretation(jsonObject.getString(TABULARDATA_INTERPRETATION));
-                            labResultsArrayList.add(obj);
+                if (mContext != null && isAdded()) {
+
+                    try {
+                        if (response.getInt(API_RESPONSE_CODE) == 0) {
+                            Gson gson = new Gson();
+                            DLabResultsHolder resultsHolder = gson.fromJson(response.toString(), DLabResultsHolder.class);
+                            Log.d("resultResponse", resultsHolder.getResult().getConclusion() + ", " + resultsHolder.getResult().getReleasedTime() + ", " + ", " + resultsHolder.getResult().getTabularData().toString());
+                            String objConclusion = resultsHolder.getResult().getConclusion();
+                            if (objConclusion.equals("Abnormal"))
+                                tvConclusion.setTextColor(getResources().getColor(R.color.colorRed));
+                            else
+                                tvConclusion.setTextColor(getResources().getColor(R.color.colorGreen));
+                            tvConclusion.setText(objConclusion);
+                            long objReleasedTime = resultsHolder.getResult().getReleasedTime();
+                            SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yyyy");
+                            String releasedTime = df2.format(objReleasedTime);
+                            tvReleasedDate.setText(releasedTime);
+                            updateRecyclerView(resultsHolder.getResult().getTabularData());
+
+                        } else {
+                            displayAlert(getResources().getString(R.string.no_record_found));
+                            mProgressDialog.dismissDialog();
                         }
-
-
-                        LabResultsDetailsRecyclerViewAdapter labResultsDetailsRecyclerViewAdapter = new LabResultsDetailsRecyclerViewAdapter(labResultsArrayList, mContext);
-                        rvLabResults.addItemDecoration(new DividerItemDecoration(mContext,
-                                LinearLayoutManager.VERTICAL));
-                        rvLabResults.setLayoutManager(new LinearLayoutManager(mContext,
-                                RecyclerView.VERTICAL, false));
-                        rvLabResults.setAdapter(labResultsDetailsRecyclerViewAdapter);
-
-
-                    } else {
-                        displayAlert(response.getString(API_RESPONSE_MESSAGE));
-                        mProgressDialog.dismissDialog();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+
+
+                    mProgressDialog.dismissDialog();
+                    swipeRefreshLayout.setRefreshing(false);
                 }
-
-                mProgressDialog.dismissDialog();
-
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("resp-demographic", error.toString());
-                error.printStackTrace();
-                mProgressDialog.dismissDialog();
+                if (mContext != null && isAdded()) {
+                    Log.d("resp-demographic", error.toString());
+                    error.printStackTrace();
+                    mProgressDialog.dismissDialog();
+                    swipeRefreshLayout.setRefreshing(false);
+                }
             }
         }) {
             //
@@ -418,5 +457,25 @@ public class LabResultDetailsFragment extends Fragment {
         jsonObjectRequest.setRetryPolicy(policy);
 
         mQueue.add(jsonObjectRequest);
+    }
+
+    private void updateRecyclerView(ArrayList<DLabResultsHolder.TabularData> items) {
+        labResultsDetailsRecyclerViewAdapter.updateItemsList(items);
+    }
+
+    private void updateTextualRecyclerView(ArrayList<DLabResultsHolder.TextualData> items) {
+        mAdapter.updateItemsList(items);
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        if (notificationObj != null)
+            mMediatorCallback.changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
+    }
+
+    @Override
+    public void onRefresh() {
+        setupPage();
     }
 }

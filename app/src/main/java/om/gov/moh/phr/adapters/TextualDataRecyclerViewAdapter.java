@@ -12,13 +12,13 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.apimodels.ApiTextualDataHolder;
+import om.gov.moh.phr.apimodels.DLabResultsHolder;
 
 public class TextualDataRecyclerViewAdapter extends RecyclerView.Adapter<TextualDataRecyclerViewAdapter.MyViewHolder>{
-    private ArrayList<ApiTextualDataHolder> textualDataArrayList;
+    private ArrayList<DLabResultsHolder.TextualData> textualDataArrayList=new ArrayList<>();
     private Context context;
 
-    public TextualDataRecyclerViewAdapter(ArrayList<ApiTextualDataHolder> textualDataArrayList, Context context) {
-        this.textualDataArrayList = textualDataArrayList;
+    public TextualDataRecyclerViewAdapter(Context context) {
         this.context = context;
     }
 
@@ -32,7 +32,7 @@ public class TextualDataRecyclerViewAdapter extends RecyclerView.Adapter<Textual
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        final ApiTextualDataHolder textualDataObj = textualDataArrayList.get(position);
+        final DLabResultsHolder.TextualData textualDataObj = textualDataArrayList.get(position);
         holder.tvResult.setText(textualDataObj.getParamName()+"\n"+textualDataObj.getResult());
     }
 
@@ -40,7 +40,10 @@ public class TextualDataRecyclerViewAdapter extends RecyclerView.Adapter<Textual
     public int getItemCount() {
         return textualDataArrayList.size();
     }
-
+    public void updateItemsList(ArrayList<DLabResultsHolder.TextualData> items) {
+        textualDataArrayList = items;
+        notifyDataSetChanged();
+    }
     public class MyViewHolder extends RecyclerView.ViewHolder {
         TextView  tvResult;
 

@@ -1,6 +1,7 @@
 package om.gov.moh.phr.adapters;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,10 @@ import om.gov.moh.phr.R;
 import om.gov.moh.phr.apimodels.ApiVitalsPivotHolder;
 import om.gov.moh.phr.interfaces.AdapterToFragmentConnectorInterface;
 
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_ARABIC;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_PREFS;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_SELECTED;
+
 public class VitalsGraphRecyclerViewAdapter extends
         RecyclerView.Adapter<VitalsGraphRecyclerViewAdapter.MyViewHolder> {
 
@@ -22,13 +27,15 @@ public class VitalsGraphRecyclerViewAdapter extends
     private AdapterToFragmentConnectorInterface mCallback;
     private Context mContext;
     private int mActiveItem;
+    private String selectedItem;
 
     //the constructor of the LastRecordsRecyclerViewAdapter
-    public VitalsGraphRecyclerViewAdapter(AdapterToFragmentConnectorInterface fragment, Context context, ArrayList<ApiVitalsPivotHolder.Pivot> items, int activatedItem) {
+    public VitalsGraphRecyclerViewAdapter(AdapterToFragmentConnectorInterface fragment, Context context, ArrayList<ApiVitalsPivotHolder.Pivot> items, int activatedItem, String selectedItem) {
         this.mPivotArrayList = items;
         this.mContext = context;
         mCallback = fragment;
         this.mActiveItem = activatedItem;
+        this.selectedItem = selectedItem;
 
     }
 
@@ -46,27 +53,29 @@ public class VitalsGraphRecyclerViewAdapter extends
     public void onBindViewHolder(MyViewHolder holder, final int position) {
         final ApiVitalsPivotHolder.Pivot item = mPivotArrayList.get(position);
 
-        holder.tvTitle.setText(item.getVitalSign());
-       if (mActiveItem == position) {
+      // if (mActiveItem == position) {
+           holder.tvTitle.setText(item.getVitalSign());
             holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.colorWhite));
-        } else {
-            holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.colorLiteGray));
-        }
+           holder.tvRow1i1.setText(String.valueOf(item.getValue1()));
+           holder.tvRow1i2.setText(String.valueOf(item.getValue2()));
+           holder.tvRow1i3.setText(String.valueOf(item.getValue3()));
 
-        holder.tvRow1i1.setText(String.valueOf(item.getValue1()));
-        holder.tvRow1i2.setText(String.valueOf(item.getValue2()));
-        holder.tvRow1i3.setText(String.valueOf(item.getValue3()));
-
-        holder.tvRow1i4.setText(String.valueOf(item.getValue5()));
-        holder.tvRow1i5.setText(String.valueOf(item.getValue4()));
+           holder.tvRow1i4.setText(String.valueOf(item.getValue5()));
+           holder.tvRow1i5.setText(String.valueOf(item.getValue4()));
 
 
-        holder.tvRow2i1.setText(String.valueOf(item.getVitalDate1()));
-        holder.tvRow2i2.setText(String.valueOf(item.getVitalDate2()));
-        holder.tvRow2i3.setText(String.valueOf(item.getVitalDate3()));
+           holder.tvRow2i1.setText(String.valueOf(item.getVitalDate1()));
+           holder.tvRow2i2.setText(String.valueOf(item.getVitalDate2()));
+           holder.tvRow2i3.setText(String.valueOf(item.getVitalDate3()));
 
-        holder.tvRow2i4.setText(String.valueOf(item.getVitalDate4()));
-        holder.tvRow2i5.setText(String.valueOf(item.getVitalDate5()));
+           holder.tvRow2i4.setText(String.valueOf(item.getVitalDate4()));
+           holder.tvRow2i5.setText(String.valueOf(item.getVitalDate5()));
+      //  }
+//       else {
+//            holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.colorLiteGray));
+//        }
+
+
 
 
         /**
@@ -94,7 +103,8 @@ public class VitalsGraphRecyclerViewAdapter extends
 
     @Override
     public int getItemCount() {
-        return mPivotArrayList.size();
+        return 1;
+        //return mPivotArrayList.size();
     }
 
 //MyViewHolder extends RecyclerView.ViewHolder

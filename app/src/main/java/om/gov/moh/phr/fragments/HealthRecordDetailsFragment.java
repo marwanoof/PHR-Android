@@ -68,6 +68,22 @@ public class HealthRecordDetailsFragment extends Fragment {
         // Inflate the layout for this fragment
         super.onCreate(savedInstanceState);
         View parentView = inflater.inflate(R.layout.fragment_health_record_details, container, false);
+        ImageButton ibToolbarBackButton = parentView.findViewById(R.id.ib_toolbar_back_button);
+        ibToolbarBackButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                    mToolbarControllerCallback.customToolbarBackButtonClicked();
+            }
+        });
+        TextView tvTitle = parentView.findViewById(R.id.tv_title);
+        tvTitle.setText(encounterInfo.getDepartmentArrayList().get(0) + ", " + encounterInfo.getEstShortName());
+        ImageButton ibHome = parentView.findViewById(R.id.ib_home);
+        ibHome.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                backToHome();
+            }
+        });
         ViewPager mViewPager = parentView.findViewById(R.id.container);
         TabLayout tabs = parentView.findViewById(R.id.tabs);
         tabs.bringToFront();
@@ -78,6 +94,13 @@ public class HealthRecordDetailsFragment extends Fragment {
         tabs.setupWithViewPager(mViewPager);
 
         return parentView;
+    }
+
+    private void backToHome() {
+        FragmentManager fm = getActivity().getSupportFragmentManager();
+        for (int i = 0; i < fm.getBackStackEntryCount(); ++i) {
+            fm.popBackStack();
+        }
     }
 
     private class HRDSectionsPagerAdapter extends FragmentPagerAdapter {
@@ -118,4 +141,5 @@ public class HealthRecordDetailsFragment extends Fragment {
             return mFragmentTitles.size();
         }
     }
+
 }

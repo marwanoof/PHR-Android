@@ -61,14 +61,17 @@ public class YearsRecyclerViewAdapter extends
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
         private final TextView tvYear;
+        private final View yearView;
 
         public MyViewHolder(View view) {
             super(view);
             tvYear = itemView.findViewById(R.id.tv_year);
+            yearView = itemView.findViewById(R.id.v_container);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    //yearView.setBackground(mContext.getResources().getDrawable(R.drawable.shape_rect_year_red));
                     int position = getAdapterPosition();
                     if (position != RecyclerView.NO_POSITION) {
                         mCallback.onMyListItemClicked(getItemAt(position), null);

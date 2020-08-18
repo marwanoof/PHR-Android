@@ -31,11 +31,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import om.gov.moh.phr.R;
+import om.gov.moh.phr.fragments.AppointmentsListFragment;
 import om.gov.moh.phr.interfaces.DialogFragmentInterface;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.models.MyProgressDialog;
 
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
+import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_MESSAGE;
 import static om.gov.moh.phr.models.MyConstants.PARAM_EST_CODE;
@@ -124,7 +126,7 @@ public class SaveRescheduleAppointmentDialogFragment extends DialogFragment {
         mProgressDialog = new MyProgressDialog(mContext);
 
 
-        String title = " " + mDate + " at " + mTime;
+        String title = " " + mDate + getResources().getString(R.string.at) + mTime;
 
 
         TextView tvConfirmMessage = parentView.findViewById(R.id.tv_confirm_message);
@@ -155,7 +157,7 @@ public class SaveRescheduleAppointmentDialogFragment extends DialogFragment {
     private void saveAppointment(String remarks) {
 
 
-        String fullUrl = "http://10.99.9.36:9000/nehrapi/appointment/saveReschedule?estCode=20068&reservationId=" + mReservationId + "&runId=" + mRunId + "&patientId=" + mPatientId + "&remarks=" + remarks;
+        String fullUrl = API_NEHR_URL+"appointment/saveReschedule?estCode="+mEstCode+"&reservationId=" + mReservationId + "&runId=" + mRunId + "&patientId=" + mPatientId + "&remarks=" + remarks;
         Log.d("re-runId-res", "link : " + fullUrl);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, fullUrl, null
                 , new Response.Listener<JSONObject>() {
@@ -168,7 +170,6 @@ public class SaveRescheduleAppointmentDialogFragment extends DialogFragment {
                         Toast.makeText(mContext, "Success : " + response.getString(API_RESPONSE_MESSAGE), Toast.LENGTH_SHORT).show();
                         Log.d("re-runId-res", "Success " + response.getString(API_RESPONSE_MESSAGE));
                         mDialogListener.onAccept();
-
                     } else {
                         Toast.makeText(mContext, "Fail : " + response.getString(API_RESPONSE_MESSAGE), Toast.LENGTH_SHORT).show();
                         Log.d("re-runId-res", "Fail " + response.getString(API_RESPONSE_MESSAGE));

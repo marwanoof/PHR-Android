@@ -14,6 +14,7 @@ import androidx.viewpager.widget.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 
 import com.google.android.material.tabs.TabLayout;
 
@@ -28,7 +29,7 @@ import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
  */
 public class ProceduresReportsContainerFragment extends Fragment {
     private Context mContext;
-
+    private ToolbarControllerInterface mToolbarControllerCallback;
     public ProceduresReportsContainerFragment() {
         // Required empty public constructor
     }
@@ -44,6 +45,7 @@ public class ProceduresReportsContainerFragment extends Fragment {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         mContext = context;
+        mToolbarControllerCallback = (ToolbarControllerInterface) context;
     }
 
     @Override
@@ -51,6 +53,13 @@ public class ProceduresReportsContainerFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_procedures_reports_container, container, false);
+        ImageButton ibToolbarBackButton = view.findViewById(R.id.ib_toolbar_back_button);
+        ibToolbarBackButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mToolbarControllerCallback.customToolbarBackButtonClicked();
+            }
+        });
         ViewPager mViewPager = view.findViewById(R.id.container);
         TabLayout tabs = view.findViewById(R.id.tabs);
         tabs.bringToFront();

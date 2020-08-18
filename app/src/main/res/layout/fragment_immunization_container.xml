@@ -1,28 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/colorBackground"
     tools:context=".fragments.ImmunizationContainerFragment">
+
+    <ImageButton
+        android:id="@+id/ib_toolbar_back_button"
+        android:layout_width="@dimen/space_40"
+        android:layout_height="@dimen/space_40"
+        android:backgroundTint="@color/colorBackground"
+        android:contentDescription="@string/img_desc_back_icon"
+        android:tint="@color/colorRed"
+        app:layout_constraintBottom_toBottomOf="@id/tabs"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_arrow_back" />
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabs"
         style="@style/MyCustomTabLayout"
         android:layout_width="@dimen/space_0"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:layout_marginStart="@dimen/space_32"
+        android:layout_marginTop="5dp"
         android:layout_marginEnd="@dimen/space_32"
+        android:background="@drawable/selector_card"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"></com.google.android.material.tabs.TabLayout>
+        app:layout_constraintStart_toEndOf="@id/ib_toolbar_back_button"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tabBackground="@drawable/tab_layout_selector"
+        app:tabGravity="center"
+        app:tabIndicatorColor="#00FFFFFF"
+        app:tabIndicatorHeight="5dp"
+        app:tabRippleColor="@null"
+        app:tabSelectedTextColor="#FFFFFF"
+        app:tabTextColor="#000000"></com.google.android.material.tabs.TabLayout>
 
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="@dimen/space_0"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tabs" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

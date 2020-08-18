@@ -43,15 +43,14 @@ import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
 import om.gov.moh.phr.models.MyProgressDialog;
 
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
-import static om.gov.moh.phr.models.MyConstants.API_NEHR_HEALTH_NET_URL;
+import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
-import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_MESSAGE;
 
 public class DependentFragment extends Fragment implements AdapterToFragmentConnectorInterface {
 
 
     private static final String PARAM_FULL_NAME = "FullName";
-    private static final String API_URL_DEPENDENT_INFO = API_NEHR_HEALTH_NET_URL + "demographics/dependent/civilId/";
+    private static final String API_URL_DEPENDENT_INFO = API_NEHR_URL + "demographics/dependent/civilId/";
     private String mFullName;
     private Context mContext;
     private ToolbarControllerInterface mToolbarControllerCallback;
@@ -141,7 +140,7 @@ public class DependentFragment extends Fragment implements AdapterToFragmentConn
                         setupRecyclerView(responseHolder.getResult());
 
                     } else {
-                        displayAlert(response.getString(API_RESPONSE_MESSAGE));
+                        displayAlert(getResources().getString(R.string.no_record_found));
                         mProgressDialog.dismissDialog();
                     }
                 } catch (JSONException e) {

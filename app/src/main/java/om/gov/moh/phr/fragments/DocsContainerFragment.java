@@ -14,6 +14,9 @@ import androidx.viewpager.widget.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.tabs.TabLayout;
 
@@ -28,6 +31,8 @@ import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
  */
 public class DocsContainerFragment extends Fragment {
     private Context mContext;
+    private ToolbarControllerInterface mToolbarControllerCallback;
+    private MediatorInterface mMediatorCallback;
     public DocsContainerFragment() {
         // Required empty public constructor
     }
@@ -42,6 +47,8 @@ public class DocsContainerFragment extends Fragment {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         mContext = context;
+        mToolbarControllerCallback = (ToolbarControllerInterface) context;
+        mMediatorCallback = (MediatorInterface) context;
     }
 
     @Override
@@ -49,6 +56,20 @@ public class DocsContainerFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_docs_container, container, false);
+        ImageButton ibToolbarBackButton = view.findViewById(R.id.ib_toolbar_back_button);
+        ibToolbarBackButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mToolbarControllerCallback.customToolbarBackButtonClicked();
+            }
+        });
+        final TextView tvAddDoc = view.findViewById(R.id.addDoc);
+        tvAddDoc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mMediatorCallback.changeFragmentTo(AddDocFragment.newInstance(), getResources().getString(R.string.title_other_document));
+            }
+        });
         ViewPager mViewPager = view.findViewById(R.id.container);
         TabLayout tabs = view.findViewById(R.id.tabs);
         tabs.bringToFront();
@@ -57,6 +78,26 @@ public class DocsContainerFragment extends Fragment {
                 mContext);
         mViewPager.setAdapter(mDocsCategorySectionsPagerAdapter);
         tabs.setupWithViewPager(mViewPager);
+        tabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                int position = tab.getPosition();
+                if(position==1)
+                    tvAddDoc.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+                int position = tab.getPosition();
+                if(position==1)
+                tvAddDoc.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
 
         return view;
     }
@@ -72,11 +113,11 @@ public class DocsContainerFragment extends Fragment {
         @NonNull
         @Override
         public Fragment getItem(int position) {
-            if (position == 0)
-              return   ProviderDocumentsFragment.newInstance();
-            else
+            if (position == 0) {
+                return ProviderDocumentsFragment.newInstance();
+            }  else {
                 return SelfDocsFragment.newInstance();
-
+            }
         }
 
         @Nullable

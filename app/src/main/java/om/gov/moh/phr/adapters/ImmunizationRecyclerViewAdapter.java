@@ -48,12 +48,19 @@ public class ImmunizationRecyclerViewAdapter extends RecyclerView.Adapter<Immuni
         final ApiImmunizationHolder.ApiImmunizationInfo medicineObj = immunizationArrayList.get(position);
         holder.tvVaccineName.setText(medicineObj.getVaccineName());
         if (isSchedule) {
-           Date GivenDate = new Date(medicineObj.getGivenOn());
             SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yyyy");
-            String GivenDateText = df2.format(GivenDate);
-            holder.tvStatus.setText("Given On " + GivenDateText);
-            if (holder.tvStatus.getText() != null)
+            if(medicineObj.getGivenOn()!=null) {
+                Date GivenDate = new Date(medicineObj.getGivenOn());
+                String GivenDateText = df2.format(GivenDate);
+                holder.tvStatus.setText(context.getResources().getString(R.string.given_msg) + GivenDateText);
+            }else {
+                holder.tvStatus.setText(context.getResources().getString(R.string.not_given_msg));
+            }
+
+            if (medicineObj.getGivenOn()!= null)
                 holder.ivGivenImage.setVisibility(View.VISIBLE);
+            else
+                holder.ivGivenImage.setVisibility(View.INVISIBLE);
             Date ScheduledDate = new Date(medicineObj.getScheduledOn());
             String ScheduledDateText = df2.format(ScheduledDate);
             holder.tvDateWritten.setText(ScheduledDateText);

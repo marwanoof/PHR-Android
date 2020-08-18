@@ -22,6 +22,7 @@ public class MedicationRecyclerViewAdapter extends RecyclerView.Adapter<Medicati
     private ArrayList<ApiMedicationHolder.ApiMedicationInfo> medicineArrayList;
     private Context context;
     private ArrayList<ApiMedicationHolder.ApiMedicationInfo> arraylist;
+    private String visitDate = "";
 
     public MedicationRecyclerViewAdapter(ArrayList<ApiMedicationHolder.ApiMedicationInfo> medicineArrayList, Context context) {
         this.medicineArrayList = medicineArrayList;
@@ -34,7 +35,7 @@ public class MedicationRecyclerViewAdapter extends RecyclerView.Adapter<Medicati
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.list_item, parent, false);
+                .inflate(R.layout.list_item_medication, parent, false);
         return new MyViewHolder(itemView);
     }
 
@@ -48,6 +49,7 @@ public class MedicationRecyclerViewAdapter extends RecyclerView.Adapter<Medicati
         String dateText = df2.format(date);
         holder.tvDateWritten.setText(dateText);
         holder.tvEstName.setText(medicineObj.getEstName());
+
     }
 
     @Override
@@ -61,12 +63,12 @@ public class MedicationRecyclerViewAdapter extends RecyclerView.Adapter<Medicati
 
         public MyViewHolder(View view) {
             super(view);
-            tvMedicineName = view.findViewById(R.id.tv_procName);
-            tvDosage = view.findViewById(R.id.tv_status);
-            tvDateWritten = view.findViewById(R.id.tv_orderDate);
-            tvEstName = view.findViewById(R.id.tv_estName);
-            ibImageButton = view.findViewById(R.id.imageButton);
-            ibImageButton.setVisibility(View.GONE);
+            tvMedicineName = view.findViewById(R.id.tv_dose_title);
+            tvDosage = view.findViewById(R.id.tv_dose_desc);
+            tvDateWritten = view.findViewById(R.id.tv_section_title);
+            tvEstName = view.findViewById(R.id.tv_est_name);
+            ibImageButton = view.findViewById(R.id.btn_medication_notify);
+            //ibImageButton.setVisibility(View.GONE);
         }
     }
 

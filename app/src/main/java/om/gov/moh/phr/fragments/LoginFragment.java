@@ -9,6 +9,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
@@ -26,12 +28,14 @@ import com.android.volley.toolbox.Volley;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.GuardedObject;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -41,6 +45,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -66,10 +71,16 @@ import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_MESSAGE;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_RESULT;
 import static om.gov.moh.phr.models.MyConstants.API_URL_LOCAL;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_ARABIC;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_PREFS;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_SELECTED;
 import static om.gov.moh.phr.models.MyConstants.PARAM_CIVIL_ID;
+import static om.gov.moh.phr.models.MyConstants.PARAM_IMAGE;
+import static om.gov.moh.phr.models.MyConstants.PARAM_PERSON_NAME;
 import static om.gov.moh.phr.models.MyConstants.PREFS_API_GET_TOKEN;
 import static om.gov.moh.phr.models.MyConstants.PREFS_CURRENT_USER;
 import static om.gov.moh.phr.models.MyConstants.PREFS_IS_PARENT;
+import static om.gov.moh.phr.models.MyConstants.PREFS_SIDE_MENU;
 
 /**
  * PHR-DOC : LoginFragment | JIRA board : http://10.99.2.38:8080/browse/PHR-1
@@ -108,7 +119,12 @@ public class LoginFragment extends Fragment {
     private Context mContext;
     private MediatorInterface mMediatorCallback;
     private ToolbarControllerInterface mToolbarCallback;
+    private TextView tvCancel;
+// Implement this interface in your Activity.
 
+    public interface OnCallbackReceived {
+        void Update(JSONArray menus);
+    }
 
     public LoginFragment() {
         // Required empty public constructor
@@ -128,6 +144,7 @@ public class LoginFragment extends Fragment {
         mContext = context;
         mMediatorCallback = (MediatorInterface) context;
         mToolbarCallback = (ToolbarControllerInterface) context;
+        mMediatorCallback.changeBottomNavVisibility(View.GONE);
     }
 
     @Override
@@ -153,6 +170,16 @@ public class LoginFragment extends Fragment {
         tietOTP = parentView.findViewById(R.id.tiet_otp);
         btnGetOTP = parentView.findViewById(R.id.btn_get_otp);
         btnLogin = parentView.findViewById(R.id.btn_login);
+        ImageView ivLogo = parentView.findViewById(R.id.imageView);
+        tvCancel = parentView.findViewById(R.id.tv_cancel);
+        tvCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+        if (getStoredLanguage().equals(LANGUAGE_ARABIC))
+            ivLogo.setBackground(getResources().getDrawable(R.drawable.phr_logo_ar));
 
 
 /**
@@ -309,6 +336,10 @@ public class LoginFragment extends Fragment {
 
             @Override
             public void onDecline() {
+                tietOTP.setText("");
+                tilOTP.setVisibility(View.GONE);
+                btnGetOTP.setVisibility(View.VISIBLE);
+                btnLogin.setVisibility(View.INVISIBLE);
                 mDisclaimerDialogFragment.dismiss();
             }
 
@@ -328,9 +359,10 @@ public class LoginFragment extends Fragment {
                 try {
                     if (response.getInt(API_RESPONSE_CODE) == 0
                             && response.getString(API_RESPONSE_RESULT) != null) {
-
-                        storeAccessToken(response.getJSONObject(API_RESPONSE_RESULT).optString(API_GET_TOKEN_ACCESS_TOKEN)
-                                , civilId);
+                        JSONObject jsonObject = response.getJSONObject(API_RESPONSE_RESULT);
+                        storeAccessToken(jsonObject.optString(API_GET_TOKEN_ACCESS_TOKEN)
+                                , civilId, jsonObject.optString("personName"), jsonObject.optString("image"), jsonObject.getJSONArray("menus").toString());
+                    Log.d("sideMenu", response.toString());
 
                     } else {
                         Toast.makeText(mContext, response.getString(API_RESPONSE_MESSAGE), Toast.LENGTH_SHORT).show();
@@ -374,21 +406,25 @@ public class LoginFragment extends Fragment {
 
     /**
      * storeAccessToken() will store both civilId and accessToken in SharedPreferences, so we can use them in the future.
-     *
-     * @param accessTokenValue
+     *  @param accessTokenValue
      * @param civilId
+     * @param menus
      */
-    private void storeAccessToken(String accessTokenValue, String civilId) {
+    private void storeAccessToken(String accessTokenValue, String civilId, String personName, String image, String menus) {
         SharedPreferences.Editor editor;
 
         AccessToken accessToken = AccessToken.getInstance();
         accessToken.setAccessCivilId(civilId);
         accessToken.setAccessTokenString(accessTokenValue);
+        accessToken.setPersonName(personName);
+        accessToken.setImage(image);
 
         SharedPreferences sharedPrefAccessToken = mContext.getSharedPreferences(PREFS_API_GET_TOKEN, Context.MODE_PRIVATE);
         editor = sharedPrefAccessToken.edit();
         editor.putString(API_GET_TOKEN_ACCESS_TOKEN, accessTokenValue);
         editor.putString(PARAM_CIVIL_ID, civilId);
+        editor.putString(PARAM_PERSON_NAME, personName);
+        editor.putString(PARAM_IMAGE, image);
         editor.apply();
 
 
@@ -400,6 +436,11 @@ public class LoginFragment extends Fragment {
         editor = sharedPrefCurrentUser.edit();
         editor.putString(PARAM_CIVIL_ID, civilId);
         editor.putBoolean(PREFS_IS_PARENT, true);
+        editor.apply();
+
+        SharedPreferences sharedPrefSideMenu = mContext.getSharedPreferences(PREFS_SIDE_MENU, Context.MODE_PRIVATE);
+        editor = sharedPrefSideMenu.edit();
+        editor.putString("PARAM_SIDEMENU", menus);
         editor.apply();
 
 
@@ -503,5 +544,12 @@ public class LoginFragment extends Fragment {
         moveToMainActivity();
     }
 
+    private String getStoredLanguage() {
+        SharedPreferences sharedPref = mContext.getSharedPreferences(LANGUAGE_PREFS, Context.MODE_PRIVATE);
+        return sharedPref.getString(LANGUAGE_SELECTED, getDeviceLanguage());
+    }
 
+    private String getDeviceLanguage() {
+        return Locale.getDefault().getLanguage();
+    }
 }

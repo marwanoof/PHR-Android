@@ -45,14 +45,14 @@ import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
 import om.gov.moh.phr.models.MyProgressDialog;
 
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
-import static om.gov.moh.phr.models.MyConstants.API_NEHR_HEALTH_NET_URL;
+import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
 import static om.gov.moh.phr.models.MyConstants.PARAM_SELECTED_INSTITUTE;
 import static om.gov.moh.phr.models.MyConstants.REQUEST_CODE_SELECTED_INSTITUTE;
 
 public class AddLinkingInstitutesFragment extends Fragment {
 
-    private static final String API_URL_GET_All_INSTITUTES = API_NEHR_HEALTH_NET_URL + "master/getNehrInstitutes";
+    private static final String API_URL_GET_All_INSTITUTES = API_NEHR_URL + "master/getNehrInstitutes";
     private Context mContext;
     private MediatorInterface mMediatorCallback;
     private ToolbarControllerInterface mToolbarControllerCallback;

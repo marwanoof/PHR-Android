@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -52,13 +53,12 @@ import om.gov.moh.phr.models.MyProgressDialog;
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
 import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
-import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_MESSAGE;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_RESULT;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class MedicationFragment extends Fragment implements SearchView.OnQueryTextListener {
+public class MedicationFragment extends Fragment implements SearchView.OnQueryTextListener, SwipeRefreshLayout.OnRefreshListener {
     private static final String API_URL_GET_MEDICATIONS_INFO = API_NEHR_URL + "medicationOrder/civilId/";
     private static final String API_URL_GET_MED_HRD_INFO = API_NEHR_URL + "medicationOrder/encounterId/";
     private static final String ARG_PARAM1 = "ARG_PARAM1";
@@ -71,9 +71,11 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
     private RecyclerView rvMedicationList;
     private TextView tvAlert;
     private MedicationRecyclerViewAdapter mAdapter;
-    private boolean isRecent;
+    private boolean isRecent = false;
     private String medicationType;
     private ApiEncountersHolder.Encounter encounterInfo;
+    private SwipeRefreshLayout swipeRefreshLayout;
+
     public MedicationFragment() {
         // Required empty public constructor
     }
@@ -108,7 +110,7 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
         if (getArguments() != null) {
             if (getArguments().getString(ARG_PARAM1) != null) {
                 medicationType = getArguments().getString(ARG_PARAM1);
-                isRecent = !medicationType.equals("All");
+                isRecent = medicationType.equals("Active");
             }
             if (getArguments().getSerializable(ARG_PARAM2) != null)
                 encounterInfo = (ApiEncountersHolder.Encounter) getArguments().getSerializable(ARG_PARAM2);
@@ -120,7 +122,7 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_medication, container, false);
-        ImageButton ibToolbarBackButton = view.findViewById(R.id.ib_toolbar_back_button);
+
         TextView tvTitle = view.findViewById(R.id.tv_Title);
         tvTitle.setText(getResources().getString(R.string.title_medication));
 
@@ -130,6 +132,13 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
         rvMedicationList = view.findViewById(R.id.rv_maedication);
         SearchView searchView = (SearchView) view.findViewById(R.id.sv_searchView);
         searchView.setOnQueryTextListener(this);
+        swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
+        if (medicationType != null) {
+
+        } else {
+            tvTitle.setVisibility(View.GONE);
+            searchView.setVisibility(View.GONE);
+        }
         if (mMediatorCallback.isConnected()) {
             if (medicationType != null) {
                 if (isRecent) {
@@ -139,24 +148,34 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
                     String allMedicationUrl = API_URL_GET_MEDICATIONS_INFO + mMediatorCallback.getCurrentUser().getCivilId();
                     getMedicationList(allMedicationUrl);
                 }
-                ibToolbarBackButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        mToolbarControllerCallback.customToolbarBackButtonClicked();
-                    }
-                });
-            }else {
-                tvTitle.setText(encounterInfo.getDepartmentArrayList().get(0) + ", " + encounterInfo.getEstShortName());
-                searchView.setVisibility(View.GONE);
+
+            } else {
                 String medHRDurl = API_URL_GET_MED_HRD_INFO + encounterInfo.getEncounterId();
-               getMedicationList(medHRDurl);
-                ibToolbarBackButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        mMediatorCallback.changeFragmentTo(HealthRecordDetailsFragment.newInstance(encounterInfo), encounterInfo.getEstFullname());
-                    }
-                });
+                getMedicationList(medHRDurl);
+
             }
+            swipeRefreshLayout.setOnRefreshListener(this);
+            swipeRefreshLayout.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            swipeRefreshLayout.setRefreshing(true);
+                                            rvMedicationList.setVisibility(View.VISIBLE);
+                                            tvAlert.setVisibility(View.GONE);
+                                            if (medicationType != null) {
+                                                if (isRecent) {
+                                                    String recentMedicationUrl = API_URL_GET_MEDICATIONS_INFO + mMediatorCallback.getCurrentUser().getCivilId() + "?data=recent";
+                                                    getMedicationList(recentMedicationUrl);
+                                                } else {
+                                                    String allMedicationUrl = API_URL_GET_MEDICATIONS_INFO + mMediatorCallback.getCurrentUser().getCivilId();
+                                                    getMedicationList(allMedicationUrl);
+                                                }
+                                            } else {
+                                                String medHRDurl = API_URL_GET_MED_HRD_INFO + encounterInfo.getEncounterId();
+                                                getMedicationList(medHRDurl);
+                                            }
+                                        }
+                                    }
+            );
 
         } else {
             displayAlert(getString(R.string.alert_no_connection));
@@ -172,37 +191,42 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
 
     private void getMedicationList(String url) {
         mProgressDialog.showDialog();
+        swipeRefreshLayout.setRefreshing(true);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                try {
-                    if (response.getInt(API_RESPONSE_CODE) == 0) {
+                if (mContext != null&&isAdded()) {
+                    try {
+                        if (response.getInt(API_RESPONSE_CODE) == 0) {
 
-                        Gson gson = new Gson();
-                        ApiMedicationHolder responseHolder = gson.fromJson(response.toString(), ApiMedicationHolder.class);
-                        Log.d("resp-dependants", response.getJSONArray(API_RESPONSE_RESULT).toString());
-                        setupRecyclerView(responseHolder.getmResult());
+                            Gson gson = new Gson();
+                            ApiMedicationHolder responseHolder = gson.fromJson(response.toString(), ApiMedicationHolder.class);
+                            Log.d("resp-dependants", response.getJSONArray(API_RESPONSE_RESULT).toString());
+                            setupRecyclerView(responseHolder.getmResult());
 
-                    } else {
-                        //  displayAlert(response.getString(API_RESPONSE_MESSAGE));
-                        mProgressDialog.dismissDialog();
+                        } else {
+                            displayAlert(getResources().getString(R.string.no_record_found));
+                            mProgressDialog.dismissDialog();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+
+                    mProgressDialog.dismissDialog();
+                    swipeRefreshLayout.setRefreshing(false);
                 }
 
-                mProgressDialog.dismissDialog();
-
             }
-
-
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("resp-demographic", error.toString());
-                error.printStackTrace();
-                mProgressDialog.dismissDialog();
+                if (mContext != null && isAdded()) {
+                    Log.d("resp-demographic", error.toString());
+                    error.printStackTrace();
+                    mProgressDialog.dismissDialog();
+                    swipeRefreshLayout.setRefreshing(false);
+                }
             }
         }) {
             //
@@ -230,7 +254,7 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
                 = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
         DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(rvMedicationList.getContext(),
                 layoutManager.getOrientation());
-        rvMedicationList.addItemDecoration(mDividerItemDecoration);
+        //rvMedicationList.addItemDecoration(mDividerItemDecoration);
         rvMedicationList.setLayoutManager(layoutManager);
         rvMedicationList.setItemAnimator(new DefaultItemAnimator());
         rvMedicationList.setAdapter(mAdapter);
@@ -240,8 +264,10 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
     @Override
     public void onDetach() {
         super.onDetach();
-        mMediatorCallback.changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
-        mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
+        if (medicationType != null) {
+            mMediatorCallback.changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
+            mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -254,5 +280,23 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
         if (mAdapter != null)
             mAdapter.filter(newText);
         return false;
+    }
+
+    @Override
+    public void onRefresh() {
+        rvMedicationList.setVisibility(View.VISIBLE);
+        tvAlert.setVisibility(View.GONE);
+        if (medicationType != null) {
+            if (isRecent) {
+                String recentMedicationUrl = API_URL_GET_MEDICATIONS_INFO + mMediatorCallback.getCurrentUser().getCivilId() + "?data=recent";
+                getMedicationList(recentMedicationUrl);
+            } else {
+                String allMedicationUrl = API_URL_GET_MEDICATIONS_INFO + mMediatorCallback.getCurrentUser().getCivilId();
+                getMedicationList(allMedicationUrl);
+            }
+        } else {
+            String medHRDurl = API_URL_GET_MED_HRD_INFO + encounterInfo.getEncounterId();
+            getMedicationList(medHRDurl);
+        }
     }
 }

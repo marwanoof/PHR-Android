@@ -3,6 +3,8 @@ package om.gov.moh.phr.models;
 public class MyConstants {
     //PARAM
     public static final String PARAM_CIVIL_ID = "PARAM_CIVIL_ID";
+    public static final String PARAM_PERSON_NAME = "PARAM_PERSON_NAME";
+    public static final String PARAM_IMAGE = "PARAM_IMAGE";
     public static final int REQUEST_CODE_SELECTED_INSTITUTE = 1;
     public static final String PARAM_SELECTED_INSTITUTE = "PARAM_SELECTED_INSTITUTE";
     public static final String PARAM_API_DEMOGRAPHICS_ITEM = "PARAM_API_DEMOGRAPHICS_ITEM";
@@ -36,6 +38,7 @@ public class MyConstants {
     public static final String PREFS_API_GET_TOKEN = "api_auth_token";
     public static final String PREFS_API_REGISTER_DEVICE = "api_register_device";
     public static final String PREFS_CURRENT_USER = "current_user";
+    public static final String PREFS_SIDE_MENU = "api_sidemenu";
 
     public static final String PREFS_DEVICE_ID = "PREFS_DEVICE_ID";
     public static final String PREFS_IS_PARENT = "PREFS_IS_PARENT";

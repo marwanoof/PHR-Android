@@ -1,6 +1,7 @@
 package om.gov.moh.phr.adapters;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,10 +22,13 @@ public class ChatRecyclerViewAdapter extends RecyclerView.Adapter<ChatRecyclerVi
     private ArrayList<ApiFriendChatListHolder.ApiFriendListInfo> friendChatArrayList;
     private Context context;
     private MediatorInterface mediatorInterface;
-    public ChatRecyclerViewAdapter(ArrayList<ApiFriendChatListHolder.ApiFriendListInfo> friendChatArrayList, Context context, MediatorInterface mMediatorCallback) {
+    private boolean isNewRecieved;
+
+    public ChatRecyclerViewAdapter(ArrayList<ApiFriendChatListHolder.ApiFriendListInfo> friendChatArrayList, Context context, MediatorInterface mMediatorCallback, boolean isNewRecieved) {
         this.friendChatArrayList = friendChatArrayList;
         this.context = context;
         this.mediatorInterface = mMediatorCallback;
+        this.isNewRecieved = isNewRecieved;
     }
 
     @NonNull
@@ -36,22 +40,31 @@ public class ChatRecyclerViewAdapter extends RecyclerView.Adapter<ChatRecyclerVi
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final MyViewHolder holder, int position) {
         final ApiFriendChatListHolder.ApiFriendListInfo messageObj = friendChatArrayList.get(position);
+        if(isNewRecieved) {
+            SharedPreferences sharedPref = context.getSharedPreferences("CHAT-BODY", Context.MODE_PRIVATE);
+            String messageSender = sharedPref.getString("MESSAGE-SENDER", null);
+            if (messageObj.getCreatedBy().equals(messageSender))
+                holder.tvUnreadCount.setVisibility(View.VISIBLE);
+            else
+                holder.tvUnreadCount.setVisibility(View.INVISIBLE);
+        }else {
+            if (messageObj.getUnreadCount() != 0)
+                holder.tvUnreadCount.setVisibility(View.VISIBLE);
+            else
+                holder.tvUnreadCount.setVisibility(View.INVISIBLE);
+        }
         holder.tvCreatedName.setText(messageObj.getCreatedName());
         holder.tvCreatedDate.setText(messageObj.getCreatedDate());
         holder.clFreindItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mediatorInterface.changeFragmentContainerVisibility(View.VISIBLE, View.GONE);
+                holder.tvUnreadCount.setVisibility(View.INVISIBLE);
                 mediatorInterface.changeFragmentTo(ChatMessagesFragment.newInstance(messageObj), "");
             }
         });
-        if (messageObj.getUnreadCount() != 0)
-            holder.tvUnreadCount.setText(String.valueOf(messageObj.getUnreadCount()));
-        else
-            holder.tvUnreadCount.setVisibility(View.INVISIBLE);
-
     }
 
     @Override

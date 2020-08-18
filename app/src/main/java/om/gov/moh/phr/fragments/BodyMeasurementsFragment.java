@@ -2,6 +2,7 @@ package om.gov.moh.phr.fragments;
 
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,12 +17,18 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.adapters.MeasurementRecyclerViewAdapter;
 import om.gov.moh.phr.apimodels.ApiDemographicsHolder;
 import om.gov.moh.phr.interfaces.AdapterToFragmentConnectorInterface;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
+
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_ARABIC;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_PREFS;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_SELECTED;
 
 public class BodyMeasurementsFragment extends Fragment implements AdapterToFragmentConnectorInterface {
 
@@ -30,7 +37,8 @@ public class BodyMeasurementsFragment extends Fragment implements AdapterToFragm
     private Context mContext;
     private MediatorInterface mMediatorCallback;
     private ToolbarControllerInterface mToolbarControllerCallback;
-
+    private TextView tvAlert;
+    private RecyclerView recyclerView;
     public BodyMeasurementsFragment() {
         // Required empty public constructor
     }
@@ -82,7 +90,8 @@ public class BodyMeasurementsFragment extends Fragment implements AdapterToFragm
                 mToolbarControllerCallback.customToolbarBackButtonClicked();
             }
         });
-        RecyclerView recyclerView = parentView.findViewById(R.id.recycler_view);
+        recyclerView = parentView.findViewById(R.id.recycler_view);
+        tvAlert = parentView.findViewById(R.id.tv_alert);
         setupRecyclerView(recyclerView);
         return parentView;
     }
@@ -104,20 +113,24 @@ public class BodyMeasurementsFragment extends Fragment implements AdapterToFragm
 
     @Override
     public <T> void onMyListItemClicked(T dataToPass, String dataTitle) {
-   }
+    }
 
     @Override
     public <T> void onMyListItemClicked(T dataToPass, String dataTitle, int position) {
-        mMediatorCallback.changeFragmentTo(VitalsGraphFragment.newInstance(mRecentVitalsArrayList.get(position).getName()),VitalsGraphFragment.class.getSimpleName());
+        mMediatorCallback.changeFragmentTo(VitalsGraphFragment.newInstance(mRecentVitalsArrayList.get(position).getName()), VitalsGraphFragment.class.getSimpleName());
     }
 
     private ArrayList<ApiDemographicsHolder.ApiDemographicItem.RecentVitals> getMeasurementArrayList() {
         ArrayList<ApiDemographicsHolder.ApiDemographicItem.RecentVitals> measurementArrayList = new ArrayList<>();
-for(int i=0; i<mRecentVitalsArrayList.size(); i++){
-    measurementArrayList.add(new ApiDemographicsHolder().new ApiDemographicItem().new RecentVitals(mRecentVitalsArrayList.get(i).getName(), mRecentVitalsArrayList.get(i).getValue(),
-            mRecentVitalsArrayList.get(i).getUnit()));
-}
-
+        if (mRecentVitalsArrayList != null) {
+            for (int i = 0; i < mRecentVitalsArrayList.size(); i++) {
+                if (!mRecentVitalsArrayList.get(i).getName().equals("G6PD")&&!mRecentVitalsArrayList.get(i).getName().equals("ABO Screening")) {
+                        measurementArrayList.add(new ApiDemographicsHolder().new ApiDemographicItem().new RecentVitals(mRecentVitalsArrayList.get(i).getName(), mRecentVitalsArrayList.get(i).getVitalNameNls(), mRecentVitalsArrayList.get(i).getValue(),
+                                mRecentVitalsArrayList.get(i).getUnit()));
+                }
+            }
+        } else
+            displayAlert(getResources().getString(R.string.no_record_found));
      /*   measurementArrayList.add(new ApiDemographicsHolder().new ApiDemographicItem().new RecentVitals(getString(R.string.title_height_cm),
                 mRecentVitalsArrayList.get(1).getValue()));
         measurementArrayList.add(new ApiDemographicsHolder().new ApiDemographicItem().new RecentVitals(getString(R.string.title_bmi),
@@ -131,6 +144,12 @@ for(int i=0; i<mRecentVitalsArrayList.size(); i++){
                 mRecentVitalsArrayList.get(5).getValue()));*/
 
         return measurementArrayList;
+    }
+
+    private void displayAlert(String msg) {
+        recyclerView.setVisibility(View.GONE);
+        tvAlert.setVisibility(View.VISIBLE);
+        tvAlert.setText(msg);
     }
 
     @Override

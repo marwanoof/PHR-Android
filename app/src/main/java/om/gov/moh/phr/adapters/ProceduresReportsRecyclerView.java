@@ -1,13 +1,16 @@
 package om.gov.moh.phr.adapters;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,11 +29,11 @@ public class ProceduresReportsRecyclerView extends RecyclerView.Adapter<Procedur
     private Context context;
     private ArrayList<ApiProceduresReportsHolder> arraylist;
     private MediatorInterface mediatorInterface;
-    private ArrayList<String> textReport;
+    private ArrayList<ProceduresReportsDetailsFragment.ReportData> textReport;
     private boolean isTrue;
     private boolean isRad;
-
-    public ProceduresReportsRecyclerView(ArrayList<String> arrayList, Context mContext) {
+    private int row_index = -1;
+    public ProceduresReportsRecyclerView(ArrayList<ProceduresReportsDetailsFragment.ReportData> arrayList, Context mContext) {
         this.textReport = arrayList;
         this.context = mContext;
         isTrue = true;
@@ -50,21 +53,36 @@ public class ProceduresReportsRecyclerView extends RecyclerView.Adapter<Procedur
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.list_item, parent, false);
+                .inflate(R.layout.list_item_procedures, parent, false);
         return new MyViewHolder(itemView);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull MyViewHolder holder, final int position) {
         if (isTrue) {
-            String reportText = textReport.get(position);
-            holder.tvProcedureName.setText(reportText);
-            holder.tvDosage.setVisibility(View.INVISIBLE);
-            holder.tvDateWritten.setVisibility(View.INVISIBLE);
+            ViewGroup.LayoutParams layoutParams = holder.cardView.getLayoutParams();
+            layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            holder.cardView.setLayoutParams(layoutParams);
+            ProceduresReportsDetailsFragment.ReportData reportData = textReport.get(position);
+            holder.tvProcedureName.setTypeface(null,Typeface.NORMAL);
+            holder.tvProcedureName.setText(reportData.getReportText());
+
+            SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yyyy \n hh:mm:ss", Locale.US);
+            if(reportData.getReportTime()==null)
+                holder.tvDateWritten.setVisibility(View.INVISIBLE);
+            else {
+                String dateReport = df2.format(reportData.getReportTime());
+                holder.tvDateWritten.setText(dateReport);
+            }
             holder.tvEstName.setVisibility(View.INVISIBLE);
-            holder.tvEstName.setVisibility(View.INVISIBLE);
-            holder.imageButton.setVisibility(View.GONE);
+            holder.moreDetailArrow.setVisibility(View.GONE);
+            //holder.tvEstName.setVisibility(View.INVISIBLE);
+
         } else {
+            holder.moreDetailArrow.setVisibility(View.VISIBLE);
+            ViewGroup.LayoutParams layoutParams = holder.cardView.getLayoutParams();
+            layoutParams.height = 150;
+            holder.cardView.setLayoutParams(layoutParams);
             final ApiProceduresReportsHolder procedureObj = proceduresReportArrayList.get(position);
             if (isRad) {
                 holder.tvProcedureName.setText(procedureObj.getProcName());
@@ -84,12 +102,21 @@ public class ProceduresReportsRecyclerView extends RecyclerView.Adapter<Procedur
             holder.clOrderItem.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    row_index = position;
+                    notifyDataSetChanged();
                     if (isRad)
                         mediatorInterface.changeFragmentTo(ProceduresReportsDetailsFragment.newInstance(procedureObj, "RAD"), procedureObj.getName());
                     else
                         mediatorInterface.changeFragmentTo(ProceduresReportsDetailsFragment.newInstance(procedureObj), procedureObj.getName());
                 }
             });
+            if (row_index == position) {
+
+                holder.clOrderItem.setBackgroundColor(context.getResources().getColor(R.color.colorPeach));
+            } else {
+
+                holder.clOrderItem.setBackgroundColor(context.getResources().getColor(R.color.colorWhite));
+            }
         }
     }
 
@@ -104,17 +131,19 @@ public class ProceduresReportsRecyclerView extends RecyclerView.Adapter<Procedur
     public class MyViewHolder extends RecyclerView.ViewHolder {
         TextView tvProcedureName, tvDosage, tvDateWritten, tvEstName;
         ConstraintLayout clOrderItem;
-        ImageButton imageButton;
+        ImageView moreDetailArrow;
+        CardView cardView;
+        //ImageButton imageButton;
 
         public MyViewHolder(View view) {
             super(view);
-            tvProcedureName = view.findViewById(R.id.tv_procName);
-            tvDosage = view.findViewById(R.id.tv_status);
-            tvDosage.setVisibility(View.INVISIBLE);
-            tvDateWritten = view.findViewById(R.id.tv_orderDate);
-            tvEstName = view.findViewById(R.id.tv_estName);
-            clOrderItem = view.findViewById(R.id.cl_orderItem);
-            imageButton = view.findViewById(R.id.imageButton);
+            tvProcedureName = view.findViewById(R.id.tv_name_proc);
+
+            tvDateWritten = view.findViewById(R.id.tv_date_proc);
+            tvEstName = view.findViewById(R.id.tv_hospital_proc);
+            clOrderItem = view.findViewById(R.id.constraintLayout_proc);
+            moreDetailArrow = view.findViewById(R.id.img_arrowDetails);
+            cardView = view.findViewById(R.id.cardView_procContent);
         }
     }
 

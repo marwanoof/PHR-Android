@@ -40,6 +40,7 @@ import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.models.MyProgressDialog;
 
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
+import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_MESSAGE;
 import static om.gov.moh.phr.models.MyConstants.PARAM_APPOINTMENTS;
@@ -149,7 +150,7 @@ public class CancelAppointmentDialogFragment extends DialogFragment {
 
     private void cancelAppointment(String reason) {
 
-        String fullUrl = "http://10.99.9.36:9000/nehrapi/appointment/cancel?estCode=" + AppointmentNewFragment.TEST_EST_CODE + "&reservationId=" + mAppointment.getReservationId() + "&reason=" + reason + "&civilId=" + mMediatorCallback.getCurrentUser().getCivilId();
+        String fullUrl = API_NEHR_URL+"appointment/cancel?estCode=" + mAppointment.getEstCode() + "&reservationId=" + mAppointment.getReservationId() + "&reason=" + reason + "&civilId=" + mMediatorCallback.getCurrentUser().getCivilId();
         Log.d("saveAppointment", "link : " + fullUrl);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, fullUrl, null
                 , new Response.Listener<JSONObject>() {

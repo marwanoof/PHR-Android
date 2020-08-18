@@ -7,7 +7,10 @@ import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class ApiSlotsHolder implements Serializable {
+public class
+
+
+ApiSlotsHolder implements Serializable {
     @SerializedName("result")
     private SlotHolder result;
 

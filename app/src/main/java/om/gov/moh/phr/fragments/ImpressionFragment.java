@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -51,7 +52,7 @@ import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
 import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
 
-public class ImpressionFragment extends Fragment {
+public class ImpressionFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
     private Context mContext;
     private MediatorInterface mMediatorCallback;
     private ToolbarControllerInterface mToolbarControllerCallback;
@@ -62,6 +63,7 @@ public class ImpressionFragment extends Fragment {
     private RequestQueue mQueue;
     private static final String API_URL_GET_IMMPRESSION_INFO = API_NEHR_URL + "clinicalNotes/encounter/";
     private TextView tvDate, tvTime;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     public static ImpressionFragment newInstance(ApiEncountersHolder.Encounter encounterObj) {
         ImpressionFragment fragment = new ImpressionFragment();
@@ -93,87 +95,82 @@ public class ImpressionFragment extends Fragment {
         View parentView = inflater.inflate(R.layout.details_imp, container, false);
         mProgressDialog = new MyProgressDialog(mContext);
         mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
-        TextView tvTitle = parentView.findViewById(R.id.tv_title);
-        ImageButton ibToolbarBackButton = parentView.findViewById(R.id.ib_toolbar_back_button);
-        ibToolbarBackButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mMediatorCallback.changeFragmentTo(HealthRecordListFragment.newInstance(), encounterInfo.getEstFullname());
-               // mToolbarControllerCallback.customToolbarBackButtonClicked();
-            }
-        });
-        ImageButton ibHome = parentView.findViewById(R.id.ib_home);
-        ibHome.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                backToHome();
-            }
-        });
+
         TextView tvPatientClass = parentView.findViewById(R.id.tv_patient_class);
         TextView tvEstName = parentView.findViewById(R.id.tv_estName);
         tvDate = parentView.findViewById(R.id.tv_month);
         tvTime = parentView.findViewById(R.id.tv_time);
+        swipeRefreshLayout = parentView.findViewById(R.id.swipe_refresh_layout);
         recyclerView = parentView.findViewById(R.id.recycler_view);
-        tvTitle.setText(encounterInfo.getDepartmentArrayList().get(0) + ", " + encounterInfo.getEstShortName());
+
         tvPatientClass.setText(encounterInfo.getPatientClass());
         tvEstName.setText(encounterInfo.getEstShortName());
-        String url = API_URL_GET_IMMPRESSION_INFO + encounterInfo.getEncounterId()+"?source=PHR";
+        String url = API_URL_GET_IMMPRESSION_INFO + encounterInfo.getEncounterId() + "?source=PHR";
         getImmpressionNotes(url);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        swipeRefreshLayout.setRefreshing(true);
+                                        String url = API_URL_GET_IMMPRESSION_INFO + encounterInfo.getEncounterId() + "?source=PHR";
+                                        getImmpressionNotes(url);
+                                    }
+                                }
+        );
         return parentView;
-    }
-    private void backToHome() {
-        FragmentManager fm = getActivity().getSupportFragmentManager();
-        for (int i = 0; i < fm.getBackStackEntryCount(); ++i) {
-            fm.popBackStack();
-        }
     }
 
     private void getImmpressionNotes(String url) {
         mProgressDialog.showDialog();
+        swipeRefreshLayout.setRefreshing(true);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                try {
-                    if (response.getInt(API_RESPONSE_CODE) == 0) {
+                if (mContext != null) {
+                    try {
+                        if (response.getInt(API_RESPONSE_CODE) == 0) {
 
-                        JSONObject jsonObject = response.getJSONArray("result").getJSONObject(0);
-                        long noteDate = jsonObject.getLong("noteDate");
-                        Date date = new Date(noteDate);
-                        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-                        String NoteDate = dateFormat.format(date);
-                        tvDate.setText(NoteDate);
-                        SimpleDateFormat ClockFormat = new SimpleDateFormat("hh:mm:ss aa", Locale.US);
-                        String NoteTime = ClockFormat.format(date);
-                        tvTime.setText(NoteTime);
-                        ArrayList<Immpression> immpressionNotes = new ArrayList<>();
-                        JSONArray noteslist = jsonObject.getJSONArray("dto");
-                        for (int i =0; i<noteslist.length(); i++){
-                            Immpression imp = new Immpression();
-                            imp.setNoteTitle(noteslist.getJSONObject(i).getString("noteTitle"));
-                            imp.setNoteText(noteslist.getJSONObject(i).getString("notes"));
-                            immpressionNotes.add(imp);
+                            JSONObject jsonObject = response.getJSONArray("result").getJSONObject(0);
+                            long noteDate = jsonObject.getLong("noteDate");
+                            Date date = new Date(noteDate);
+                            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+                            String NoteDate = dateFormat.format(date);
+                            tvDate.setText(NoteDate);
+                            SimpleDateFormat ClockFormat = new SimpleDateFormat("hh:mm:ss aa", Locale.US);
+                            String NoteTime = ClockFormat.format(date);
+                            tvTime.setText(NoteTime);
+                            ArrayList<Immpression> immpressionNotes = new ArrayList<>();
+                            JSONArray noteslist = jsonObject.getJSONArray("dto");
+                            for (int i = 0; i < noteslist.length(); i++) {
+                                Immpression imp = new Immpression();
+                                imp.setNoteTitle(noteslist.getJSONObject(i).getString("noteTitle"));
+                                imp.setNoteText(noteslist.getJSONObject(i).getString("notes"));
+                                immpressionNotes.add(imp);
+                            }
+                            setupRecyclerView(immpressionNotes);
+
+                        } else {
+                            mProgressDialog.dismissDialog();
                         }
-                        setupRecyclerView(immpressionNotes);
-
-                    } else {
-                        mProgressDialog.dismissDialog();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+
+                    mProgressDialog.dismissDialog();
+                    swipeRefreshLayout.setRefreshing(false);
                 }
 
-                mProgressDialog.dismissDialog();
-
             }
-
-
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("resp-demographic", error.toString());
-                error.printStackTrace();
-                mProgressDialog.dismissDialog();
+                if (mContext != null && isAdded()) {
+                    Log.d("resp-demographic", error.toString());
+                    error.printStackTrace();
+                    mProgressDialog.dismissDialog();
+                    swipeRefreshLayout.setRefreshing(false);
+                }
             }
         }) {
             //
@@ -193,6 +190,7 @@ public class ImpressionFragment extends Fragment {
 
         mQueue.add(jsonObjectRequest);
     }
+
     private void setupRecyclerView(ArrayList<Immpression> getmResult) {
         HRDRecyclerViewAdapter mAdapter = new HRDRecyclerViewAdapter(getmResult, mContext);
         LinearLayoutManager layoutManager
@@ -203,5 +201,11 @@ public class ImpressionFragment extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
+    }
+
+    @Override
+    public void onRefresh() {
+        String url = API_URL_GET_IMMPRESSION_INFO + encounterInfo.getEncounterId() + "?source=PHR";
+        getImmpressionNotes(url);
     }
 }

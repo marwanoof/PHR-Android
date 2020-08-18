@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+
+    <ImageView
+        android:id="@+id/iv_notification_ic"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/about_ic"
+        android:tint="@color/colorRed"
+        android:layout_marginStart="@dimen/space_24"
+        android:fontFamily="@font/roboto_regular"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_16"
+        android:fontFamily="@font/roboto_regular"
+        android:padding="@dimen/space_8"
+        android:text="@string/no_notification"
+        android:textColor="@color/colorBlack"
+        android:textSize="@dimen/text_18sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@id/iv_notification_ic"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_body"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingBottom="@dimen/space_10"
+        android:fontFamily="@font/roboto_regular"
+        app:layout_constraintStart_toEndOf="@id/iv_notification_ic"
+        app:layout_constraintTop_toBottomOf="@id/tv_title" />
+
+
+    <ImageButton
+        android:id="@+id/imageButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/colorWhite"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_delete" />
+</androidx.constraintlayout.widget.ConstraintLayout>

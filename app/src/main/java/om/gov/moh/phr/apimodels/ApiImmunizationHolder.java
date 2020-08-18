@@ -28,13 +28,13 @@ public class ApiImmunizationHolder {
         private long scheduledOn;
 
         @SerializedName("givenOn")
-        private long givenOn;
+        private Long givenOn;
 
         public long getScheduledOn() {
             return scheduledOn;
         }
 
-        public long getGivenOn() {
+        public Long getGivenOn() {
             return givenOn;
         }
 

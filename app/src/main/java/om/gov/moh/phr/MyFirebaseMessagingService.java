@@ -4,17 +4,43 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Bundle;
 import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.RetryPolicy;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 import om.gov.moh.phr.activities.MainActivity;
+import om.gov.moh.phr.apimodels.Notification;
+import om.gov.moh.phr.models.DBHelper;
+
+import static om.gov.moh.phr.models.MyConstants.API_ANDROID_APP_CODE;
+import static om.gov.moh.phr.models.MyConstants.API_ANDROID_FLAG;
+import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
+import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
+import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_MESSAGE;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_PREFS;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_SELECTED;
 
 /**
  * NOTE: There can only be one service in each app that receives FCM messages. If multiple
@@ -30,6 +56,18 @@ import om.gov.moh.phr.activities.MainActivity;
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "MyFirebaseMsgService";
+    private LocalBroadcastManager broadcaster;
+    private DBHelper dbHelper;
+    int chatCount = 0;
+    int appointmentCount = 0;
+    int notificationCount = 0;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        broadcaster = LocalBroadcastManager.getInstance(this);
+        dbHelper = new DBHelper(this);
+    }
 
     /**
      * Called when message is received.
@@ -82,13 +120,22 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         // Check if message contains a notification payload.
 
-        createChannelToShowNotifications(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"));
+        createChannelToShowNotifications(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), remoteMessage.getData().get("type"), remoteMessage.getData());
         Log.d(TAG, "Message Notification Body: " + remoteMessage.getData().get("body"));
 
 
         // Also if you intend on generating your own notifications as a result of a received FCM
         // message, here is where that should be initiated. See sendNotification method below.
-
+        if (remoteMessage.getData().get("type").equals("2")) {
+            Notification notification = new Notification();
+            notification.setKeyId(remoteMessage.getData().get("keyId"));
+            notification.setTitle(remoteMessage.getData().get("title"));
+            notification.setBody(remoteMessage.getData().get("body"));
+            notification.setCreatedDate(remoteMessage.getData().get("createdDate"));
+            notification.setPnsType(remoteMessage.getData().get("pnsType"));
+            notification.setLabType(remoteMessage.getData().get("labType"));
+            dbHelper.insertDate(notification);
+        }
         handelDataExtras(remoteMessage);
     }
     // [END receive_message]
@@ -122,30 +169,47 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
      * @param token The new token.
      */
     private void sendRegistrationToServer(String token) {
-        // TODO: Implement this method to send token to your app server.
+        Intent intent = new Intent("MyNewToken");
+        intent.putExtra("token", token);
+        broadcaster.sendBroadcast(intent);
     }
-
 
     /**
      * Create and show a simple notification containing the received FCM message.
      *
      * @param title FCM message title received.
      * @param desc  FCM message body received.
+     * @param data
      */
     //FCM
-    private void createChannelToShowNotifications(String title, String desc) {
+    private void createChannelToShowNotifications(String title, String desc, String type, Map<String, String> data) {
         NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(this, getString(R.string.default_notification_channel_id))
-                        .setSmallIcon(R.drawable.appointments)
+                        // .setSmallIcon(R.drawable.appointments)
                         .setContentTitle(title)
                         .setContentText(desc);
-
+        switch (type) {
+            case "1":
+                builder.setSmallIcon(R.drawable.appointments);
+                break;
+            case "2":
+                builder.setSmallIcon(R.drawable.notification);
+                break;
+            case "3":
+                builder.setSmallIcon(R.drawable.chat);
+                sendBroadcast(new Intent(getBody(data.get("body"), data.get("senderId"))));
+                break;
+        }
+        // addBadge(type);
         Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         Intent notificationIntent = new Intent(this, MainActivity.class);
-
+        Bundle bundle = new Bundle();
+        for (String key : data.keySet()) {
+            bundle.putString(key, data.get(key));
+        }
+        notificationIntent.putExtras(bundle);
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent,
-                PendingIntent.FLAG_CANCEL_CURRENT);
-
+                PendingIntent.FLAG_UPDATE_CURRENT);
         builder.setSound(alarmSound);
         builder.setContentIntent(contentIntent);
         builder.setAutoCancel(true);
@@ -155,8 +219,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         builder.setStyle(new NotificationCompat.InboxStyle());
 // Add as notification
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        manager.notify(1, builder.build());
-
+        int m = (int) ((new Date().getTime() / 1000L) % Integer.MAX_VALUE);
+        manager.notify(m, builder.build());
+        sendBroadcast(new Intent(addBadge(type)));
     }
 
     //FCM
@@ -174,10 +239,54 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             for (String key : remoteMessage.getData().keySet()) {
                 Object value = remoteMessage.getData().get(key);
                 Log.d(TAG, "Key: " + key + " Value: " + value);
+
             }
         }
 // [END handle_data_extras]
     }
 
+    private String addBadge(String type) {
+        SharedPreferences sharedPref = getSharedPreferences("Counting", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        if (type.equals("1")) {
 
+            int updatedAppointmentCount = sharedPref.getInt("appointmentCount", 0);
+            if (updatedAppointmentCount != 0)
+                appointmentCount = updatedAppointmentCount + 1;
+            else
+                appointmentCount = appointmentCount + 1;
+            editor.putInt("appointmentCount", appointmentCount);
+            editor.apply();
+        }
+        if (type.equals("2")) {
+            int updatedNotificationCount = sharedPref.getInt("notificationCount", 0);
+            if (updatedNotificationCount != 0)
+                notificationCount = updatedNotificationCount + 1;
+            else
+                notificationCount = notificationCount + 1;
+
+            editor.putInt("notificationCount", notificationCount);
+            editor.apply();
+        }
+        if (type.equals("3")) {
+            int updatedChatCount = sharedPref.getInt("chatCount", 0);
+            if (updatedChatCount != 0)
+                chatCount = updatedChatCount + 1;
+            else
+                chatCount = chatCount + 1;
+
+            editor.putInt("chatCount", chatCount);
+            editor.apply();
+        }
+        return "TEST";
+    }
+
+    private String getBody(String body, String senderID) {
+        SharedPreferences sharedPref = getSharedPreferences("CHAT-BODY", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("MESSAGE-BODY", body);
+        editor.putString("MESSAGE-SENDER", senderID);
+        editor.apply();
+        return "BODY";
+    }
 }
