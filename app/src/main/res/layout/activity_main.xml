@@ -22,26 +22,25 @@
         android:id="@+id/fl_main_container"
         android:layout_width="@dimen/space_0"
         android:layout_height="@dimen/space_0"
-        android:visibility="gone"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <om.gov.moh.phr.models.ViewPagerCustomDuration
+ <!--   <om.gov.moh.phr.models.ViewPagerCustomDuration
         android:id="@+id/swipe_container"
         android:layout_width="@dimen/space_0"
         android:layout_height="@dimen/space_0"
-        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintVertical_bias="1.0" />-->
 
     <!--//BottomNavigationView-->
-    <com.google.android.material.bottomnavigation.BottomNavigationView
+<!--    <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="@dimen/space_0"
         android:layout_height="wrap_content"
@@ -53,7 +52,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:menu="@menu/bottom_navigation"
-        tools:visibility="gone" />
+        tools:visibility="gone" />-->
 
     <!--//BottomNavigationView-->
 

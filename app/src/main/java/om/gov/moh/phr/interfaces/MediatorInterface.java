@@ -42,11 +42,11 @@ public interface MediatorInterface {
 
 //    void changeButtonNavVisibilityTo(int sideMenuToolbarVisibility, int bottomNabBarVisibilit);
 
-    void changeFragmentContainerVisibility(int fragmentContainerVisibility, int viewPagerVisibility);
+  //  void changeFragmentContainerVisibility(int fragmentContainerVisibility, int viewPagerVisibility);
 
-    void slideTo(int index);
+  //  void slideTo(int index);
 
-    void changeBottomNavVisibility(int bottomNavVisibility);
+   // void changeBottomNavVisibility(int bottomNavVisibility);
 
 
 }

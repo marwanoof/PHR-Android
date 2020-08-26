@@ -114,7 +114,6 @@ public class NotificationsRecyclerViewAdapter extends RecyclerView.Adapter<Notif
                     public void onClick(DialogInterface dialog, int id) {
                         dbHelper.deleteTitle(keyId);
                         Toast.makeText(context, context.getResources().getString(R.string.success_notification_delete_msg), Toast.LENGTH_SHORT).show();
-                        mMediatorCallback.slideTo(0);
                     }
                 });
 

@@ -19,10 +19,9 @@ public class MyConstants {
     public static final String PHR_IMAGES_DIRECTORY_NAME = "phr_Images";
     public static final String IMAGE_EXTENSION = "jpg";
     //api
-    public static final String API_NEHR_URL = "https://5.162.223.156/nehrapi/";
-    public static final String API_NEHR_HEALTH_NET_URL = "http://nehr-app-gw.healthnet.gov.om/nehrapi/";
+    public static final String API_NEHR_URL = "https://mshifa.moh.gov.om/nehrapi/";
 
-    public static final String API_URL_LOCAL = "https://5.162.223.156/phrapi/"; // "http://10.99.9.36:9000/phrapi/"; //
+    public static final String API_PHR = "https://mshifa.moh.gov.om/phrapi/";
     public static final String API_GET_TOKEN_BEARER = "Bearer ";
     public static final String API_GET_TOKEN_ACCESS_TOKEN = "access_token";
     public static final String API_RESPONSE_CODE = "code";
@@ -39,6 +38,7 @@ public class MyConstants {
     public static final String PREFS_API_REGISTER_DEVICE = "api_register_device";
     public static final String PREFS_CURRENT_USER = "current_user";
     public static final String PREFS_SIDE_MENU = "api_sidemenu";
+    public static final String PARAM_SIDE_MENU = "PARAM_SIDE_MENU";
 
     public static final String PREFS_DEVICE_ID = "PREFS_DEVICE_ID";
     public static final String PREFS_IS_PARENT = "PREFS_IS_PARENT";

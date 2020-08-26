@@ -200,4 +200,5 @@
     <string name="ok">موافق</string>
     <string name="title_organ">التبرع بالأعضاء</string>
     <string name="sub_title_phr">محفظة ملفك الصحي</string>
+    <string name="language">اللغة</string>
 </resources>

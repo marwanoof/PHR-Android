@@ -143,7 +143,6 @@ public class AppointmentsListFragment extends Fragment implements AdapterToFragm
         ibAddAppointment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mMediatorCallback.changeFragmentContainerVisibility(View.VISIBLE, View.GONE);
 
                 AppointmentNewFragment fragment = AppointmentNewFragment.newInstance();
 
@@ -278,7 +277,6 @@ public class AppointmentsListFragment extends Fragment implements AdapterToFragm
         if (dataToPass instanceof String) {
             String referrals = dataToPass.toString();
             if ("REFFERAL".equals(dataTitle))
-                mMediatorCallback.changeFragmentContainerVisibility(View.VISIBLE, View.GONE);
                 mMediatorCallback.changeFragmentTo(RefferalsDetailsFragment.newInstance(referrals), RefferalsDetailsFragment.class.getSimpleName());
         } else {
             ApiAppointmentsListHolder.Appointments appointment = (ApiAppointmentsListHolder.Appointments) dataToPass;
@@ -299,7 +297,6 @@ public class AppointmentsListFragment extends Fragment implements AdapterToFragm
 
 
     private void showRescheduleAppointmentFragment(ApiAppointmentsListHolder.Appointments appointment) {
-        mMediatorCallback.changeFragmentContainerVisibility(View.VISIBLE, View.GONE);
         mMediatorCallback.changeFragmentTo(AppointmentRescheduleFragment.newInstance(appointment), AppointmentRescheduleDateFragment.class.getSimpleName());
     }
 
@@ -335,7 +332,6 @@ public class AppointmentsListFragment extends Fragment implements AdapterToFragm
     @Override
     public void onDetach() {
         super.onDetach();
-        mMediatorCallback.changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
         mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
     }
 

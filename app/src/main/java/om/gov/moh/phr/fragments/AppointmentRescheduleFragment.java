@@ -365,6 +365,5 @@ public class AppointmentRescheduleFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        mMediatorCallback.changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
     }
 }

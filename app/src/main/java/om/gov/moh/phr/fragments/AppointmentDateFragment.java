@@ -221,10 +221,7 @@ public class AppointmentDateFragment extends Fragment implements AdapterToFragme
             public void onAccept() {
               //  onDecline();
 
-                mMediatorCallback.slideTo(0);
-
                 mToolbarControllerCallback.customToolbarBackButtonClicked();
-                mMediatorCallback.changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
                 mListener.onItemsChanged(-1);
 
 
@@ -234,7 +231,6 @@ public class AppointmentDateFragment extends Fragment implements AdapterToFragme
                     public void run() {
                         // Do something after 5s = 5000ms
 
-                        mMediatorCallback.slideTo(1);
                     }
                 }, 1000);
             }

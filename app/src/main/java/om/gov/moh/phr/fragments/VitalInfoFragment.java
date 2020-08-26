@@ -286,7 +286,6 @@ public class VitalInfoFragment extends Fragment implements SwipeRefreshLayout.On
     @Override
     public void onDetach() {
         super.onDetach();
-        mMediatorCallback.changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
         mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
     }
 

@@ -470,8 +470,6 @@ public class LabResultDetailsFragment extends Fragment implements SwipeRefreshLa
     @Override
     public void onDetach() {
         super.onDetach();
-        if (notificationObj != null)
-            mMediatorCallback.changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
     }
 
     @Override

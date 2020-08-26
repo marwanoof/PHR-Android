@@ -776,7 +776,6 @@ public class AppointmentNewFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        mMediatorCallback.changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
     }
 
 

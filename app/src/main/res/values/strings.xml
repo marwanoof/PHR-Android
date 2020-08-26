@@ -195,9 +195,7 @@
     <string name="about_the_app">About The App</string>
     <string name="about_app_info">Afiyati App is developed by Ministry of Health - DGIT.  This BETA version of the app allows all users with a valid civil ID and registered Oman mobile number, to view their own medical record and information.</string>
     <string name="ok">OK</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_organ">Organ Donation</string>
     <string name="sub_title_phr">your health record wallet</string>
+    <string name="language">Language</string>
 </resources>

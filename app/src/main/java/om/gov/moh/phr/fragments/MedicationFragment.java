@@ -265,7 +265,6 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
     public void onDetach() {
         super.onDetach();
         if (medicationType != null) {
-            mMediatorCallback.changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
             mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
         }
     }

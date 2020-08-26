@@ -1,0 +1,41 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view"
+    tools:context="om.gov.moh.tarassudapplication.MainActivity">
+
+    <item android:title="@string/language"
+        android:menuCategory="secondary">
+        <menu>
+            <item
+                android:id="@+id/nav_english"
+                android:icon="@drawable/langauge_ic"
+                android:title="@string/english"/>
+
+            <item
+                android:id="@+id/nav_arabic"
+                android:icon="@drawable/langauge_ic"
+                android:title="@string/arabic"/>
+
+        </menu>
+    </item>
+    <item android:title=""
+        android:menuCategory="secondary">
+        <menu>
+
+            <item
+                android:id="@+id/nav_feedback"
+                android:icon="@drawable/ic_feedback"
+                android:title="@string/phr_feedback"/>
+
+            <item
+                android:id="@+id/nav_about"
+                android:icon="@drawable/about_ic"
+                android:title="@string/about_the_app"/>
+            <item
+                android:id="@+id/nav_logout"
+                android:icon="@drawable/logout"
+                android:title="@string/title_logout"/>
+        </menu>
+    </item>
+</menu>
