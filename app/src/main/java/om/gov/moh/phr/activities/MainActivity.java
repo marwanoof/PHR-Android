@@ -248,13 +248,6 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
 
         mProgressDialog = new MyProgressDialog(mContext);// initializes progress dialog
         mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, getSocketFactory())); // initializes mQueue : we need to use  Volley.newRequestQueue(this, new HurlStack(null, getSocketFactory())) because we need to connect the app to secure server "https".
-
-
-        //BottomNavigationView
-
-        // bottomNavigation = findViewById(R.id.bottom_navigation);
-        // bottomNavigation.setVisibility(View.GONE);
-        //bottomNavigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         Intent intent = getIntent();
         if (intent.getStringExtra(DEPENDENT_CIVILID) != null) {
             ivLogout.setImageResource(R.drawable.ic_close);
@@ -586,6 +579,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         }
         return null;
     }
+
     @Override
     public AccessToken getAccessToken() {
         if (!TextUtils.isEmpty(AccessToken.getInstance().getAccessTokenString())) {
@@ -653,12 +647,11 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
     //side menu
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        //  changeSideMenuToolBarVisibility(View.GONE);
+        changeSideMenuToolBarVisibility(View.GONE);
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         String title = item.getTitle().toString();
-//        changeButtonNavVisibilityTo(View.GONE, View.GONE);
-        if (menus.length() == 0) {
+        if (menus != null) {
             try {
                 JSONArray array = new JSONArray(menus);
                 for (int i = 0; i < array.length(); i++) {
@@ -672,22 +665,25 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
                         String nav_Url = jsonObject.getString("templateUrl");
                         String nav_Url_ar = jsonObject.getString("templateUrlNls");
                         if (id == nav_id) {
-                            // Handle the camera action
                             if (getStoredLanguage().equals(LANGUAGE_ENGLISH))
                                 changeFragmentTo(WebSideMenuFragment.newInstance(nav_Url, nav_name), WebSideMenuFragment.class.getSimpleName());
                             else
                                 changeFragmentTo(WebSideMenuFragment.newInstance(nav_Url_ar, nav_name_ar), WebSideMenuFragment.class.getSimpleName());
+                            break;
                         } else if (id == R.id.nav_english) {
                             storeLanguage(LANGUAGE_ENGLISH);
                             changeLanguageTo(LANGUAGE_ENGLISH, true);
+                            break;
                         } else if (id == R.id.nav_arabic) {
                             storeLanguage(LANGUAGE_ARABIC);
                             changeLanguageTo(LANGUAGE_ARABIC, true);
+                            break;
                         } else if (id == R.id.nav_about) {
-
                             displayAboutAppDialog();
+                            break;
                         } else if (id == R.id.nav_feedback) {
                             changeFragmentTo(FeedbackFragment.newInstance(), FeedbackFragment.class.getSimpleName());
+                            break;
                         } else if (title.equals(getResources().getString(R.string.patients_rights))) {
                             //   changeFragmentTo(WebSideMenuFragment.newInstance(8), WebSideMenuFragment.class.getSimpleName());
                         } else if (id == R.id.nav_logout) {
@@ -699,6 +695,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
                                 Intent ParentHome = new Intent(MainActivity.this, MainActivity.class);
                                 startActivity(ParentHome);
                             }
+                            break;
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -949,19 +946,19 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
                 //if screen rotated retain Fragment
                 if (getCurrentFragment() instanceof HomeFragment) {
                     shouldLockDrawer(false);
-                  /*  changeFragmentContainerVisibility(View.VISIBLE, View.VISIBLE);
-                    changeSideMenuToolBarVisibility(View.VISIBLE);*/
+                    /*  changeFragmentContainerVisibility(View.VISIBLE, View.VISIBLE);*/
+                    changeSideMenuToolBarVisibility(View.VISIBLE);
                 } else {
                     shouldLockDrawer(true);
-                  /*  changeFragmentContainerVisibility(View.VISIBLE, View.GONE);
-                    changeSideMenuToolBarVisibility(View.GONE);*/
+                    /*  changeFragmentContainerVisibility(View.VISIBLE, View.GONE);*/
+                    changeSideMenuToolBarVisibility(View.GONE);
                     changeFragmentTo(getCurrentFragment(), getCurrentFragment().getTag());
                 }
 
             } else {
                 //set Home/Main/default fragment
-           /*     changeFragmentContainerVisibility(View.VISIBLE, View.VISIBLE);
-                changeSideMenuToolBarVisibility(View.VISIBLE);*/
+                /*     changeFragmentContainerVisibility(View.VISIBLE, View.VISIBLE);*/
+                changeSideMenuToolBarVisibility(View.VISIBLE);
                 shouldLockDrawer(false);
                 changeFragmentTo(HomeFragment.newInstance(), HomeFragment.class.getSimpleName());
             }
