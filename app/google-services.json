@@ -1,0 +1,56 @@
+{
+  "project_info": {
+    "project_number": "426645697575",
+    "firebase_url": "https://phr-app-6a3fe.firebaseio.com",
+    "project_id": "phr-app-6a3fe",
+    "storage_bucket": "phr-app-6a3fe.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:426645697575:android:aeaa41288ac42fe2efca02",
+        "android_client_info": {
+          "package_name": "om.gov.moh.phr"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "426645697575-hv76u3vmu3kk0kaf0spg46eu3oq590hf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "om.gov.moh.phr",
+            "certificate_hash": "0e03e07d5468b87fa21ac09cb2139014833c6aa8"
+          }
+        },
+        {
+          "client_id": "426645697575-nm1cgh767p3gibjiiugiprvthd22t22g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "om.gov.moh.phr",
+            "certificate_hash": "f3ec758ef083cd3c99325f5b319b5baa45d27c43"
+          }
+        },
+        {
+          "client_id": "426645697575-3q2dqm6817t3iprgfrvuji4nerr1cbub.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBtLYWUJI2xn0VbF_RfBiJtcgrHhjAMdMU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "426645697575-3q2dqm6817t3iprgfrvuji4nerr1cbub.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
