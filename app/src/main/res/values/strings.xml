@@ -198,4 +198,5 @@
     <string name="title_organ">Organ Donation</string>
     <string name="sub_title_phr">your health record wallet</string>
     <string name="language">Language</string>
+    <string name="other_commets">Other Comments..</string>
 </resources>

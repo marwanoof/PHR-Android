@@ -80,7 +80,7 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
     private TextView tvAlert;
     private RequestQueue mQueue;
     private MyProgressDialog mProgressDialog;
-    private EditText etUserEmail, etUserMobileNo, editText;
+    private EditText etUserEmail, etUserMobileNo, editText, etOtherComments;
     private ApiFeedbackHolder responseHolder;
     private ArrayList<RadioGroup> radioGroupArray;
     // private ArrayList<LinearLayout> checkBoxesArray;
@@ -172,6 +172,7 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
                             Gson gson = new Gson();
                             responseHolder = gson.fromJson(response.toString(), ApiFeedbackHolder.class);
+                            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
                             for (int i = 0; i < response.getJSONArray(API_RESPONSE_RESULT).length(); i++)
                                 Log.d("questions" + i, response.getJSONArray(API_RESPONSE_RESULT).getJSONObject(i).toString());
                             // checkBoxesArray = new ArrayList<>();
@@ -232,27 +233,35 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
                                     constraintLayout.addView(textView);
                                     // add text area
                                     editText = new EditText(mContext);
-                                    LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
                                     editText.setLayoutParams(layoutParams);
                                     editText.setTextSize(14);
-                                    editText.setHint("write here your comments.");
+                                    editText.setMaxLines(3);
+                                    editText.setLines(3);
+                                    //editText.setHint("write here your comments.");
                                     editText.setId(responseHolder.getResult().get(i).getParamId());
                                     constraintLayout.addView(editText);
-
                                 }
 
 
                             }
+                            etOtherComments = new EditText(mContext);
+                            etOtherComments.setLayoutParams(layoutParams);
+                            etOtherComments.setTextSize(14);
+                            etOtherComments.setHint(getResources().getString(R.string.other_commets));
+                            etOtherComments.setMaxLines(3);
+                            etOtherComments.setLines(3);
+                            constraintLayout.addView(etOtherComments);
                             etUserEmail = new EditText(mContext);
-                            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
                             etUserEmail.setLayoutParams(layoutParams);
                             etUserEmail.setHint(getResources().getString(R.string.enter_your_email));
                             etUserEmail.setTextSize(14);
+                            etUserEmail.setSingleLine(true);
                             constraintLayout.addView(etUserEmail);
                             etUserMobileNo = new EditText(mContext);
                             etUserMobileNo.setLayoutParams(layoutParams);
                             etUserMobileNo.setHint(getResources().getString(R.string.enter_your_mobile_no));
                             etUserMobileNo.setTextSize(14);
+                            etUserMobileNo.setSingleLine(true);
                             constraintLayout.addView(etUserMobileNo);
                         } else {
 
@@ -294,10 +303,10 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
         mQueue.add(jsonObjectRequest);
     }
 
-    private void saveFeedback() {
+    private void saveFeedback(View view) {
         String saveFeedbackUrl = API_NEHR_URL + "feedback/save";
         mProgressDialog.showDialog();
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, saveFeedbackUrl, null/*getJSONRequestParams(view)*/
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, saveFeedbackUrl, getJSONRequestParams(view)
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -344,7 +353,7 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
         params.put("civilId", Long.parseLong(mMediatorCallback.getCurrentUser().getCivilId()));
         params.put("appType", "phrApp");
         params.put("feedbackType", 1);
-        params.put("otherComments", "Test other comment");
+        params.put("otherComments", etOtherComments.getText().toString());
         params.put("userEmail", etUserEmail.getText().toString());
         params.put("userMobile", etUserMobileNo.getText().toString());
         JSONArray jsonArray = new JSONArray();
@@ -426,8 +435,7 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
             etUserMobileNo.setError(getResources().getString(R.string.invalid_phoneNo));
             etUserMobileNo.requestFocus();
         } else {
-            //  saveFeedback();
-            getJSONRequestParams(view);
+             saveFeedback(view);
         }
     }
 

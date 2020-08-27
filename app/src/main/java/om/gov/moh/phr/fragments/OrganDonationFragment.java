@@ -83,4 +83,9 @@ public class OrganDonationFragment extends Fragment {
         tvToolBarTitle.setText(title);
         return parentView;
     }
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
+    }
 }

@@ -102,7 +102,6 @@ import om.gov.moh.phr.apimodels.AccessToken;
 import om.gov.moh.phr.fragments.ChatMessagesFragment;
 import om.gov.moh.phr.fragments.FeedbackFragment;
 import om.gov.moh.phr.fragments.HomeFragment;
-import om.gov.moh.phr.fragments.LoginFragment;
 import om.gov.moh.phr.fragments.WebSideMenuFragment;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
@@ -279,12 +278,9 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
             appCurrentUser.setCivilId(getAccessToken().getAccessCivilId());
         }
         if (getSharedPreferences(PREFS_API_GET_TOKEN, Context.MODE_PRIVATE).contains(API_GET_TOKEN_ACCESS_TOKEN)) {
-
             setupMainActivity();
-
         } else {
             setupLoginFragment();
-
         }
 
     }
@@ -480,7 +476,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         if (NoOfChatNotifications > 0) {
             if (getCurrentFragment() != null && getCurrentFragment() instanceof ChatMessagesFragment) {
                 clearNotificationSharedPrefs(3);
-                tvCountReceivedChatNotification.setBackground(null);
+//                tvCountReceivedChatNotification.setBackground(null);
             } else {
 
                 /*BottomNavigationMenuView menuView = (BottomNavigationMenuView) bottomNavigation.getChildAt(0);
@@ -637,7 +633,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
 
     @Override
     public void onBackPressed() {
-        if (getCurrentFragment() instanceof HomeFragment || getCurrentFragment() instanceof LoginFragment) {
+        if (getCurrentFragment() instanceof HomeFragment) {
             moveTaskToBack(true);
         } else {
             super.onBackPressed();
@@ -929,42 +925,43 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
     protected void onResume() {
         super.onResume();
 
-        if (getSharedPreferences(PREFS_API_GET_TOKEN, Context.MODE_PRIVATE).contains(API_GET_TOKEN_ACCESS_TOKEN)) {
-            if (checkPlayServices(this)) {
-                // FCM
+        //  if (getSharedPreferences(PREFS_API_GET_TOKEN, Context.MODE_PRIVATE).contains(API_GET_TOKEN_ACCESS_TOKEN)) {
+        if (checkPlayServices(this)) {
+            // FCM
 //            createChannelToShowNotifications();
-                // FCM
-                //handelDataExtras();
-                if (dataUpdateReceiver == null) dataUpdateReceiver = new DataUpdateReceiver();
-                IntentFilter intentFilter = new IntentFilter("TEST");
-                registerReceiver(dataUpdateReceiver, intentFilter);
-                // FCM
-                getNotificationCurrentToken();
-            }
-
-            if (getCurrentFragment() != null) {
-                //if screen rotated retain Fragment
-                if (getCurrentFragment() instanceof HomeFragment) {
-                    shouldLockDrawer(false);
-                    /*  changeFragmentContainerVisibility(View.VISIBLE, View.VISIBLE);*/
-                    changeSideMenuToolBarVisibility(View.VISIBLE);
-                } else {
-                    shouldLockDrawer(true);
-                    /*  changeFragmentContainerVisibility(View.VISIBLE, View.GONE);*/
-                    changeSideMenuToolBarVisibility(View.GONE);
-                    changeFragmentTo(getCurrentFragment(), getCurrentFragment().getTag());
-                }
-
-            } else {
-                //set Home/Main/default fragment
-                /*     changeFragmentContainerVisibility(View.VISIBLE, View.VISIBLE);*/
-                changeSideMenuToolBarVisibility(View.VISIBLE);
-                shouldLockDrawer(false);
-                changeFragmentTo(HomeFragment.newInstance(), HomeFragment.class.getSimpleName());
-            }
-        } else {
-            setupLoginFragment();
+            // FCM
+            //handelDataExtras();
+            if (dataUpdateReceiver == null) dataUpdateReceiver = new DataUpdateReceiver();
+            IntentFilter intentFilter = new IntentFilter("TEST");
+            registerReceiver(dataUpdateReceiver, intentFilter);
+            // FCM
+            getNotificationCurrentToken();
         }
+
+        if (getCurrentFragment() != null) {
+            //if screen rotated retain Fragment
+            if (getCurrentFragment() instanceof HomeFragment) {
+                shouldLockDrawer(false);
+                /*  changeFragmentContainerVisibility(View.VISIBLE, View.VISIBLE);*/
+                changeSideMenuToolBarVisibility(View.VISIBLE);
+            } else {
+                shouldLockDrawer(true);
+                /*  changeFragmentContainerVisibility(View.VISIBLE, View.GONE);*/
+                changeSideMenuToolBarVisibility(View.GONE);
+                changeFragmentTo(getCurrentFragment(), getCurrentFragment().getTag());
+            }
+
+        } else {
+            //set Home/Main/default fragment
+            /*     changeFragmentContainerVisibility(View.VISIBLE, View.VISIBLE);*/
+            changeSideMenuToolBarVisibility(View.VISIBLE);
+            shouldLockDrawer(false);
+            changeFragmentTo(HomeFragment.newInstance(), HomeFragment.class.getSimpleName());
+        }
+        //   } else {
+
+        //       setupLoginFragment();
+        //  }
     }
 
     @Override
@@ -975,10 +972,9 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
     }
 
     private void setupLoginFragment() {
-        //changeFragmentContainerVisibility(View.VISIBLE, View.GONE);
-        changeSideMenuToolBarVisibility(View.GONE);
-        // changeBottomNavVisibility(View.GONE);
-        changeFragmentTo(LoginFragment.newInstance(), LoginFragment.class.getSimpleName());
+        finish();
+        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+        startActivity(intent);
     }
 
 

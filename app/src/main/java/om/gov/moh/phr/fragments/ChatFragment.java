@@ -98,9 +98,13 @@ public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefre
          view = inflater.inflate(R.layout.fragment_chat, container, false);
         TextView tvTitle = view.findViewById(R.id.tv_toolbar_title);
         tvTitle.setText(getResources().getString(R.string.chat_messages_title));
-        tvTitle.setGravity(Gravity.CENTER);
         ImageButton ibBack = view.findViewById(R.id.ib_toolbar_back_button);
-        ibBack.setVisibility(View.GONE);
+        ibBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mToolbarControllerCallback.customToolbarBackButtonClicked();
+            }
+        });
         rvChatMessages = view.findViewById(R.id.rv_chat_messages);
         mProgressDialog = new MyProgressDialog(mContext);
         mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
@@ -196,7 +200,6 @@ public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     @Override
     public void onDetach() {
         super.onDetach();
-      //  mMediatorCallback.changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
         mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
     }
     @Override

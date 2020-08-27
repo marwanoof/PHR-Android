@@ -86,6 +86,7 @@ public class ChatMessagesFragment extends Fragment {
     private EditText etNewMessageToSend;
     private ArrayList<ApiFriendChatListHolder.ApiFriendListInfo> messagesArrayList;
     private DataUpdateReceiver dataUpdateReceiver;
+    private View view;
 
     public ChatMessagesFragment() {
         // Required empty public constructor
@@ -119,7 +120,8 @@ public class ChatMessagesFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_chat_messages, container, false);
+        if(view == null){
+         view = inflater.inflate(R.layout.fragment_chat_messages, container, false);
         TextView tvTitle = view.findViewById(R.id.tv_toolbar_title);
         tvTitle.setText(getResources().getString(R.string.chat_messages_title));
         ImageButton ibBack = view.findViewById(R.id.ib_toolbar_back_button);
@@ -151,6 +153,10 @@ public class ChatMessagesFragment extends Fragment {
         });
         String getMessagesUrl = API_URL_GET_MESSAGES_LIST + messageObj.getMessageId();
         getChatRoomMessages(getMessagesUrl);
+        } else {
+            if(view.getParent()!=null)
+                ((ViewGroup) view.getParent()).removeView(view);
+        }
         return view;
     }
 
