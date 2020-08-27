@@ -67,7 +67,7 @@ public class HealthRecordsRecyclerViewAdapter extends ListAdapter<ApiEncountersH
         if (result.getDepartmentArrayList().size() == 0 || result.getDepartmentArrayList().get(0) == null) {
             title = "Not provided";
         } else {
-            title = result.getDepartmentArrayList().get(0).trim();
+            title = result.getDepartmentArrayList().get(0).getValue().trim();
         }
 
         holder.tvTitle.setText(title);
@@ -90,10 +90,10 @@ public class HealthRecordsRecyclerViewAdapter extends ListAdapter<ApiEncountersH
         }
 
         String sub2;
-        if (result.getDiagnosisArrayList().size() == 0 || result.getDiagnosisArrayList().get(0) == null) {
+        if (result.getDiagnosisArrayList() == null || result.getDiagnosisArrayList().size() == 0 || result.getDiagnosisArrayList().get(0) == null) {
             sub2 = "";
         } else {
-            sub2 = result.getDiagnosisArrayList().get(0).trim();
+            sub2 = result.getDiagnosisArrayList().get(0).getValue().trim();
         }
         holder.tvSub2.setText(sub2);
         holder.tvMonth.setText(result.getEncounterMonth());

@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -42,10 +43,10 @@ public class ApiEncountersHolder {
         private String patientClass;
 
         @SerializedName("diagnosis")
-        private ArrayList<String> diagnosisArrayList = new ArrayList<>();
+        private ArrayList<DiagnosisList> diagnosisArrayList = new ArrayList<>();
 
         @SerializedName("department")
-        private ArrayList<String> departmentArrayList = new ArrayList<>();
+        private ArrayList<departmentList> departmentArrayList = new ArrayList<>();
 
 
         public String getEncounterId() {
@@ -79,19 +80,19 @@ public class ApiEncountersHolder {
             this.estFullname = estFullname;
         }
 
-        public ArrayList<String> getDiagnosisArrayList() {
+        public ArrayList<DiagnosisList> getDiagnosisArrayList() {
             return diagnosisArrayList;
         }
 
-        public void setDiagnosisArrayList(ArrayList<String> diagnosisArrayList) {
+        public void setDiagnosisArrayList(ArrayList<DiagnosisList> diagnosisArrayList) {
             this.diagnosisArrayList = diagnosisArrayList;
         }
 
-        public ArrayList<String> getDepartmentArrayList() {
+        public ArrayList<departmentList> getDepartmentArrayList() {
             return departmentArrayList;
         }
 
-        public void setDepartmentArrayList(ArrayList<String> departmentArrayList) {
+        public void setDepartmentArrayList(ArrayList<departmentList> departmentArrayList) {
             this.departmentArrayList = departmentArrayList;
         }
 
@@ -145,12 +146,27 @@ public class ApiEncountersHolder {
                 return false;
             if (!getEncounterId().equalsIgnoreCase(encounterNewItem.getEncounterId())) return false;
             if (!getEstFullname().equalsIgnoreCase(encounterNewItem.getEstFullname())) return false;
-            if (!isEqualArrayList(getDiagnosisArrayList(), encounterNewItem.getDiagnosisArrayList()))
+            if (!isEqualArrayListDiag(getDiagnosisArrayList(), encounterNewItem.getDiagnosisArrayList()))
                 return false;
-            return isEqualArrayList(getDepartmentArrayList(), encounterNewItem.getDepartmentArrayList());
+            return isEqualArrayListDept(getDepartmentArrayList(), encounterNewItem.getDepartmentArrayList());
         }
 
-        private boolean isEqualArrayList(ArrayList<String> one, ArrayList<String> two) {
+        private boolean isEqualArrayListDept(ArrayList<departmentList> one, ArrayList<departmentList> two) {
+
+
+            if (one == null && two == null) {
+                return true;
+            }
+
+            if ((one == null && two != null)
+                    || (one != null && two == null)
+                    || (one.size() != two.size())) {
+                return false;
+            }
+
+            return one.equals(two);
+        }
+        private boolean isEqualArrayListDiag(ArrayList<DiagnosisList> one, ArrayList<DiagnosisList> two) {
 
 
             if (one == null && two == null) {
@@ -166,5 +182,21 @@ public class ApiEncountersHolder {
             return one.equals(two);
         }
 
+    }
+    public class departmentList{
+        @SerializedName("value")
+        private String value;
+
+        public String getValue() {
+            return value;
+        }
+    }
+    public class DiagnosisList {
+        @SerializedName("value")
+        private String value;
+
+        public String getValue() {
+            return value;
+        }
     }
 }

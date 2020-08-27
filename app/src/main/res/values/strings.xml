@@ -201,4 +201,6 @@
     <string name="location">Oman</string>
     <string name="go_for_vaccination">You must go to nearest health center to take this vaccination.</string>
     <string name="language">Language</string>
+    <string name="title_select_relation">Relation</string>
+    <string name="title_update">Update</string>
 </resources>

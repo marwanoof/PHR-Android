@@ -204,4 +204,6 @@
     <string name="time_to_immunization">موعد تحصين لـ</string>
     <string name="location">عُمان</string>
     <string name="go_for_vaccination">يجب عليك التوجه إلى أقرب مركز صحي لأخذ هذا التطعيم</string>
+    <string name="title_select_relation">الصلة</string>
+    <string name="title_update">تحديث</string>
 </resources>

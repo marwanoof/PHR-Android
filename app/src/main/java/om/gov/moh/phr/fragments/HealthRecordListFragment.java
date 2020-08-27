@@ -48,6 +48,7 @@ import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
 import om.gov.moh.phr.models.MyProgressDialog;
 
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
+import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
 
 /**
@@ -162,9 +163,10 @@ public class HealthRecordListFragment extends Fragment implements AdapterToFragm
         // showing refresh animation before making http call
         swipeRefreshLayout.setRefreshing(true);
         Log.d("enc", "Called");
-        String fullUrl = "https://5.162.223.156/nehrapi/encounter/civilId/" + mMediatorCallback.getCurrentUser().getCivilId();
+        String fullUrl = API_NEHR_URL + "encounter/v2/civilId";
+        //String fullUrl = "https://5.162.223.156/nehrapi/encounter/civilId/" + mMediatorCallback.getCurrentUser().getCivilId();
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, fullUrl, null
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, fullUrl, getJSONRequestParams(mMediatorCallback.getCurrentUser().getCivilId(),"PHR")
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -173,6 +175,7 @@ public class HealthRecordListFragment extends Fragment implements AdapterToFragm
                     try {
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
                             Gson gson = new Gson();
+                            Log.d("resp-encount", response.getJSONArray("result").toString());
                             ApiEncountersHolder responseHolder = gson.fromJson(response.toString(), ApiEncountersHolder.class);
                             Log.d("resp-encount", response.getJSONArray("result").toString());
 
@@ -229,7 +232,12 @@ public class HealthRecordListFragment extends Fragment implements AdapterToFragm
         jsonObjectRequest.setRetryPolicy(policy);
         mQueue.add(jsonObjectRequest);
     }
-
+    private JSONObject getJSONRequestParams(String civilId, String source) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("civilId", Long.parseLong(civilId));
+        params.put("source", source);
+        return new JSONObject(params);
+    }
     private void updateYearsListView(ArrayList<ApiEncountersHolder.Encounter> encounterArrayList) {
         ArrayList<String> yearsArrayList = new ArrayList<>();
         yearsArrayList.add(getString(R.string.title_all));

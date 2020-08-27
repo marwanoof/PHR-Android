@@ -76,7 +76,7 @@ public class HealthRecordDetailsFragment extends Fragment {
             }
         });
         TextView tvTitle = parentView.findViewById(R.id.tv_title);
-        tvTitle.setText(encounterInfo.getDepartmentArrayList().get(0) + ", " + encounterInfo.getEstShortName());
+        tvTitle.setText(encounterInfo.getDepartmentArrayList().get(0).getValue() + ", " + encounterInfo.getEstShortName());
         ImageButton ibHome = parentView.findViewById(R.id.ib_home);
         ibHome.setOnClickListener(new View.OnClickListener() {
             @Override
