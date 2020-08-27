@@ -1,5 +1,6 @@
 package om.gov.moh.phr.activities;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.BroadcastReceiver;
@@ -74,6 +75,8 @@ import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -86,10 +89,13 @@ import java.util.Objects;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
 
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.apimodels.AccessToken;
@@ -123,6 +129,7 @@ import static om.gov.moh.phr.models.MyConstants.LANGUAGE_SELECTED;
 import static om.gov.moh.phr.models.MyConstants.PARAM_CIVIL_ID;
 import static om.gov.moh.phr.models.MyConstants.PARAM_IMAGE;
 import static om.gov.moh.phr.models.MyConstants.PARAM_PERSON_NAME;
+import static om.gov.moh.phr.models.MyConstants.PARAM_SIDE_MENU;
 import static om.gov.moh.phr.models.MyConstants.PREFS_API_GET_TOKEN;
 import static om.gov.moh.phr.models.MyConstants.PREFS_API_REGISTER_DEVICE;
 import static om.gov.moh.phr.models.MyConstants.PREFS_CURRENT_USER;
@@ -152,10 +159,10 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
 
     private static final String TAG = "MainActivity";
     private static final String DEPENDENT_CIVILID = "DependentCivilID";
-    private ViewPagerCustomDuration mViewPager;
+    //  private ViewPagerCustomDuration mViewPager;
     private DrawerLayout mDrawer;
     private Toolbar toolbar;
-    private BottomNavigationView bottomNavigation;
+    // private BottomNavigationView bottomNavigation;
     private MyProgressDialog mProgressDialog;
     private RequestQueue mQueue;
     private Context mContext = MainActivity.this;
@@ -167,47 +174,6 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
     private DataUpdateReceiver dataUpdateReceiver;
     private String menus;
     private HomeFragment homeFragment;
-
-    //BottomNavigationView :  link bottom nav bar with view pager
-    /*private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = new BottomNavigationView.OnNavigationItemSelectedListener() {
-
-        @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-//enable viewpagerContainer to be visible if it is clicked from inner fragments!
-            changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
-
-            switch (item.getItemId()) {
-                case R.id.navigation_home: {
-                    //code here ...
-//                    changeButtonNavVisibilityTo(View.VISIBLE, View.VISIBLE);
-                    changeSideMenuToolBarVisibility(View.VISIBLE);
-                    mViewPager.setCurrentItem(0);
-
-                    return true;
-                }
-
-                case R.id.navigation_appointment: {
-                    //code here ...
-                    mViewPager.setCurrentItem(1);
-                    return true;
-                }
-                case R.id.navigation_notifications: {
-                    //code here ...
-                    mViewPager.setCurrentItem(2);
-                    return true;
-                }
-
-                case R.id.navigation_chat: {
-                    //code here ...
-                    mViewPager.setCurrentItem(3);
-                    return true;
-                }
-            }
-            return false;
-        }
-    };*/
-
 
     //FCM
     public static boolean checkPlayServices(Activity activity) {
@@ -283,13 +249,6 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
 
         mProgressDialog = new MyProgressDialog(mContext);// initializes progress dialog
         mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, getSocketFactory())); // initializes mQueue : we need to use  Volley.newRequestQueue(this, new HurlStack(null, getSocketFactory())) because we need to connect the app to secure server "https".
-
-
-        //BottomNavigationView
-
-        bottomNavigation = findViewById(R.id.bottom_navigation);
-        bottomNavigation.setVisibility(View.GONE);
-        //bottomNavigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         Intent intent = getIntent();
         if (intent.getStringExtra(DEPENDENT_CIVILID) != null) {
             ivLogout.setImageResource(R.drawable.ic_close);
@@ -334,13 +293,14 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
     private void setUpNavigationView() {
         NavigationView navigationView = findViewById(R.id.nav_view);
         Menu menu = navigationView.getMenu();
+
         SharedPreferences sharedPrefSideMenu = mContext.getSharedPreferences(PREFS_SIDE_MENU, Context.MODE_PRIVATE);
-        menus = sharedPrefSideMenu.getString("PARAM_SIDEMENU", "");
+        menus = sharedPrefSideMenu.getString(PARAM_SIDE_MENU, "");
         Log.d("sideMenu", menus);
         try {
             JSONArray array = new JSONArray(menus);
-            for(int i=0; i<array.length(); i++){
-                JSONObject jsonObj  = array.getJSONObject(i);
+            for (int i = 0; i < array.length(); i++) {
+                JSONObject jsonObj = array.getJSONObject(i);
                 int nav_id = jsonObj.getInt("menuId");
                 String nav_name = jsonObj.getString("menuName");
                 String nav_name_ar = jsonObj.getString("menuNameNls");
@@ -352,42 +312,42 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
                         menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name).setIcon(R.drawable.bmi_ic);
                     else
                         menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name_ar).setIcon(R.drawable.bmi_ic);
-                }else  if (nav_icon.contains("sm_righ")) {  // the resource exists...
+                } else if (nav_icon.contains("sm_righ")) {  // the resource exists...
                     if (getStoredLanguage().equals(LANGUAGE_ENGLISH))
                         menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name).setIcon(R.drawable.terms_of_use_ic);
                     else
                         menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name_ar).setIcon(R.drawable.terms_of_use_ic);
-                }else  if (nav_icon.contains("sm_faci")) {  // the resource exists...
+                } else if (nav_icon.contains("sm_faci")) {  // the resource exists...
                     if (getStoredLanguage().equals(LANGUAGE_ENGLISH))
                         menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name).setIcon(R.drawable.svg_ic_institute);
                     else
                         menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name_ar).setIcon(R.drawable.svg_ic_institute);
-                } else  if (nav_icon.contains("sm_phar")) {  // the resource exists...
+                } else if (nav_icon.contains("sm_phar")) {  // the resource exists...
                     if (getStoredLanguage().equals(LANGUAGE_ENGLISH))
                         menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name).setIcon(R.drawable.search_pharmacy);
                     else
                         menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name_ar).setIcon(R.drawable.search_pharmacy);
-                }else  if (nav_icon.contains("sm_edd")) {  // the resource exists...
+                } else if (nav_icon.contains("sm_edd")) {  // the resource exists...
                     if (getStoredLanguage().equals(LANGUAGE_ENGLISH))
                         menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name).setIcon(R.drawable.edd_ic);
                     else
                         menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name_ar).setIcon(R.drawable.edd_ic);
-                }else  if (nav_icon.contains("sm_form")) {  // the resource exists...
+                } else if (nav_icon.contains("sm_form")) {  // the resource exists...
                     if (getStoredLanguage().equals(LANGUAGE_ENGLISH))
                         menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name).setIcon(R.drawable.forms);
                     else
                         menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name_ar).setIcon(R.drawable.forms);
-                }else  if (nav_icon.contains("sm_ask")) {  // the resource exists...
+                } else if (nav_icon.contains("sm_ask")) {  // the resource exists...
                     if (getStoredLanguage().equals(LANGUAGE_ENGLISH))
                         menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name).setIcon(R.drawable.ask_doctor);
                     else
                         menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name_ar).setIcon(R.drawable.ask_doctor);
-                }else  if (nav_icon.contains("sm_educ")) {  // the resource exists...
+                } else if (nav_icon.contains("sm_educ")) {  // the resource exists...
                     if (getStoredLanguage().equals(LANGUAGE_ENGLISH))
                         menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name).setIcon(R.drawable.health_education);
                     else
                         menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name_ar).setIcon(R.drawable.health_education);
-                }else {  // checkExistence == 0  // the resource does NOT exist!!
+                } else {  // checkExistence == 0  // the resource does NOT exist!!
                     if (getStoredLanguage().equals(LANGUAGE_ENGLISH))
                         menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name).setIcon(R.drawable.terms_of_use_ic);
                     else
@@ -397,59 +357,10 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
-
-      /*  if (menusData != null) {
-            for (int i = 0; i < menusData.length(); i++) {
-                JSONObject jsonObject = null;
-                try {
-                    jsonObject = menusData.getJSONObject(i);
-                    int nav_id = jsonObject.getInt("menuId");
-                    String nav_name = jsonObject.getString("menuName");
-                    String nav_name_ar = jsonObject.getString("menuNameNls");
-                    String nav_icon = jsonObject.getString("iconClass");
-                    String nav_Url = jsonObject.getString("templateUrl");
-                    String nav_Url_ar = jsonObject.getString("templateUrlNls");
-                    int checkExistence = mContext.getResources().getIdentifier(nav_icon, "drawable", mContext.getPackageName());
-
-                    if (checkExistence != 0) {  // the resource exists...
-                        if (getStoredLanguage().equals(LANGUAGE_ENGLISH))
-                            menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name).setIcon(checkExistence);
-                        else
-                            menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name_ar).setIcon(checkExistence);
-                    } else {  // checkExistence == 0  // the resource does NOT exist!!
-                        if (getStoredLanguage().equals(LANGUAGE_ENGLISH))
-                            menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name).setIcon(R.drawable.terms_of_use_ic);
-                        else
-                            menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name_ar).setIcon(R.drawable.terms_of_use_ic);
-                    }
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-            }
-        }*/
-
-
-       /* menu.add(1, 1, 0, R.string.health_education).setIcon(R.drawable.health_education);
-        menu.add(R.string.find_pharmacy).setIcon(R.drawable.search_pharmacy);
-        menu.add(R.string.ask_doctor).setIcon(R.drawable.ask_doctor);
-        menu.add(R.string.heath_facilities).setIcon(R.drawable.hospital_facilities);
-        menu.add(R.string.forms).setIcon(R.drawable.forms);
-        menu.add(R.string.bmi_calculator).setIcon(R.drawable.bmi_ic);
-        menu.add(R.string.edd_calculator).setIcon(R.drawable.edd_ic);*/
-
-        // adding a section and items into it
-        final SubMenu subMenu = menu.addSubMenu("");
         if (getStoredLanguage().equals(LANGUAGE_ARABIC))
-            subMenu.add(R.string.english).setIcon(R.drawable.langauge_ic);
-        if (getStoredLanguage().equals(LANGUAGE_ENGLISH))
-            subMenu.add(R.string.arabic).setIcon(R.drawable.langauge_ic);
-        subMenu.add(R.string.about_the_app).setIcon(R.drawable.about_ic);
-        subMenu.add(R.string.phr_feedback).setIcon(R.drawable.ic_feedback);
-       // subMenu.add(R.string.patients_rights).setIcon(R.drawable.terms_of_use_ic);
-        subMenu.add(R.string.title_logout).setIcon(R.drawable.logout);
+            menu.findItem(R.id.nav_arabic).setVisible(false);
+        else
+            menu.findItem(R.id.nav_english).setVisible(false);
         navigationView.setNavigationItemSelectedListener(this);
     }
 
@@ -500,11 +411,14 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
 
     private void setupMainActivity() {
         setUpNavigationView();
-        mViewPager = findViewById(R.id.swipe_container);
+ /*       changeFragmentContainerVisibility(View.VISIBLE, View.GONE);
+        changeSideMenuToolBarVisibility(View.VISIBLE);
+        changeFragmentTo(HomeFragment.newInstance(), HomeFragment.class.getSimpleName());*/
+       /* mViewPager = findViewById(R.id.swipe_container);
         HomePagerAdapter mHomePagerAdapter =
                 new HomePagerAdapter(getSupportFragmentManager(), this);
         // Set up the ViewPager with the sections adapter.
-        mViewPager.setAdapter(mHomePagerAdapter);
+        mViewPager.setAdapter(mHomePagerAdapter);*/
         //to add the badge of notifications
         if (AppCurrentUser.getInstance().getIsParent())
             checkNotificationsCounter();
@@ -570,45 +484,47 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
                 tvCountReceivedChatNotification.setBackground(null);
             } else {
 
-                BottomNavigationMenuView menuView = (BottomNavigationMenuView) bottomNavigation.getChildAt(0);
+                /*BottomNavigationMenuView menuView = (BottomNavigationMenuView) bottomNavigation.getChildAt(0);
                 BottomNavigationItemView item = (BottomNavigationItemView) menuView.getChildAt(3);
                 if (chatBadge == null)
                     chatBadge = LayoutInflater.from(mContext).inflate(R.layout.bagde, item, true);
                 if (tvCountReceivedChatNotification == null)
                     tvCountReceivedChatNotification = chatBadge.findViewById(R.id.chat_badge);
                 tvCountReceivedChatNotification.setBackground(getResources().getDrawable(R.drawable.bg_circle));
-                tvCountReceivedChatNotification.setText(String.valueOf(NoOfChatNotifications));
+                tvCountReceivedChatNotification.setText(String.valueOf(NoOfChatNotifications));*/
             }
 
         }
         if (NoOfAppointmentsNotifications > 0) {
-            BottomNavigationMenuView menuView = (BottomNavigationMenuView) bottomNavigation.getChildAt(0);
+           /* BottomNavigationMenuView menuView = (BottomNavigationMenuView) bottomNavigation.getChildAt(0);
             BottomNavigationItemView item = (BottomNavigationItemView) menuView.getChildAt(1);
             if (appointmentBadge == null)
                 appointmentBadge = LayoutInflater.from(mContext).inflate(R.layout.bagde, item, true);
             if (tvCountReceivedAppointmentNotification == null)
                 tvCountReceivedAppointmentNotification = appointmentBadge.findViewById(R.id.chat_badge);
             tvCountReceivedAppointmentNotification.setBackground(getResources().getDrawable(R.drawable.bg_circle));
-            tvCountReceivedAppointmentNotification.setText(String.valueOf(NoOfAppointmentsNotifications));
+            tvCountReceivedAppointmentNotification.setText(String.valueOf(NoOfAppointmentsNotifications));*/
         }
         if (NoOfNotifications > 0) {
-            BottomNavigationMenuView menuView = (BottomNavigationMenuView) bottomNavigation.getChildAt(0);
+           /* BottomNavigationMenuView menuView = (BottomNavigationMenuView) bottomNavigation.getChildAt(0);
             BottomNavigationItemView item = (BottomNavigationItemView) menuView.getChildAt(2);
             if (notificationBadge == null)
                 notificationBadge = LayoutInflater.from(mContext).inflate(R.layout.bagde, item, true);
             if (tvCountReceivedNotification == null)
                 tvCountReceivedNotification = notificationBadge.findViewById(R.id.chat_badge);
             tvCountReceivedNotification.setBackground(getResources().getDrawable(R.drawable.bg_circle));
-            tvCountReceivedNotification.setText(String.valueOf(NoOfNotifications));
+            tvCountReceivedNotification.setText(String.valueOf(NoOfNotifications));*/
         }
     }
 
+    // client cert to be appended each time will make http request
+    //server certificate to be added into TrustManager
     @Override
     public SSLSocketFactory getSocketFactory() {
         CertificateFactory cf = null;
         try {
             cf = CertificateFactory.getInstance("X.509");
-            InputStream caInput = getResources().openRawResource(R.raw.cert);
+            InputStream caInput = getResources().openRawResource(R.raw.server_cert);
             Certificate ca;
             try {
                 ca = cf.generateCertificate(caInput);
@@ -617,26 +533,35 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
                 caInput.close();
             }
             String keyStoreType = KeyStore.getDefaultType();
-            KeyStore keyStore = KeyStore.getInstance(keyStoreType);
-            keyStore.load(null, null);
-            keyStore.setCertificateEntry("ca", ca);
+            KeyStore trustStore = KeyStore.getInstance(keyStoreType);
+            trustStore.load(null, null);
+            trustStore.setCertificateEntry("ca", ca);
 
             String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
             TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
-            tmf.init(keyStore);
+            tmf.init(trustStore);
             HostnameVerifier hostnameVerifier = new HostnameVerifier() {
                 @Override
                 public boolean verify(String hostname, SSLSession session) {
-
                     Log.e("CipherUsed", session.getCipherSuite());
-                    return hostname.compareTo("5.162.223.156") == 0; //The Hostname of your server.
-
+                    return hostname.endsWith(".moh.gov.om"); //The Hostname of your server.
                 }
             };
+            KeyStore keyStore = KeyStore.getInstance("PKCS12");
+            InputStream is = getResources().openRawResource(R.raw.client);
+            keyStore.load(is, "newchangeit".toCharArray());
+            is.close();
+
+            KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance("X509");
+            try {
+                keyManagerFactory.init(keyStore, "newchangeit".toCharArray());
+            } catch (UnrecoverableKeyException e) {
+                e.printStackTrace();
+            }
             HttpsURLConnection.setDefaultHostnameVerifier(hostnameVerifier);
             SSLContext context = null;
             context = SSLContext.getInstance("TLS");
-            context.init(null, tmf.getTrustManagers(), null);
+            context.init(keyManagerFactory.getKeyManagers(), tmf.getTrustManagers(), null);
             HttpsURLConnection.setDefaultSSLSocketFactory(context.getSocketFactory());
             SSLSocketFactory sf = context.getSocketFactory();
             return sf;
@@ -702,35 +627,6 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
     }
 
     @Override
-    public void changeFragmentContainerVisibility(int fragmentContainerVisibility,
-                                                  int viewPagerVisibility) {
-
-        findViewById(R.id.fl_main_container).setVisibility(fragmentContainerVisibility);
-        findViewById(R.id.swipe_container).setVisibility(viewPagerVisibility);
-        if (fragmentContainerVisibility == View.VISIBLE) {
-            shouldLockDrawer(true);
-        } else {
-            shouldLockDrawer(false);
-        }
-
-    }
-
-    @Override
-    public void changeBottomNavVisibility(int bottomNavVisibility) {
-        changeSideMenuToolBarVisibility(bottomNavVisibility);
-        findViewById(R.id.bottom_navigation).setVisibility(bottomNavVisibility);
-        if (bottomNavVisibility == View.VISIBLE) {
-            setupMainActivity();
-        }
-    }
-
-    @Override
-    public void slideTo(int index) {
-        mViewPager.setCurrentItem(index, true);
-    }
-
-
-    @Override
     public void customToolbarBackButtonClicked() {
         onBackPressed();
     }
@@ -752,12 +648,10 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
     //side menu
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        changeFragmentContainerVisibility(View.VISIBLE, View.GONE);
         changeSideMenuToolBarVisibility(View.GONE);
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         String title = item.getTitle().toString();
-//        changeButtonNavVisibilityTo(View.GONE, View.GONE);
         if (menus != null) {
             try {
                 JSONArray array = new JSONArray(menus);
@@ -772,38 +666,28 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
                         String nav_Url = jsonObject.getString("templateUrl");
                         String nav_Url_ar = jsonObject.getString("templateUrlNls");
                         if (id == nav_id) {
-                            // Handle the camera action
                             if (getStoredLanguage().equals(LANGUAGE_ENGLISH))
-                                changeFragmentTo(WebSideMenuFragment.newInstance(nav_Url), WebSideMenuFragment.class.getSimpleName());
+                                changeFragmentTo(WebSideMenuFragment.newInstance(nav_Url, nav_name), WebSideMenuFragment.class.getSimpleName());
                             else
-                                changeFragmentTo(WebSideMenuFragment.newInstance(nav_Url_ar), WebSideMenuFragment.class.getSimpleName());
-                        }/* else if (title.equals(getResources().getString(R.string.find_pharmacy))) {
-                        changeFragmentTo(WebSideMenuFragment.newInstance(2), WebSideMenuFragment.class.getSimpleName());
-                    } else if (title.equals(getResources().getString(R.string.ask_doctor))) {
-                        changeFragmentTo(WebSideMenuFragment.newInstance(3), WebSideMenuFragment.class.getSimpleName());
-                    } else if (title.equals(getResources().getString(R.string.heath_facilities))) {
-                        changeFragmentTo(WebSideMenuFragment.newInstance(4), WebSideMenuFragment.class.getSimpleName());
-                    } else if (title.equals(getResources().getString(R.string.forms))) {
-                        changeFragmentTo(WebSideMenuFragment.newInstance(5), WebSideMenuFragment.class.getSimpleName());
-                    } else if (title.equals(getResources().getString(R.string.bmi_calculator))) {
-                        changeFragmentTo(WebSideMenuFragment.newInstance(6), WebSideMenuFragment.class.getSimpleName());
-                    } else if (title.equals(getResources().getString(R.string.edd_calculator))) {
-                        changeFragmentTo(WebSideMenuFragment.newInstance(7), WebSideMenuFragment.class.getSimpleName());
-                    }*/ else if (title.equals(getResources().getString(R.string.english))) {
+                                changeFragmentTo(WebSideMenuFragment.newInstance(nav_Url_ar, nav_name_ar), WebSideMenuFragment.class.getSimpleName());
+                            break;
+                        } else if (id == R.id.nav_english) {
                             storeLanguage(LANGUAGE_ENGLISH);
                             changeLanguageTo(LANGUAGE_ENGLISH, true);
-                        } else if (title.equals(getResources().getString(R.string.arabic))) {
+                            break;
+                        } else if (id == R.id.nav_arabic) {
                             storeLanguage(LANGUAGE_ARABIC);
                             changeLanguageTo(LANGUAGE_ARABIC, true);
-                        } else if (title.equals(getResources().getString(R.string.about_the_app))) {
-
+                            break;
+                        } else if (id == R.id.nav_about) {
                             displayAboutAppDialog();
-                        } else if (title.equals(getResources().getString(R.string.phr_feedback))) {
+                            break;
+                        } else if (id == R.id.nav_feedback) {
                             changeFragmentTo(FeedbackFragment.newInstance(), FeedbackFragment.class.getSimpleName());
+                            break;
                         } else if (title.equals(getResources().getString(R.string.patients_rights))) {
                             //   changeFragmentTo(WebSideMenuFragment.newInstance(8), WebSideMenuFragment.class.getSimpleName());
-                        } else if (title.equals(getResources().getString(R.string.title_logout))) {
-                            changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
+                        } else if (id == R.id.nav_logout) {
                             changeSideMenuToolBarVisibility(View.VISIBLE);
                             if (AppCurrentUser.getInstance().getIsParent())
                                 logout();
@@ -812,6 +696,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
                                 Intent ParentHome = new Intent(MainActivity.this, MainActivity.class);
                                 startActivity(ParentHome);
                             }
+                            break;
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -823,9 +708,31 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
             }
 
 
+        } else {
+            if (id == R.id.nav_english) {
+                storeLanguage(LANGUAGE_ENGLISH);
+                changeLanguageTo(LANGUAGE_ENGLISH, true);
+            } else if (id == R.id.nav_arabic) {
+                storeLanguage(LANGUAGE_ARABIC);
+                changeLanguageTo(LANGUAGE_ARABIC, true);
+            } else if (id == R.id.nav_about) {
 
+                displayAboutAppDialog();
+            } else if (id == R.id.nav_feedback) {
+                changeFragmentTo(FeedbackFragment.newInstance(), FeedbackFragment.class.getSimpleName());
+            }/* else if (title.equals(getResources().getString(R.string.patients_rights))) {
+        //   changeFragmentTo(WebSideMenuFragment.newInstance(8), WebSideMenuFragment.class.getSimpleName());
+    }*/ else if (id == R.id.nav_logout) {
+                changeSideMenuToolBarVisibility(View.VISIBLE);
+                if (AppCurrentUser.getInstance().getIsParent())
+                    logout();
+                else {
+                    finish();
+                    Intent ParentHome = new Intent(MainActivity.this, MainActivity.class);
+                    startActivity(ParentHome);
+                }
+            }
         }
-
 
         mDrawer.closeDrawer(GravityCompat.START);
         return true;
@@ -885,7 +792,6 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
     }
 
     private void displayAboutAppDialog() {
-        changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
         changeSideMenuToolBarVisibility(View.VISIBLE);
         android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(mContext);
         builder.setMessage(getResources().getString(R.string.about_app_info));
@@ -971,6 +877,11 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         editor = sharedPref.edit();
         editor.clear();
         editor.apply();
+
+     /*   SharedPreferences sharedPrefSideMenu = mContext.getSharedPreferences(PREFS_SIDE_MENU, Context.MODE_PRIVATE);
+        editor = sharedPrefSideMenu.edit();
+        editor.clear();
+        editor.apply();*/
     }
 
     private void clearBackStack() {
@@ -1035,18 +946,21 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
             if (getCurrentFragment() != null) {
                 //if screen rotated retain Fragment
                 if (getCurrentFragment() instanceof HomeFragment) {
-                    changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
+                    shouldLockDrawer(false);
+                    /*  changeFragmentContainerVisibility(View.VISIBLE, View.VISIBLE);*/
                     changeSideMenuToolBarVisibility(View.VISIBLE);
                 } else {
-                    changeFragmentContainerVisibility(View.VISIBLE, View.GONE);
+                    shouldLockDrawer(true);
+                    /*  changeFragmentContainerVisibility(View.VISIBLE, View.GONE);*/
                     changeSideMenuToolBarVisibility(View.GONE);
                     changeFragmentTo(getCurrentFragment(), getCurrentFragment().getTag());
                 }
 
             } else {
                 //set Home/Main/default fragment
-                changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
+                /*     changeFragmentContainerVisibility(View.VISIBLE, View.VISIBLE);*/
                 changeSideMenuToolBarVisibility(View.VISIBLE);
+                shouldLockDrawer(false);
                 changeFragmentTo(HomeFragment.newInstance(), HomeFragment.class.getSimpleName());
             }
         } else {
@@ -1062,9 +976,9 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
     }
 
     private void setupLoginFragment() {
-        changeFragmentContainerVisibility(View.VISIBLE, View.GONE);
+        //changeFragmentContainerVisibility(View.VISIBLE, View.GONE);
         changeSideMenuToolBarVisibility(View.GONE);
-        changeBottomNavVisibility(View.GONE);
+        // changeBottomNavVisibility(View.GONE);
         changeFragmentTo(LoginFragment.newInstance(), LoginFragment.class.getSimpleName());
     }
 
@@ -1302,7 +1216,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         return Locale.getDefault().getLanguage();
     }
 
-    public void expandCollapseBtn(View view){
+    public void expandCollapseBtn(View view) {
         homeFragment.expandCollapseBtn(view);
     }
 }

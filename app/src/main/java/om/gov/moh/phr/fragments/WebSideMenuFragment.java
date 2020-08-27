@@ -24,12 +24,13 @@ import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
  * A simple {@link Fragment} subclass.
  */
 public class WebSideMenuFragment extends Fragment {
-    private static final String ARG_SIDEMENU_ITEM = "ARG_PARAM1";
+    private static final String ARG_SIDEMENU_URL = "ARG_PARAM1";
+    private static final String ARG_SIDEMENU_NAME = "ARG_PARAM1";
     private Context mContext;
     private MediatorInterface mMediatorCallback;
     private ToolbarControllerInterface mToolbarControllerCallback;
     private WebView wvMoHWebsite;
-    private String SideMenuItem;
+    private String SideMenuUrl, sideMenuName;
     private TextView tvAlert;
     private TextView tvToolbarTitle;
 
@@ -37,10 +38,11 @@ public class WebSideMenuFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static WebSideMenuFragment newInstance(String sideMenuItem) {
+    public static WebSideMenuFragment newInstance(String sideMenuItem, String sideMenuName) {
         WebSideMenuFragment fragment = new WebSideMenuFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_SIDEMENU_ITEM, sideMenuItem);
+        args.putString(ARG_SIDEMENU_URL, sideMenuItem);
+        args.putString(ARG_SIDEMENU_NAME, sideMenuName);
         fragment.setArguments(args);
         return fragment;
     }
@@ -57,7 +59,8 @@ public class WebSideMenuFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            SideMenuItem = getArguments().getString(ARG_SIDEMENU_ITEM);
+            SideMenuUrl = getArguments().getString(ARG_SIDEMENU_URL);
+            sideMenuName = getArguments().getString(ARG_SIDEMENU_NAME);
         }
     }
 
@@ -71,7 +74,6 @@ public class WebSideMenuFragment extends Fragment {
         tvToolbarTitle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mMediatorCallback.changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
                 mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
                 mToolbarControllerCallback.customToolbarBackButtonClicked();
             }
@@ -79,7 +81,6 @@ public class WebSideMenuFragment extends Fragment {
         ibToolbarBackButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mMediatorCallback.changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
                 mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
                 mToolbarControllerCallback.customToolbarBackButtonClicked();
             }
@@ -107,8 +108,8 @@ public class WebSideMenuFragment extends Fragment {
     }
 
     private void checkSideMenuItem() {
-                tvToolbarTitle.setText(R.string.health_education);
-                wvMoHWebsite.loadUrl(SideMenuItem);
+        tvToolbarTitle.setText(sideMenuName);
+        wvMoHWebsite.loadUrl(SideMenuUrl);
     }
 
     private void displayAlert(String msg) {
@@ -120,15 +121,7 @@ public class WebSideMenuFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        mMediatorCallback.changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
+        //mMediatorCallback.changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
         mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
-    }
-
-    private class Callback extends WebViewClient {
-        @Override
-        public boolean shouldOverrideUrlLoading(
-                WebView view, String url) {
-            return (false);
-        }
     }
 }

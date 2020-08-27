@@ -70,6 +70,7 @@ public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     private  ApiFriendChatListHolder responseHolder;
     private DataUpdateReceiver dataUpdateReceiver;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private View view;
     public ChatFragment() {
         // Required empty public constructor
     }
@@ -93,7 +94,8 @@ public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_chat, container, false);
+        if(view==null){
+         view = inflater.inflate(R.layout.fragment_chat, container, false);
         TextView tvTitle = view.findViewById(R.id.tv_toolbar_title);
         tvTitle.setText(getResources().getString(R.string.chat_messages_title));
         tvTitle.setGravity(Gravity.CENTER);
@@ -121,6 +123,10 @@ public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                                     }
                                 }
         );
+        } else {
+            if(view.getParent()!=null)
+                ((ViewGroup) view.getParent()).removeView(view);
+        }
         return view;
     }
 

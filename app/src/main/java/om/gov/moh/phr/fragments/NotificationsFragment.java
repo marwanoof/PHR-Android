@@ -131,7 +131,6 @@ public class NotificationsFragment extends Fragment implements AdapterToFragment
 
     @Override
     public <T> void onMyListItemClicked(T dataToPass, String dataTitle, int position) {
-        mMediatorCallback.changeFragmentContainerVisibility(View.VISIBLE, View.GONE);
         mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.GONE);
         switch (notificationsList.get(position).getPnsType()) {
             case "1":

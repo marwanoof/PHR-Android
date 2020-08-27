@@ -200,6 +200,7 @@
     <string name="ok">موافق</string>
     <string name="title_organ">التبرع بالأعضاء</string>
     <string name="sub_title_phr">محفظة ملفك الصحي</string>
+    <string name="language">اللغة</string>
     <string name="time_to_immunization">موعد تحصين لـ</string>
     <string name="location">عُمان</string>
     <string name="go_for_vaccination">يجب عليك التوجه إلى أقرب مركز صحي لأخذ هذا التطعيم</string>

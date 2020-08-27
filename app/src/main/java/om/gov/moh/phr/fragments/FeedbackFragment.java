@@ -1,6 +1,7 @@
 package om.gov.moh.phr.fragments;
 
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -38,11 +39,21 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.apimodels.ApiFeedbackHolder;
@@ -70,11 +81,10 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
     private RequestQueue mQueue;
     private MyProgressDialog mProgressDialog;
     private EditText etUserEmail, etUserMobileNo, editText;
-    private CheckBox[] checkBox;
     private ApiFeedbackHolder responseHolder;
-    private LinearLayout radioGroupLayout, checkBoxesLayout, editTextsLayout;
     private ArrayList<RadioGroup> radioGroupArray;
-    private ArrayList<LinearLayout> checkBoxesArray;
+    // private ArrayList<LinearLayout> checkBoxesArray;
+    private LinearLayout constraintLayout;
     private RadioButton[] rb;
 
     public FeedbackFragment() {
@@ -108,7 +118,6 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
         tvToolbarTitle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mMediatorCallback.changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
                 mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
                 mToolbarControllerCallback.customToolbarBackButtonClicked();
             }
@@ -116,22 +125,16 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
         ibToolbarBackButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mMediatorCallback.changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
                 mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
                 mToolbarControllerCallback.customToolbarBackButtonClicked();
             }
         });
-        radioGroupLayout = view.findViewById(R.id.radioGroupLayout);
-        checkBoxesLayout = view.findViewById(R.id.checkBoxesLayout);
-        editTextsLayout = view.findViewById(R.id.editTextsLayout);
-        //  checkBoxesArray = view.findViewById(R.id.checkBoxesArray);
+        constraintLayout = view.findViewById(R.id.main_layout);
         tvAlert = view.findViewById(R.id.tv_alert);
         mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
         mProgressDialog = new MyProgressDialog(mContext);
         Button btnSubmit = view.findViewById(R.id.btn_submit);
         Button btnCancel = view.findViewById(R.id.btn_cancel);
-        etUserEmail = view.findViewById(R.id.et_userEmail);
-        etUserMobileNo = view.findViewById(R.id.et_userMobileNo);
         if (mMediatorCallback.isConnected())
             getQuestions();
         else
@@ -141,14 +144,13 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
             @Override
             public void onClick(View v) {
                 if (responseHolder != null)
-                    checkDataFilled();
+                    checkDataFilled(view);
             }
         });
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (responseHolder != null)
-                    //   setupRecyclerView(responseHolder.getResult());
                     etUserEmail.setText("");
                 etUserMobileNo.setText("");
                 Toast.makeText(mContext, getResources().getString(R.string.cancel_done_msg), Toast.LENGTH_SHORT).show();
@@ -159,7 +161,7 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
 
     private void getQuestions() {
         String QuestionsUrl = API_NEHR_URL + "feedback/questions";
-        Log.d("QuestionsUrl", QuestionsUrl);
+        Log.d("questions", QuestionsUrl);
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, QuestionsUrl, null
                 , new Response.Listener<JSONObject>() {
@@ -170,7 +172,9 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
                             Gson gson = new Gson();
                             responseHolder = gson.fromJson(response.toString(), ApiFeedbackHolder.class);
-                            Log.d("questions", response.getJSONArray(API_RESPONSE_RESULT).toString());
+                            for (int i = 0; i < response.getJSONArray(API_RESPONSE_RESULT).length(); i++)
+                                Log.d("questions" + i, response.getJSONArray(API_RESPONSE_RESULT).getJSONObject(i).toString());
+                            // checkBoxesArray = new ArrayList<>();
                             for (int i = 0; i < responseHolder.getResult().size(); i++) {
                                 TextView textView = new TextView(mContext);
                                 if (responseHolder.getResult().get(i).getDataType().equals("select")) {
@@ -178,13 +182,12 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
                                         textView.setText(responseHolder.getResult().get(i).getParamValueNls());
                                     else
                                         textView.setText(responseHolder.getResult().get(i).getParamValue());
-                                    radioGroupLayout.addView(textView);
+                                    constraintLayout.addView(textView);
                                     // add radio buttons
                                     rb = new RadioButton[responseHolder.getResult().get(i).getOptionMast().size()];
                                     radioGroupArray = new ArrayList<>();
                                     RadioGroup radioGroup = new RadioGroup(mContext);//create the RadioGroup
                                     radioGroup.setId(responseHolder.getResult().get(i).getParamId());
-                                    //  radioGroupArray.setOrientation(RadioGroup.HORIZONTAL);//or RadioGroup.VERTICAL
                                     for (int y = 0; y < responseHolder.getResult().get(i).getOptionMast().size(); y++) {
                                         rb[y] = new RadioButton(mContext);
                                         if (getStoredLanguage().equals(LANGUAGE_ARABIC))
@@ -195,20 +198,18 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
                                         radioGroup.addView(rb[y]);
                                     }
                                     radioGroupArray.add(radioGroup);
-                                    for (int u = 0; u < radioGroupArray.size(); u++)
-                                        radioGroupLayout.addView(radioGroupArray.get(u));//you add the whole RadioGroup to the layout
+                                    constraintLayout.addView(radioGroup);
                                 } else if (responseHolder.getResult().get(i).getDataType().equals("multiselect")) {
                                     if (getStoredLanguage().equals(LANGUAGE_ARABIC))
                                         textView.setText(responseHolder.getResult().get(i).getParamValueNls());
                                     else
                                         textView.setText(responseHolder.getResult().get(i).getParamValue());
-                                    checkBoxesLayout.addView(textView);
                                     //add check boxes
-                                    checkBox = new CheckBox[responseHolder.getResult().get(i).getOptionMast().size()];
-                                    checkBoxesArray = new ArrayList<>();
+                                    CheckBox[] checkBox = new CheckBox[responseHolder.getResult().get(i).getOptionMast().size()];
                                     LinearLayout checkBoxLayout = new LinearLayout(mContext);
                                     checkBoxLayout.setOrientation(LinearLayout.VERTICAL);
-                                    checkBoxLayout.setId(responseHolder.getResult().get(i).getParamId());
+                                    checkBoxLayout.setId(responseHolder.getResult().get(i).getParamId()+100);
+                                    checkBoxLayout.setTag(responseHolder.getResult().get(i).getParamId());
                                     for (int x = 0; x < responseHolder.getResult().get(i).getOptionMast().size(); x++) {
                                         checkBox[x] = new CheckBox(mContext);
 
@@ -217,28 +218,42 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
                                         else
                                             checkBox[x].setText(" " + responseHolder.getResult().get(i).getOptionMast().get(x).getOptionName());
                                         checkBox[x].setId(responseHolder.getResult().get(i).getOptionMast().get(x).getOptionId());
-                                        //  LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                        //  itemBox = inflater.inflate(R.layout.check_box_container, linearLayout, false);
-
                                         checkBoxLayout.addView(checkBox[x]);
+
                                     }
-                                    checkBoxesArray.add(checkBoxLayout);
-                                    for (int u = 0; u < checkBoxesArray.size(); u++)
-                                        checkBoxesLayout.addView(checkBoxesArray.get(u));
+                                    // checkBoxesArray.add(checkBoxLayout);
+                                    constraintLayout.addView(textView);
+                                    constraintLayout.addView(checkBoxLayout);
                                 } else {
                                     if (getStoredLanguage().equals(LANGUAGE_ARABIC))
                                         textView.setText(responseHolder.getResult().get(i).getParamValueNls());
                                     else
                                         textView.setText(responseHolder.getResult().get(i).getParamValue());
-                                    editTextsLayout.addView(textView);
+                                    constraintLayout.addView(textView);
                                     // add text area
                                     editText = new EditText(mContext);
-                                    editTextsLayout.addView(editText);
+                                    LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                                    editText.setLayoutParams(layoutParams);
+                                    editText.setTextSize(14);
+                                    editText.setHint("write here your comments.");
+                                    editText.setId(responseHolder.getResult().get(i).getParamId());
+                                    constraintLayout.addView(editText);
+
                                 }
 
 
                             }
-
+                            etUserEmail = new EditText(mContext);
+                            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                            etUserEmail.setLayoutParams(layoutParams);
+                            etUserEmail.setHint(getResources().getString(R.string.enter_your_email));
+                            etUserEmail.setTextSize(14);
+                            constraintLayout.addView(etUserEmail);
+                            etUserMobileNo = new EditText(mContext);
+                            etUserMobileNo.setLayoutParams(layoutParams);
+                            etUserMobileNo.setHint(getResources().getString(R.string.enter_your_mobile_no));
+                            etUserMobileNo.setTextSize(14);
+                            constraintLayout.addView(etUserMobileNo);
                         } else {
 
                             mProgressDialog.dismissDialog();
@@ -255,7 +270,7 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
             @Override
             public void onErrorResponse(VolleyError error) {
                 if (mContext != null && isAdded()) {
-                    Log.d("add_doc", error.toString());
+                    Log.d("add_feedback", error.toString());
                     error.printStackTrace();
                     mProgressDialog.dismissDialog();
                 }
@@ -282,14 +297,13 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
     private void saveFeedback() {
         String saveFeedbackUrl = API_NEHR_URL + "feedback/save";
         mProgressDialog.showDialog();
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, saveFeedbackUrl, getJSONRequestParams()
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, saveFeedbackUrl, null/*getJSONRequestParams(view)*/
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 if (mContext != null && isAdded()) {
                     Toast.makeText(mContext, getResources().getString(R.string.feedback_saved_msg), Toast.LENGTH_SHORT).show();
                     mProgressDialog.dismissDialog();
-                    mMediatorCallback.changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
                     mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
                     mToolbarControllerCallback.customToolbarBackButtonClicked();
                 }
@@ -325,7 +339,7 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
         mQueue.add(jsonObjectRequest);
     }
 
-    private JSONObject getJSONRequestParams() {
+    private JSONObject getJSONRequestParams(View view) {
         Map<String, Object> params = new HashMap<>();
         params.put("civilId", Long.parseLong(mMediatorCallback.getCurrentUser().getCivilId()));
         params.put("appType", "phrApp");
@@ -348,22 +362,25 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
 
                         }
                     }
-
                 } else if (responseHolder.getResult().get(i).getDataType().equals("multiselect")) {
-                    jsonObject.put("paramId", responseHolder.getResult().get(i).getParamId());
-                    for (int u = 0; u < checkBoxesArray.size(); u++) {
-                        ArrayList<String> getCheckBoxesId = new ArrayList<>();
-                        if(checkBoxesArray.get(u).getId()==responseHolder.getResult().get(i).getParamId()){
-                                 for (int x = 0; x <checkBoxesArray.size(); x++) {
-                                         for (CheckBox box : checkBox) {
-                                             if (box.getId() == responseHolder.getResult().get(i).getOptionMast().get(u).getOptionId() &&box.isChecked())
-                                                 getCheckBoxesId.add(String.valueOf(box.getId()));
-                                         }
-                                         jsonObject.put("value", getCommonSeperatedString(getCheckBoxesId));
-                                     }
+                    ArrayList<String> getCheckBoxesId = new ArrayList<>();
+                    Object object = constraintLayout.findViewById(responseHolder.getResult().get(i).getParamId()+100);
+                    if (object instanceof LinearLayout) {
+                        Log.d("questions", "LL");
+                        LinearLayout linearLayout = (LinearLayout) object;
+                        final int childCount = linearLayout.getChildCount();
+                        for (int obj = 0; obj < childCount; obj++) {
+                            View v = linearLayout.getChildAt(obj);
+                            if (v instanceof CheckBox) {
+                                CheckBox checkBox = (CheckBox) v;
+                                if(checkBox.isChecked()) {
+                                    getCheckBoxesId.add(String.valueOf(checkBox.getId()));
+                                }
+                            }
                         }
-
                     }
+                    jsonObject.put("paramId", responseHolder.getResult().get(i).getParamId());
+                    jsonObject.put("value", getCheckBoxesId.toString());
                 } else {
                     jsonObject.put("paramId", responseHolder.getResult().get(i).getParamId());
                     jsonObject.put("value", editText.getText().toString());
@@ -376,7 +393,7 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
 
         }
         params.put("values", jsonArray);
-        Log.d("submitFeedback", new JSONObject(params).toString());
+        Log.d("questions-answers", new JSONObject(params).toString());
         return new JSONObject(params);
     }
 
@@ -389,7 +406,7 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
         return sb.toString();
     }
 
-    private void checkDataFilled() {
+    private void checkDataFilled(View view) {
         if (radioGroupArray == null /*&& radioGroupArray.getCheckedRadioButtonId() == -1*/) {
             Toast.makeText(mContext, "Please try to answer all questions!", Toast.LENGTH_SHORT).show();
         } else if (editText != null && editText.getText().toString().trim().equals("")) {
@@ -409,7 +426,8 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
             etUserMobileNo.setError(getResources().getString(R.string.invalid_phoneNo));
             etUserMobileNo.requestFocus();
         } else {
-            saveFeedback();
+            //  saveFeedback();
+            getJSONRequestParams(view);
         }
     }
 
@@ -422,7 +440,6 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
     @Override
     public void onDetach() {
         super.onDetach();
-        mMediatorCallback.changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
         mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
     }
 
@@ -448,5 +465,57 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
     private String getStoredLanguage() {
         SharedPreferences sharedPref = mContext.getSharedPreferences(LANGUAGE_PREFS, Context.MODE_PRIVATE);
         return sharedPref.getString(LANGUAGE_SELECTED, LANGUAGE_ARABIC);
+    }
+
+    @SuppressLint("TrulyRandom")
+    private void handleSSLHandshake() {
+        try {
+            TrustManager[] byPassTrustManagers = new TrustManager[]{new X509TrustManager() {
+                public X509Certificate[] getAcceptedIssuers() {
+                    return new X509Certificate[0];
+                }
+
+                public void checkClientTrusted(X509Certificate[] chain, String authType) {
+
+                    try {
+                        for (X509Certificate cert : chain) {
+                            Log.d("cert", cert.getIssuerX500Principal().getName());
+                            // check if current certificate belongs to google
+                            if (cert.getIssuerX500Principal().getName().contains(".moh.gov.om"))
+                                return;
+                        }
+                        // if none certificate trusted throw certificate exception to tell to not trust connection
+                        throw new CertificateException("Certificate not valid or trusted.");
+                    } catch (CertificateException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+
+                public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+
+                    for (X509Certificate cert : chain) {
+                        Log.d("cert", cert.getIssuerX500Principal().getName());
+                        if (cert.getIssuerX500Principal().getName().contains("Sectigo RSA Domain Validation Secure Server"))
+                            return;
+                    }
+
+
+                    // if none certificate trusted throw certificate exception to tell to not trust connection
+                    throw new CertificateException("Certificate not valid or trusted.");
+                }
+            }
+            };
+            SSLContext sc = SSLContext.getInstance("SSL");
+            sc.init(null, byPassTrustManagers, new SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+            HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+                @Override
+                public boolean verify(String hostname, SSLSession arg1) {
+                    return hostname.endsWith(".moh.gov.om");
+                }
+            });
+        } catch (Exception ignored) {
+        }
     }
 }

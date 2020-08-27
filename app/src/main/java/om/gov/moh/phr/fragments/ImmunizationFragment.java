@@ -239,7 +239,6 @@ public class ImmunizationFragment extends Fragment implements SearchView.OnQuery
         if (isFromNotifications)
             mMediatorCallback.changeFragmentTo(NotificationsFragment.newInstance(), NotificationsFragment.class.getSimpleName());
         else {
-            mMediatorCallback.changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
             mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
         }
     }

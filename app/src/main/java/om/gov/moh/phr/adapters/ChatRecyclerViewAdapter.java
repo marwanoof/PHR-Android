@@ -60,7 +60,6 @@ public class ChatRecyclerViewAdapter extends RecyclerView.Adapter<ChatRecyclerVi
         holder.clFreindItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mediatorInterface.changeFragmentContainerVisibility(View.VISIBLE, View.GONE);
                 holder.tvUnreadCount.setVisibility(View.INVISIBLE);
                 mediatorInterface.changeFragmentTo(ChatMessagesFragment.newInstance(messageObj), "");
             }

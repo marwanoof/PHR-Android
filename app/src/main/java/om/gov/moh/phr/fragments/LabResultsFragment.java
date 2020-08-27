@@ -278,7 +278,6 @@ public class LabResultsFragment extends Fragment implements SearchView.OnQueryTe
     public void onDetach() {
         super.onDetach();
         if (labResultsType != null) {
-            mMediatorCallback.changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
             mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
         }
     }

@@ -227,7 +227,6 @@ public class AppointmentRescheduleDateFragment extends Fragment implements Adapt
             @Override
             public void onAccept() {
                 onDecline();
-                mMediatorCallback.changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
 //        mMediatorCallback.slideTo(0);
             }
 

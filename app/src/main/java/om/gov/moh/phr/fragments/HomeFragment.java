@@ -1,6 +1,8 @@
 package om.gov.moh.phr.fragments;
 
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -12,7 +14,9 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -22,8 +26,12 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.ViewFlipper;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.view.GestureDetectorCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -42,11 +50,13 @@ import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
+import com.google.android.material.tabs.TabLayout;
 import com.google.gson.Gson;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -94,14 +104,16 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
     //private TextView tvFullName;
     //private TextView tvCivilId;
     //private CircleImageView ivUserPhoto;
-    private ViewPager2 viewPager;
+    // private ViewPager2 viewPager;
     private LinearLayout sliderDotspanel;
     int dotscount = 3;
-    private PagerCardMainAdapter pagerCardMainAdapter;
+    private ImageView[] dots;
+    // private PagerCardMainAdapter pagerCardMainAdapter;
     private ScrollView menuListScrollView;
-    private ImageButton menuButton,myVitalExpandBtn,appointmentExpandBtn, notificationExpandBtn, updatesExpandBtn, chatsExpandBtn;
-    private RecyclerView myVital, appointmentList,notificationList, updatesList, chatsList;
-
+    private ImageButton menuButton, myVitalExpandBtn, appointmentExpandBtn, notificationExpandBtn, updatesExpandBtn, chatsExpandBtn;
+    private RecyclerView myVital, appointmentList, notificationList, updatesList, chatsList;
+    private ViewFlipper viewFlipper;
+    private float lastX;
 
 
     @Override
@@ -147,6 +159,16 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
         chatsList = parentView.findViewById(R.id.recyclerView_chats_home);
         chatsExpandBtn = parentView.findViewById(R.id.btn_chats_expand);
         rvGrid.setVisibility(View.GONE);
+        viewFlipper = parentView.findViewById(R.id.viewFlipper);
+        viewFlipper.setOnTouchListener(new android.view.View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                onTouchEvent(event);
+                viewFlipper.performClick();
+                return true;
+            }
+        });
+        viewFlipper.addOnLayoutChangeListener(onLayoutChangeListener_viewFlipper);
         //tvFullName = parentView.findViewById(R.id.tv_name);
         //tvCivilId = parentView.findViewById(R.id.tv_civil_id);
         //ivUserPhoto = parentView.findViewById(R.id.iv_avatar);
@@ -162,15 +184,15 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
                 setupData(mApiDemographicItem);
             }
         }*/
-        if (mMediatorCallback.isConnected()) {
-            setRecyclerViewGrid();
-            getDemographicResponse();
+            if (mMediatorCallback.isConnected()) {
+                setRecyclerViewGrid();
+                getDemographicResponse();
 
 
-        } else {
-            displayAlert(getString(R.string.alert_no_connection));
-        }
-        viewPager = parentView.findViewById(R.id.viewPager_main);
+            } else {
+                displayAlert(getString(R.string.alert_no_connection));
+            }
+        // viewPager = parentView.findViewById(R.id.viewPager_main);
         sliderDotspanel = parentView.findViewById(R.id.slider_dots);
         /*personalDetailMains = new ArrayList();
         personalDetailMains.add(new PersonalDetailMain(R.drawable.about_ic,"","","","","",""));
@@ -181,40 +203,51 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
         testArr.add("Alseryani");
 
 
-        pagerCardMainAdapter = new PagerCardMainAdapter(testArr,mContext);
+        // pagerCardMainAdapter = new PagerCardMainAdapter(testArr, mContext);
 
 
         //viewPager.setPadding(30, 0, 30, 0);
-        viewPager.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
+       /* viewPager.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
         viewPager.setAdapter(pagerCardMainAdapter);
-        viewPager.setCurrentItem(1);
+        viewPager.setCurrentItem(1);*/
         // dotscount = pagerCardMainAdapter.getItemCount();
         //ImageView nonActive = new ImageView(this);
         //nonActive.setImageDrawable(getDrawable(R.drawable.non_active_dot));
         //final ArrayList<ImageView> dots = new ArrayList<>();
 
 
-        final ImageView[] dots = new ImageView[3];
+        dots = new ImageView[3];
         dots[0] = new ImageView(mContext);
+        dots[0].setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                viewFlipper.setDisplayedChild(0);
+            }
+        });
         dots[1] = new ImageView(mContext);
+        dots[1].setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                viewFlipper.setDisplayedChild(1);
+            }
+        });
         dots[2] = new ImageView(mContext);
-
+        dots[2].setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                viewFlipper.setDisplayedChild(2);
+            }
+        });
         //val dots = arrayOfNulls<ImageView>(dotscount)
 
-        for (int i = 0; i< dotscount; i++){
-            //dots.set(i, new ImageView(this));
-            //ImageView nonActive = new ImageView(this);
-            //nonActive.setImageDrawable(getDrawable(R.drawable.non_active_dot));
+        for (int i = 0; i < dotscount; i++) {
             dots[i].setImageDrawable(mContext.getDrawable(R.drawable.non_active_dot));
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
             params.setMargins(8, 0, 8, 0);
-            sliderDotspanel.addView(dots[i],params);
+            sliderDotspanel.addView(dots[i], params);
         }
 
-
-        dots[1].setImageDrawable(mContext.getDrawable(R.drawable.active_dot));
-
-        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+    /*    viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                 super.onPageScrolled(position, positionOffset, positionOffsetPixels);
@@ -223,7 +256,7 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
-                for (int i = 0; i< dotscount; i++){
+                for (int i = 0; i < dotscount; i++) {
                     //dots.set(i, new ImageView(this));
                     dots[i].setImageDrawable(mContext.getDrawable(R.drawable.non_active_dot));
                 }
@@ -236,13 +269,13 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
             public void onPageScrollStateChanged(int state) {
                 super.onPageScrollStateChanged(state);
             }
-        });
+        });*/
 
         menuButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (menuListScrollView.getVisibility() == View.VISIBLE) {
-            /*menuListRecyclerView.animate()
+        /*    menuListRecyclerView.animate()
                     .alpha(0.0f)
                     .setDuration(100)
                     .setListener(new AnimatorListenerAdapter() {
@@ -257,7 +290,7 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
 
 
                         }
-                    });
+                    });*/
             menuButton.animate()
                     .alpha(0.0f)
                     .setDuration(100)
@@ -268,12 +301,12 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
                             menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_list));
                             menuButton.animate().alpha(1.0f);
                         }
-                    });*/
+                    });
                     menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_list));
                     rvGrid.setVisibility(View.VISIBLE);
                     menuListScrollView.setVisibility(View.GONE);
                 } else {
-            /*menuItemScrollView.animate()
+        /*    menuItemScrollView.animate()
                     .alpha(0.0f)
                     .setDuration(100)
                     .setListener(new AnimatorListenerAdapter() {
@@ -288,7 +321,7 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
 
 
                         }
-                    });
+                    });*/
             menuButton.animate()
                     .alpha(0.0f)
                     .setDuration(100)
@@ -299,7 +332,7 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
                             menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_item));
                             menuButton.animate().alpha(1.0f);
                         }
-                    });*/
+                    });
                     menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_item));
                     rvGrid.setVisibility(View.GONE);
                     menuListScrollView.setVisibility(View.VISIBLE);
@@ -314,10 +347,10 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
         chatsExpandBtn.setOnClickListener(this);
         /* setup my vital list */
         ArrayList<MyVital> myVitals = new ArrayList<>();
-        myVitals.add(new MyVital("Heart rate:","68", ""));
-        myVitals.add(new MyVital("Oxygen saturation:","44", "%"));
-        myVitals.add(new MyVital("Body temperature:","36.5", "\u2103"));
-        myVitals.add(new MyVital("Blood pressure:","119/79", "mm[Hg]"));
+        myVitals.add(new MyVital("Heart rate:", "68", ""));
+        myVitals.add(new MyVital("Oxygen saturation:", "44", "%"));
+        myVitals.add(new MyVital("Body temperature:", "36.5", "\u2103"));
+        myVitals.add(new MyVital("Blood pressure:", "119/79", "mm[Hg]"));
         setupMyVitalList(myVitals);
 
         /* setup appointment list */
@@ -340,69 +373,74 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
 
         /* setup chats list */
         ArrayList<ChatsModels> chatsModels = new ArrayList<>();
-        chatsModels.add(new ChatsModels("Dr.Binu","21-07-2020 11:30:54"));
-        chatsModels.add(new ChatsModels("Dr.Jalil","21-07-2020 09:11:28"));
+        chatsModels.add(new ChatsModels("Dr.Binu", "21-07-2020 11:30:54"));
+        chatsModels.add(new ChatsModels("Dr.Jalil", "21-07-2020 09:11:28"));
         setupChatsList(chatsModels);
 
         return parentView;
     }
 
 
-    public void setupMyVitalList(ArrayList<MyVital> myVitals){
-        MyVitalListAdapter myVitalListAdapter = new MyVitalListAdapter(myVitals,mContext);
+    public void setupMyVitalList(ArrayList<MyVital> myVitals) {
+        MyVitalListAdapter myVitalListAdapter = new MyVitalListAdapter(myVitals, mContext);
         LinearLayoutManager layoutManager
                 = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
         //DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(myVital.getContext(),layoutManager.getOrientation());
-       // myVital.addItemDecoration(mDividerItemDecoration);
+        // myVital.addItemDecoration(mDividerItemDecoration);
         myVital.setLayoutManager(layoutManager);
         myVital.setItemAnimator(new DefaultItemAnimator());
         myVital.setAdapter(myVitalListAdapter);
 
     }
-    public void setupAppointmentList(ArrayList<String> appointments){
-        ComingAppointmentListAdapter comingAppointmentListAdapter = new ComingAppointmentListAdapter(appointments,mContext);
+
+    public void setupAppointmentList(ArrayList<String> appointments) {
+        ComingAppointmentListAdapter comingAppointmentListAdapter = new ComingAppointmentListAdapter(appointments, mContext);
         LinearLayoutManager layoutManager
                 = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
-        DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(appointmentList.getContext(),layoutManager.getOrientation());
+        DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(appointmentList.getContext(), layoutManager.getOrientation());
         appointmentList.addItemDecoration(mDividerItemDecoration);
         appointmentList.setLayoutManager(layoutManager);
         appointmentList.setItemAnimator(new DefaultItemAnimator());
         appointmentList.setAdapter(comingAppointmentListAdapter);
 
     }
-    public void setupNotificationList(ArrayList<String> notifications){
-        NotificationHomeAdapter comingAppointmentListAdapter = new NotificationHomeAdapter(notifications,mContext);
+
+    public void setupNotificationList(ArrayList<String> notifications) {
+        NotificationHomeAdapter comingAppointmentListAdapter = new NotificationHomeAdapter(notifications, mContext);
         LinearLayoutManager layoutManager
                 = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
-        DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(notificationList.getContext(),layoutManager.getOrientation());
+        DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(notificationList.getContext(), layoutManager.getOrientation());
         notificationList.addItemDecoration(mDividerItemDecoration);
         notificationList.setLayoutManager(layoutManager);
         notificationList.setItemAnimator(new DefaultItemAnimator());
         notificationList.setAdapter(comingAppointmentListAdapter);
 
     }
-    public void setupUpdatesList(ArrayList<String> updates){
-        UpdatesListAdapter comingAppointmentListAdapter = new UpdatesListAdapter(updates,mContext);
+
+    public void setupUpdatesList(ArrayList<String> updates) {
+        UpdatesListAdapter comingAppointmentListAdapter = new UpdatesListAdapter(updates, mContext);
         LinearLayoutManager layoutManager
                 = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
-        DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(updatesList.getContext(),layoutManager.getOrientation());
+        DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(updatesList.getContext(), layoutManager.getOrientation());
         updatesList.addItemDecoration(mDividerItemDecoration);
         updatesList.setLayoutManager(layoutManager);
         updatesList.setItemAnimator(new DefaultItemAnimator());
         updatesList.setAdapter(comingAppointmentListAdapter);
 
     }
-    public void setupChatsList(ArrayList<ChatsModels> chatsModels){
-        MessageChatsAdapter messageChatsAdapter = new MessageChatsAdapter(chatsModels,mContext);
+
+    public void setupChatsList(ArrayList<ChatsModels> chatsModels) {
+        MessageChatsAdapter messageChatsAdapter = new MessageChatsAdapter(chatsModels, mContext);
         LinearLayoutManager layoutManager
                 = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
-        DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(chatsList.getContext(),layoutManager.getOrientation());
+        DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(chatsList.getContext(), layoutManager.getOrientation());
         chatsList.addItemDecoration(mDividerItemDecoration);
         chatsList.setLayoutManager(layoutManager);
         chatsList.setItemAnimator(new DefaultItemAnimator());
         chatsList.setAdapter(messageChatsAdapter);
 
     }
+
     private void getDemographicResponse() {
         mProgressDialog.showDialog();
 
@@ -596,7 +634,6 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
     public <T> void onMyListItemClicked(T dataToPass, String dataTitle) {
 
         if (mApiDemographicItem != null) {
-            mMediatorCallback.changeFragmentContainerVisibility(View.VISIBLE, View.GONE);
             mToolbarCallback.changeSideMenuToolBarVisibility(View.GONE);
             mMediatorCallback.changeFragmentTo((Fragment) dataToPass, dataTitle);
         }
@@ -608,69 +645,69 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
     }
 
     public void expandCollapseBtn(View view) {
-        Bitmap imgArrow = ((BitmapDrawable)getResources().getDrawable(R.drawable.ic_arrow_down)).getBitmap();
-        switch (view.getId()){
+        Bitmap imgArrow = ((BitmapDrawable) getResources().getDrawable(R.drawable.ic_arrow_down)).getBitmap();
+        switch (view.getId()) {
             case R.id.btn_myvital_expand:
 
-                Bitmap imgBtn = ((BitmapDrawable)myVitalExpandBtn.getDrawable()).getBitmap();
+                Bitmap imgBtn = ((BitmapDrawable) myVitalExpandBtn.getDrawable()).getBitmap();
 
-                if (imgBtn == imgArrow){
+                if (imgBtn == imgArrow) {
 
                     myVital.setVisibility(View.GONE);
                     myVitalExpandBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_arrow_right));
-                }else {
+                } else {
 
                     myVital.setVisibility(View.VISIBLE);
                     myVitalExpandBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_arrow_down));
                 }
                 break;
             case R.id.btn_appointment_expand:
-                Bitmap imgBtnApp = ((BitmapDrawable)appointmentExpandBtn.getDrawable()).getBitmap();
+                Bitmap imgBtnApp = ((BitmapDrawable) appointmentExpandBtn.getDrawable()).getBitmap();
 
-                if (imgBtnApp == imgArrow){
+                if (imgBtnApp == imgArrow) {
 
                     appointmentList.setVisibility(View.GONE);
                     appointmentExpandBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_arrow_right));
-                }else {
+                } else {
 
                     appointmentList.setVisibility(View.VISIBLE);
                     appointmentExpandBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_arrow_down));
                 }
                 break;
             case R.id.btn_notification_expand:
-                Bitmap imgBtnNot = ((BitmapDrawable)notificationExpandBtn.getDrawable()).getBitmap();
+                Bitmap imgBtnNot = ((BitmapDrawable) notificationExpandBtn.getDrawable()).getBitmap();
 
-                if (imgBtnNot == imgArrow){
+                if (imgBtnNot == imgArrow) {
 
                     notificationList.setVisibility(View.GONE);
                     notificationExpandBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_arrow_right));
-                }else {
+                } else {
 
                     notificationList.setVisibility(View.VISIBLE);
                     notificationExpandBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_arrow_down));
                 }
                 break;
             case R.id.btn_updates_expand:
-                Bitmap imgBtnUpd = ((BitmapDrawable)updatesExpandBtn.getDrawable()).getBitmap();
+                Bitmap imgBtnUpd = ((BitmapDrawable) updatesExpandBtn.getDrawable()).getBitmap();
 
-                if (imgBtnUpd == imgArrow){
+                if (imgBtnUpd == imgArrow) {
 
                     updatesList.setVisibility(View.GONE);
                     updatesExpandBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_arrow_right));
-                }else {
+                } else {
 
                     updatesList.setVisibility(View.VISIBLE);
                     updatesExpandBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_arrow_down));
                 }
                 break;
             case R.id.btn_chats_expand:
-                Bitmap imgBtnChat = ((BitmapDrawable)chatsExpandBtn.getDrawable()).getBitmap();
+                Bitmap imgBtnChat = ((BitmapDrawable) chatsExpandBtn.getDrawable()).getBitmap();
 
-                if (imgBtnChat == imgArrow){
+                if (imgBtnChat == imgArrow) {
 
                     chatsList.setVisibility(View.GONE);
                     chatsExpandBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_arrow_right));
-                }else {
+                } else {
 
                     chatsList.setVisibility(View.VISIBLE);
                     chatsExpandBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_arrow_down));
@@ -685,5 +722,75 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
     public void onClick(View view) {
 
         expandCollapseBtn(view);
+    }
+
+    // Method to handle touch event like left to right swap and right to left swap
+    public boolean onTouchEvent(MotionEvent touchevent) {
+        switch (touchevent.getAction()) {
+            // when user first touches the screen to swap
+            case MotionEvent.ACTION_DOWN: {
+                lastX = touchevent.getX();
+                break;
+            }
+            case MotionEvent.ACTION_UP: {
+                float currentX = touchevent.getX();
+
+                // if left to right swipe on screen
+                if (lastX < currentX) {
+                    // If no more View/Child to flip
+                   /* if (viewFlipper.getDisplayedChild() == 0)
+                        break;*/
+
+                    // set the required Animation type to ViewFlipper
+                    // The Next screen will come in form Left and current Screen will go OUT from Right
+                    viewFlipper.setInAnimation(mContext, android.R.anim.fade_in);
+                    viewFlipper.setOutAnimation(mContext, android.R.anim.fade_out);
+                    // Show the next Screen
+                    viewFlipper.showPrevious();
+                }
+
+                // if right to left swipe on screen
+                if (lastX > currentX) {
+                   /* if (viewFlipper.getDisplayedChild() == 1)
+                        break;*/
+                    // set the required Animation type to ViewFlipper
+                    // The Next screen will come in form Right and current Screen will go OUT from Left
+                    viewFlipper.setInAnimation(mContext, android.R.anim.fade_in);
+                    viewFlipper.setOutAnimation(mContext, android.R.anim.fade_out);
+                    // Show The Previous Screen
+                    viewFlipper.showNext();
+                }
+                break;
+            }
+        }
+        viewFlipper.performClick();
+        return false;
+    }
+
+    View.OnLayoutChangeListener onLayoutChangeListener_viewFlipper = new View.OnLayoutChangeListener() {
+        @Override
+        public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+            if (dots != null) {
+                if (viewFlipper.getDisplayedChild() == 0) {
+                    dots[0].setImageDrawable(mContext.getDrawable(R.drawable.active_dot));
+                    dots[1].setImageDrawable(mContext.getDrawable(R.drawable.non_active_dot));
+                    dots[2].setImageDrawable(mContext.getDrawable(R.drawable.non_active_dot));
+                } else if (viewFlipper.getDisplayedChild() == 1) {
+                    dots[1].setImageDrawable(mContext.getDrawable(R.drawable.active_dot));
+                    dots[0].setImageDrawable(mContext.getDrawable(R.drawable.non_active_dot));
+                    dots[2].setImageDrawable(mContext.getDrawable(R.drawable.non_active_dot));
+                } else if (viewFlipper.getDisplayedChild() == 2) {
+                    dots[2].setImageDrawable(mContext.getDrawable(R.drawable.active_dot));
+                    dots[0].setImageDrawable(mContext.getDrawable(R.drawable.non_active_dot));
+                    dots[1].setImageDrawable(mContext.getDrawable(R.drawable.non_active_dot));
+                }
+            }
+        }
+    };
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        viewFlipper.removeOnLayoutChangeListener(onLayoutChangeListener_viewFlipper);
     }
 }

@@ -155,7 +155,6 @@ public class BodyMeasurementsFragment extends Fragment implements AdapterToFragm
     @Override
     public void onDetach() {
         super.onDetach();
-        mMediatorCallback.changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
         mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
     }
 }

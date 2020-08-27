@@ -16,7 +16,6 @@ import android.widget.Toast;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -37,11 +36,11 @@ import org.json.JSONObject;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.GuardedObject;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -53,6 +52,7 @@ import java.util.Objects;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
@@ -72,13 +72,14 @@ import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_ACCESS_TOKEN;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_MESSAGE;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_RESULT;
-import static om.gov.moh.phr.models.MyConstants.API_URL_LOCAL;
+import static om.gov.moh.phr.models.MyConstants.API_PHR;
 import static om.gov.moh.phr.models.MyConstants.LANGUAGE_ARABIC;
 import static om.gov.moh.phr.models.MyConstants.LANGUAGE_PREFS;
 import static om.gov.moh.phr.models.MyConstants.LANGUAGE_SELECTED;
 import static om.gov.moh.phr.models.MyConstants.PARAM_CIVIL_ID;
 import static om.gov.moh.phr.models.MyConstants.PARAM_IMAGE;
 import static om.gov.moh.phr.models.MyConstants.PARAM_PERSON_NAME;
+import static om.gov.moh.phr.models.MyConstants.PARAM_SIDE_MENU;
 import static om.gov.moh.phr.models.MyConstants.PREFS_API_GET_TOKEN;
 import static om.gov.moh.phr.models.MyConstants.PREFS_CURRENT_USER;
 import static om.gov.moh.phr.models.MyConstants.PREFS_IS_PARENT;
@@ -108,8 +109,8 @@ import static om.gov.moh.phr.models.MyConstants.PREFS_SIDE_MENU;
 
 public class LoginFragment extends Fragment {
 
-    private static final String API_URL_GET_OTP = API_URL_LOCAL + "getOtp/";
-    private static final String API_URL_VALIDATE_OTP = API_URL_LOCAL + "validateOtp/";
+    private static final String API_URL_GET_OTP = API_PHR + "getOtp/";
+    private static final String API_URL_VALIDATE_OTP = API_PHR + "validateOtp/";
     private RequestQueue mQueue;
     private MyProgressDialog mProgressDialog;
     private TextInputEditText tietCivilId;
@@ -147,7 +148,6 @@ public class LoginFragment extends Fragment {
         mContext = context;
         mMediatorCallback = (MediatorInterface) context;
         mToolbarCallback = (ToolbarControllerInterface) context;
-        mMediatorCallback.changeBottomNavVisibility(View.GONE);
     }
 
     @Override
@@ -249,10 +249,10 @@ public class LoginFragment extends Fragment {
 
     private void getOTP(String civilId) {
         mProgressDialog.showDialog();
-        String fullUrl = API_URL_GET_OTP + civilId;
+        String fullUrl = API_PHR + "v2/getOtp";
 
         // getOtp api is using HTTP.GET inorder to get data, that's why we need Request.Method.GET
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, fullUrl, null
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, fullUrl, getJSONRequestParams(civilId)
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -306,7 +306,17 @@ public class LoginFragment extends Fragment {
         jsonObjectRequest.setRetryPolicy(policy);
         mQueue.add(jsonObjectRequest);
     }
-
+    private JSONObject getJSONRequestParams(String civilId) {
+        Map<String, Long> params = new HashMap<>();
+        params.put("civilId", Long.parseLong(civilId));
+        return new JSONObject(params);
+    }
+    private JSONObject getValidateJSONRequestParams(String civilId, String otp) {
+        Map<String, Long> params = new HashMap<>();
+        params.put("civilId", Long.parseLong(civilId));
+        params.put("otp", Long.parseLong(otp));
+        return new JSONObject(params);
+    }
     /**
      * call displayLoginForm() to display login form : otp input + login button.
      */
@@ -364,9 +374,9 @@ public class LoginFragment extends Fragment {
     }
 
     private void login(final String civilId, String otp) {
-        String fullUrl = API_URL_VALIDATE_OTP + civilId + "/" + otp;
+        String fullUrl = API_PHR+"v2/validateOtp";
         Log.d("resp-login_URl", fullUrl);
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, fullUrl, null
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, fullUrl, getValidateJSONRequestParams(civilId, otp)
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -455,7 +465,7 @@ public class LoginFragment extends Fragment {
 
         SharedPreferences sharedPrefSideMenu = mContext.getSharedPreferences(PREFS_SIDE_MENU, Context.MODE_PRIVATE);
         editor = sharedPrefSideMenu.edit();
-        editor.putString("PARAM_SIDEMENU", menus);
+        editor.putString(PARAM_SIDE_MENU, menus);
         editor.apply();
 
 
@@ -467,8 +477,6 @@ public class LoginFragment extends Fragment {
      * call moveToMainActivity() inorder to move to mainActivity
      */
     private void moveToMainActivity() {
-        mMediatorCallback.changeBottomNavVisibility(View.VISIBLE);
-        mMediatorCallback.changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
         androidx.fragment.app.FragmentManager fm = Objects.requireNonNull(getActivity()).getSupportFragmentManager();
         for (int i = 0; i < fm.getBackStackEntryCount(); ++i) {
             fm.popBackStack();
@@ -481,59 +489,51 @@ public class LoginFragment extends Fragment {
      *
      * @return SSLSocketFactory to
      */
-    private SSLSocketFactory getSocketFactory() {
-
+    public SSLSocketFactory getSocketFactory() {
         CertificateFactory cf = null;
         try {
-
             cf = CertificateFactory.getInstance("X.509");
-            InputStream caInput = getResources().openRawResource(R.raw.cert);
+            InputStream caInput = getResources().openRawResource(R.raw.server_cert);
             Certificate ca;
             try {
-
                 ca = cf.generateCertificate(caInput);
                 Log.e("CERT", "ca=" + ((X509Certificate) ca).getSubjectDN());
-
-
             } finally {
                 caInput.close();
             }
-
-
             String keyStoreType = KeyStore.getDefaultType();
-            KeyStore keyStore = KeyStore.getInstance(keyStoreType);
-            keyStore.load(null, null);
-            keyStore.setCertificateEntry("ca", ca);
-
+            KeyStore trustStore = KeyStore.getInstance(keyStoreType);
+            trustStore.load(null, null);
+            trustStore.setCertificateEntry("ca", ca);
 
             String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
             TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
-            tmf.init(keyStore);
-
-
+            tmf.init(trustStore);
             HostnameVerifier hostnameVerifier = new HostnameVerifier() {
                 @Override
                 public boolean verify(String hostname, SSLSession session) {
-
                     Log.e("CipherUsed", session.getCipherSuite());
-                    return hostname.compareTo("5.162.223.156") == 0; //The Hostname of your server.
-
+                    return hostname.endsWith(".moh.gov.om"); //The Hostname of your server.
                 }
             };
+            KeyStore keyStore = KeyStore.getInstance("PKCS12");
+            InputStream is = getResources().openRawResource(R.raw.client);
+            keyStore.load(is, "newchangeit".toCharArray());
+            is.close();
 
-
+            KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance("X509");
+            try {
+                keyManagerFactory.init(keyStore, "newchangeit".toCharArray());
+            } catch (UnrecoverableKeyException e) {
+                e.printStackTrace();
+            }
             HttpsURLConnection.setDefaultHostnameVerifier(hostnameVerifier);
             SSLContext context = null;
             context = SSLContext.getInstance("TLS");
-
-            context.init(null, tmf.getTrustManagers(), null);
+            context.init(keyManagerFactory.getKeyManagers(), tmf.getTrustManagers(), null);
             HttpsURLConnection.setDefaultSSLSocketFactory(context.getSocketFactory());
-
             SSLSocketFactory sf = context.getSocketFactory();
-
-
             return sf;
-
         } catch (CertificateException e) {
             e.printStackTrace();
         } catch (NoSuchAlgorithmException e) {
@@ -547,7 +547,6 @@ public class LoginFragment extends Fragment {
         } catch (KeyManagementException e) {
             e.printStackTrace();
         }
-
         return null;
     }
 

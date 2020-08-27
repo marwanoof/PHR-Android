@@ -275,7 +275,6 @@ public class ProceduresReportsFragment extends Fragment implements SearchView.On
     public void onDetach() {
         super.onDetach();
         if (encounterInfo == null) {
-            mMediatorCallback.changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
             mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
         }
     }
