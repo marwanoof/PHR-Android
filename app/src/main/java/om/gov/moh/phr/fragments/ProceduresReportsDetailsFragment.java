@@ -4,6 +4,7 @@ package om.gov.moh.phr.fragments;
 import android.content.Context;
 import android.os.Bundle;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -60,7 +61,7 @@ import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_RESULT;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ProceduresReportsDetailsFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
+public class ProceduresReportsDetailsFragment extends Fragment {
     private static final String API_PROCEDURES_REPORTS_WEBVIEW = API_NEHR_URL + "diagnosticReport/report/";
     private static final String API_PROCEDURES_REPORTS_RECYCLERVIEW = API_NEHR_URL + "procedure/nurseNotes/";
     private static final String API_PROCEDURES_REPORTS_TEXT = API_NEHR_URL + "procedure/notes/";
@@ -81,7 +82,7 @@ public class ProceduresReportsDetailsFragment extends Fragment implements SwipeR
     private boolean isNotes = false;
     private ImageButton ibHome, ibRefresh;
     private boolean isRAD;
-    private SwipeRefreshLayout swipeRefreshLayout;
+    private ConstraintLayout swipeRefreshLayout;
 
     public ProceduresReportsDetailsFragment() {
         // Required empty public constructor
@@ -154,7 +155,7 @@ public class ProceduresReportsDetailsFragment extends Fragment implements SwipeR
         wvReportPic = view.findViewById(R.id.wv_report);
         tvSummary = view.findViewById(R.id.tv_mediaSummary);
         tvReport = view.findViewById(R.id.tv_report);
-        swipeRefreshLayout.setOnRefreshListener(this);
+       /* swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.post(new Runnable() {
                                     @Override
                                     public void run() {
@@ -162,7 +163,7 @@ public class ProceduresReportsDetailsFragment extends Fragment implements SwipeR
                                         setupPage();
                                     }
                                 }
-        );
+        );*/
         setupPage();
         ibRefresh.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -229,7 +230,7 @@ public class ProceduresReportsDetailsFragment extends Fragment implements SwipeR
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
-                swipeRefreshLayout.setRefreshing(false);
+                //swipeRefreshLayout.setRefreshing(false);
             } else if (mProcedureReport.getProfileCode() == 101) {
                 isWebView = true;
                 String fullUrl = API_PROCEDURES_REPORTS_WEBVIEW + mProcedureReport.getReportId();
@@ -259,7 +260,7 @@ public class ProceduresReportsDetailsFragment extends Fragment implements SwipeR
 
     private void getReportDetails(String url) {
         mProgressDialog.showDialog();
-        swipeRefreshLayout.setRefreshing(true);
+        //swipeRefreshLayout.setRefreshing(true);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null
                 , new Response.Listener<JSONObject>() {
             @Override
@@ -303,7 +304,7 @@ public class ProceduresReportsDetailsFragment extends Fragment implements SwipeR
                 }
 
                 mProgressDialog.dismissDialog();
-                swipeRefreshLayout.setRefreshing(false);
+               // swipeRefreshLayout.setRefreshing(false);
             }
 
         }, new Response.ErrorListener() {
@@ -312,7 +313,7 @@ public class ProceduresReportsDetailsFragment extends Fragment implements SwipeR
                 Log.d("resp-demographic", error.toString());
                 error.printStackTrace();
                 mProgressDialog.dismissDialog();
-                swipeRefreshLayout.setRefreshing(false);
+               // swipeRefreshLayout.setRefreshing(false);
             }
         }) {
             //
@@ -351,17 +352,17 @@ public class ProceduresReportsDetailsFragment extends Fragment implements SwipeR
                 = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
         DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(rvRportDetails.getContext(),
                 layoutManager.getOrientation());
-        rvRportDetails.addItemDecoration(mDividerItemDecoration);
+        //rvRportDetails.addItemDecoration(mDividerItemDecoration);
         rvRportDetails.setLayoutManager(layoutManager);
         rvRportDetails.setItemAnimator(new DefaultItemAnimator());
         rvRportDetails.setAdapter(mAdapter);
     }
 
-    @Override
+  /*  @Override
     public void onRefresh() {
         setupPage();
     }
-
+*/
     public class ReportData {
         private String reportText;
         private Long reportTime;

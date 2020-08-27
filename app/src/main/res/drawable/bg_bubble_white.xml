@@ -5,7 +5,7 @@
 
     <!-- view background color -->
     <solid
-        android:color="@color/chat_grayColorForOthers" >
+        android:color="@color/colorSecendary" >
     </solid>
 
 

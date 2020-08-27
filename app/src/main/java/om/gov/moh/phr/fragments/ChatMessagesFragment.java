@@ -123,12 +123,12 @@ public class ChatMessagesFragment extends Fragment {
         TextView tvTitle = view.findViewById(R.id.tv_toolbar_title);
         tvTitle.setText(getResources().getString(R.string.chat_messages_title));
         ImageButton ibBack = view.findViewById(R.id.ib_toolbar_back_button);
-        tvTitle.setOnClickListener(new View.OnClickListener() {
+        /*tvTitle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mToolbarControllerCallback.customToolbarBackButtonClicked();
             }
-        });
+        });*/
         ibBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

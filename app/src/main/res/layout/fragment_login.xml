@@ -10,7 +10,7 @@
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="450dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="25dp"
         android:layout_marginEnd="25dp"
         app:cardCornerRadius="20dp"
@@ -24,6 +24,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/constraintLayout_login"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -42,15 +43,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="35dp"
-                android:padding="@dimen/space_10"
-                android:text="Cancel"
+                android:text="@string/title_cancel"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/btn_get_otp" />
 
             <Button
                 android:id="@+id/btn_login"
                 android:layout_width="@dimen/space_0"
-                android:layout_height="28dp"
+                android:layout_height="40dp"
                 android:layout_marginStart="35dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginEnd="35dp"
@@ -68,9 +68,9 @@
             <Button
                 android:id="@+id/btn_get_otp"
                 android:layout_width="@dimen/space_0"
-                android:layout_height="28dp"
+                android:layout_height="40dp"
                 android:layout_marginStart="35dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="8dp"
                 android:layout_marginEnd="35dp"
                 android:background="@drawable/rounded_shape"
                 android:backgroundTint="@color/colorPrimary"
@@ -79,6 +79,7 @@
                 android:textAllCaps="false"
                 android:textColor="@color/colorWhite"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tiet_civil_id" />
 
@@ -97,9 +98,9 @@
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/tiet_otp"
                     android:layout_width="match_parent"
-                    android:layout_height="28dp"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="8dp"
                     android:background="@drawable/edit_text_round"
-                    android:fontFamily="@font/roboto_regular"
                     android:gravity="center"
                     android:hint="@string/title_enter_otp"
                     android:imeOptions="actionDone"
@@ -112,7 +113,6 @@
                 android:id="@+id/tv_phr_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/roboto_regular"
                 android:text="@string/app_name"
                 android:textColor="@color/colorPrimary"
                 android:textSize="@dimen/text_size_32sp"
@@ -124,7 +124,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/tiet_civil_id"
                 android:layout_width="match_parent"
-                android:layout_height="28dp"
+                android:layout_height="40dp"
                 android:layout_gravity="center"
                 android:layout_marginStart="35dp"
                 android:layout_marginTop="20dp"
@@ -159,9 +159,8 @@
                 android:id="@+id/tv_phr_title2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/roboto_regular"
                 android:text="@string/sub_title_phr"
-                android:textAllCaps="true"
+                android:textAllCaps="false"
                 android:textColor="@color/colorSecendary"
                 android:textSize="9sp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -173,6 +172,7 @@
                 android:id="@+id/iv_logo_digit"
                 android:layout_width="100dp"
                 android:layout_height="50dp"
+                android:layout_marginTop="10dp"
                 android:layout_marginEnd="50dp"
                 android:layout_marginBottom="10dp"
                 android:contentDescription="@string/img_desc_dgit_logo"
@@ -180,6 +180,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toEndOf="@+id/iv_logo_moh"
+                app:layout_constraintTop_toBottomOf="@+id/tv_cancel"
                 app:srcCompat="@drawable/logo_img_dgit" />
 
             <ImageView
@@ -187,12 +188,14 @@
                 android:layout_width="100dp"
                 android:layout_height="50dp"
                 android:layout_marginStart="50dp"
+                android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
                 android:contentDescription="@string/img_desc_moh_logo"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/iv_logo_digit"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_cancel"
                 app:srcCompat="@drawable/logo_img_moh" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>

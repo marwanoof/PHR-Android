@@ -43,7 +43,7 @@
         android:textDirection="locale"
         android:textSize="14sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toStartOf="@id/imageView5"
+        app:layout_constraintEnd_toStartOf="@id/img_patientClassIcon"
         app:layout_constraintStart_toEndOf="@+id/v_date_holder"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -94,5 +94,15 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_arrow_right" />
+
+    <ImageView
+        android:id="@+id/img_patientClassIcon"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/imageView5"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:srcCompat="@tools:sample/avatars" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

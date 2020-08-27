@@ -72,7 +72,7 @@ public class OrderLabRecyclerViewAdapter extends RecyclerView.Adapter<OrderLabRe
         //holder.tvStatus.setText(orderObj.getStatus());
         LabResultDetailsFragment.newInstance(orderObj);
         Date date = new Date(orderObj.getOrderDate());
-        SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yyyy");
+        SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yyyy hh:mm");
         String dateText = df2.format(date);
         holder.tvOrderDate.setText(dateText);
         holder.tvEstName.setText(orderObj.getEstName());

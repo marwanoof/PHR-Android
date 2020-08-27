@@ -1,0 +1,45 @@
+package om.gov.moh.phr.apimodels;
+
+import android.content.Intent;
+
+import com.google.gson.annotations.SerializedName;
+
+import java.util.ArrayList;
+
+public class ApiRelationMaster {
+    @SerializedName("result")
+    ArrayList<RelationMast> result = new ArrayList<>();
+
+    public ArrayList<RelationMast> getResult() {
+        return result;
+    }
+    public class RelationMast {
+        @SerializedName("relationCode")
+        private Integer relationCode;
+
+        @SerializedName("relationName")
+        private String relationName;
+
+        @SerializedName("relationNameNls")
+        private String relationNameNls;
+
+        @SerializedName("activeYn")
+        private String activeYn;
+
+        public Integer getRelationCode() {
+            return relationCode;
+        }
+
+        public String getRelationName() {
+            return relationName;
+        }
+
+        public String getRelationNameNls() {
+            return relationNameNls;
+        }
+
+        public String getActiveYn() {
+            return activeYn;
+        }
+    }
+}

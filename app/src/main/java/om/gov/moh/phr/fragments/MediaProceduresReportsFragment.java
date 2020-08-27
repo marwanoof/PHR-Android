@@ -201,7 +201,11 @@ public class MediaProceduresReportsFragment extends Fragment implements SearchVi
                 = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
         DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(rvProceduresReportsList.getContext(),
                 layoutManager.getOrientation());
-        rvProceduresReportsList.addItemDecoration(mDividerItemDecoration);
+
+        if (getmResult.size() > 1){
+            rvProceduresReportsList.addItemDecoration(mDividerItemDecoration);
+        }
+
         rvProceduresReportsList.setLayoutManager(layoutManager);
         rvProceduresReportsList.setItemAnimator(new DefaultItemAnimator());
         rvProceduresReportsList.setAdapter(mAdapter);

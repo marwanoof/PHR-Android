@@ -7,6 +7,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
+import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -84,6 +85,7 @@ public class ProceduresReportsFragment extends Fragment implements SearchView.On
     private ApiEncountersHolder.Encounter encounterInfo;
     private SwipeRefreshLayout swipeRefreshLayout;
     private View view;
+    private CardView cardView;
 
     public ProceduresReportsFragment() {
         // Required empty public constructor
@@ -131,6 +133,7 @@ public class ProceduresReportsFragment extends Fragment implements SearchView.On
         mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
         mProgressDialog = new MyProgressDialog(mContext);
         tvAlert = view.findViewById(R.id.tv_alert);
+        cardView = view.findViewById(R.id.cardView_proc_report);
         rvProceduresReportsList = view.findViewById(R.id.rv_reportsList);
         SearchView searchView = (SearchView) view.findViewById(R.id.sv_searchView);
         searchView.setOnQueryTextListener(this);
@@ -177,6 +180,7 @@ public class ProceduresReportsFragment extends Fragment implements SearchView.On
     }
 
     private void displayAlert(String msg) {
+        cardView.setVisibility(View.GONE);
         rvProceduresReportsList.setVisibility(View.GONE);
         tvAlert.setVisibility(View.VISIBLE);
         tvAlert.setText(msg);
@@ -258,7 +262,9 @@ public class ProceduresReportsFragment extends Fragment implements SearchView.On
         mAdapter = new ProceduresReportsRecyclerView(mMediatorCallback, getmResult, mContext, false);
         LinearLayoutManager layoutManager
                 = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
-
+        DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(rvProceduresReportsList.getContext(),
+                layoutManager.getOrientation());
+        rvProceduresReportsList.addItemDecoration(mDividerItemDecoration);
         rvProceduresReportsList.setLayoutManager(layoutManager);
         rvProceduresReportsList.setItemAnimator(new DefaultItemAnimator());
         rvProceduresReportsList.setAdapter(mAdapter);

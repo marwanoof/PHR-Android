@@ -7,6 +7,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
+import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -71,6 +72,7 @@ public class ProviderDocumentsFragment extends Fragment implements SearchView.On
     private OtherDocsRecyclerViewAdapter mAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
     private View view;
+    private CardView cardView;
 
     public ProviderDocumentsFragment() {
         // Required empty public constructor
@@ -104,6 +106,7 @@ public class ProviderDocumentsFragment extends Fragment implements SearchView.On
             mProgressDialog = new MyProgressDialog(mContext);
             tvAlert = view.findViewById(R.id.tv_alert);
             rvOtherDocsList = view.findViewById(R.id.rv_DocsList);
+            cardView = view.findViewById(R.id.cardView_other_document);
             swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
 
             if (mMediatorCallback.isConnected()) {
@@ -133,6 +136,7 @@ public class ProviderDocumentsFragment extends Fragment implements SearchView.On
     }
 
     private void displayAlert(String msg) {
+        cardView.setVisibility(View.GONE);
         rvOtherDocsList.setVisibility(View.GONE);
         tvAlert.setVisibility(View.VISIBLE);
         tvAlert.setText(msg);

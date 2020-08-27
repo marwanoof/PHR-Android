@@ -13,6 +13,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
@@ -120,6 +122,7 @@ public class LoginFragment extends Fragment {
     private MediatorInterface mMediatorCallback;
     private ToolbarControllerInterface mToolbarCallback;
     private TextView tvCancel;
+    private ConstraintLayout constraintLayout;
 // Implement this interface in your Activity.
 
     public interface OnCallbackReceived {
@@ -165,6 +168,7 @@ public class LoginFragment extends Fragment {
         mProgressDialog = new MyProgressDialog(mContext);// initializes progress dialog
         mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, getSocketFactory())); // initializes mQueue : we need to use  Volley.newRequestQueue(this, new HurlStack(null, getSocketFactory())) because we need to connect the app to secure server "https".
 
+        constraintLayout = parentView.findViewById(R.id.constraintLayout_login);
         tietCivilId = parentView.findViewById(R.id.tiet_civil_id);
         tilOTP = parentView.findViewById(R.id.til_otp);
         tietOTP = parentView.findViewById(R.id.tiet_otp);
@@ -175,6 +179,11 @@ public class LoginFragment extends Fragment {
         tvCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                tietOTP.setText("");
+                tietCivilId.setText("");
+                tilOTP.setVisibility(View.GONE);
+                btnGetOTP.setVisibility(View.VISIBLE);
+                btnLogin.setVisibility(View.INVISIBLE);
 
             }
         });
@@ -307,6 +316,12 @@ public class LoginFragment extends Fragment {
             tilOTP.setVisibility(View.VISIBLE);
             btnLogin.setVisibility(View.VISIBLE);
             btnGetOTP.setVisibility(View.INVISIBLE);
+
+            //change constraint of cancel
+            ConstraintSet constraintSet = new ConstraintSet();
+            constraintSet.clone(constraintLayout);
+            constraintSet.connect(R.id.tv_cancel,ConstraintSet.TOP,R.id.btn_login,ConstraintSet.BOTTOM,0);
+            constraintSet.applyTo(constraintLayout);
         }
 
     }

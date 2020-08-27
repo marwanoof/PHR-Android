@@ -7,6 +7,19 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
+        <item name="android:textViewStyle">@style/SkyTextViewStyle</item>
+<!--        <item name="android:button">@style/SkyBottonStyle</item>-->
+    </style>
+
+    <style name="SkyTextViewStyle" parent="android:Widget.TextView">
+        <item name="android:fontFamily">@font/sky</item>
+    </style>
+
+    <style name="SkyBottonStyle" parent="android:Widget.Button">
+        <item name="android:fontFamily">@font/sky</item>
+    </style>
+    <style name="SkyFont" parent="android:Widget.Toolbar.Button.Navigation">
+        <item name="android:fontFamily">@font/sky</item>
     </style>
 
 
@@ -14,6 +27,9 @@
         <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:textViewStyle">@style/SkyTextViewStyle</item>
+<!--        <item name="android:button">@style/SkyBottonStyle</item>-->
+        <item name="android:negativeButtonText">@style/SkyFont</item>
     </style>
 
 

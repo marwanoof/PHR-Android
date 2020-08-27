@@ -94,6 +94,7 @@ import javax.net.ssl.TrustManagerFactory;
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.apimodels.AccessToken;
 import om.gov.moh.phr.fragments.ChatMessagesFragment;
+import om.gov.moh.phr.fragments.DemographicsFragment;
 import om.gov.moh.phr.fragments.FeedbackFragment;
 import om.gov.moh.phr.fragments.HomeFragment;
 import om.gov.moh.phr.fragments.LoginFragment;
@@ -1199,6 +1200,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
             logout();
         else {
             finish();
+            //changeFragmentTo(DemographicsFragment.newInstance(),DemographicsFragment.class.getSimpleName());
             Intent ParentHome = new Intent(MainActivity.this, MainActivity.class);
             startActivity(ParentHome);
         }

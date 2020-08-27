@@ -3,6 +3,7 @@ package om.gov.moh.phr.fragments;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -68,6 +69,7 @@ import om.gov.moh.phr.models.ChatsModels;
 import om.gov.moh.phr.models.MyProgressDialog;
 import om.gov.moh.phr.models.MyVital;
 import om.gov.moh.phr.models.Pagination;
+
 
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
 import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
@@ -501,6 +503,7 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
 
     private ArrayList<Pagination> getPaginationArrayList() {
 
+
         ArrayList<Pagination> paginationArrayList = new ArrayList<>();
         if (mContext != null && isAdded()) {
             paginationArrayList.add(new Pagination(
@@ -576,6 +579,8 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
                     getString(R.string.title_organ),
                     OrganDonationFragment.newInstance(),
                     OrganDonationFragment.class.getSimpleName()));
+
+
         }
         return paginationArrayList;
     }

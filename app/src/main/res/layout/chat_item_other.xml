@@ -9,15 +9,15 @@
         android:id="@+id/message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:background="@drawable/bg_bubble_white"
+        android:fontFamily="@font/roboto_regular"
         android:paddingStart="@dimen/space_16"
         android:paddingEnd="@dimen/space_16"
-        android:fontFamily="@font/roboto_regular"
-        android:textColor="@color/colorLiteBlack"
+        android:textColor="#FFFFFF"
         android:textIsSelectable="true"
-        android:background="@drawable/bg_bubble_white"
-        android:textSize="@dimen/text_size_16sp" />
+        android:textSize="@dimen/text_size_16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/timestamp"

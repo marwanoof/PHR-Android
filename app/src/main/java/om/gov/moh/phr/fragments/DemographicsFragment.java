@@ -70,7 +70,14 @@ public class DemographicsFragment extends Fragment {
     private TextView tvNoDependents;
     private ScrollView scrollView;
 
+    public static DemographicsFragment newInstance() {
 
+        Bundle args = new Bundle();
+
+        DemographicsFragment fragment = new DemographicsFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
     public static DemographicsFragment newInstance(ApiDemographicsHolder.ApiDemographicItem apiDemographicItem) {
         DemographicsFragment fragment = new DemographicsFragment();
         Bundle args = new Bundle();

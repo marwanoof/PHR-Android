@@ -4,13 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorBackground"
     tools:context=".fragments.ChatMessagesFragment">
 
     <include
         android:id="@+id/include"
         layout="@layout/toolbar_simple"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="56dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -19,44 +20,48 @@
         android:id="@+id/rv_chat_room"
         android:layout_width="@dimen/space_0"
         android:layout_height="@dimen/space_0"
+        android:layout_marginTop="8dp"
         app:layout_constraintBottom_toTopOf="@+id/et_message"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/include" />
+
     <View
         android:id="@+id/view"
         android:layout_width="@dimen/space_0"
         android:layout_height="@dimen/space_0"
-        app:layout_constraintTop_toTopOf="@id/et_message"
-        app:layout_constraintBottom_toBottomOf="@id/et_message"
-        android:background="@drawable/bg_send_chat"
-        app:layout_constraintStart_toStartOf="parent"
         android:layout_margin="@dimen/space_4"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        android:background="@drawable/bg_send_chat"
+        app:layout_constraintBottom_toBottomOf="@id/et_message"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/et_message" />
 
 
-        <EditText
-            android:id="@+id/et_message"
-            android:layout_width="@dimen/space_0"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/space_10"
-           android:paddingStart="@dimen/space_24"
-            android:background="@null"
-            android:textColor="@color/colorBlack"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/iv_send"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:inputType="textMultiLine|textLongMessage"
-            android:fontFamily="@font/roboto_regular"
-            android:hint="@string/enter_msg_chat"/>
+    <EditText
+        android:id="@+id/et_message"
+        android:layout_width="@dimen/space_0"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:background="@null"
+        android:fontFamily="@font/roboto_regular"
+        android:hint="@string/enter_msg_chat"
+        android:inputType="textMultiLine|textLongMessage"
+        android:padding="@dimen/space_10"
+        android:paddingStart="@dimen/space_24"
+        android:textColor="@color/colorBlack"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/iv_send"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <ImageView
         android:id="@+id/iv_send"
         android:layout_width="@dimen/space_24"
         android:layout_height="@dimen/space_24"
-        android:background="@drawable/ic_send"
-        app:layout_constraintEnd_toEndOf="@id/view"
         android:layout_margin="@dimen/space_10"
-        app:layout_constraintTop_toTopOf="@id/view"
-        app:layout_constraintBottom_toBottomOf="@id/view" />
+        android:background="@drawable/ic_send_chat"
+        app:layout_constraintBottom_toBottomOf="@id/view"
+        app:layout_constraintEnd_toEndOf="@id/view"
+        app:layout_constraintTop_toTopOf="@id/view" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

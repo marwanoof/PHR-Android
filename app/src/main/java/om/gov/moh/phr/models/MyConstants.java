@@ -20,6 +20,7 @@ public class MyConstants {
     public static final String IMAGE_EXTENSION = "jpg";
     //api
     public static final String API_NEHR_URL = "https://5.162.223.156/nehrapi/";
+    public static final String API_MSHIFA_URL = "https://mshifa.moh.gov.om/nehrapi/";
     public static final String API_NEHR_HEALTH_NET_URL = "http://nehr-app-gw.healthnet.gov.om/nehrapi/";
 
     public static final String API_URL_LOCAL = "https://5.162.223.156/phrapi/"; // "http://10.99.9.36:9000/phrapi/"; //

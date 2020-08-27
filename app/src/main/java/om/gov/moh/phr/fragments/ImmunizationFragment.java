@@ -112,15 +112,15 @@ public class ImmunizationFragment extends Fragment implements SearchView.OnQuery
 
         TextView tvTitle = view.findViewById(R.id.tv_Title);
         tvTitle.setText(getResources().getString(R.string.title_immunization));
-        tvTitle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (isFromNotifications)
-                    mMediatorCallback.changeFragmentTo(NotificationsFragment.newInstance(), NotificationsFragment.class.getSimpleName());
-                else
-                    mToolbarControllerCallback.customToolbarBackButtonClicked();
-            }
-        });
+//        tvTitle.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if (isFromNotifications)
+//                    mMediatorCallback.changeFragmentTo(NotificationsFragment.newInstance(), NotificationsFragment.class.getSimpleName());
+//                else
+//                    mToolbarControllerCallback.customToolbarBackButtonClicked();
+//            }
+//        });
         mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
         mProgressDialog = new MyProgressDialog(mContext);
         tvAlert = view.findViewById(R.id.tv_alert);
@@ -221,7 +221,7 @@ public class ImmunizationFragment extends Fragment implements SearchView.OnQuery
                 = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
         DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(rvImmunizationList.getContext(),
                 layoutManager.getOrientation());
-        rvImmunizationList.addItemDecoration(mDividerItemDecoration);
+        //rvImmunizationList.addItemDecoration(mDividerItemDecoration);
         rvImmunizationList.setLayoutManager(layoutManager);
         rvImmunizationList.setItemAnimator(new DefaultItemAnimator());
         rvImmunizationList.setAdapter(mAdapter);

@@ -40,7 +40,7 @@ public class OtherDocsRecyclerViewAdapter extends RecyclerView.Adapter<OtherDocs
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.list_item_procedures, parent, false);
+                .inflate(R.layout.list_item_documents, parent, false);
         return new MyViewHolder(itemView);
     }
 
@@ -82,11 +82,11 @@ public class OtherDocsRecyclerViewAdapter extends RecyclerView.Adapter<OtherDocs
 
         public MyViewHolder(View view) {
             super(view);
-            tvDocType = view.findViewById(R.id.tv_name_proc);
-            tvDosage = view.findViewById(R.id.tv_hospital_proc);
-            tvDateWritten = view.findViewById(R.id.tv_date_proc);
+            tvDocType = view.findViewById(R.id.tv_title_docs);
+            tvDosage = view.findViewById(R.id.tv_hospital_docs);
+            tvDateWritten = view.findViewById(R.id.tv_date_docs);
 
-            clOrderItem = view.findViewById(R.id.constraintLayout_proc);
+            clOrderItem = view.findViewById(R.id.constraintLayout_documents);
             //imageButton = view.findViewById(R.id.imageButton);
         }
     }

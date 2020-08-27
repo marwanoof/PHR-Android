@@ -98,7 +98,13 @@ public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         tvTitle.setText(getResources().getString(R.string.chat_messages_title));
         tvTitle.setGravity(Gravity.CENTER);
         ImageButton ibBack = view.findViewById(R.id.ib_toolbar_back_button);
-        ibBack.setVisibility(View.GONE);
+        //ibBack.setVisibility(View.GONE);
+        ibBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mToolbarControllerCallback.customToolbarBackButtonClicked();
+            }
+        });
         rvChatMessages = view.findViewById(R.id.rv_chat_messages);
         mProgressDialog = new MyProgressDialog(mContext);
         mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
@@ -182,7 +188,7 @@ public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                 = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
         DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(rvChatMessages.getContext(),
                 layoutManager.getOrientation());
-        rvChatMessages.addItemDecoration(mDividerItemDecoration);
+        //rvChatMessages.addItemDecoration(mDividerItemDecoration);
         rvChatMessages.setLayoutManager(layoutManager);
         rvChatMessages.setItemAnimator(new DefaultItemAnimator());
         rvChatMessages.setAdapter(mAdapter);

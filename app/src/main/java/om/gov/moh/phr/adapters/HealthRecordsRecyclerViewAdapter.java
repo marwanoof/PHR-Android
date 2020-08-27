@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -14,9 +15,11 @@ import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Calendar;
+import java.util.Locale;
 
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.apimodels.ApiEncountersHolder;
+import om.gov.moh.phr.apimodels.ApiLabOrdersListHolder;
 import om.gov.moh.phr.fragments.HealthRecordDetailsFragment;
 import om.gov.moh.phr.fragments.HealthRecordListFragment;
 import om.gov.moh.phr.interfaces.AdapterToFragmentConnectorInterface;
@@ -71,6 +74,21 @@ public class HealthRecordsRecyclerViewAdapter extends ListAdapter<ApiEncountersH
         String sub1 = result.getPatientClass() + " | " + result.getEstShortName();
         holder.tvSub1.setText(sub1);
 
+        switch (result.getPatientClass()){
+            case "outpatient":
+                holder.patientClass.setImageDrawable(mContxt.getResources().getDrawable(R.drawable.ic_outpatient));
+                break;
+            case "emergency":
+                holder.patientClass.setImageDrawable(mContxt.getResources().getDrawable(R.drawable.ic_emergency));
+                break;
+            case "inpatient":
+                holder.patientClass.setImageDrawable(mContxt.getResources().getDrawable(R.drawable.ic_inpatient));
+                break;
+            default:
+                holder.patientClass.setImageDrawable(null);
+                break;
+        }
+
         String sub2;
         if (result.getDiagnosisArrayList().size() == 0 || result.getDiagnosisArrayList().get(0) == null) {
             sub2 = "";
@@ -116,6 +134,7 @@ public class HealthRecordsRecyclerViewAdapter extends ListAdapter<ApiEncountersH
         private final TextView tvMonth;
         private final TextView tvDay;
         private final View dateView;
+        private final ImageView patientClass;
         private int grayColor = mContxt.getResources().getColor(R.color.colorSecendary);
         private int redColor = mContxt.getResources().getColor(R.color.colorPrimary);
 
@@ -132,6 +151,7 @@ public class HealthRecordsRecyclerViewAdapter extends ListAdapter<ApiEncountersH
             tvMonth = itemView.findViewById(R.id.tv_month);
             tvDay = itemView.findViewById(R.id.tv_day);
             dateView = itemView.findViewById(R.id.v_date_holder);
+            patientClass = itemView.findViewById(R.id.img_patientClassIcon);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -143,4 +163,20 @@ public class HealthRecordsRecyclerViewAdapter extends ListAdapter<ApiEncountersH
             });
         }
     }
+    /*public void filter(String charText) {
+
+        this.arraylist.addAll(ApiEncountersHolder.Encounter);
+        charText = charText.toLowerCase(Locale.getDefault());
+        labOrdersArrayList.clear();
+        if (charText.length() == 0) {
+            labOrdersArrayList.addAll(arraylist);
+        } else {
+            for (ApiLabOrdersListHolder.ApiOredresList wp : arraylist) {
+                if (wp.getProcName().toLowerCase(Locale.getDefault()).contains(charText)) {
+                    labOrdersArrayList.add(wp);
+                }
+            }
+        }
+        notifyDataSetChanged();
+    }*/
 }

@@ -5,7 +5,7 @@
     android:id="@+id/tb_toolbar_simple"
     android:layout_width="match_parent"
     android:layout_height="@dimen/space_56"
-    android:background="@color/colorGray"
+    android:background="#FFFFFF"
     android:contentInsetStart="@dimen/space_0"
     android:contentInsetLeft="@dimen/space_0"
     android:contentInsetEnd="@dimen/space_0"
@@ -26,7 +26,7 @@
             android:id="@+id/ib_toolbar_back_button"
             android:layout_width="@dimen/space_40"
             android:layout_height="@dimen/space_40"
-            android:backgroundTint="@color/colorStatusBar"
+            android:backgroundTint="#FFFFFF"
             android:contentDescription="@string/img_desc_back_icon"
             android:tint="@color/colorRed"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -46,15 +46,24 @@
             app:layout_constraintStart_toEndOf="@+id/ib_toolbar_back_button"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <View
+            android:id="@+id/view13"
+            android:layout_width="wrap_content"
+            android:layout_height="1dp"
+            android:background="#ECEBEB"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
         <LinearLayout
             android:layout_width="@dimen/space_0"
             android:layout_height="wrap_content"
+            android:weightSum="2"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintEnd_toStartOf="@id/addDoc"
             app:layout_constraintStart_toEndOf="@id/tv_toolbar_title"
-            app:layout_constraintTop_toTopOf="parent"
-            android:weightSum="2">
+            app:layout_constraintTop_toTopOf="parent">
 
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/tabs"

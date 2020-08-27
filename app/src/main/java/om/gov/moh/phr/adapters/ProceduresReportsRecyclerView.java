@@ -2,6 +2,8 @@ package om.gov.moh.phr.adapters;
 
 import android.content.Context;
 import android.graphics.Typeface;
+import android.os.Build;
+import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
@@ -54,35 +57,43 @@ public class ProceduresReportsRecyclerView extends RecyclerView.Adapter<Procedur
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.list_item_procedures, parent, false);
+        if (isTrue){
+            itemView = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.list_item_procedures_details, parent, false);
+        }else {
+            itemView = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.list_item_procedures, parent, false);
+        }
+
         return new MyViewHolder(itemView);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, final int position) {
         if (isTrue) {
-            ViewGroup.LayoutParams layoutParams = holder.cardView.getLayoutParams();
-            layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-            holder.cardView.setLayoutParams(layoutParams);
+
             ProceduresReportsDetailsFragment.ReportData reportData = textReport.get(position);
-            holder.tvProcedureName.setTypeface(null,Typeface.NORMAL);
-            holder.tvProcedureName.setText(reportData.getReportText());
+            holder.tvContentDetails.setTypeface(null,Typeface.NORMAL);
+            holder.tvContentDetails.setJustificationMode(Layout.JUSTIFICATION_MODE_INTER_WORD);
+            holder.tvContentDetails.setText(reportData.getReportText());
 
             SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yyyy \n hh:mm:ss", Locale.US);
             if(reportData.getReportTime()==null)
-                holder.tvDateWritten.setVisibility(View.INVISIBLE);
+                holder.tvDateDetails.setVisibility(View.INVISIBLE);
             else {
                 String dateReport = df2.format(reportData.getReportTime());
-                holder.tvDateWritten.setText(dateReport);
+                holder.tvDateDetails.setText(dateReport);
             }
-            holder.tvEstName.setVisibility(View.INVISIBLE);
-            holder.moreDetailArrow.setVisibility(View.GONE);
-            //holder.tvEstName.setVisibility(View.INVISIBLE);
+//            holder.tvEstName.setVisibility(View.INVISIBLE);
+//            holder.moreDetailArrow.setVisibility(View.GONE);
+//            holder.tvEstName.setVisibility(View.INVISIBLE);
 
         } else {
             holder.moreDetailArrow.setVisibility(View.VISIBLE);
             ViewGroup.LayoutParams layoutParams = holder.cardView.getLayoutParams();
             layoutParams.height = 150;
-            holder.cardView.setLayoutParams(layoutParams);
+            //holder.cardView.setLayoutParams(layoutParams);
             final ApiProceduresReportsHolder procedureObj = proceduresReportArrayList.get(position);
             if (isRad) {
                 holder.tvProcedureName.setText(procedureObj.getProcName());
@@ -110,13 +121,13 @@ public class ProceduresReportsRecyclerView extends RecyclerView.Adapter<Procedur
                         mediatorInterface.changeFragmentTo(ProceduresReportsDetailsFragment.newInstance(procedureObj), procedureObj.getName());
                 }
             });
-            if (row_index == position) {
-
-                holder.clOrderItem.setBackgroundColor(context.getResources().getColor(R.color.colorPeach));
-            } else {
-
-                holder.clOrderItem.setBackgroundColor(context.getResources().getColor(R.color.colorWhite));
-            }
+//            if (row_index == position) {
+//
+//                holder.clOrderItem.setBackgroundColor(context.getResources().getColor(R.color.colorPeach));
+//            } else {
+//
+//                holder.clOrderItem.setBackgroundColor(context.getResources().getColor(R.color.colorWhite));
+//            }
         }
     }
 
@@ -129,7 +140,7 @@ public class ProceduresReportsRecyclerView extends RecyclerView.Adapter<Procedur
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
-        TextView tvProcedureName, tvDosage, tvDateWritten, tvEstName;
+        TextView tvProcedureName, tvDosage, tvDateWritten, tvEstName, tvContentDetails, tvDateDetails;
         ConstraintLayout clOrderItem;
         ImageView moreDetailArrow;
         CardView cardView;
@@ -144,6 +155,8 @@ public class ProceduresReportsRecyclerView extends RecyclerView.Adapter<Procedur
             clOrderItem = view.findViewById(R.id.constraintLayout_proc);
             moreDetailArrow = view.findViewById(R.id.img_arrowDetails);
             cardView = view.findViewById(R.id.cardView_procContent);
+            tvContentDetails = view.findViewById(R.id.tv_content_proc_details);
+            tvDateDetails = view.findViewById(R.id.tv_date_proc_details);
         }
     }
 
