@@ -1,5 +1,6 @@
 package om.gov.moh.phr;
 
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -8,6 +9,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -183,11 +185,20 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
      */
     //FCM
     private void createChannelToShowNotifications(String title, String desc, String type, Map<String, String> data) {
+        Intent notifyIntent = new Intent(this, MainActivity.class);
+        notifyIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivities(this, 0,
+                new Intent[]{notifyIntent}, PendingIntent.FLAG_UPDATE_CURRENT);
+
         NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(this, getString(R.string.default_notification_channel_id))
                         // .setSmallIcon(R.drawable.appointments)
                         .setContentTitle(title)
-                        .setContentText(desc);
+                        .setContentText(desc)
+                        .setAutoCancel(true);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+            builder.setPriority(NotificationManager.IMPORTANCE_HIGH)
+                    .setContentIntent(pendingIntent);
         switch (type) {
             case "1":
                 builder.setSmallIcon(R.drawable.appointments);
@@ -200,27 +211,24 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 sendBroadcast(new Intent(getBody(data.get("body"), data.get("senderId"))));
                 break;
         }
-        // addBadge(type);
-        Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        Intent notificationIntent = new Intent(this, MainActivity.class);
-        Bundle bundle = new Bundle();
-        for (String key : data.keySet()) {
-            bundle.putString(key, data.get(key));
-        }
-        notificationIntent.putExtras(bundle);
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
-        builder.setSound(alarmSound);
-        builder.setContentIntent(contentIntent);
-        builder.setAutoCancel(true);
-        builder.setLights(Color.BLUE, 500, 500);
-        long[] pattern = {500, 500, 500, 500, 500, 500, 500, 500, 500};
-        builder.setVibrate(pattern);
-        builder.setStyle(new NotificationCompat.InboxStyle());
-// Add as notification
-        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        //notification.defaults |= Notification.DEFAULT_SOUND;
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         int m = (int) ((new Date().getTime() / 1000L) % Integer.MAX_VALUE);
-        manager.notify(m, builder.build());
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                NotificationChannel mChannel = new NotificationChannel(
+                        getResources().getString(R.string.default_notification_channel_id), getResources().getString(R.string.default_notification_channel_name), importance);
+                if (notificationManager != null) {
+                    notificationManager.createNotificationChannel(mChannel);
+                }
+                //builder.setChannelId(getResources().getString(R.string.ble_notification_channel_id));
+            }
+        }
+        notificationManager.notify(m, builder.build());
+
         sendBroadcast(new Intent(addBadge(type)));
     }
 

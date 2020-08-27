@@ -776,6 +776,7 @@ public class AppointmentNewFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
+        mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
     }
 
 
