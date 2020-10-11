@@ -11,7 +11,7 @@
 
     <include
         android:id="@+id/simple_toolbar"
-        layout="@layout/toolbar_custom"
+        layout="@layout/toolbar_simple"
         android:layout_width="0dp"
         android:layout_height="56dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -42,7 +42,7 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
-                android:text="I with below details express my wish to donate my organs after death to be implanted fo a patient in need."
+                android:text="@string/i_with_below_details_express_my_wish_to_donate_my_organs_after_death_to_be_implanted_fo_a_patient_in_need"
                 android:textAlignment="viewStart"
                 android:textColor="#000000"
                 android:textSize="12sp"
@@ -59,9 +59,11 @@
                 android:layout_marginEnd="8dp"
                 android:background="@drawable/edit_text_round"
                 android:ems="10"
-                android:hint="Mobile No."
+                android:maxLength="8"
+                android:hint="@string/enter_your_mobile_no"
                 android:inputType="phone"
                 android:paddingStart="8sp"
+                android:singleLine="true"
                 android:textSize="14sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -76,10 +78,12 @@
                 android:layout_marginEnd="8dp"
                 android:background="@drawable/edit_text_round"
                 android:ems="10"
-                android:hint="Email"
+                android:singleLine="true"
+                android:hint="@string/enter_your_email"
                 android:inputType="textEmailAddress"
                 android:paddingStart="8sp"
                 android:textSize="14sp"
+                android:maxLength="100"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/et_phone_organ" />
@@ -94,11 +98,12 @@
                 android:layout_marginBottom="8dp"
                 android:background="@drawable/edit_text_round"
                 android:ems="10"
-                android:hint="Name of the family member aware of your wish"
+                android:hint="@string/name_of_the_family_member_aware_of_your_wish"
                 android:inputType="textPersonName"
                 android:paddingStart="8sp"
-                android:textSize="8sp"
-                app:layout_constraintBottom_toBottomOf="parent"
+                android:textSize="@dimen/text_size_12sp"
+                android:maxLength="20"
+                android:singleLine="true"
                 app:layout_constraintEnd_toStartOf="@+id/et_releation_organ"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
@@ -109,14 +114,34 @@
                 android:layout_width="120dp"
                 android:layout_height="30dp"
                 android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
                 android:background="@drawable/edit_text_round"
                 android:paddingStart="10dp"
+                app:layout_constraintBottom_toBottomOf="@+id/et_nameFamily_organ"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/et_nameFamily_organ"
+                app:layout_constraintTop_toTopOf="@+id/et_nameFamily_organ" />
+            <EditText
+                android:id="@+id/et_mobileNo_family"
+                android:layout_width="0dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/edit_text_round"
+                android:ems="10"
+                android:hint="@string/mobile_no_of_the_family_member"
+                android:inputType="number"
+                android:paddingStart="8sp"
+                android:maxLength="8"
+                android:singleLine="true"
+                android:textSize="@dimen/text_size_12sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/et_nameFamily_organ" />
-
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/et_nameFamily_organ" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
@@ -145,15 +170,14 @@
                 android:layout_marginEnd="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/cl_kidneys"
-                tools:layout_editor_absoluteY="41dp">
+                app:layout_constraintTop_toBottomOf="@id/cl_kidneys">
 
                 <CheckBox
                     android:id="@+id/checkBox_liver"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layoutDirection="rtl"
-                    android:text="Liver"
+                    android:text="@string/liver"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -184,7 +208,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layoutDirection="rtl"
-                    android:text="Heart"
+                    android:text="@string/heart"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -215,7 +239,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layoutDirection="rtl"
-                    android:text="Lungs"
+                    android:text="@string/lungs"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -246,7 +270,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layoutDirection="rtl"
-                    android:text="Pancreas"
+                    android:text="@string/pancreas"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -279,7 +303,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layoutDirection="rtl"
-                    android:text="Corneas"
+                    android:text="@string/corneas"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -294,7 +318,7 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
                 android:layoutDirection="rtl"
-                android:text="All organs"
+                android:text="@string/all_organs"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -325,7 +349,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layoutDirection="rtl"
-                    android:text="Kidneys"
+                    android:text="@string/kidneys"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -349,7 +373,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
         android:layout_marginTop="20dp"
-        android:text="Organ donated"
+        android:text="@string/organ_donated"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/cardView5" />
 
@@ -371,7 +395,7 @@
             android:layout_marginEnd="8dp"
             android:layout_weight="1"
             android:background="@drawable/upload_btn"
-            android:text="Save"
+            android:text="@string/save"
             android:textColor="#FFFFFF" />
 
         <Button

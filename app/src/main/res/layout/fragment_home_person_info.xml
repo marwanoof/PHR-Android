@@ -5,13 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/colorGray">
+
     <ViewFlipper
         android:id="@+id/viewFlipper"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toTopOf="parent">
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
@@ -24,118 +25,7 @@
             app:cardBackgroundColor="@color/colorPrimary"
             app:cardCornerRadius="15dp"
             app:cardElevation="8dp">
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/depCardConstraint"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recycler_dep_home"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_marginStart="5dp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginEnd="5dp"
-                    android:layout_marginBottom="5dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </androidx.cardview.widget.CardView>
-
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="130dp"
-            android:layout_margin="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            app:cardBackgroundColor="@color/colorPrimary"
-            app:cardCornerRadius="15dp"
-            app:cardElevation="8dp">
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/infoCardConstraint"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <TextView
-                    android:id="@+id/tv_name_info"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginTop="15dp"
-                    android:text="Marwan Ahmed Ali Alsheryani"
-                    android:textColor="#FFFFFF"
-                    android:textStyle="bold"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginEnd="10dp"
-                    android:orientation="horizontal"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="@+id/linearLayout3"
-                    app:layout_constraintTop_toBottomOf="@+id/linearLayout3">
-
-                    <TextView
-                        android:id="@+id/tvAddress_info"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Ibri,Aldhahira,Oman"
-                        android:textColor="#FFFFFF" />
-
-                    <TextView
-                        android:id="@+id/tvPhone_info"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="end"
-                        android:text="96943493"
-                        android:textColor="#FFFFFF" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/linearLayout3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:orientation="horizontal"
-                    app:layout_constraintStart_toStartOf="@+id/tv_name_info"
-                    app:layout_constraintTop_toBottomOf="@+id/tv_name_info">
-
-                    <TextView
-                        android:id="@+id/tvGender_info"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Male"
-                        android:textColor="#FFFFFF" />
-
-                    <TextView
-                        android:id="@+id/tvNationality_info"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="50dp"
-                        android:text="Omani"
-                        android:textColor="#FFFFFF" />
-                </LinearLayout>
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </androidx.cardview.widget.CardView>
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="130dp"
-            android:layout_margin="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            app:cardBackgroundColor="@color/colorPrimary"
-            app:cardCornerRadius="15dp"
-            app:cardElevation="8dp">
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/mainCardConstraint"
                 android:layout_width="match_parent"
@@ -145,7 +35,6 @@
                     android:id="@+id/tv_patientid_main"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="226598"
                     android:textColor="#FFFFFF"
                     app:layout_constraintStart_toStartOf="@+id/tv_name_main"
                     app:layout_constraintTop_toBottomOf="@+id/tv_name_main" />
@@ -174,7 +63,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="15dp"
                     android:layout_marginTop="5dp"
-                    android:text="[ Marwawn Alsheryani ]"
                     android:textColor="#FFFFFF"
                     android:textStyle="bold"
                     app:layout_constraintStart_toEndOf="@+id/view6"
@@ -192,7 +80,7 @@
 
                     <LinearLayout
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="0dp"
                         android:layout_weight="1"
                         android:gravity="center_vertical"
                         android:orientation="horizontal">
@@ -211,7 +99,6 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="2dp"
                             android:layout_weight="1"
-                            android:text="28 years"
                             android:textColor="#FFFFFF"
                             android:textSize="10sp" />
                     </LinearLayout>
@@ -236,7 +123,6 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="2dp"
                             android:layout_weight="1"
-                            android:text="O+"
                             android:textColor="#FFFFFF"
                             android:textSize="10sp" />
                     </LinearLayout>
@@ -264,7 +150,7 @@
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:layout_weight="1"
-                            app:srcCompat="@drawable/ic_weight" />
+                            app:srcCompat="@drawable/ic_height" />
 
                         <TextView
                             android:id="@+id/tvHeight_main"
@@ -272,7 +158,6 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="2dp"
                             android:layout_weight="1"
-                            android:text="58 kg"
                             android:textColor="#FFFFFF"
                             android:textSize="10sp" />
                     </LinearLayout>
@@ -289,7 +174,7 @@
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:layout_weight="1"
-                            app:srcCompat="@drawable/ic_height" />
+                            app:srcCompat="@drawable/ic_weight" />
 
                         <TextView
                             android:id="@+id/tvWeight_main"
@@ -297,12 +182,174 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="2dp"
                             android:layout_weight="1"
-                            android:text="167 cm"
                             android:textColor="#FFFFFF"
                             android:textSize="10sp" />
                     </LinearLayout>
                 </LinearLayout>
 
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="130dp"
+            android:layout_margin="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            app:cardBackgroundColor="@color/colorPrimary"
+            app:cardCornerRadius="15dp"
+            app:cardElevation="8dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/infoCardConstraint"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/tv_name_info"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="15dp"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/tvAddress_info"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="start"
+                        android:textColor="#FFFFFF"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginEnd="10dp"
+                        android:layout_marginStart="10dp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/linearLayout3"/>
+
+                    <TextView
+                        android:id="@+id/tvPhone_info"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="end"
+                        android:drawableStart="@drawable/ic_phone"
+                        android:textColor="#FFFFFF"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginEnd="10dp"
+                        android:layout_marginStart="10dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/linearLayout3"/>
+
+                <LinearLayout
+                    android:id="@+id/linearLayout3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="horizontal"
+                    app:layout_constraintStart_toStartOf="@+id/tv_name_info"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_name_info">
+
+                    <TextView
+                        android:id="@+id/tvGender_info"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#FFFFFF" />
+
+                    <TextView
+                        android:id="@+id/tvNationality_info"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="50dp"
+                        android:textColor="#FFFFFF" />
+                </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="130dp"
+            android:layout_margin="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            app:cardBackgroundColor="@color/colorPrimary"
+            app:cardCornerRadius="15dp"
+            app:cardElevation="8dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/depCardConstraint"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/tvDependents"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/space_4"
+                    android:text="@string/title_dependents"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/text_size_14sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tvFirstDependent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/space_10"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/text_size_12sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tvDependents" />
+
+                <ImageView
+                    android:id="@+id/ivFirstDepArrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/space_24"
+                    android:background="@drawable/ic_keyboard_arrow_next"
+                    android:backgroundTint="@android:color/white"
+                    android:padding="@dimen/space_8"
+                    app:layout_constraintBottom_toBottomOf="@id/tvFirstDependent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/tvFirstDependent" />
+
+                <View
+                    android:id="@+id/divider"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/space_1"
+                    android:layout_marginStart="@dimen/space_10"
+                    android:layout_marginTop="@dimen/space_4"
+                    android:layout_marginEnd="@dimen/space_10"
+                    android:layout_marginBottom="@dimen/space_4"
+                    android:background="@android:color/white"
+                    app:layout_constraintTop_toBottomOf="@id/tvFirstDependent" />
+
+                <TextView
+                    android:id="@+id/tvSecondDependent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/space_10"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/text_size_12sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/divider" />
+
+                <ImageView
+                    android:id="@+id/ivSecondDepArrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/space_24"
+                    android:background="@drawable/ic_keyboard_arrow_next"
+                    android:backgroundTint="@android:color/white"
+                    android:padding="@dimen/space_8"
+                    app:layout_constraintBottom_toBottomOf="@id/tvSecondDependent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/tvSecondDependent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
     </ViewFlipper>

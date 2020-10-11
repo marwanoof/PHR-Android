@@ -211,7 +211,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 sendBroadcast(new Intent(getBody(data.get("body"), data.get("senderId"))));
                 break;
         }
-
+        Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        builder.setSound(alarmSound);
+        builder.setDefaults(NotificationCompat.DEFAULT_SOUND);
         //notification.defaults |= Notification.DEFAULT_SOUND;
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -224,7 +226,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 if (notificationManager != null) {
                     notificationManager.createNotificationChannel(mChannel);
                 }
-                //builder.setChannelId(getResources().getString(R.string.ble_notification_channel_id));
+                builder.setChannelId(getResources().getString(R.string.default_notification_channel_id));
             }
         }
         notificationManager.notify(m, builder.build());

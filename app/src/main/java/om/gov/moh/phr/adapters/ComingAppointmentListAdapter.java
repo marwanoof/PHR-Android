@@ -16,6 +16,7 @@ import java.util.ArrayList;
 
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.apimodels.ApiAppointmentsListHolder;
+import om.gov.moh.phr.apimodels.ApiHomeHolder;
 import om.gov.moh.phr.interfaces.AdapterToFragmentConnectorInterface;
 
 import static om.gov.moh.phr.models.MyConstants.ACTION_CANCEL;
@@ -24,11 +25,11 @@ import static om.gov.moh.phr.models.MyConstants.ACTION_RESCHEDULE;
 public class ComingAppointmentListAdapter extends RecyclerView.Adapter<ComingAppointmentListAdapter.MyViewHolder> {
 
 
-    private ArrayList<String> mItemsArrayList = new ArrayList<>();
+    private ArrayList<ApiHomeHolder.ApiAppointments> mItemsArrayList = new ArrayList<>();
     private Context mContext;
 
     //the constructor of the LastRecordsRecyclerViewAdapter
-    public ComingAppointmentListAdapter(ArrayList<String> mItemsArrayList, Context context) {
+    public ComingAppointmentListAdapter(ArrayList<ApiHomeHolder.ApiAppointments> mItemsArrayList, Context context) {
         this.mContext = context;
         this.mItemsArrayList = mItemsArrayList;
     }
@@ -47,7 +48,7 @@ public class ComingAppointmentListAdapter extends RecyclerView.Adapter<ComingApp
     public void onBindViewHolder(@NonNull final ComingAppointmentListAdapter.MyViewHolder holder, int position) {
 
 
-        holder.tvTitle.setText(mItemsArrayList.get(position));
+        holder.tvTitle.setText(mItemsArrayList.get(position).getDescription()+" "+ mItemsArrayList.get(position).getEstName());
 
 
 

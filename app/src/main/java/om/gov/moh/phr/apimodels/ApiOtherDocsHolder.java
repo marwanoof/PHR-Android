@@ -6,6 +6,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class ApiOtherDocsHolder {
     @SerializedName("result")
@@ -15,7 +16,7 @@ public class ApiOtherDocsHolder {
         return mResult;
     }
 
-    public class ApiDocInfo implements Serializable {
+    public class ApiDocInfo implements Serializable, Comparable<ApiDocInfo> {
         @SerializedName("typeD")
         private String typeD;
 
@@ -41,6 +42,18 @@ public class ApiOtherDocsHolder {
         @SerializedName("title")
         private String title;
 
+        @SerializedName("encounterDate")
+        private long encounterDate;
+
+        @SerializedName("encounterId")
+        private String encounterId;
+
+        @SerializedName("patientClass")
+        private String patientClass;
+
+        @SerializedName("type")
+        private String type;
+
         public String getDocumentRefId() {
             return documentRefId;
         }
@@ -49,14 +62,14 @@ public class ApiOtherDocsHolder {
             if (TextUtils.isEmpty(typeD))
                 return "";
             else
-            return typeD;
+                return typeD;
         }
 
         public String getEstName() {
             if (TextUtils.isEmpty(estName))
                 return "";
             else
-            return estName;
+                return estName;
         }
 
         public String getTitle() {
@@ -67,11 +80,43 @@ public class ApiOtherDocsHolder {
             if (TextUtils.isEmpty(estFullname))
                 return "";
             else
-            return estFullname;
+                return estFullname;
         }
 
         public long getIndexed() {
             return indexed;
+        }
+
+        public long getEncounterDate() {
+            return encounterDate;
+        }
+
+        @Override
+        public int compareTo(ApiDocInfo apiDocInfo) {
+            Date date = new Date(getEncounterDate());
+            Date date1 = new Date(apiDocInfo.getEncounterDate());
+            return date.compareTo(date1);
+        }
+
+        public String getEncounterId() {
+            if (TextUtils.isEmpty(encounterId) || encounterId == null)
+                return "";
+            else
+                return encounterId;
+        }
+
+        public String getPatientClass() {
+            if (TextUtils.isEmpty(patientClass) || patientClass == null)
+                return "";
+            else
+                return patientClass;
+        }
+
+        public String getType() {
+            if (TextUtils.isEmpty(type) || type == null)
+                return "--";
+            else
+                return type;
         }
     }
 }

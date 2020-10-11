@@ -50,7 +50,7 @@ public class ApiEncountersHolder {
 
 
         public String getEncounterId() {
-            if (TextUtils.isEmpty(estFullname))
+            if (TextUtils.isEmpty(encounterId))
                 return "";
             else
                 return encounterId;

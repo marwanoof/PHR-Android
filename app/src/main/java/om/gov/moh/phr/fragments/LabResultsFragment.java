@@ -46,6 +46,8 @@ import om.gov.moh.phr.R;
 import om.gov.moh.phr.adapters.OrderLabRecyclerViewAdapter;
 import om.gov.moh.phr.apimodels.ApiEncountersHolder;
 import om.gov.moh.phr.apimodels.ApiLabOrdersListHolder;
+import om.gov.moh.phr.apimodels.ApiOtherDocsHolder;
+import om.gov.moh.phr.apimodels.ApiProceduresReportsHolder;
 import om.gov.moh.phr.interfaces.AdapterToFragmentConnectorInterface;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
@@ -64,6 +66,8 @@ public class LabResultsFragment extends Fragment implements SearchView.OnQueryTe
     private static final String API_URL_GET_LAB_ENCOUNTER_INFO = API_NEHR_URL + "labOrder/encounterId/";
     private static final String ARG_PARAM1 = "ARG_PARAM1";
     private static final String ARG_PARAM2 = "ARG_PARAM2";
+    private static final String ARG_PARAM3 = "ARG_PARAM3";
+    private static final String ARG_PARAM4 = "ARG_PARAM4";
     private RequestQueue mQueue;
     private MyProgressDialog mProgressDialog;
     private Context mContext;
@@ -74,6 +78,8 @@ public class LabResultsFragment extends Fragment implements SearchView.OnQueryTe
     private OrderLabRecyclerViewAdapter mAdapter;
     private boolean isRecent = false;
     private ApiEncountersHolder.Encounter encounterInfo;
+    private ApiOtherDocsHolder.ApiDocInfo docInfo;
+    private ApiProceduresReportsHolder procedureInfo;
     private String labResultsType;
     private SwipeRefreshLayout swipeRefreshLayout;
     private ApiLabOrdersListHolder responseHolder;
@@ -90,7 +96,13 @@ public class LabResultsFragment extends Fragment implements SearchView.OnQueryTe
         fragment.setArguments(args);
         return fragment;
     }
-
+    public static LabResultsFragment newInstance(ApiOtherDocsHolder.ApiDocInfo docInfo) {
+        LabResultsFragment fragment = new LabResultsFragment();
+        Bundle args = new Bundle();
+        args.putSerializable(ARG_PARAM3, docInfo);
+        fragment.setArguments(args);
+        return fragment;
+    }
     public static LabResultsFragment newInstance(ApiEncountersHolder.Encounter encounterObj) {
         LabResultsFragment fragment = new LabResultsFragment();
         Bundle args = new Bundle();
@@ -98,7 +110,13 @@ public class LabResultsFragment extends Fragment implements SearchView.OnQueryTe
         fragment.setArguments(args);
         return fragment;
     }
-
+    public static LabResultsFragment newInstance(ApiProceduresReportsHolder procedureObj) {
+        LabResultsFragment fragment = new LabResultsFragment();
+        Bundle args = new Bundle();
+        args.putSerializable(ARG_PARAM4, procedureObj);
+        fragment.setArguments(args);
+        return fragment;
+    }
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -117,6 +135,12 @@ public class LabResultsFragment extends Fragment implements SearchView.OnQueryTe
             }
             if (getArguments().getSerializable(ARG_PARAM2) != null)
                 encounterInfo = (ApiEncountersHolder.Encounter) getArguments().getSerializable(ARG_PARAM2);
+            if (getArguments().getSerializable(ARG_PARAM3) != null)
+                docInfo = (ApiOtherDocsHolder.ApiDocInfo) getArguments().getSerializable(ARG_PARAM3);
+            if (getArguments().getSerializable(ARG_PARAM3) != null)
+                docInfo = (ApiOtherDocsHolder.ApiDocInfo) getArguments().getSerializable(ARG_PARAM3);
+            if (getArguments().getSerializable(ARG_PARAM4) != null)
+                procedureInfo = (ApiProceduresReportsHolder) getArguments().getSerializable(ARG_PARAM4);
         }
     }
 
@@ -153,8 +177,14 @@ public class LabResultsFragment extends Fragment implements SearchView.OnQueryTe
                     getLabOrdersList(fullUrl);
                 }
 
-            } else {
+            } else if(encounterInfo!=null) {
                 String fullUrl = API_URL_GET_LAB_ENCOUNTER_INFO + encounterInfo.getEncounterId();
+                getLabOrdersList(fullUrl);
+            }else if(docInfo!=null) {
+                String fullUrl = API_URL_GET_LAB_ENCOUNTER_INFO + docInfo.getEncounterId();
+                getLabOrdersList(fullUrl);
+            }else {
+                String fullUrl = API_URL_GET_LAB_ENCOUNTER_INFO + procedureInfo.getEncounterId();
                 getLabOrdersList(fullUrl);
             }
             swipeRefreshLayout.setOnRefreshListener(this);
@@ -172,8 +202,14 @@ public class LabResultsFragment extends Fragment implements SearchView.OnQueryTe
                                                     String fullUrl = API_URL_GET_LAB_ORDERS_INFO + mMediatorCallback.getCurrentUser().getCivilId() + "?data=all";
                                                     getLabOrdersList(fullUrl);
                                                 }
-                                            } else {
+                                            } else if(encounterInfo!=null){
                                                 String fullUrl = API_URL_GET_LAB_ENCOUNTER_INFO + encounterInfo.getEncounterId();
+                                                getLabOrdersList(fullUrl);
+                                            }else if(docInfo!=null){
+                                                String fullUrl = API_URL_GET_LAB_ENCOUNTER_INFO + docInfo.getEncounterId();
+                                                getLabOrdersList(fullUrl);
+                                            }else {
+                                                String fullUrl = API_URL_GET_LAB_ENCOUNTER_INFO + procedureInfo.getEncounterId();
                                                 getLabOrdersList(fullUrl);
                                             }
                                         }
@@ -306,8 +342,14 @@ public class LabResultsFragment extends Fragment implements SearchView.OnQueryTe
                 String fullUrl = API_URL_GET_LAB_ORDERS_INFO + mMediatorCallback.getCurrentUser().getCivilId() + "?data=all";
                 getLabOrdersList(fullUrl);
             }
-        } else {
+        } else if(encounterInfo!=null){
             String fullUrl = API_URL_GET_LAB_ENCOUNTER_INFO + encounterInfo.getEncounterId();
+            getLabOrdersList(fullUrl);
+        }else if(docInfo!=null){
+            String fullUrl = API_URL_GET_LAB_ENCOUNTER_INFO + docInfo.getEncounterId();
+            getLabOrdersList(fullUrl);
+        }else {
+            String fullUrl = API_URL_GET_LAB_ENCOUNTER_INFO + procedureInfo.getEncounterId();
             getLabOrdersList(fullUrl);
         }
     }

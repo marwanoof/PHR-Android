@@ -24,6 +24,7 @@ import java.util.Locale;
 
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.apimodels.ApiProceduresReportsHolder;
+import om.gov.moh.phr.fragments.HealthRecordDetailsFragment;
 import om.gov.moh.phr.fragments.ProceduresReportsDetailsFragment;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 
@@ -35,7 +36,7 @@ public class ProceduresReportsRecyclerView extends RecyclerView.Adapter<Procedur
     private ArrayList<ProceduresReportsDetailsFragment.ReportData> textReport;
     private boolean isTrue;
     private boolean isRad;
-    private int row_index = -1;
+   // private int row_index = -1;
     public ProceduresReportsRecyclerView(ArrayList<ProceduresReportsDetailsFragment.ReportData> arrayList, Context mContext) {
         this.textReport = arrayList;
         this.context = mContext;
@@ -76,7 +77,6 @@ public class ProceduresReportsRecyclerView extends RecyclerView.Adapter<Procedur
             ProceduresReportsDetailsFragment.ReportData reportData = textReport.get(position);
             holder.tvContentDetails.setTypeface(null,Typeface.NORMAL);
             holder.tvContentDetails.setJustificationMode(Layout.JUSTIFICATION_MODE_INTER_WORD);
-            holder.tvContentDetails.setText(reportData.getReportText());
 
             SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yyyy \n hh:mm:ss", Locale.US);
             if(reportData.getReportTime()==null)
@@ -102,19 +102,46 @@ public class ProceduresReportsRecyclerView extends RecyclerView.Adapter<Procedur
                 String dateText = df2.format(date);
                 holder.tvDateWritten.setText(dateText);
                 holder.tvEstName.setText(procedureObj.getEstName());
+                holder.tvDate.setVisibility(View.GONE);
+                holder.ivMoreArrow.setVisibility(View.GONE);
+
             } else {
+
                 holder.tvProcedureName.setText(procedureObj.getName());
+                holder.tvEstName.setText(procedureObj.getEstName());
                 Date date = new Date(procedureObj.getStartTime());
                 SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yyyy");
                 String dateText = df2.format(date);
                 holder.tvDateWritten.setText(dateText);
-                holder.tvEstName.setText(procedureObj.getEstName());
+                if(procedureObj.getEncounterId()!=null) {
+                SimpleDateFormat dateFormatGroupedDate = new SimpleDateFormat("dd-MM-YYYY", Locale.ENGLISH);
+                long encounterDate = procedureObj.getEncounterDate();
+                if (position != 0) {
+                    int prev = position - 1;
+                    long prevEncounterDate = proceduresReportArrayList.get(prev).getEncounterDate();
+                    if (dateFormatGroupedDate.format(new Date(encounterDate)).equals(dateFormatGroupedDate.format(new Date(prevEncounterDate)))) {
+                        holder.tvDate.setVisibility(View.GONE);
+                        holder.ivMoreArrow.setVisibility(View.GONE);
+                    } else
+                        holder.tvDate.setText(context.getResources().getString(R.string.visit_date)+ ": " + dateFormatGroupedDate.format(new Date(encounterDate)));
+                } else
+                    holder.tvDate.setText(context.getResources().getString(R.string.visit_date)+ ": " +dateFormatGroupedDate.format(new Date(encounterDate)));
+                    holder.itemView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            mediatorInterface.changeFragmentTo(HealthRecordDetailsFragment.newInstance(procedureObj), procedureObj.getEstFullname());
+                        }
+                    });
+                }else {
+                    holder.tvDate.setVisibility(View.GONE);
+                    holder.ivMoreArrow.setVisibility(View.GONE);
+                }
             }
-            holder.clOrderItem.setOnClickListener(new View.OnClickListener() {
+            holder.cardView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    row_index = position;
-                    notifyDataSetChanged();
+                  //  row_index = position;
+                   // notifyDataSetChanged();
                     if (isRad)
                         mediatorInterface.changeFragmentTo(ProceduresReportsDetailsFragment.newInstance(procedureObj, "RAD"), procedureObj.getName());
                     else
@@ -140,10 +167,11 @@ public class ProceduresReportsRecyclerView extends RecyclerView.Adapter<Procedur
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
-        TextView tvProcedureName, tvDosage, tvDateWritten, tvEstName, tvContentDetails, tvDateDetails;
+        TextView tvProcedureName, tvDosage, tvDateWritten, tvEstName, tvContentDetails, tvDateDetails, tvDate;
         ConstraintLayout clOrderItem;
-        ImageView moreDetailArrow;
+        ImageView moreDetailArrow, ivMoreArrow;
         CardView cardView;
+
         //ImageButton imageButton;
 
         public MyViewHolder(View view) {
@@ -152,11 +180,12 @@ public class ProceduresReportsRecyclerView extends RecyclerView.Adapter<Procedur
 
             tvDateWritten = view.findViewById(R.id.tv_date_proc);
             tvEstName = view.findViewById(R.id.tv_hospital_proc);
-            clOrderItem = view.findViewById(R.id.constraintLayout_proc);
             moreDetailArrow = view.findViewById(R.id.img_arrowDetails);
             cardView = view.findViewById(R.id.cardView_procContent);
             tvContentDetails = view.findViewById(R.id.tv_content_proc_details);
             tvDateDetails = view.findViewById(R.id.tv_date_proc_details);
+            ivMoreArrow = view.findViewById(R.id.iv_moreArrow);
+            tvDate = view.findViewById(R.id.tvDate);
         }
     }
 

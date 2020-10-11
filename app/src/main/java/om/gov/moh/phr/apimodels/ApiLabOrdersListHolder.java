@@ -1,6 +1,7 @@
 package om.gov.moh.phr.apimodels;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -40,6 +41,13 @@ public class ApiLabOrdersListHolder {
 
         @SerializedName("orderedBy")
         private String orderedBy;
+
+        @SerializedName("encounterDate")
+        private Long encounterDate;
+
+        public Long getEncounterDate() {
+            return encounterDate;
+        }
 
         public String getOrderedBy() {
             return orderedBy;

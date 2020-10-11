@@ -32,8 +32,8 @@ public class OrderLabRecyclerViewAdapter extends RecyclerView.Adapter<OrderLabRe
     private Context context;
     private ArrayList<ApiLabOrdersListHolder.ApiOredresList> arraylist = new ArrayList<>();
     private MediatorInterface mediatorInterface;
-    private int row_index = -1;
-    private int clickCount = 0;
+   // private int row_index = -1;
+    //private int clickCount = 0;
 
     public OrderLabRecyclerViewAdapter(MediatorInterface mMediatorCallback, Context context) {
         this.context = context;
@@ -65,14 +65,34 @@ public class OrderLabRecyclerViewAdapter extends RecyclerView.Adapter<OrderLabRe
             case "completed":
                 holder.imageButton.setBackground(context.getResources().getDrawable(R.drawable.lab_complate));
                 break;
-            default:
-                holder.imageButton.setBackground(null);
+            case "rejected":
+                holder.imageButton.setBackground(context.getResources().getDrawable(R.drawable.ic_rejected));
                 break;
+            default:
+                holder.imageButton.setBackground(context.getResources().getDrawable(R.drawable.ic_requested));
+                break;
+        }
+        if(orderObj.getEncounterDate()!=null) {
+            long encounterDate = orderObj.getEncounterDate();
+            SimpleDateFormat dateFormatGroupedDate = new SimpleDateFormat("dd-MM-YYYY", Locale.ENGLISH);
+            if (position != 0) {
+                int prev = position - 1;
+                long prevEncounterDate = labOrdersArrayList.get(prev).getEncounterDate();
+                if (dateFormatGroupedDate.format(new Date(encounterDate)).equals(dateFormatGroupedDate.format(new Date(prevEncounterDate)))) {
+                    holder.tvDate.setVisibility(View.GONE);
+                } else {
+                    holder.tvDate.setVisibility(View.VISIBLE);
+                    holder.tvDate.setText(context.getResources().getString(R.string.visit_date) + ": " + dateFormatGroupedDate.format(new Date(encounterDate)));
+                }
+                } else {
+                holder.tvDate.setVisibility(View.VISIBLE);
+                holder.tvDate.setText(context.getResources().getString(R.string.visit_date) + ": " + dateFormatGroupedDate.format(new Date(encounterDate)));
+            }
         }
         //holder.tvStatus.setText(orderObj.getStatus());
         LabResultDetailsFragment.newInstance(orderObj);
         Date date = new Date(orderObj.getOrderDate());
-        SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yyyy hh:mm");
+        SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yyyy \n hh:mm");
         String dateText = df2.format(date);
         holder.tvOrderDate.setText(dateText);
         holder.tvEstName.setText(orderObj.getEstName());
@@ -81,8 +101,8 @@ public class OrderLabRecyclerViewAdapter extends RecyclerView.Adapter<OrderLabRe
             public void onClick(View v) {
 
 
-                row_index = position;
-                notifyDataSetChanged();
+              //  row_index = position;
+              //  notifyDataSetChanged();
                 mediatorInterface.changeFragmentTo(LabResultDetailsFragment.newInstance(orderObj), orderObj.getProcName());
             }
         });
@@ -99,7 +119,7 @@ public class OrderLabRecyclerViewAdapter extends RecyclerView.Adapter<OrderLabRe
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
-        TextView tvProcName, tvStatus, tvOrderDate, tvEstName;
+        TextView tvProcName, tvStatus, tvOrderDate, tvEstName, tvDate;
         ConstraintLayout clOrderItem;
         ImageButton imageButton;
         CardView labDetails_card;
@@ -112,6 +132,7 @@ public class OrderLabRecyclerViewAdapter extends RecyclerView.Adapter<OrderLabRe
             tvEstName = view.findViewById(R.id.tv_lab_desc);
             clOrderItem = view.findViewById(R.id.labResult_constraint);
             imageButton=view.findViewById(R.id.btn_lab_status);
+            tvDate = view.findViewById(R.id.tvDate);
 
         }
     }

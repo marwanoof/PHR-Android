@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TabHost;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -13,18 +14,22 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 import om.gov.moh.phr.R;
-import om.gov.moh.phr.models.ChatsModels;
+import om.gov.moh.phr.apimodels.ApiHomeHolder;
+import om.gov.moh.phr.fragments.ChatMessagesFragment;
+import om.gov.moh.phr.interfaces.MediatorInterface;
 
 public class MessageChatsAdapter extends RecyclerView.Adapter<MessageChatsAdapter.MyViewHolder> {
 
 
-    private ArrayList<ChatsModels> mItemsArrayList ;
+    private ArrayList<ApiHomeHolder.ApiChatMessages> mItemsArrayList;
     private Context mContext;
+    private MediatorInterface mediatorInterface;
 
     //the constructor of the LastRecordsRecyclerViewAdapter
-    public MessageChatsAdapter(ArrayList<ChatsModels> mItemsArrayList, Context context) {
+    public MessageChatsAdapter(MediatorInterface mMediatorCallback, ArrayList<ApiHomeHolder.ApiChatMessages> mItemsArrayList, Context context) {
         this.mContext = context;
         this.mItemsArrayList = mItemsArrayList;
+        this.mediatorInterface = mMediatorCallback;
     }
 
     //onCreateViewHolder allows you to inflate the "List items view"
@@ -38,14 +43,11 @@ public class MessageChatsAdapter extends RecyclerView.Adapter<MessageChatsAdapte
 
     //onBindViewHolder , allows you to write the data into the fields
     @Override
-    public void onBindViewHolder(@NonNull final MessageChatsAdapter.MyViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final MessageChatsAdapter.MyViewHolder holder, final int position) {
 
 
-        holder.tvTitle.setText(mItemsArrayList.get(position).getSender());
-        holder.tvDate.setText(mItemsArrayList.get(position).getDate());
-
-
-
+        holder.tvTitle.setText(mItemsArrayList.get(position).getCreatedName());
+        holder.tvDate.setText(mItemsArrayList.get(position).getCreatedDate());
     }
 
 
@@ -55,14 +57,10 @@ public class MessageChatsAdapter extends RecyclerView.Adapter<MessageChatsAdapte
     }
 
 
-
-
-
-
     public class MyViewHolder extends RecyclerView.ViewHolder {
 
 
-        private TextView tvTitle,tvDate;
+        private TextView tvTitle, tvDate;
 
 
         public MyViewHolder(View view) {

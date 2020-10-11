@@ -46,6 +46,8 @@ import om.gov.moh.phr.adapters.MedicationRecyclerViewAdapter;
 import om.gov.moh.phr.adapters.OrderLabRecyclerViewAdapter;
 import om.gov.moh.phr.apimodels.ApiEncountersHolder;
 import om.gov.moh.phr.apimodels.ApiMedicationHolder;
+import om.gov.moh.phr.apimodels.ApiOtherDocsHolder;
+import om.gov.moh.phr.apimodels.ApiProceduresReportsHolder;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
 import om.gov.moh.phr.models.MyProgressDialog;
@@ -63,6 +65,8 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
     private static final String API_URL_GET_MED_HRD_INFO = API_NEHR_URL + "medicationOrder/encounterId/";
     private static final String ARG_PARAM1 = "ARG_PARAM1";
     private static final String ARG_PARAM2 = "ARG_PARAM2";
+    private static final String ARG_PARAM3 = "ARG_PARAM3";
+    private static final String ARG_PARAM4 = "ARG_PARAM4";
     private RequestQueue mQueue;
     private MyProgressDialog mProgressDialog;
     private Context mContext;
@@ -74,6 +78,8 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
     private boolean isRecent = false;
     private String medicationType;
     private ApiEncountersHolder.Encounter encounterInfo;
+    private ApiOtherDocsHolder.ApiDocInfo docInfo;
+    private ApiProceduresReportsHolder procedureObj;
     private SwipeRefreshLayout swipeRefreshLayout;
 
     public MedicationFragment() {
@@ -87,11 +93,24 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
         fragment.setArguments(args);
         return fragment;
     }
-
+    public static MedicationFragment newInstance(ApiOtherDocsHolder.ApiDocInfo docInfo) {
+        MedicationFragment fragment = new MedicationFragment();
+        Bundle args = new Bundle();
+        args.putSerializable(ARG_PARAM3, docInfo);
+        fragment.setArguments(args);
+        return fragment;
+    }
     public static MedicationFragment newInstance(ApiEncountersHolder.Encounter encounterObj) {
         MedicationFragment fragment = new MedicationFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_PARAM2, encounterObj);
+        fragment.setArguments(args);
+        return fragment;
+    }
+    public static MedicationFragment newInstance(ApiProceduresReportsHolder procedureObj) {
+        MedicationFragment fragment = new MedicationFragment();
+        Bundle args = new Bundle();
+        args.putSerializable(ARG_PARAM4, procedureObj);
         fragment.setArguments(args);
         return fragment;
     }
@@ -114,6 +133,10 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
             }
             if (getArguments().getSerializable(ARG_PARAM2) != null)
                 encounterInfo = (ApiEncountersHolder.Encounter) getArguments().getSerializable(ARG_PARAM2);
+            if (getArguments().getSerializable(ARG_PARAM3) != null)
+                docInfo = (ApiOtherDocsHolder.ApiDocInfo) getArguments().getSerializable(ARG_PARAM3);
+            if (getArguments().getSerializable(ARG_PARAM4) != null)
+                procedureObj = (ApiProceduresReportsHolder) getArguments().getSerializable(ARG_PARAM4);
         }
     }
 
@@ -149,10 +172,15 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
                     getMedicationList(allMedicationUrl);
                 }
 
-            } else {
+            } else if(encounterInfo!=null){
                 String medHRDurl = API_URL_GET_MED_HRD_INFO + encounterInfo.getEncounterId();
                 getMedicationList(medHRDurl);
-
+            }else if(docInfo!=null){
+                String docUrl = API_URL_GET_MED_HRD_INFO + docInfo.getEncounterId();
+                getMedicationList(docUrl);
+            }else {
+                String procedureUrl = API_URL_GET_MED_HRD_INFO + procedureObj.getEncounterId();
+                getMedicationList(procedureUrl);
             }
             swipeRefreshLayout.setOnRefreshListener(this);
             swipeRefreshLayout.post(new Runnable() {
@@ -169,9 +197,15 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
                                                     String allMedicationUrl = API_URL_GET_MEDICATIONS_INFO + mMediatorCallback.getCurrentUser().getCivilId();
                                                     getMedicationList(allMedicationUrl);
                                                 }
-                                            } else {
+                                            } else if(encounterInfo!=null) {
                                                 String medHRDurl = API_URL_GET_MED_HRD_INFO + encounterInfo.getEncounterId();
                                                 getMedicationList(medHRDurl);
+                                            }else if(docInfo!=null) {
+                                                String docUrl = API_URL_GET_MED_HRD_INFO + docInfo.getEncounterId();
+                                                getMedicationList(docUrl);
+                                            }else {
+                                                String procedureUrl = API_URL_GET_MED_HRD_INFO + procedureObj.getEncounterId();
+                                                getMedicationList(procedureUrl);
                                             }
                                         }
                                     }
@@ -293,9 +327,15 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
                 String allMedicationUrl = API_URL_GET_MEDICATIONS_INFO + mMediatorCallback.getCurrentUser().getCivilId();
                 getMedicationList(allMedicationUrl);
             }
-        } else {
+        } else if(encounterInfo!=null){
             String medHRDurl = API_URL_GET_MED_HRD_INFO + encounterInfo.getEncounterId();
             getMedicationList(medHRDurl);
+        }else if(docInfo!=null) {
+            String docUrl = API_URL_GET_MED_HRD_INFO + docInfo.getEncounterId();
+            getMedicationList(docUrl);
+        }else {
+            String procedureUrl = API_URL_GET_MED_HRD_INFO + procedureObj.getEncounterId();
+            getMedicationList(procedureUrl);
         }
     }
 }

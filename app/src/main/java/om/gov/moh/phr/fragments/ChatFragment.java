@@ -97,7 +97,7 @@ public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         if(view==null){
          view = inflater.inflate(R.layout.fragment_chat, container, false);
         TextView tvTitle = view.findViewById(R.id.tv_toolbar_title);
-        tvTitle.setText(getResources().getString(R.string.chat_messages_title));
+        tvTitle.setText(getResources().getString(R.string.title_chat_list));
         tvTitle.setGravity(Gravity.CENTER);
         ImageButton ibBack = view.findViewById(R.id.ib_toolbar_back_button);
         //ibBack.setVisibility(View.GONE);

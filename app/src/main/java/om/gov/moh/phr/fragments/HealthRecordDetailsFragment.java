@@ -24,6 +24,8 @@ import java.util.ArrayList;
 
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.apimodels.ApiEncountersHolder;
+import om.gov.moh.phr.apimodels.ApiOtherDocsHolder;
+import om.gov.moh.phr.apimodels.ApiProceduresReportsHolder;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
 
@@ -33,7 +35,11 @@ public class HealthRecordDetailsFragment extends Fragment {
     private MediatorInterface mMediatorCallback;
     private ToolbarControllerInterface mToolbarControllerCallback;
     private static final String ARG_PARAM1 = "ARG_PARAM1";
-    ApiEncountersHolder.Encounter encounterInfo;
+    private static final String ARG_PARAM2 = "ARG_PARAM2";
+    private static final String ARG_PARAM3 = "ARG_PARAM3";
+   private ApiEncountersHolder.Encounter encounterInfo;
+   private ApiOtherDocsHolder.ApiDocInfo docInfo;
+   private ApiProceduresReportsHolder procedureObj;
 
     public HealthRecordDetailsFragment() {
         // Required empty public constructor
@@ -46,7 +52,20 @@ public class HealthRecordDetailsFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
-
+    public static HealthRecordDetailsFragment newInstance(ApiOtherDocsHolder.ApiDocInfo docObj) {
+        HealthRecordDetailsFragment fragment = new HealthRecordDetailsFragment();
+        Bundle args = new Bundle();
+        args.putSerializable(ARG_PARAM2, docObj);
+        fragment.setArguments(args);
+        return fragment;
+    }
+    public static HealthRecordDetailsFragment newInstance(ApiProceduresReportsHolder procedureObj) {
+        HealthRecordDetailsFragment fragment = new HealthRecordDetailsFragment();
+        Bundle args = new Bundle();
+        args.putSerializable(ARG_PARAM3, procedureObj);
+        fragment.setArguments(args);
+        return fragment;
+    }
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -58,8 +77,14 @@ public class HealthRecordDetailsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null)
-            encounterInfo = (ApiEncountersHolder.Encounter) getArguments().getSerializable(ARG_PARAM1);
+        if(getArguments()!=null) {
+            if (getArguments().getSerializable(ARG_PARAM1) != null)
+                encounterInfo = (ApiEncountersHolder.Encounter) getArguments().getSerializable(ARG_PARAM1);
+            if (getArguments().getSerializable(ARG_PARAM2) != null)
+                docInfo = (ApiOtherDocsHolder.ApiDocInfo) getArguments().getSerializable(ARG_PARAM2);
+            if (getArguments().getSerializable(ARG_PARAM3) != null)
+                procedureObj = (ApiProceduresReportsHolder) getArguments().getSerializable(ARG_PARAM3);
+        }
     }
 
     @Override
@@ -76,14 +101,12 @@ public class HealthRecordDetailsFragment extends Fragment {
             }
         });
         TextView tvTitle = parentView.findViewById(R.id.tv_title);
+        if(encounterInfo!=null)
         tvTitle.setText(encounterInfo.getDepartmentArrayList().get(0).getValue() + ", " + encounterInfo.getEstShortName());
-        ImageButton ibHome = parentView.findViewById(R.id.ib_home);
-        ibHome.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                backToHome();
-            }
-        });
+        else if(docInfo!=null)
+            tvTitle.setText(docInfo.getLocationName() + ", " + docInfo.getEstName());
+        else
+            tvTitle.setText("department name" + ", " + procedureObj.getEstName());
         ViewPager mViewPager = parentView.findViewById(R.id.container);
         TabLayout tabs = parentView.findViewById(R.id.tabs);
         tabs.bringToFront();
@@ -94,13 +117,6 @@ public class HealthRecordDetailsFragment extends Fragment {
         tabs.setupWithViewPager(mViewPager);
 
         return parentView;
-    }
-
-    private void backToHome() {
-        FragmentManager fm = getActivity().getSupportFragmentManager();
-        for (int i = 0; i < fm.getBackStackEntryCount(); ++i) {
-            fm.popBackStack();
-        }
     }
 
     private class HRDSectionsPagerAdapter extends FragmentPagerAdapter {
@@ -118,16 +134,40 @@ public class HealthRecordDetailsFragment extends Fragment {
         @NonNull
         @Override
         public Fragment getItem(int position) {
-            if (position == 0)
-                return ImpressionFragment.newInstance(encounterInfo);
-            else if (position == 1)
-                return MedicationFragment.newInstance(encounterInfo);
-            else if (position == 2)
-                return LabResultsFragment.newInstance(encounterInfo);
-            else if (position == 3)
-                return RadFragment.newInstance(encounterInfo);
-            else
-                return ProceduresReportsFragment.newInstance(encounterInfo);
+            if(encounterInfo!=null) {
+                if (position == 0)
+                    return ImpressionFragment.newInstance(encounterInfo);
+                else if (position == 1)
+                    return MedicationFragment.newInstance(encounterInfo);
+                else if (position == 2)
+                    return LabResultsFragment.newInstance(encounterInfo);
+                else if (position == 3)
+                    return RadFragment.newInstance(encounterInfo);
+                else
+                    return ProceduresReportsFragment.newInstance(encounterInfo);
+            }else if(docInfo!=null){
+                if (position == 0)
+                    return ImpressionFragment.newInstance(docInfo);
+                else if (position == 1)
+                    return MedicationFragment.newInstance(docInfo);
+                else if (position == 2)
+                    return LabResultsFragment.newInstance(docInfo);
+                else if (position == 3)
+                    return RadFragment.newInstance(docInfo);
+                else
+                    return ProceduresReportsFragment.newInstance(docInfo);
+            }else {
+                if (position == 0)
+                    return ImpressionFragment.newInstance(procedureObj);
+                else if (position == 1)
+                    return MedicationFragment.newInstance(procedureObj);
+                else if (position == 2)
+                    return LabResultsFragment.newInstance(procedureObj);
+                else if (position == 3)
+                    return RadFragment.newInstance(procedureObj);
+                else
+                    return ProceduresReportsFragment.newInstance(procedureObj);
+            }
         }
 
         @Nullable

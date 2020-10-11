@@ -5,13 +5,10 @@ import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
-import androidx.cardview.widget.CardView;
-import androidx.core.content.ContextCompat;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -20,8 +17,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.android.volley.DefaultRetryPolicy;
@@ -44,10 +39,7 @@ import java.util.Map;
 
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.adapters.OtherDocsRecyclerViewAdapter;
-import om.gov.moh.phr.adapters.UploadedDocsRecyclerViewAdapter;
 import om.gov.moh.phr.apimodels.ApiOtherDocsHolder;
-import om.gov.moh.phr.apimodels.ApiUploadsDocsHolder;
-import om.gov.moh.phr.apimodels.Notification;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
 import om.gov.moh.phr.models.MyProgressDialog;
@@ -72,7 +64,6 @@ public class ProviderDocumentsFragment extends Fragment implements SearchView.On
     private OtherDocsRecyclerViewAdapter mAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
     private View view;
-    private CardView cardView;
 
     public ProviderDocumentsFragment() {
         // Required empty public constructor
@@ -106,7 +97,6 @@ public class ProviderDocumentsFragment extends Fragment implements SearchView.On
             mProgressDialog = new MyProgressDialog(mContext);
             tvAlert = view.findViewById(R.id.tv_alert);
             rvOtherDocsList = view.findViewById(R.id.rv_DocsList);
-            cardView = view.findViewById(R.id.cardView_other_document);
             swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
 
             if (mMediatorCallback.isConnected()) {
@@ -136,7 +126,6 @@ public class ProviderDocumentsFragment extends Fragment implements SearchView.On
     }
 
     private void displayAlert(String msg) {
-        cardView.setVisibility(View.GONE);
         rvOtherDocsList.setVisibility(View.GONE);
         tvAlert.setVisibility(View.VISIBLE);
         tvAlert.setText(msg);
@@ -204,9 +193,9 @@ public class ProviderDocumentsFragment extends Fragment implements SearchView.On
                 new OtherDocsRecyclerViewAdapter(mMediatorCallback, getmResult, mContext);
         LinearLayoutManager layoutManager
                 = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
-        DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(rvOtherDocsList.getContext(),
+     /*   DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(rvOtherDocsList.getContext(),
                 layoutManager.getOrientation());
-        rvOtherDocsList.addItemDecoration(mDividerItemDecoration);
+        rvOtherDocsList.addItemDecoration(mDividerItemDecoration);*/
         rvOtherDocsList.setLayoutManager(layoutManager);
         rvOtherDocsList.setItemAnimator(new DefaultItemAnimator());
         rvOtherDocsList.setAdapter(mAdapter);

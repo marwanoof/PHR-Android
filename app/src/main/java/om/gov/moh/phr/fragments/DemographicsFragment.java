@@ -42,6 +42,7 @@ import om.gov.moh.phr.R;
 import om.gov.moh.phr.activities.MainActivity;
 import om.gov.moh.phr.apimodels.ApiDemographicsHolder;
 import om.gov.moh.phr.apimodels.ApiDependentsHolder;
+import om.gov.moh.phr.apimodels.ApiHomeHolder;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
 import om.gov.moh.phr.models.MyProgressDialog;
@@ -60,7 +61,7 @@ public class DemographicsFragment extends Fragment {
     private static final String API_URL_DEPENDENT_INFO = API_NEHR_URL + "demographics/dependent/civilId/";
     private static final String DEPENDENT_CIVILID = "DependentCivilID";
     private Context mContext;
-    private ApiDemographicsHolder.ApiDemographicItem mApiDemographicItem;
+    private ArrayList<ApiHomeHolder.Patients> mApiDemographicItem;
 
     private RequestQueue mQueue;
     private TextView tvAlert;
@@ -78,7 +79,7 @@ public class DemographicsFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
-    public static DemographicsFragment newInstance(ApiDemographicsHolder.ApiDemographicItem apiDemographicItem) {
+    public static DemographicsFragment newInstance(ArrayList<ApiHomeHolder.Patients> apiDemographicItem) {
         DemographicsFragment fragment = new DemographicsFragment();
         Bundle args = new Bundle();
         args.putSerializable(PARAM_API_DEMOGRAPHICS_ITEM, apiDemographicItem);
@@ -99,7 +100,7 @@ public class DemographicsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mApiDemographicItem = (ApiDemographicsHolder.ApiDemographicItem) getArguments().getSerializable(PARAM_API_DEMOGRAPHICS_ITEM);
+            mApiDemographicItem = (ArrayList<ApiHomeHolder.Patients>) getArguments().getSerializable(PARAM_API_DEMOGRAPHICS_ITEM);
         }
     }
 
@@ -336,7 +337,7 @@ public class DemographicsFragment extends Fragment {
 
     private void prepareInstitutesCards(ViewGroup container, LayoutInflater inflater, LinearLayout llDependentsContainer) {
 
-        ArrayList<ApiDemographicsHolder.ApiDemographicItem.Patients> institutesArrayList = mApiDemographicItem.getInstitutesArrayList();
+        ArrayList<ApiHomeHolder.Patients> institutesArrayList = mApiDemographicItem;
         int size = institutesArrayList.size();
 
         for (int i = 0; i < size; i++) {
@@ -352,7 +353,7 @@ public class DemographicsFragment extends Fragment {
         }
     }
 
-    private void addInstituteCard(ViewGroup container, @NonNull LayoutInflater inflater, LinearLayout llInstitutesContainer, int cardShape, final ApiDemographicsHolder.ApiDemographicItem.Patients patients) {
+    private void addInstituteCard(ViewGroup container, @NonNull LayoutInflater inflater, LinearLayout llInstitutesContainer, int cardShape, final ApiHomeHolder.Patients patients) {
         View instituteCard = inflater.inflate(R.layout.fragment_demographics_dependents_card, container, false);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         params.setMarginStart(16);

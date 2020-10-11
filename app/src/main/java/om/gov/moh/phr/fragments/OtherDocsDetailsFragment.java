@@ -70,7 +70,7 @@ public class OtherDocsDetailsFragment extends Fragment implements SwipeRefreshLa
     private ApiOtherDocsHolder.ApiDocInfo mDocInfo;
     private TextView tvAlert, tvDocType, tvTime, tvHospital, tvSource;
     private WebView wvDocView;
-    private ImageButton ibHome, ibRefresh;
+    private ImageButton ibRefresh;
     private SwipeRefreshLayout swipeRefreshLayout;
 
     public OtherDocsDetailsFragment() {
@@ -149,9 +149,9 @@ public class OtherDocsDetailsFragment extends Fragment implements SwipeRefreshLa
             tvSource.setText(getResources().getString(R.string.department_label) + " " + mDocInfo.getLocationName());
             tvHospital.setText(getResources().getString(R.string.hospital_feild) + " " + mDocInfo.getEstFullname());
             Date date = new Date(mDocInfo.getIndexed());
-            SimpleDateFormat df2 = new SimpleDateFormat("dd /MM /yyyy");
+            SimpleDateFormat df2 = new SimpleDateFormat("dd-MM-yyyy");
             String dateText = df2.format(date);
-            tvTime.setText(getResources().getString(R.string.date_label) + " " + dateText);
+            tvTime.setText(dateText);
             final String fullUrl = API_DOC_INFO + mDocInfo.getDocumentRefId();
             getReportDetails(fullUrl);
         }
@@ -169,12 +169,6 @@ public class OtherDocsDetailsFragment extends Fragment implements SwipeRefreshLa
                     String providerDocsUrl = API_DOC_INFO + notificationObj.getKeyId();
                     getReportDetails(providerDocsUrl);
                 }
-            }
-        });
-        ibHome.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                backToHome();
             }
         });
         swipeRefreshLayout.setOnRefreshListener(this);
@@ -196,9 +190,7 @@ public class OtherDocsDetailsFragment extends Fragment implements SwipeRefreshLa
     }
 
     private void enableHomeandRefresh(View view) {
-        ibHome = view.findViewById(R.id.ib_home);
         ibRefresh = view.findViewById(R.id.ib_refresh);
-        ibHome.setVisibility(View.VISIBLE);
         ibRefresh.setVisibility(View.VISIBLE);
     }
 

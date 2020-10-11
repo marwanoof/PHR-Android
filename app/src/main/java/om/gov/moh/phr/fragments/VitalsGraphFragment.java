@@ -2,6 +2,7 @@ package om.gov.moh.phr.fragments;
 
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
@@ -56,6 +57,9 @@ import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
 import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_MESSAGE;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_ARABIC;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_PREFS;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_SELECTED;
 
 
 /**
@@ -76,7 +80,7 @@ public class VitalsGraphFragment extends Fragment implements AdapterToFragmentCo
     private RecyclerView rvVitalsList;
     private WebView wvGraphViewHolder;
     private TextView tvAlert;
-    private ImageButton ibHome, ibRefresh;
+    private ImageButton ibRefresh;
     private String selectedItem;
     private int itemPosition = 100;
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -128,14 +132,9 @@ public class VitalsGraphFragment extends Fragment implements AdapterToFragmentCo
                 getPivotData();
             }
         });
-        ibHome.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                backToHome();
-            }
-        });
         TextView tvToolbarTitle = parentView.findViewById(R.id.tv_toolbar_title);
         ImageButton ibToolbarBackButton = parentView.findViewById(R.id.ib_toolbar_back_button);
+
         tvToolbarTitle.setText(getResources().getString(R.string.title_vital_signs));
         tvToolbarTitle.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -171,17 +170,8 @@ public class VitalsGraphFragment extends Fragment implements AdapterToFragmentCo
     }
 
     private void enableHomeandRefresh(View view) {
-        ibHome = view.findViewById(R.id.ib_home);
         ibRefresh = view.findViewById(R.id.ib_refresh);
-        ibHome.setVisibility(View.VISIBLE);
         ibRefresh.setVisibility(View.VISIBLE);
-    }
-
-    private void backToHome() {
-        FragmentManager fm = getActivity().getSupportFragmentManager();
-        for (int i = 0; i < fm.getBackStackEntryCount(); ++i) {
-            fm.popBackStack();
-        }
     }
 
     private void getPivotData() {

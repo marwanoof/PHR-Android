@@ -7,11 +7,11 @@
 
     <ImageView
         android:id="@+id/iv_notification_ic"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/space_24"
+        android:layout_height="@dimen/space_24"
         android:src="@drawable/about_ic"
         android:tint="@color/colorRed"
-        android:layout_marginStart="@dimen/space_24"
+        android:layout_marginStart="@dimen/space_20dp"
         android:fontFamily="@font/roboto_regular"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -21,13 +21,11 @@
         android:id="@+id/tv_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/space_16"
         android:fontFamily="@font/roboto_regular"
-        android:padding="@dimen/space_8"
+        android:padding="@dimen/space_4"
         android:text="@string/no_notification"
         android:textColor="@color/colorBlack"
-        android:textSize="@dimen/text_18sp"
-        android:textStyle="bold"
+        android:textSize="@dimen/text_size_12sp"
         app:layout_constraintStart_toEndOf="@id/iv_notification_ic"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -35,7 +33,8 @@
         android:id="@+id/tv_body"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingBottom="@dimen/space_10"
+        android:paddingBottom="@dimen/space_4"
+        android:textSize="@dimen/text_size_10sp"
         android:fontFamily="@font/roboto_regular"
         app:layout_constraintStart_toEndOf="@id/iv_notification_ic"
         app:layout_constraintTop_toBottomOf="@id/tv_title" />
@@ -46,6 +45,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:backgroundTint="@color/colorWhite"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"

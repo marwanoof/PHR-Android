@@ -3,42 +3,34 @@ package om.gov.moh.phr.fragments;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.text.format.DateUtils;
 import android.util.Base64;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.core.view.GestureDetectorCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager2.widget.ViewPager2;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -50,71 +42,73 @@ import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
-import com.google.android.material.tabs.TabLayout;
 import com.google.gson.Gson;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.annotation.Annotation;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
-import de.hdodenhof.circleimageview.CircleImageView;
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.adapters.ComingAppointmentListAdapter;
 import om.gov.moh.phr.adapters.DependentRecyclerViewAdapter;
 import om.gov.moh.phr.adapters.MessageChatsAdapter;
 import om.gov.moh.phr.adapters.MyVitalListAdapter;
 import om.gov.moh.phr.adapters.NotificationHomeAdapter;
-import om.gov.moh.phr.adapters.PagerCardMainAdapter;
+import om.gov.moh.phr.adapters.NotificationsRecyclerViewAdapter;
 import om.gov.moh.phr.adapters.PaginationRecyclerViewAdapter;
 import om.gov.moh.phr.adapters.UpdatesListAdapter;
 import om.gov.moh.phr.apimodels.ApiDemographicsHolder;
+import om.gov.moh.phr.apimodels.ApiDependentsHolder;
+import om.gov.moh.phr.apimodels.ApiHomeHolder;
+import om.gov.moh.phr.apimodels.Notification;
 import om.gov.moh.phr.interfaces.AdapterToFragmentConnectorInterface;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
-import om.gov.moh.phr.models.ChatsModels;
+import om.gov.moh.phr.models.DBHelper;
 import om.gov.moh.phr.models.MyProgressDialog;
-import om.gov.moh.phr.models.MyVital;
-import om.gov.moh.phr.models.Pagination;
 
 
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
 import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
+import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_MESSAGE;
+import static om.gov.moh.phr.models.MyConstants.IS_SCROLL_LIST;
 
 public class HomeFragment extends Fragment implements AdapterToFragmentConnectorInterface, View.OnClickListener {
 
-    private static final String API_URL_GET_DEMOGRAPHICS_INFO = API_NEHR_URL + "demographics/civilId/";
+    private static final String API_URL_GET_DEMOGRAPHICS_INFO = API_NEHR_URL + "demographics/phrHome";
 
     private static final int NUMBER_OF_COLUMNS = 1;
     private Context mContext;
     private RequestQueue mQueue;
-    private TextView tvAlert;
+    private TextView tvAlert, tvPatientId, tvFullName, tvAge, tvBloodGroup, tvUserHeight, tvUserWeight, tvNameInfo, tvUserAddress, tvMobile, tvGender, tvNationality, tvDependentsTitle, tvFirstDependent, tvSecondDependent;
+    private ImageView ivUserProfile, ivFirstArrow, ivSecondArrow;
     private MyProgressDialog mProgressDialog;
     private RecyclerView rvGrid;
-    private View parentView;
     private MediatorInterface mMediatorCallback;
     private ToolbarControllerInterface mToolbarCallback;
-    private ArrayList<ApiDemographicsHolder.ApiDemographicItem.Patients> mPatientsArrayList = new ArrayList<>();
-    private ApiDemographicsHolder.ApiDemographicItem mApiDemographicItem;
     private PaginationRecyclerViewAdapter mAdapter;
-    //private TextView tvFullName;
-    //private TextView tvCivilId;
-    //private CircleImageView ivUserPhoto;
-    // private ViewPager2 viewPager;
-    private LinearLayout sliderDotspanel;
     int dotscount = 3;
     private ImageView[] dots;
     // private PagerCardMainAdapter pagerCardMainAdapter;
     private ScrollView menuListScrollView;
     private ImageButton menuButton, myVitalExpandBtn, appointmentExpandBtn, notificationExpandBtn, updatesExpandBtn, chatsExpandBtn;
-    private RecyclerView myVital, appointmentList, notificationList, updatesList, chatsList;
+    private RecyclerView myVital, appointmentList, notificationList/*, updatesList*/, chatsList;
     private ViewFlipper viewFlipper;
     private float lastX;
-
+    private ApiHomeHolder responseHolder;
+    private ArrayList<ApiHomeHolder.ApiRecentVitals> recentVitalsArrayList = new ArrayList<>();
+    private DBHelper dbHelper;
+    private LinearLayout llMyVitalSigns, llAppointments, llNotification, llUnReadMessages;
+    private View dependentDivider, parentView;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -138,12 +132,139 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        if(parentView==null){
         // Inflate the layout for this fragment
-        parentView = inflater.inflate(R.layout.fragment_home, container, false);
-
+         parentView = inflater.inflate(R.layout.fragment_home, container, false);
 
         mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
         mProgressDialog = new MyProgressDialog(mContext);
+
+        setupView(parentView);
+        if (IS_SCROLL_LIST) {
+            menuListScrollView.setVisibility(View.VISIBLE);
+            rvGrid.setVisibility(View.GONE);
+            menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_item));
+        } else {
+            menuListScrollView.setVisibility(View.GONE);
+            rvGrid.setVisibility(View.VISIBLE);
+            menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_list));
+        }
+
+        Log.d("accessToken", mMediatorCallback.getAccessToken().getAccessTokenString());
+        //   if (mMediatorCallback.getAccessToken().getAccessCivilId().equals(mMediatorCallback.getCurrentUser().getCivilId()))
+
+        if (mMediatorCallback.isConnected()) {
+            setRecyclerViewGrid();
+            getDemographicResponse();
+        } else {
+            displayAlert(getString(R.string.alert_no_connection));
+        }
+        menuButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (IS_SCROLL_LIST) {
+                    menuButton.animate()
+                            .alpha(0.0f)
+                            .setDuration(100)
+                            .setListener(new AnimatorListenerAdapter() {
+                                @Override
+                                public void onAnimationEnd(Animator animation) {
+                                    super.onAnimationEnd(animation);
+                                    if (isAdded() && mContext != null) {
+                                        menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_list));
+                                        menuButton.animate().alpha(1.0f);
+                                    }
+                                }
+                            });
+                    menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_list));
+                    rvGrid.setVisibility(View.VISIBLE);
+                    menuListScrollView.setVisibility(View.GONE);
+                    IS_SCROLL_LIST = false;
+                } else {
+                    menuButton.animate()
+                            .alpha(0.0f)
+                            .setDuration(100)
+                            .setListener(new AnimatorListenerAdapter() {
+                                @Override
+                                public void onAnimationEnd(Animator animation) {
+                                    super.onAnimationEnd(animation);
+                                    if(isAdded()) {
+                                        menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_item));
+                                        menuButton.animate().alpha(1.0f);
+                                    }
+                                }
+                            });
+                    menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_item));
+                    rvGrid.setVisibility(View.GONE);
+                    menuListScrollView.setVisibility(View.VISIBLE);
+                    IS_SCROLL_LIST = true;
+                }
+            }
+        });
+
+        myVitalExpandBtn.setOnClickListener(this);
+        appointmentExpandBtn.setOnClickListener(this);
+        notificationExpandBtn.setOnClickListener(this);
+        updatesExpandBtn.setOnClickListener(this);
+        chatsExpandBtn.setOnClickListener(this);
+        getNotificationList();
+
+        /* setup updates list */
+      /*  ArrayList<String> updates = new ArrayList<>();
+        updates.add("New Lab Result");
+        updates.add("New Procedure Report");*/
+        //  setupUpdatesList(updates);
+        } else {
+            if(parentView.getParent()!=null)
+                ((ViewGroup) parentView.getParent()).removeView(parentView);
+        }
+        return parentView;
+    }
+
+    private void getNotificationList() {
+        dbHelper = new DBHelper(mContext);
+        ArrayList<Notification> notificationsList = new ArrayList<>();
+        notificationsList = dbHelper.retrieveNotificationsRecord();
+      /*  if (notificationsList.size() == 0) {
+            Notification notification = new Notification();
+            notification.setTitle(getResources().getString(R.string.no_notification));
+            notification.setBody("");
+            notification.setPnsType("10");
+            notificationsList.add(notification);
+        }*/
+        //creating Calendar instance
+        Calendar calendar = Calendar.getInstance();
+        //Returns current time in millis
+        long timeMilli = calendar.getTimeInMillis();
+        for (int i = 0; i < notificationsList.size(); i++) {
+            long oneDayLater = Long.parseLong(notificationsList.get(i).getCreatedDate()) + TimeUnit.HOURS.toMillis(24l);
+            int result1 = Long.compare(timeMilli, oneDayLater);
+            if (result1 > 0) {
+                dbHelper.deleteTitle(notificationsList.get(i).getKeyId());
+            }
+
+        }
+        notificationsList = dbHelper.retrieveNotificationsRecord();
+        if (notificationsList.size() == 0)
+            llNotification.setVisibility(View.GONE);
+        else
+            setNotificationRecyclerView(notificationsList);
+    }
+
+    private void setNotificationRecyclerView(ArrayList<Notification> notificationsList) {
+        NotificationsRecyclerViewAdapter mAdapter =
+                new NotificationsRecyclerViewAdapter(notificationsList, mContext, mMediatorCallback);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(mContext);
+        DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(notificationList
+                .getContext(),
+                ((LinearLayoutManager) mLayoutManager).getOrientation());
+        notificationList.addItemDecoration(mDividerItemDecoration);
+        notificationList.setLayoutManager(mLayoutManager);
+        notificationList.setItemAnimator(new DefaultItemAnimator());
+        notificationList.setAdapter(mAdapter);
+    }
+
+    private void setupView(View parentView) {
         tvAlert = parentView.findViewById(R.id.tv_alert);
         rvGrid = parentView.findViewById(R.id.vp_container);
         menuListScrollView = parentView.findViewById(R.id.menuListScrollView);
@@ -154,68 +275,12 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
         appointmentList = parentView.findViewById(R.id.recyclerView_coming_appointment);
         notificationList = parentView.findViewById(R.id.recyclerView_notification_home);
         notificationExpandBtn = parentView.findViewById(R.id.btn_notification_expand);
-        updatesList = parentView.findViewById(R.id.recyclerView_updates_home);
+        //   updatesList = parentView.findViewById(R.id.recyclerView_updates_home);
         updatesExpandBtn = parentView.findViewById(R.id.btn_updates_expand);
         chatsList = parentView.findViewById(R.id.recyclerView_chats_home);
         chatsExpandBtn = parentView.findViewById(R.id.btn_chats_expand);
         rvGrid.setVisibility(View.GONE);
-        viewFlipper = parentView.findViewById(R.id.viewFlipper);
-        viewFlipper.setOnTouchListener(new android.view.View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                onTouchEvent(event);
-                viewFlipper.performClick();
-                return true;
-            }
-        });
-        viewFlipper.addOnLayoutChangeListener(onLayoutChangeListener_viewFlipper);
-        //tvFullName = parentView.findViewById(R.id.tv_name);
-        //tvCivilId = parentView.findViewById(R.id.tv_civil_id);
-        //ivUserPhoto = parentView.findViewById(R.id.iv_avatar);
-        //tvCivilId.setText(mMediatorCallback.getCurrentUser().getCivilId());
-        if (mMediatorCallback.getAccessToken().getAccessCivilId().equals(mMediatorCallback.getCurrentUser().getCivilId()))
-            //setupLoginData();
-      /*   setRecyclerViewGrid();
-       if (mContext != null && isAdded()) {
-            if (mApiDemographicItem == null)
-                getDemographicResponse();
-            else {
-                mAdapter.updateList(getPaginationArrayList());
-                setupData(mApiDemographicItem);
-            }
-        }*/
-            if (mMediatorCallback.isConnected()) {
-                setRecyclerViewGrid();
-                getDemographicResponse();
-
-
-            } else {
-                displayAlert(getString(R.string.alert_no_connection));
-            }
-        // viewPager = parentView.findViewById(R.id.viewPager_main);
-        sliderDotspanel = parentView.findViewById(R.id.slider_dots);
-        /*personalDetailMains = new ArrayList();
-        personalDetailMains.add(new PersonalDetailMain(R.drawable.about_ic,"","","","","",""));
-*/
-        ArrayList<String> testArr = new ArrayList();
-        testArr.add("Marwan");
-        testArr.add("Ahmed");
-        testArr.add("Alseryani");
-
-
-        // pagerCardMainAdapter = new PagerCardMainAdapter(testArr, mContext);
-
-
-        //viewPager.setPadding(30, 0, 30, 0);
-       /* viewPager.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
-        viewPager.setAdapter(pagerCardMainAdapter);
-        viewPager.setCurrentItem(1);*/
-        // dotscount = pagerCardMainAdapter.getItemCount();
-        //ImageView nonActive = new ImageView(this);
-        //nonActive.setImageDrawable(getDrawable(R.drawable.non_active_dot));
-        //final ArrayList<ImageView> dots = new ArrayList<>();
-
-
+        LinearLayout sliderDotspanel = parentView.findViewById(R.id.slider_dots);
         dots = new ImageView[3];
         dots[0] = new ImageView(mContext);
         dots[0].setOnClickListener(new View.OnClickListener() {
@@ -238,7 +303,6 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
                 viewFlipper.setDisplayedChild(2);
             }
         });
-        //val dots = arrayOfNulls<ImageView>(dotscount)
 
         for (int i = 0; i < dotscount; i++) {
             dots[i].setImageDrawable(mContext.getDrawable(R.drawable.non_active_dot));
@@ -246,142 +310,70 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
             params.setMargins(8, 0, 8, 0);
             sliderDotspanel.addView(dots[i], params);
         }
-
-    /*    viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+        viewFlipper = parentView.findViewById(R.id.viewFlipper);
+        viewFlipper.setOnTouchListener(new android.view.View.OnTouchListener() {
             @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                super.onPageScrolled(position, positionOffset, positionOffsetPixels);
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                super.onPageSelected(position);
-                for (int i = 0; i < dotscount; i++) {
-                    //dots.set(i, new ImageView(this));
-                    dots[i].setImageDrawable(mContext.getDrawable(R.drawable.non_active_dot));
-                }
-
-                dots[position].setImageDrawable(mContext.getDrawable(R.drawable.active_dot));
-                Log.e("Selected_Page", String.valueOf(position));
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-                super.onPageScrollStateChanged(state);
-            }
-        });*/
-
-        menuButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (menuListScrollView.getVisibility() == View.VISIBLE) {
-        /*    menuListRecyclerView.animate()
-                    .alpha(0.0f)
-                    .setDuration(100)
-                    .setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            super.onAnimationEnd(animation);
-                            menuListRecyclerView.setVisibility(View.GONE);
-                            menuItemScrollView.setAlpha(0.0f);
-                            menuItemScrollView.setVisibility(View.VISIBLE);
-                            menuItemScrollView.animate().alpha(1.0f);
-
-
-
-                        }
-                    });*/
-            menuButton.animate()
-                    .alpha(0.0f)
-                    .setDuration(100)
-                    .setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            super.onAnimationEnd(animation);
-                            menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_list));
-                            menuButton.animate().alpha(1.0f);
-                        }
-                    });
-                    menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_list));
-                    rvGrid.setVisibility(View.VISIBLE);
-                    menuListScrollView.setVisibility(View.GONE);
-                } else {
-        /*    menuItemScrollView.animate()
-                    .alpha(0.0f)
-                    .setDuration(100)
-                    .setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            super.onAnimationEnd(animation);
-                            menuItemScrollView.setVisibility(View.GONE);
-                            //menuListRecyclerView.setAlpha(0.0f);
-                            menuListRecyclerView.setVisibility(View.VISIBLE);
-                            //menuListRecyclerView.animate().alpha(1.0f);
-
-
-
-                        }
-                    });*/
-            menuButton.animate()
-                    .alpha(0.0f)
-                    .setDuration(100)
-                    .setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            super.onAnimationEnd(animation);
-                            menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_item));
-                            menuButton.animate().alpha(1.0f);
-                        }
-                    });
-                    menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_item));
-                    rvGrid.setVisibility(View.GONE);
-                    menuListScrollView.setVisibility(View.VISIBLE);
-                }
+            public boolean onTouch(View v, MotionEvent event) {
+                onTouchEvent(event);
+                viewFlipper.performClick();
+                return true;
             }
         });
-
-        myVitalExpandBtn.setOnClickListener(this);
-        appointmentExpandBtn.setOnClickListener(this);
-        notificationExpandBtn.setOnClickListener(this);
-        updatesExpandBtn.setOnClickListener(this);
-        chatsExpandBtn.setOnClickListener(this);
-        /* setup my vital list */
-        ArrayList<MyVital> myVitals = new ArrayList<>();
-        myVitals.add(new MyVital("Heart rate:", "68", ""));
-        myVitals.add(new MyVital("Oxygen saturation:", "44", "%"));
-        myVitals.add(new MyVital("Body temperature:", "36.5", "\u2103"));
-        myVitals.add(new MyVital("Blood pressure:", "119/79", "mm[Hg]"));
-        setupMyVitalList(myVitals);
-
-        /* setup appointment list */
-        ArrayList<String> appointments = new ArrayList<>();
-        appointments.add("Gen. Medicine clinic | 12-Aug-2020 | 07:30 | Directorate General of Information Technology");
-        appointments.add("Gen. Medicine clinic | 20-Aug-2020 | 11:30 | Directorate General of Information Technology");
-        setupAppointmentList(appointments);
-
-        /* setup notification list */
-        ArrayList<String> notifications = new ArrayList<>();
-        notifications.add("This is notification 1");
-        notifications.add("This is notification 2");
-        setupNotificationList(notifications);
-
-        /* setup updates list */
-        ArrayList<String> updates = new ArrayList<>();
-        updates.add("New Lab Result");
-        updates.add("New Procedure Report");
-        setupUpdatesList(updates);
-
-        /* setup chats list */
-        ArrayList<ChatsModels> chatsModels = new ArrayList<>();
-        chatsModels.add(new ChatsModels("Dr.Binu", "21-07-2020 11:30:54"));
-        chatsModels.add(new ChatsModels("Dr.Jalil", "21-07-2020 09:11:28"));
-        setupChatsList(chatsModels);
-
-        return parentView;
+        viewFlipper.addOnLayoutChangeListener(onLayoutChangeListener_viewFlipper);
+        tvPatientId = parentView.findViewById(R.id.tv_patientid_main);
+        tvFullName = parentView.findViewById(R.id.tv_name_main);
+        tvAge = parentView.findViewById(R.id.tvAge_main);
+        tvBloodGroup = parentView.findViewById(R.id.tvBlood_main);
+        tvUserHeight = parentView.findViewById(R.id.tvHeight_main);
+        tvUserWeight = parentView.findViewById(R.id.tvWeight_main);
+        ivUserProfile = parentView.findViewById(R.id.imgProfile_main);
+        tvGender = parentView.findViewById(R.id.tvGender_info);
+        tvMobile = parentView.findViewById(R.id.tvPhone_info);
+        tvNameInfo = parentView.findViewById(R.id.tv_name_info);
+        tvNationality = parentView.findViewById(R.id.tvNationality_info);
+        tvUserAddress = parentView.findViewById(R.id.tvAddress_info);
+        tvDependentsTitle = parentView.findViewById(R.id.tvDependents);
+        tvDependentsTitle.setText(getResources().getString(R.string.title_dependents) + ": ");
+        tvFirstDependent = parentView.findViewById(R.id.tvFirstDependent);
+        tvFirstDependent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mToolbarCallback.changeSideMenuToolBarVisibility(View.GONE);
+                mMediatorCallback.changeFragmentTo(DemographicsFragment.newInstance(responseHolder.getmResult().getmHome().getInstitutesArrayList()), DemographicsFragment.class.getSimpleName());
+            }
+        });
+        tvSecondDependent = parentView.findViewById(R.id.tvSecondDependent);
+        tvSecondDependent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mToolbarCallback.changeSideMenuToolBarVisibility(View.GONE);
+                mMediatorCallback.changeFragmentTo(DemographicsFragment.newInstance(responseHolder.getmResult().getmHome().getInstitutesArrayList()), DemographicsFragment.class.getSimpleName());
+            }
+        });
+        ivFirstArrow = parentView.findViewById(R.id.ivFirstDepArrow);
+        ivFirstArrow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mToolbarCallback.changeSideMenuToolBarVisibility(View.GONE);
+                mMediatorCallback.changeFragmentTo(DemographicsFragment.newInstance(responseHolder.getmResult().getmHome().getInstitutesArrayList()), DemographicsFragment.class.getSimpleName());
+            }
+        });
+        ivSecondArrow = parentView.findViewById(R.id.ivSecondDepArrow);
+        ivSecondArrow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mToolbarCallback.changeSideMenuToolBarVisibility(View.GONE);
+                mMediatorCallback.changeFragmentTo(DemographicsFragment.newInstance(responseHolder.getmResult().getmHome().getInstitutesArrayList()), DemographicsFragment.class.getSimpleName());
+            }
+        });
+        llMyVitalSigns = parentView.findViewById(R.id.linearLayout4);
+        llAppointments = parentView.findViewById(R.id.linearLayout44);
+        llNotification = parentView.findViewById(R.id.linearLayout42);
+        llUnReadMessages = parentView.findViewById(R.id.linearLayout335);
+        dependentDivider = parentView.findViewById(R.id.divider);
     }
 
-
-    public void setupMyVitalList(ArrayList<MyVital> myVitals) {
+    public void setupMyVitalList(ArrayList<ApiHomeHolder.ApiRecentVitals> myVitals) {
         MyVitalListAdapter myVitalListAdapter = new MyVitalListAdapter(myVitals, mContext);
         LinearLayoutManager layoutManager
                 = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
@@ -393,7 +385,7 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
 
     }
 
-    public void setupAppointmentList(ArrayList<String> appointments) {
+    public void setupAppointmentList(ArrayList<ApiHomeHolder.ApiAppointments> appointments) {
         ComingAppointmentListAdapter comingAppointmentListAdapter = new ComingAppointmentListAdapter(appointments, mContext);
         LinearLayoutManager layoutManager
                 = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
@@ -418,19 +410,19 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
     }
 
     public void setupUpdatesList(ArrayList<String> updates) {
-        UpdatesListAdapter comingAppointmentListAdapter = new UpdatesListAdapter(updates, mContext);
+     /*   UpdatesListAdapter comingAppointmentListAdapter = new UpdatesListAdapter(updates, mContext);
         LinearLayoutManager layoutManager
                 = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
         DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(updatesList.getContext(), layoutManager.getOrientation());
         updatesList.addItemDecoration(mDividerItemDecoration);
         updatesList.setLayoutManager(layoutManager);
         updatesList.setItemAnimator(new DefaultItemAnimator());
-        updatesList.setAdapter(comingAppointmentListAdapter);
+        updatesList.setAdapter(comingAppointmentListAdapter);*/
 
     }
 
-    public void setupChatsList(ArrayList<ChatsModels> chatsModels) {
-        MessageChatsAdapter messageChatsAdapter = new MessageChatsAdapter(chatsModels, mContext);
+    public void setupChatsList(ArrayList<ApiHomeHolder.ApiChatMessages> chatsModels) {
+        MessageChatsAdapter messageChatsAdapter = new MessageChatsAdapter(mMediatorCallback, chatsModels, mContext);
         LinearLayoutManager layoutManager
                 = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
         DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(chatsList.getContext(), layoutManager.getOrientation());
@@ -443,31 +435,27 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
 
     private void getDemographicResponse() {
         mProgressDialog.showDialog();
-
-        String fullUrl = API_URL_GET_DEMOGRAPHICS_INFO + mMediatorCallback.getCurrentUser().getCivilId() + "?source=PHR";
-//        String fullUrl = API_URL_GET_DEMOGRAPHICS_INFO + "62163078" + "?source=PHR";
-        Log.d("fullURL-demo", fullUrl);
-
-
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, fullUrl, null
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, API_URL_GET_DEMOGRAPHICS_INFO, getJSONRequestCivilIDParam()
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 try {
                     if (response.getInt(API_RESPONSE_CODE) == 0) {
                         Gson gson = new Gson();
-                        ApiDemographicsHolder responseHolder = gson.fromJson(response.toString(), ApiDemographicsHolder.class);
-                        Log.d("resp-demo", response.getJSONObject("result").toString());
+                        responseHolder = gson.fromJson(response.toString(), ApiHomeHolder.class);
+                        Log.d("resp-home", responseHolder.getmResult().getmHome().getmMainMenus().toString());
                         if (mContext != null) {
-                            mApiDemographicItem = responseHolder.getmResult();
-                            mAdapter.updateList(getPaginationArrayList());
-                            setupData(responseHolder.getmResult());
+                            mAdapter.updateList(responseHolder.getmResult().getmHome().getmMainMenus());
+                            setupDempgraphicsData(responseHolder.getmResult().getmHome().getmDemographics());
+                            setupRecentVitalsData(responseHolder.getmResult().getmHome().getmRecentVitals());
+                            setupDependentsData(responseHolder.getmResult().getmHome().getmDependents());
+                            setupChatMessages(responseHolder.getmResult().getmHome().getmChatMessages());
+                            setupAppointments(responseHolder.getmResult().getmHome().getmAppointments());
                         }
 
-                    } else {
-                        //displayAlert(getResources().getString(R.string.no_record_found));
-                        mProgressDialog.dismissDialog();
-                    }
+                    } else
+                        Toast.makeText(mContext, response.getString(API_RESPONSE_MESSAGE), Toast.LENGTH_SHORT).show();
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -480,7 +468,7 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
             public void onErrorResponse(VolleyError error) {
                 if (mContext != null && isAdded()) {
                     mProgressDialog.dismissDialog();
-                    Log.d("resp-demographic", error.toString());
+                    Log.d("resp-home", error.toString());
                     error.printStackTrace();
                     mProgressDialog.dismissDialog();
                 }
@@ -490,7 +478,6 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
             @Override
             public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
-//                headers.put("Accept", "application/json");
                 headers.put("Content-Type", "application/json");
                 headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
                 return headers;
@@ -505,26 +492,86 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
 
     }
 
-    private void setupData(ApiDemographicsHolder.ApiDemographicItem apiDemographicItem) {
-        mPatientsArrayList = apiDemographicItem.getInstitutesArrayList();
-        //tvFullName.setText(apiDemographicItem.getFullName());
-  /*      if (apiDemographicItem.getAliasYn().equals("Y"))
-            tvCivilId.setText("XXXXXXXX");*/
-        //Glide.with(mContext).load(apiDemographicItem.getPersonPhoto(mContext)).into(ivUserPhoto);
+    private JSONObject getJSONRequestCivilIDParam() {
+        Map<String, Object> params = new HashMap<>();
+        params.put("civilId", mMediatorCallback.getCurrentUser().getCivilId());
+        return new JSONObject(params);
     }
 
-    private void setupLoginData() {
-        //tvFullName.setText(mMediatorCallback.getAccessToken().getPersonName());
-        //Glide.with(mContext).load(getPersonPhoto(mContext)).into(ivUserPhoto);
+    private void setupDempgraphicsData(ApiHomeHolder.ApiDemographics apiDemographicItem) {
+        tvFullName.setText("{ " + apiDemographicItem.getFirstName() + " " + apiDemographicItem.getSecondName() + " " + apiDemographicItem.getThirdName() + " }");
+        tvPatientId.setText(String.valueOf(apiDemographicItem.getCivilId()));
+        tvAge.setText(apiDemographicItem.getAge());
+        tvBloodGroup.setText(apiDemographicItem.getBloodGroup());
+        Glide.with(mContext).load(getPersonPhoto(mContext, apiDemographicItem.getImage())).into(ivUserProfile);
+        tvNameInfo.setText(apiDemographicItem.getFirstName() + " " + apiDemographicItem.getSecondName() + " " + apiDemographicItem.getThirdName() + " " + apiDemographicItem.getFourthName() + " " + apiDemographicItem.getFifthName());
+        tvMobile.setText(String.valueOf(apiDemographicItem.getMobile()));
+        tvGender.setText(apiDemographicItem.getGender());
+        tvNationality.setText(apiDemographicItem.getNationality());
+        tvUserAddress.setText(apiDemographicItem.getBirthDown());
     }
 
-    private Bitmap getPersonPhoto(Context context) {
-        if (mMediatorCallback.getAccessToken().getImage() == null || TextUtils.isEmpty(mMediatorCallback.getAccessToken().getImage())) {
+    private void setupRecentVitalsData(ArrayList<ApiHomeHolder.ApiRecentVitals> apiRecentVitals) {
+        if (apiRecentVitals == null || apiRecentVitals.size() == 0)
+            llMyVitalSigns.setVisibility(View.GONE);
+        else {
+            recentVitalsArrayList.clear();
+            for (int i = 0; i < apiRecentVitals.size(); i++) {
+                ApiHomeHolder.ApiRecentVitals vitalSign = apiRecentVitals.get(i);
+                if (vitalSign.getName().equals("Body height"))
+                    tvUserHeight.setText(vitalSign.getValue() + " " + vitalSign.getUnit());
+                else if (vitalSign.getName().equals("Weight Measured"))
+                    tvUserWeight.setText(vitalSign.getValue() + " " + vitalSign.getUnit());
+                else if (!vitalSign.getName().equals("G6PD"))
+                    recentVitalsArrayList.add(vitalSign);
+            }
+            /* setup my vital list */
+            setupMyVitalList(recentVitalsArrayList);
+        }
+    }
+
+    private void setupChatMessages(ArrayList<ApiHomeHolder.ApiChatMessages> apiChatMessages) {
+        /* setup chats list */
+        if (apiChatMessages == null || apiChatMessages.size() == 0)
+            llUnReadMessages.setVisibility(View.GONE);
+        else
+            setupChatsList(apiChatMessages);
+    }
+
+    private void setupAppointments(ArrayList<ApiHomeHolder.ApiAppointments> apiAppointments) {
+        /* setup appointment list */
+        if (apiAppointments == null || apiAppointments.size() == 0)
+            llAppointments.setVisibility(View.GONE);
+        else
+            setupAppointmentList(apiAppointments);
+    }
+
+    private void setupDependentsData(ArrayList<ApiHomeHolder.ApiDependents> apiDependents) {
+        if (apiDependents != null && apiDependents.size() != 0) {
+            if (apiDependents.get(0) != null)
+                tvFirstDependent.setText(apiDependents.get(0).getDependentName() + "\n" + apiDependents.get(0).getRelationType() + " | " + apiDependents.get(0).getDependentCivilId());
+            if (apiDependents.size() > 1) {
+                tvSecondDependent.setText(apiDependents.get(1).getDependentName() + "\n" + apiDependents.get(1).getRelationType() + " | " + apiDependents.get(1).getDependentCivilId());
+            } else {
+                tvSecondDependent.setText("");
+                ivSecondArrow.setVisibility(View.GONE);
+            }
+        } else {
+            tvFirstDependent.setText("");
+            tvSecondDependent.setText("");
+            dependentDivider.setVisibility(View.GONE);
+            ivFirstArrow.setVisibility(View.GONE);
+            ivSecondArrow.setVisibility(View.GONE);
+        }
+    }
+
+    private Bitmap getPersonPhoto(Context context, String image) {
+        if (image == null || TextUtils.isEmpty(image)) {
             return BitmapFactory.decodeResource(context.getResources(),
                     R.drawable.avatar);
         } else {
             //decode base64 string to image
-            byte[] imageBytes = Base64.decode(mMediatorCallback.getAccessToken().getImage(), Base64.DEFAULT);
+            byte[] imageBytes = Base64.decode(image, Base64.DEFAULT);
             Bitmap decodedImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
             return decodedImage;
         }
@@ -539,91 +586,6 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
         rvGrid.setAdapter(mAdapter);
     }
 
-    private ArrayList<Pagination> getPaginationArrayList() {
-
-
-        ArrayList<Pagination> paginationArrayList = new ArrayList<>();
-        if (mContext != null && isAdded()) {
-            paginationArrayList.add(new Pagination(
-                    R.drawable.ic_demographoc,
-                    getString(R.string.title_demographic),
-                    DemographicsFragment.newInstance(mApiDemographicItem),
-                    DemographicsFragment.class.getSimpleName()));
-
-
-            paginationArrayList.add(new Pagination(
-                    R.drawable.ic_vital,
-                    getString(R.string.title_body_measurements),
-                    BodyMeasurementsFragment.newInstance(mApiDemographicItem.getRecentVitalsArrayList()),
-                    BodyMeasurementsFragment.class.getSimpleName()));
-
-            paginationArrayList.add(new Pagination(
-                    R.drawable.ic_medical_history,
-                    getString(R.string.title_vital_info),
-                    VitalInfoFragment.newInstance(),
-                    VitalInfoFragment.class.getSimpleName()));
-
-
-            paginationArrayList.add(new Pagination(
-                    R.drawable.ic_health_records,
-                    getString(R.string.title_health_records),
-                    HealthRecordListFragment.newInstance(),
-                    HealthRecordListFragment.class.getSimpleName()));
-
-            paginationArrayList.add(new Pagination(
-                    R.drawable.ic_lab,
-                    getString(R.string.title_lab_results),
-                    LabResultsContainerFragment.newInstance(),
-                    LabResultsFragment.class.getSimpleName()));
-
-            paginationArrayList.add(new Pagination(
-                    R.drawable.ic_medication,
-                    getString(R.string.title_medication),
-                    MedicationContainerFragment.newInstance(),
-                    MedicationFragment.class.getSimpleName()));
-
-            paginationArrayList.add(new Pagination(
-                    R.drawable.ic_procedure,
-                    getString(R.string.title_procedures_reports),
-                    ProceduresReportsContainerFragment.newInstance(),
-                    ProceduresReportsFragment.class.getSimpleName()));
-
-            paginationArrayList.add(new Pagination(
-                    R.drawable.ic_documents,
-                    getString(R.string.title_other_document),
-                    DocsContainerFragment.newInstance(),
-                    ""));
-
-            paginationArrayList.add(new Pagination(
-                    R.drawable.ic_immunization,
-                    getString(R.string.title_immunization),
-                    ImmunizationContainerFragment.newInstance(),
-                    ImmunizationFragment.class.getSimpleName()));
-
-            paginationArrayList.add(new Pagination(
-                    R.drawable.ic_appointment,
-                    getString(R.string.title_appointments),
-                    AppointmentNewFragment.newInstance(),
-                    AppointmentNewFragment.class.getSimpleName()));
-
-            paginationArrayList.add(new Pagination(
-                    R.drawable.ic_chat,
-                    getString(R.string.title_chat),
-                    ChatFragment.newInstance(),
-                    ChatFragment.class.getSimpleName()));
-
-            paginationArrayList.add(new Pagination(
-                    R.drawable.ic_organ,
-                    getString(R.string.title_organ),
-                    OrganDonationFragment.newInstance(),
-                    OrganDonationFragment.class.getSimpleName()));
-
-
-        }
-        return paginationArrayList;
-    }
-
-
     private void displayAlert(String msg) {
         rvGrid.setVisibility(View.GONE);
         tvAlert.setVisibility(View.VISIBLE);
@@ -632,8 +594,13 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
 
     @Override
     public <T> void onMyListItemClicked(T dataToPass, String dataTitle) {
-
-        if (mApiDemographicItem != null) {
+        if (dataToPass instanceof DemographicsFragment) {
+            mToolbarCallback.changeSideMenuToolBarVisibility(View.GONE);
+            mMediatorCallback.changeFragmentTo(DemographicsFragment.newInstance(responseHolder.getmResult().getmHome().getInstitutesArrayList()), dataTitle);
+        } else if (dataToPass instanceof BodyMeasurementsFragment && responseHolder.getmResult().getmHome().getmRecentVitals() != null) {
+            mToolbarCallback.changeSideMenuToolBarVisibility(View.GONE);
+            mMediatorCallback.changeFragmentTo(BodyMeasurementsFragment.newInstance(responseHolder.getmResult().getmHome().getmRecentVitals()), dataTitle);
+        } else {
             mToolbarCallback.changeSideMenuToolBarVisibility(View.GONE);
             mMediatorCallback.changeFragmentTo((Fragment) dataToPass, dataTitle);
         }
@@ -688,7 +655,7 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
                 }
                 break;
             case R.id.btn_updates_expand:
-                Bitmap imgBtnUpd = ((BitmapDrawable) updatesExpandBtn.getDrawable()).getBitmap();
+             /*   Bitmap imgBtnUpd = ((BitmapDrawable) updatesExpandBtn.getDrawable()).getBitmap();
 
                 if (imgBtnUpd == imgArrow) {
 
@@ -696,9 +663,9 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
                     updatesExpandBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_arrow_right));
                 } else {
 
-                    updatesList.setVisibility(View.VISIBLE);
+                    updatesList.setVisibility(View.GONE);
                     updatesExpandBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_arrow_down));
-                }
+                }*/
                 break;
             case R.id.btn_chats_expand:
                 Bitmap imgBtnChat = ((BitmapDrawable) chatsExpandBtn.getDrawable()).getBitmap();

@@ -56,12 +56,15 @@ public class MeasurementRecyclerViewAdapter extends
         //in order to get color correctly add 0xff at the beginning
         holder.vRoundRect.setBackground(new DrawableGradient(getColorsArray(position)));
 
-        if (getStoredLanguage().equals(LANGUAGE_ARABIC))
+        if (getStoredLanguage().equals(LANGUAGE_ARABIC)) {
             holder.tvTitle.setText(result.getVitalNameNls());
-        else
+            holder.tvValue.setText(result.getValue());
+            holder.tvUnit.setText(result.getUnitNls());
+        } else {
             holder.tvTitle.setText(result.getName());
-        holder.tvValue.setText(result.getValue());
-        holder.tvUnit.setText(result.getUnit());
+            holder.tvValue.setText(result.getValue());
+            holder.tvUnit.setText(result.getUnit());
+        }
 
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -122,17 +125,19 @@ public class MeasurementRecyclerViewAdapter extends
  RR         -   #52a9ff    #52c7ff
  Temp    -      #6054ff    #536bff
  */
-        int[] leftColors = {0xfffe9a3a,
-                0xffff5581,
-                0xfff749b8,
-                0xff30cfb9,
+        int[] leftColors = {0xff30cfb9,
                 0xff52a9ff,
+                0xffff5581,
+                0xfffe9a3a,
+                0xfff749b8,
+                0xffaf39ee,
                 0xff6054ff};
-        int[] rightColors = {0xffffb953,
-                0xffff6d97,
-                0xfff767e3,
-                0xff37e6af,
+        int[] rightColors = {0xff37e6af,
                 0xff52c7ff,
+                0xffff6d97,
+                0xffffb953,
+                0xfff767e3,
+                0xffdcd3ea,
                 0xff536bff};
 
         if (mColorIndex > leftColors.length - 1) {

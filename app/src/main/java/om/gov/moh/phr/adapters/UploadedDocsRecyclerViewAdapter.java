@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -31,7 +32,7 @@ public class UploadedDocsRecyclerViewAdapter extends RecyclerView.Adapter<Upload
     private Context context;
     private ArrayList<ApiUploadsDocsHolder.ApiUploadDocInfo> arraylist;
     private MediatorInterface mediatorInterface;
-    private int row_index = -1;
+    //private int row_index = -1;
 
     public UploadedDocsRecyclerViewAdapter(MediatorInterface mMediatorCallback, ArrayList<ApiUploadsDocsHolder.ApiUploadDocInfo> uploadedDocsList, Context context) {
         this.uploadedDocsArrayList = uploadedDocsList;
@@ -58,21 +59,30 @@ public class UploadedDocsRecyclerViewAdapter extends RecyclerView.Adapter<Upload
         holder.tvDocType.setText(docObj.getDocTypeName());
         holder.tvDocInfo.setText(docObj.getSource());
         holder.tvDocDate.setText(docObj.getCreatedDate());
-        holder.cl_uploadedItem.setOnClickListener(new View.OnClickListener() {
+        if (position != 0) {
+            int prev = position - 1;
+            String prevEncounterDate = uploadedDocsArrayList.get(prev).getCreatedDate();
+            if (docObj.getCreatedDate().equals(prevEncounterDate)) {
+                holder.tvDocDate.setVisibility(View.GONE);
+            } else
+                holder.tvDocDate.setText(context.getString(R.string.date_label)+ " " + docObj.getCreatedDate());
+        } else
+            holder.tvDocDate.setText(context.getString(R.string.date_label)+ " " + docObj.getCreatedDate());
+        holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                row_index = position;
-                notifyDataSetChanged();
+              //  row_index = position;
+              //  notifyDataSetChanged();
                 mediatorInterface.changeFragmentTo(UploadedDocDetailsFragment.newInstance(docObj), docObj.getDocTypeName());
             }
         });
-        if (row_index == position) {
+      /*  if (row_index == position) {
             holder.imageButton.setBackgroundTintList(context.getResources().getColorStateList(R.color.colorPeach));
             holder.cl_uploadedItem.setBackgroundColor(context.getResources().getColor(R.color.colorPeach));
         } else {
             holder.imageButton.setBackgroundTintList(context.getResources().getColorStateList(R.color.colorWhite));
             holder.cl_uploadedItem.setBackgroundColor(context.getResources().getColor(R.color.colorWhite));
-        }
+        }*/
     }
 
     @Override
@@ -82,7 +92,7 @@ public class UploadedDocsRecyclerViewAdapter extends RecyclerView.Adapter<Upload
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
         TextView tvDocType, tvDocInfo, tvDocDate;
-        ConstraintLayout cl_uploadedItem;
+        CardView cardView;
         ImageView ivDocStatus;
         ImageButton imageButton;
 
@@ -90,8 +100,8 @@ public class UploadedDocsRecyclerViewAdapter extends RecyclerView.Adapter<Upload
             super(view);
             tvDocType = view.findViewById(R.id.tv_DocType);
             tvDocInfo = view.findViewById(R.id.tv_DocInfo);
-            tvDocDate = view.findViewById(R.id.tv_estName);
-            cl_uploadedItem = view.findViewById(R.id.cl_uploadedItem);
+            tvDocDate = view.findViewById(R.id.tvDate);
+            cardView = view.findViewById(R.id.constraintLayout_documents);
             ivDocStatus = view.findViewById(R.id.iv_docStatus);
             imageButton = view.findViewById(R.id.imageButton);
         }

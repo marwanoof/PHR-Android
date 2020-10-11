@@ -88,6 +88,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextInputEditText tietOTP;
     private Button btnGetOTP;
     private Button btnLogin;
+    private TextView tvCancel;
     private DisclaimerDialogFragment mDisclaimerDialogFragment;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,7 +105,7 @@ public class LoginActivity extends AppCompatActivity {
         btnGetOTP = findViewById(R.id.btn_get_otp);
         btnLogin = findViewById(R.id.btn_login);
         ImageView ivLogo = findViewById(R.id.imageView);
-        TextView tvCancel = findViewById(R.id.tv_cancel);
+         tvCancel = findViewById(R.id.tv_cancel);
         tvCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -318,6 +319,8 @@ finish();
             tilOTP.setVisibility(View.VISIBLE);
             btnLogin.setVisibility(View.VISIBLE);
             btnGetOTP.setVisibility(View.INVISIBLE);
+            tvCancel.setVisibility(View.GONE);
+
         }
 
     }

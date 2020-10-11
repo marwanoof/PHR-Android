@@ -286,15 +286,31 @@ public class ApiDemographicsHolder {
             @SerializedName("unit")
             private String unit;
 
+            @SerializedName("unitNls")
+            private String unitNls;
+
             @SerializedName("value")
             private String value;
 
+            @SerializedName("leftColor")
+            private String leftColor;
+
+            @SerializedName("rightColor")
+            private String rightColor;
 
             public String getVitalNameNls() {
                 if (TextUtils.isEmpty(vitalNameNls))
                     return "";
                 else
                 return vitalNameNls;
+            }
+
+            public String getLeftColor() {
+                return leftColor;
+            }
+
+            public String getRightColor() {
+                return rightColor;
             }
 
             @SerializedName("vitalNameNls")
@@ -332,6 +348,12 @@ public class ApiDemographicsHolder {
                     return value;
             }
 
+            public String getUnitNls() {
+                if (TextUtils.isEmpty(unitNls)||unitNls==null)
+                    return "--";
+                else
+                return unitNls;
+            }
             /*TODO : delete set methods*/
 
             public void setName(String name) {

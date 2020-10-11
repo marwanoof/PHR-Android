@@ -43,6 +43,8 @@ import java.util.Map;
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.adapters.HRDRecyclerViewAdapter;
 import om.gov.moh.phr.apimodels.ApiEncountersHolder;
+import om.gov.moh.phr.apimodels.ApiOtherDocsHolder;
+import om.gov.moh.phr.apimodels.ApiProceduresReportsHolder;
 import om.gov.moh.phr.apimodels.Immpression;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
@@ -57,7 +59,11 @@ public class ImpressionFragment extends Fragment implements SwipeRefreshLayout.O
     private MediatorInterface mMediatorCallback;
     private ToolbarControllerInterface mToolbarControllerCallback;
     private static final String ARG_PARAM1 = "ARG_PARAM1";
+    private static final String ARG_PARAM2 = "ARG_PARAM2";
+    private static final String ARG_PARAM3 = "ARG_PARAM3";
     private ApiEncountersHolder.Encounter encounterInfo;
+    private ApiOtherDocsHolder.ApiDocInfo docInfo;
+    private ApiProceduresReportsHolder procedureInfo;
     private RecyclerView recyclerView;
     private MyProgressDialog mProgressDialog;
     private RequestQueue mQueue;
@@ -73,6 +79,22 @@ public class ImpressionFragment extends Fragment implements SwipeRefreshLayout.O
         return fragment;
     }
 
+    public static ImpressionFragment newInstance(ApiOtherDocsHolder.ApiDocInfo docInfo) {
+        ImpressionFragment fragment = new ImpressionFragment();
+        Bundle args = new Bundle();
+        args.putSerializable(ARG_PARAM2, docInfo);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public static ImpressionFragment newInstance(ApiProceduresReportsHolder procedureInfo) {
+        ImpressionFragment fragment = new ImpressionFragment();
+        Bundle args = new Bundle();
+        args.putSerializable(ARG_PARAM3, procedureInfo);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -84,8 +106,14 @@ public class ImpressionFragment extends Fragment implements SwipeRefreshLayout.O
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null)
-            encounterInfo = (ApiEncountersHolder.Encounter) getArguments().getSerializable(ARG_PARAM1);
+        if (getArguments() != null) {
+            if (getArguments().getSerializable(ARG_PARAM1) != null)
+                encounterInfo = (ApiEncountersHolder.Encounter) getArguments().getSerializable(ARG_PARAM1);
+            if (getArguments().getSerializable(ARG_PARAM2) != null)
+                docInfo = (ApiOtherDocsHolder.ApiDocInfo) getArguments().getSerializable(ARG_PARAM2);
+            if (getArguments().getSerializable(ARG_PARAM3) != null)
+                procedureInfo = (ApiProceduresReportsHolder) getArguments().getSerializable(ARG_PARAM3);
+        }
     }
 
     @Override
@@ -102,18 +130,38 @@ public class ImpressionFragment extends Fragment implements SwipeRefreshLayout.O
         tvTime = parentView.findViewById(R.id.tv_time);
         swipeRefreshLayout = parentView.findViewById(R.id.swipe_refresh_layout);
         recyclerView = parentView.findViewById(R.id.recycler_view);
+        if (encounterInfo != null) {
+            tvPatientClass.setText(encounterInfo.getPatientClass());
+            tvEstName.setText(encounterInfo.getEstShortName());
+            String url = API_URL_GET_IMMPRESSION_INFO + encounterInfo.getEncounterId() + "?source=PHR";
+            getImmpressionNotes(url);
+        } else if (docInfo != null) {
+            tvPatientClass.setText(docInfo.getPatientClass());
+            tvEstName.setText(docInfo.getEstName());
+            String url = API_URL_GET_IMMPRESSION_INFO + docInfo.getEncounterId() + "?source=PHR";
+            getImmpressionNotes(url);
+        } else {
+            tvPatientClass.setText(procedureInfo.getPatientClass());
+            tvEstName.setText(procedureInfo.getEstName());
+            String url = API_URL_GET_IMMPRESSION_INFO + procedureInfo.getEncounterId() + "?source=PHR";
+            getImmpressionNotes(url);
+        }
 
-        tvPatientClass.setText(encounterInfo.getPatientClass());
-        tvEstName.setText(encounterInfo.getEstShortName());
-        String url = API_URL_GET_IMMPRESSION_INFO + encounterInfo.getEncounterId() + "?source=PHR";
-        getImmpressionNotes(url);
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.post(new Runnable() {
                                     @Override
                                     public void run() {
                                         swipeRefreshLayout.setRefreshing(true);
-                                        String url = API_URL_GET_IMMPRESSION_INFO + encounterInfo.getEncounterId() + "?source=PHR";
-                                        getImmpressionNotes(url);
+                                        if (encounterInfo != null) {
+                                            String url = API_URL_GET_IMMPRESSION_INFO + encounterInfo.getEncounterId() + "?source=PHR";
+                                            getImmpressionNotes(url);
+                                        } else if (docInfo != null) {
+                                            String url = API_URL_GET_IMMPRESSION_INFO + docInfo.getEncounterId() + "?source=PHR";
+                                            getImmpressionNotes(url);
+                                        } else {
+                                            String url = API_URL_GET_IMMPRESSION_INFO + procedureInfo.getEncounterId() + "?source=PHR";
+                                            getImmpressionNotes(url);
+                                        }
                                     }
                                 }
         );
@@ -205,7 +253,15 @@ public class ImpressionFragment extends Fragment implements SwipeRefreshLayout.O
 
     @Override
     public void onRefresh() {
-        String url = API_URL_GET_IMMPRESSION_INFO + encounterInfo.getEncounterId() + "?source=PHR";
-        getImmpressionNotes(url);
+        if (encounterInfo != null) {
+            String url = API_URL_GET_IMMPRESSION_INFO + encounterInfo.getEncounterId() + "?source=PHR";
+            getImmpressionNotes(url);
+        } else if (docInfo != null) {
+            String url = API_URL_GET_IMMPRESSION_INFO + docInfo.getEncounterId() + "?source=PHR";
+            getImmpressionNotes(url);
+        } else {
+            String url = API_URL_GET_IMMPRESSION_INFO + procedureInfo.getEncounterId() + "?source=PHR";
+            getImmpressionNotes(url);
+        }
     }
 }

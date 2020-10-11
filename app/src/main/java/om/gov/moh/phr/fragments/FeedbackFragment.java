@@ -9,6 +9,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import android.text.InputFilter;
+import android.text.InputType;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.LayoutInflater;
@@ -150,10 +152,7 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (responseHolder != null)
-                    etUserEmail.setText("");
-                etUserMobileNo.setText("");
-                Toast.makeText(mContext, getResources().getString(R.string.cancel_done_msg), Toast.LENGTH_SHORT).show();
+          mToolbarControllerCallback.customToolbarBackButtonClicked();
             }
         });
         return view;
@@ -239,6 +238,7 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
                                     editText.setLines(3);
                                     //editText.setHint("write here your comments.");
                                     editText.setId(responseHolder.getResult().get(i).getParamId());
+                                    editText.setFilters(new InputFilter[] { new InputFilter.LengthFilter(100) });
                                     constraintLayout.addView(editText);
                                 }
 
@@ -250,6 +250,7 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
                             etOtherComments.setHint(getResources().getString(R.string.other_commets));
                             etOtherComments.setMaxLines(3);
                             etOtherComments.setLines(3);
+                            etOtherComments.setFilters(new InputFilter[] { new InputFilter.LengthFilter(100) });
                             constraintLayout.addView(etOtherComments);
                             etUserEmail = new EditText(mContext);
                             etUserEmail.setLayoutParams(layoutParams);
@@ -262,6 +263,7 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
                             etUserMobileNo.setHint(getResources().getString(R.string.enter_your_mobile_no));
                             etUserMobileNo.setTextSize(14);
                             etUserMobileNo.setSingleLine(true);
+                            etUserMobileNo.setInputType(InputType.TYPE_CLASS_PHONE);
                             constraintLayout.addView(etUserMobileNo);
                         } else {
 

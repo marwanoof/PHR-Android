@@ -3,6 +3,7 @@ package om.gov.moh.phr.adapters;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +18,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.concurrent.TimeUnit;
 
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.apimodels.Notification;
@@ -31,10 +34,10 @@ public class NotificationsRecyclerViewAdapter extends RecyclerView.Adapter<Notif
     private DBHelper dbHelper;
     private MediatorInterface mMediatorCallback;
 
-    public NotificationsRecyclerViewAdapter(ArrayList<Notification> notificationsArrayList, Context context, AdapterToFragmentConnectorInterface fragment, MediatorInterface mMediatorCallback) {
+    public NotificationsRecyclerViewAdapter(ArrayList<Notification> notificationsArrayList, Context context, /*AdapterToFragmentConnectorInterface fragment,*/ MediatorInterface mMediatorCallback) {
         this.notificationsArrayList = notificationsArrayList;
         this.context = context;
-        mCallback = fragment;
+        //  mCallback = fragment;
         this.mMediatorCallback = mMediatorCallback;
     }
 
@@ -49,39 +52,41 @@ public class NotificationsRecyclerViewAdapter extends RecyclerView.Adapter<Notif
     @Override
     public void onBindViewHolder(@NonNull final MyViewHolder holder, final int position) {
         final Notification notificationObj = notificationsArrayList.get(position);
-        holder.tvTitle.setText(notificationObj.getTitle());
-        dbHelper = new DBHelper(context);
-        holder.tvBody.setText(notificationObj.getBody());
-        switch (notificationObj.getPnsType()) {
-            case "1":
-                holder.ivNotificationitem.setImageResource(R.drawable.lab_result_not);
-                break;
-            case "3":
-                holder.ivNotificationitem.setImageResource(R.drawable.immunization_not);
-                break;
-            case "4":
-                holder.ivNotificationitem.setImageResource(R.drawable.diagnostic_report);
-                break;
-            case "5":
-                holder.ivNotificationitem.setImageResource(R.drawable.clinical_documents);
-                break;
-            default:
-                holder.ivNotificationitem.setImageResource(R.drawable.about_ic);
-                holder.ibArrow.setVisibility(View.GONE);
-        }
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            holder.tvTitle.setText(notificationObj.getTitle());
+            dbHelper = new DBHelper(context);
+            holder.tvBody.setText(notificationObj.getBody());
+            switch (notificationObj.getPnsType()) {
+                case "1":
+                    holder.ivNotificationitem.setImageResource(R.drawable.lab_result_not);
+                    break;
+                case "3":
+                    holder.ivNotificationitem.setImageResource(R.drawable.immunization_not);
+                    break;
+                case "4":
+                    holder.ivNotificationitem.setImageResource(R.drawable.diagnostic_report);
+                    break;
+                case "5":
+                    holder.ivNotificationitem.setImageResource(R.drawable.clinical_documents);
+                    break;
+                default:
+                    holder.ivNotificationitem.setImageResource(R.drawable.about_ic);
+                    holder.ibArrow.setVisibility(View.GONE);
+                    holder.ibArrow.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            displayDialog(notificationObj.getKeyId());
+                        }
+                    });
+            }
+
+     /*   holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!notificationObj.getPnsType().equals("10"))
                     mCallback.onMyListItemClicked(notificationObj, notificationObj.getTitle(), position);
             }
-        });
-        holder.ibArrow.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                displayDialog(notificationObj.getKeyId());
-            }
-        });
+        });*/
+
     }
 
     @Override

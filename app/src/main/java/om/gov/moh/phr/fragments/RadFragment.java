@@ -43,6 +43,7 @@ import java.util.Map;
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.adapters.ProceduresReportsRecyclerView;
 import om.gov.moh.phr.apimodels.ApiEncountersHolder;
+import om.gov.moh.phr.apimodels.ApiOtherDocsHolder;
 import om.gov.moh.phr.apimodels.ApiProceduresReportsHolder;
 import om.gov.moh.phr.apimodels.Notification;
 import om.gov.moh.phr.interfaces.MediatorInterface;
@@ -61,6 +62,8 @@ public class RadFragment extends Fragment implements SwipeRefreshLayout.OnRefres
     private static final String API_URL_GET_RAD_HRD_INFO = API_NEHR_URL + "diagnosticOrder/encounterId/";
     private static final String API_URL_GET_RAD_NOTIFICATION_INFO = API_NEHR_URL + "diagnosticOrder/report/";
     private static final String ARG_PARAM1 = "ARG_PARAM1";
+    private static final String ARG_PARAM2 = "ARG_PARAM2";
+    private static final String ARG_PARAM3 = "ARG_PARAM3";
     private static final String ARG_NOTIFICATION = "ARG_NOTIFICATION";
     private static final String REPORTID_KEY = "reportId";
     private static final String EST_NAME_KEY = "estName";
@@ -73,7 +76,9 @@ public class RadFragment extends Fragment implements SwipeRefreshLayout.OnRefres
     private TextView tvAlert;
     private ArrayList<ApiProceduresReportsHolder> reportsArrayList;
     private ApiEncountersHolder.Encounter encounterInfo;
+    private ApiOtherDocsHolder.ApiDocInfo docInfo;
     private Notification notificationObj;
+    private ApiProceduresReportsHolder procedureObj;
     private SwipeRefreshLayout swipeRefreshLayout;
 
     public RadFragment() {
@@ -95,7 +100,20 @@ public class RadFragment extends Fragment implements SwipeRefreshLayout.OnRefres
         fragment.setArguments(args);
         return fragment;
     }
-
+    public static RadFragment newInstance(ApiOtherDocsHolder.ApiDocInfo docInfo) {
+        RadFragment fragment = new RadFragment();
+        Bundle args = new Bundle();
+        args.putSerializable(ARG_PARAM2, docInfo);
+        fragment.setArguments(args);
+        return fragment;
+    }
+    public static RadFragment newInstance(ApiProceduresReportsHolder procedureInfo) {
+        RadFragment fragment = new RadFragment();
+        Bundle args = new Bundle();
+        args.putSerializable(ARG_PARAM3, procedureInfo);
+        fragment.setArguments(args);
+        return fragment;
+    }
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -111,6 +129,10 @@ public class RadFragment extends Fragment implements SwipeRefreshLayout.OnRefres
             encounterInfo = (ApiEncountersHolder.Encounter) getArguments().getSerializable(ARG_PARAM1);
         if (getArguments().getSerializable(ARG_NOTIFICATION) != null)
             notificationObj = (Notification) getArguments().getSerializable(ARG_NOTIFICATION);
+        if (getArguments().getSerializable(ARG_PARAM2) != null)
+            docInfo = (ApiOtherDocsHolder.ApiDocInfo) getArguments().getSerializable(ARG_PARAM2);
+        if (getArguments().getSerializable(ARG_PARAM3) != null)
+            procedureObj = (ApiProceduresReportsHolder) getArguments().getSerializable(ARG_PARAM3);
     }
 
     @Override
@@ -131,7 +153,7 @@ public class RadFragment extends Fragment implements SwipeRefreshLayout.OnRefres
         mProgressDialog = new MyProgressDialog(mContext);
         tvAlert = view.findViewById(R.id.tv_alert);
         rvProceduresReportsList = view.findViewById(R.id.rv_reportsList);
-        if(encounterInfo!=null) {
+        if(encounterInfo!=null||docInfo!=null||procedureObj!=null) {
             ibToolbarBackButton.setVisibility(View.GONE);
             tvTitle.setVisibility(View.GONE);
         }
@@ -143,6 +165,10 @@ public class RadFragment extends Fragment implements SwipeRefreshLayout.OnRefres
             } else if (notificationObj != null) {
                 tvTitle.setText(notificationObj.getTitle());
                 procRADHRDUrl = API_URL_GET_RAD_NOTIFICATION_INFO + notificationObj.getKeyId();
+            }else if(docInfo!=null){
+                procRADHRDUrl = API_URL_GET_RAD_HRD_INFO + docInfo.getEncounterId();
+            }else {
+                procRADHRDUrl = API_URL_GET_RAD_HRD_INFO + procedureObj.getEncounterId();
             }
             getProceduresReportsList(procRADHRDUrl);
             swipeRefreshLayout.setOnRefreshListener(this);
@@ -155,6 +181,10 @@ public class RadFragment extends Fragment implements SwipeRefreshLayout.OnRefres
                                                procRADHRDUrl = API_URL_GET_RAD_HRD_INFO + encounterInfo.getEncounterId();
                                             } else if (notificationObj != null) {
                                                procRADHRDUrl = API_URL_GET_RAD_NOTIFICATION_INFO + notificationObj.getKeyId();
+                                            }else if(docInfo!=null){
+                                                procRADHRDUrl = API_URL_GET_RAD_HRD_INFO + docInfo.getEncounterId();
+                                            }else {
+                                                procRADHRDUrl = API_URL_GET_RAD_HRD_INFO + procedureObj.getEncounterId();
                                             }
                                             getProceduresReportsList(procRADHRDUrl);
                                         }
@@ -265,6 +295,10 @@ public class RadFragment extends Fragment implements SwipeRefreshLayout.OnRefres
             procRADHRDUrl = API_URL_GET_RAD_HRD_INFO + encounterInfo.getEncounterId();
         } else if (notificationObj != null) {
             procRADHRDUrl = API_URL_GET_RAD_NOTIFICATION_INFO + notificationObj.getKeyId();
+        }else if(docInfo!=null){
+            procRADHRDUrl = API_URL_GET_RAD_HRD_INFO + docInfo.getEncounterId();
+        }else {
+            procRADHRDUrl = API_URL_GET_RAD_HRD_INFO + procedureObj.getEncounterId();
         }
         getProceduresReportsList(procRADHRDUrl);
     }

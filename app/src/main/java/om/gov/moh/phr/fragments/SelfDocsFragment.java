@@ -68,7 +68,6 @@ public class SelfDocsFragment extends Fragment implements SearchView.OnQueryText
     private TextView tvAlert;
     private SwipeRefreshLayout swipeRefreshLayout;
     private View view;
-    private CardView cardView;
     public SelfDocsFragment() {
         // Required empty public constructor
     }
@@ -92,14 +91,12 @@ public class SelfDocsFragment extends Fragment implements SearchView.OnQueryText
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        if (view == null) {
-         view = inflater.inflate(R.layout.fragment_self_docs, container, false);
+         View view = inflater.inflate(R.layout.fragment_self_docs, container, false);
 
             mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
             mProgressDialog = new MyProgressDialog(mContext);
             rvOtherDocsList = view.findViewById(R.id.rv_DocsList);
             tvAlert = view.findViewById(R.id.tv_alert);
-            cardView = view.findViewById(R.id.cardView_self_docs);
             SearchView searchView = (SearchView) view.findViewById(R.id.sv_searchView);
             searchView.setOnQueryTextListener(this);
 
@@ -124,9 +121,6 @@ public class SelfDocsFragment extends Fragment implements SearchView.OnQueryText
             } else {
                 displayAlert(getString(R.string.alert_no_connection));
             }
-        }else {
-            ((ViewGroup)view.getParent()).removeView(view);
-        }
         return view;
     }
     private void getUploadedDocsList(String UploadedDocsListUrl) {
@@ -188,9 +182,9 @@ public class SelfDocsFragment extends Fragment implements SearchView.OnQueryText
                 new UploadedDocsRecyclerViewAdapter(mMediatorCallback, getmResult, mContext);
         LinearLayoutManager layoutManager
                 = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
-        DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(rvOtherDocsList.getContext(),
+/*        DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(rvOtherDocsList.getContext(),
                 layoutManager.getOrientation());
-        rvOtherDocsList.addItemDecoration(mDividerItemDecoration);
+        rvOtherDocsList.addItemDecoration(mDividerItemDecoration);*/
         rvOtherDocsList.setLayoutManager(layoutManager);
         rvOtherDocsList.setItemAnimator(new DefaultItemAnimator());
         rvOtherDocsList.setAdapter(mUploadedAdapter);
@@ -209,7 +203,6 @@ public class SelfDocsFragment extends Fragment implements SearchView.OnQueryText
         return false;
     }
     private void displayAlert(String msg) {
-        cardView.setVisibility(View.GONE);
         rvOtherDocsList.setVisibility(View.GONE);
         tvAlert.setVisibility(View.VISIBLE);
         tvAlert.setText(msg);

@@ -1,6 +1,7 @@
 package om.gov.moh.phr.adapters;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,25 +13,24 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 import om.gov.moh.phr.R;
-import om.gov.moh.phr.models.MyVital;
+import om.gov.moh.phr.apimodels.ApiHomeHolder;
+
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_ARABIC;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_PREFS;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_SELECTED;
 
 public class MyVitalListAdapter extends RecyclerView.Adapter<MyVitalListAdapter.MyViewHolder> {
 
-    private ArrayList<MyVital> models;
-
+    private ArrayList<ApiHomeHolder.ApiRecentVitals> models;
     private Context context;
 
-    public MyVitalListAdapter(ArrayList<MyVital> models, Context context) {
+    public MyVitalListAdapter(ArrayList<ApiHomeHolder.ApiRecentVitals> models, Context context) {
         this.models = models;
-
         this.context = context;
-
     }
-
-
-
 
     @NonNull
     @Override
@@ -44,12 +44,12 @@ public class MyVitalListAdapter extends RecyclerView.Adapter<MyVitalListAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull MyVitalListAdapter.MyViewHolder holder, int position) {
-
-
-        holder.title.setText(models.get(position).getTitle());
+        if (getStoredLanguage().equals(LANGUAGE_ARABIC) && models.get(position).getVitalNameNls() != null)
+            holder.title.setText(models.get(position).getVitalNameNls());
+        else
+            holder.title.setText(models.get(position).getName());
         holder.value.setText(models.get(position).getValue());
-        holder.sign.setText(models.get(position).getSign());
-
+        holder.sign.setText(models.get(position).getUnit());
     }
 
     @Override
@@ -58,8 +58,7 @@ public class MyVitalListAdapter extends RecyclerView.Adapter<MyVitalListAdapter.
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
-        TextView title,value, sign;
-
+        TextView title, value, sign;
 
 
         public MyViewHolder(@NonNull View itemView) {
@@ -67,10 +66,16 @@ public class MyVitalListAdapter extends RecyclerView.Adapter<MyVitalListAdapter.
             title = itemView.findViewById(R.id.tv_myvital_title);
             value = itemView.findViewById(R.id.tv_myvital_value);
             sign = itemView.findViewById(R.id.tv_myvital_sign);
-
-
-
         }
 
+    }
+
+    private String getStoredLanguage() {
+        SharedPreferences sharedPref = context.getSharedPreferences(LANGUAGE_PREFS, Context.MODE_PRIVATE);
+        return sharedPref.getString(LANGUAGE_SELECTED, getDeviceLanguage());
+    }
+
+    private String getDeviceLanguage() {
+        return Locale.getDefault().getLanguage();
     }
 }

@@ -53,6 +53,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.activities.MainActivity;
@@ -120,41 +121,41 @@ public class ChatMessagesFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        if(view == null){
-         view = inflater.inflate(R.layout.fragment_chat_messages, container, false);
-        TextView tvTitle = view.findViewById(R.id.tv_toolbar_title);
-        tvTitle.setText(getResources().getString(R.string.chat_messages_title));
-        ImageButton ibBack = view.findViewById(R.id.ib_toolbar_back_button);
-        /*tvTitle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mToolbarControllerCallback.customToolbarBackButtonClicked();
-            }
-        });*/
-        ibBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mToolbarControllerCallback.customToolbarBackButtonClicked();
-            }
-        });
-        mProgressDialog = new MyProgressDialog(mContext);
-        mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
-        etNewMessageToSend = view.findViewById(R.id.et_message);
-        rvChatRoomMessages = view.findViewById(R.id.rv_chat_room);
-        ImageView ivSend = view.findViewById(R.id.iv_send);
-        ivSend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (etNewMessageToSend.getText().toString().isEmpty())
-                    Toast.makeText(mContext, getResources().getString(R.string.enter_msg_to_send), Toast.LENGTH_SHORT).show();
-                else
-                    sendNewMessage();
-            }
-        });
-        String getMessagesUrl = API_URL_GET_MESSAGES_LIST + messageObj.getMessageId();
-        getChatRoomMessages(getMessagesUrl);
+        if (view == null) {
+            view = inflater.inflate(R.layout.fragment_chat_messages, container, false);
+            TextView tvTitle = view.findViewById(R.id.tv_toolbar_title);
+            tvTitle.setText(getResources().getString(R.string.chat_messages_title));
+            ImageButton ibBack = view.findViewById(R.id.ib_toolbar_back_button);
+            tvTitle.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mToolbarControllerCallback.customToolbarBackButtonClicked();
+                }
+            });
+            ibBack.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mToolbarControllerCallback.customToolbarBackButtonClicked();
+                }
+            });
+            mProgressDialog = new MyProgressDialog(mContext);
+            mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
+            etNewMessageToSend = view.findViewById(R.id.et_message);
+            rvChatRoomMessages = view.findViewById(R.id.rv_chat_room);
+            ImageView ivSend = view.findViewById(R.id.iv_send);
+            ivSend.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (etNewMessageToSend.getText().toString().isEmpty())
+                        Toast.makeText(mContext, getResources().getString(R.string.enter_msg_to_send), Toast.LENGTH_SHORT).show();
+                    else
+                        sendNewMessage();
+                }
+            });
+            String getMessagesUrl = API_URL_GET_MESSAGES_LIST + messageObj.getMessageId();
+            getChatRoomMessages(getMessagesUrl);
         } else {
-            if(view.getParent()!=null)
+            if (view.getParent() != null)
                 ((ViewGroup) view.getParent()).removeView(view);
         }
         return view;
@@ -226,33 +227,13 @@ public class ChatMessagesFragment extends Fragment {
         rvChatRoomMessages.setLayoutManager(layoutManager);
         rvChatRoomMessages.setItemAnimator(new DefaultItemAnimator());
         rvChatRoomMessages.setAdapter(mAdapter);
-        // to go to the last message on chat
-        rvChatRoomMessages.smoothScrollToPosition(getmResult.size() - 1);
-        // this code is to scroll down automatically when new unread message is coming
-        mAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-            @Override
-            public void onItemRangeInserted(int positionStart, int itemCount) {
-                super.onItemRangeInserted(positionStart, itemCount);
-                int friendlyMessageCount = mAdapter.getItemCount();
-                int lastVisiblePosition =
-                        layoutManager.findLastCompletelyVisibleItemPosition();
-                // If the recycler view is initially being loaded or the
-                // user is at the bottom of the list, scroll to the bottom
-                // of the list to show the newly added message.
-                if (lastVisiblePosition == -1 ||
-                        (positionStart >= (friendlyMessageCount - 1) &&
-                                lastVisiblePosition == (positionStart - 1))) {
-                    rvChatRoomMessages.scrollToPosition(positionStart);
-                }
-            }
-        });
         mAdapter.notifyDataSetChanged();
+        // this line to show the last message in the chat room ..
+        layoutManager.setStackFromEnd(true);
         clearChatBodySharedPrefs();
     }
 
     private void sendNewMessage() {
-
-        mProgressDialog.showDialog();
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, API_URL_SEND_MESSAGES_LIST, getJSONRequestParams()
                 , new Response.Listener<JSONObject>() {
             @Override
@@ -261,18 +242,12 @@ public class ChatMessagesFragment extends Fragment {
                     try {
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
                             Log.d("upload", response.getString(API_RESPONSE_MESSAGE));
-                            // Toast.makeText(mContext, response.getString(API_RESPONSE_MESSAGE), Toast.LENGTH_SHORT).show();
                             addNewItemIntoRecyclerView();
-                        } else {
-
-                            mProgressDialog.dismissDialog();
                         }
                     } catch (JSONException e) {
                         Log.d("createChat", e.getMessage());
                         e.printStackTrace();
                     }
-
-                    mProgressDialog.dismissDialog();
 
                 }
             }
@@ -282,8 +257,6 @@ public class ChatMessagesFragment extends Fragment {
                 if (mContext != null && isAdded()) {
                     Log.d("creatChat_error", error.toString());
                     error.printStackTrace();
-                    Toast.makeText(mContext, "error", Toast.LENGTH_SHORT).show();
-                    mProgressDialog.dismissDialog();
                 }
             }
         }) {
@@ -291,11 +264,7 @@ public class ChatMessagesFragment extends Fragment {
             @Override
             public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
-//                headers.put("Accept", "application/json");
                 headers.put("Content-Type", "application/json");
-                //         headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
-
-
                 return headers;
             }
 
@@ -368,7 +337,7 @@ public class ChatMessagesFragment extends Fragment {
     private class DataUpdateReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals("BODY")) {
+            if (Objects.requireNonNull(intent.getAction()).equals("BODY")) {
                 SharedPreferences sharedPref = mContext.getSharedPreferences("CHAT-BODY", Context.MODE_PRIVATE);
                 String messageBody = sharedPref.getString("MESSAGE-BODY", null);
                 String messageSender = sharedPref.getString("MESSAGE-SENDER", null);

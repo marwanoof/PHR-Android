@@ -49,4 +49,7 @@ public class MyConstants {
     public static final String LANGUAGE_PREFS = "language_prefs";
     public static final String LANGUAGE_SELECTED = "LANGUAGE_SELECTED";
 
+    //activate userpreferences home style
+    public static boolean IS_SCROLL_LIST = true;
+
 }

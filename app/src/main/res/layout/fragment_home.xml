@@ -81,7 +81,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="5dp"
                         android:layout_weight="2"
-                        android:text="My Vital Signs"
+                        android:text="@string/title_vital_signs"
                         android:textColor="@color/colorSecendary"
                         android:textStyle="bold" />
 
@@ -142,7 +142,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="5dp"
                         android:layout_weight="2"
-                        android:text="Coming Appointments"
+                        android:text="@string/title_appointments"
                         android:textColor="@color/colorSecendary"
                         android:textStyle="bold" />
 
@@ -202,7 +202,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="5dp"
                         android:layout_weight="2"
-                        android:text="Notification"
+                        android:text="@string/title_notification"
                         android:textColor="@color/colorSecendary"
                         android:textStyle="bold" />
 
@@ -243,6 +243,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="start|center_vertical"
                     android:orientation="horizontal"
+                    android:visibility="gone"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
@@ -322,7 +323,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="5dp"
                         android:layout_weight="2"
-                        android:text="Unread Messages"
+                        android:text="@string/unread_messages"
                         android:textColor="@color/colorSecendary"
                         android:textStyle="bold" />
 

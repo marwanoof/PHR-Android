@@ -84,7 +84,7 @@ public class LabResultDetailsFragment extends Fragment implements SwipeRefreshLa
     private Context mContext;
     private RequestQueue mQueue;
     private RecyclerView rvLabResults, rvTextualResults;
-    private ImageButton ibHome, ibRefresh;
+    private ImageButton ibRefresh;
     private Notification notificationObj;
     private SwipeRefreshLayout swipeRefreshLayout;
     private TextualDataRecyclerViewAdapter mAdapter;
@@ -203,27 +203,12 @@ public class LabResultDetailsFragment extends Fragment implements SwipeRefreshLa
                     tvProcName.setText(notificationObj.getTitle());
             }
         });
-        ibHome.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                backToHome();
-            }
-        });
         return view;
     }
 
     private void enableHomeandRefresh(View view) {
-        ibHome = view.findViewById(R.id.ib_home);
         ibRefresh = view.findViewById(R.id.ib_refresh);
-        ibHome.setVisibility(View.VISIBLE);
         ibRefresh.setVisibility(View.VISIBLE);
-    }
-
-    private void backToHome() {
-        FragmentManager fm = getActivity().getSupportFragmentManager();
-        for (int i = 0; i < fm.getBackStackEntryCount(); ++i) {
-            fm.popBackStack();
-        }
     }
 
     private void setupPage() {

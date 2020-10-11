@@ -2,7 +2,6 @@ package om.gov.moh.phr.fragments;
 
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,23 +16,19 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.adapters.MeasurementRecyclerViewAdapter;
 import om.gov.moh.phr.apimodels.ApiDemographicsHolder;
+import om.gov.moh.phr.apimodels.ApiHomeHolder;
 import om.gov.moh.phr.interfaces.AdapterToFragmentConnectorInterface;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
 
-import static om.gov.moh.phr.models.MyConstants.LANGUAGE_ARABIC;
-import static om.gov.moh.phr.models.MyConstants.LANGUAGE_PREFS;
-import static om.gov.moh.phr.models.MyConstants.LANGUAGE_SELECTED;
-
 public class BodyMeasurementsFragment extends Fragment implements AdapterToFragmentConnectorInterface {
 
     private static final String PARAM_RECENT_VITALS = "PARAM_RECENT_VITALS";
-    private ArrayList<ApiDemographicsHolder.ApiDemographicItem.RecentVitals> mRecentVitalsArrayList;
+    private ArrayList<ApiHomeHolder.ApiRecentVitals> mRecentVitalsArrayList;
     private Context mContext;
     private MediatorInterface mMediatorCallback;
     private ToolbarControllerInterface mToolbarControllerCallback;
@@ -43,7 +38,7 @@ public class BodyMeasurementsFragment extends Fragment implements AdapterToFragm
         // Required empty public constructor
     }
 
-    public static BodyMeasurementsFragment newInstance(ArrayList<ApiDemographicsHolder.ApiDemographicItem.RecentVitals> recentVitalsArrayList) {
+    public static BodyMeasurementsFragment newInstance(ArrayList<ApiHomeHolder.ApiRecentVitals> recentVitalsArrayList) {
         BodyMeasurementsFragment fragment = new BodyMeasurementsFragment();
         Bundle args = new Bundle();
         args.putSerializable(PARAM_RECENT_VITALS, recentVitalsArrayList);
@@ -64,7 +59,7 @@ public class BodyMeasurementsFragment extends Fragment implements AdapterToFragm
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mRecentVitalsArrayList = (ArrayList<ApiDemographicsHolder.ApiDemographicItem.RecentVitals>) getArguments().getSerializable(PARAM_RECENT_VITALS);
+            mRecentVitalsArrayList = (ArrayList<ApiHomeHolder.ApiRecentVitals>) getArguments().getSerializable(PARAM_RECENT_VITALS);
         }
     }
 

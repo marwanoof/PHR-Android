@@ -101,7 +101,7 @@ public class NotificationsFragment extends Fragment implements AdapterToFragment
 
     private void setRecyclerView() {
         NotificationsRecyclerViewAdapter mAdapter =
-                new NotificationsRecyclerViewAdapter(notificationsList, mContext, NotificationsFragment.this, mMediatorCallback);
+                new NotificationsRecyclerViewAdapter(notificationsList, mContext, mMediatorCallback);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(mContext);
         DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(rvNotification
                 .getContext(),

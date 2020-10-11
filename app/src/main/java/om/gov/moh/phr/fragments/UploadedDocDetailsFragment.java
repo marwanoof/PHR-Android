@@ -69,7 +69,7 @@ public class UploadedDocDetailsFragment extends Fragment implements SwipeRefresh
     private MediatorInterface mMediatorCallback;
     private ToolbarControllerInterface mToolbarControllerCallback;
     private Switch switchPublish;
-    private ImageButton ibHome, ibDelete;
+    private ImageButton ibDelete;
     private ApiUploadsDocsHolder.ApiUploadDocInfo mUploadedDocInfo;
     private ImageView ivFileUploaded;
     private TextView tvAlert;
@@ -132,7 +132,8 @@ public class UploadedDocDetailsFragment extends Fragment implements SwipeRefresh
                 showAlertDialog();
             }
         });
-        ibHome = view.findViewById(R.id.ib_home);
+
+        setToolBarItemsVisibility();
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.post(new Runnable() {
@@ -144,15 +145,8 @@ public class UploadedDocDetailsFragment extends Fragment implements SwipeRefresh
                                     }
                                 }
         );
-        ibHome.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                backToHome();
-            }
-        });
         ivFileUploaded = view.findViewById(R.id.iv_uploadedFile);
         tvAlert = view.findViewById(R.id.tv_alert);
-        setToolBarItemsVisibility();
         mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
         mProgressDialog = new MyProgressDialog(mContext);
         String fileUrl = API_DOC_INFO + mUploadedDocInfo.getDocId();
@@ -307,17 +301,9 @@ public class UploadedDocDetailsFragment extends Fragment implements SwipeRefresh
         alert11.show();
     }
 
-    private void backToHome() {
-        FragmentManager fm = getActivity().getSupportFragmentManager();
-        for (int i = 0; i < fm.getBackStackEntryCount(); ++i) {
-            fm.popBackStack();
-        }
-    }
-
     private void setToolBarItemsVisibility() {
         switchPublish.setVisibility(View.VISIBLE);
         ibDelete.setVisibility(View.VISIBLE);
-        ibHome.setVisibility(View.VISIBLE);
     }
 
     private void getFileUploaded(String fileUrl) {

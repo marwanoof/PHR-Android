@@ -53,6 +53,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -78,7 +79,6 @@ import static om.gov.moh.phr.models.MyConstants.GALLERY;
  * A simple {@link Fragment} subclass.
  */
 public class AddDocFragment extends Fragment {
-    private ImageButton ibHome;
     private ImageButton ibGalleryFile;
     private ImageButton ibCameraFile;
     private MyProgressDialog mProgressDialog;
@@ -135,12 +135,6 @@ public class AddDocFragment extends Fragment {
             }
         });
         enableHomeandRefresh(view);
-        ibHome.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                backToHome();
-            }
-        });
         mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
         mProgressDialog = new MyProgressDialog(mContext);
         spnDocTypes = view.findViewById(R.id.spnr_DocType);
@@ -187,18 +181,10 @@ public class AddDocFragment extends Fragment {
     }
 
     private void enableHomeandRefresh(View view) {
-        ibHome = view.findViewById(R.id.ib_home);
         ImageButton ibRefresh = view.findViewById(R.id.ib_refresh);
-        ibHome.setVisibility(View.VISIBLE);
         ibRefresh.setVisibility(View.GONE);
     }
 
-    private void backToHome() {
-        FragmentManager fm = Objects.requireNonNull(getActivity()).getSupportFragmentManager();
-        for (int i = 0; i < fm.getBackStackEntryCount(); ++i) {
-            fm.popBackStack();
-        }
-    }
 
     private void getDocType() {
         mProgressDialog.showDialog();
@@ -426,10 +412,10 @@ public class AddDocFragment extends Fragment {
 
                     final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
                     Uri imageRealUri = getImageUri(mContext, selectedImage);
-                    Bitmap bitmap = CameraUtils.optimizeBitmap(8,
+                    Bitmap bitmap = CameraUtils.optimizeBitmap(12,
                             getRealPathFromURI(imageRealUri));
                     imageStoragePath = getRealPathFromURI(imageRealUri);
-                    ivImageView.setImageBitmap(bitmap);
+                    ivImageView.setImageBitmap(selectedImage);
                     ibCameraFile.setEnabled(false);
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -469,8 +455,9 @@ public class AddDocFragment extends Fragment {
     }
 
     private Uri getImageUri(Context inContext, Bitmap inImage) {
-        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(),
-                inImage, "Title", null);
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "IMG_" + Calendar.getInstance().getTimeInMillis(), null);
         return Uri.parse(path);
     }
 

@@ -204,4 +204,20 @@
     <string name="title_select_relation">Relation</string>
     <string name="title_update">Update</string>
     <string name="other_commets">Other Comments..</string>
+    <string name="name_of_the_family_member_aware_of_your_wish"><font size="10">Name of the family member aware of your wish</font></string>
+    <string name="i_with_below_details_express_my_wish_to_donate_my_organs_after_death_to_be_implanted_fo_a_patient_in_need">I with below details express my wish to donate my organs after death to be implanted fo a patient in need.</string>
+    <string name="mobile_no_of_the_family_member">Mobile No. of the family member</string>
+    <string name="select_relation_msg">Please select the relation !</string>
+    <string name="title_chat_list">Doctors List</string>
+    <string name="liver">Liver</string>
+    <string name="heart">Heart</string>
+    <string name="lungs">Lungs</string>
+    <string name="pancreas">Pancreas</string>
+    <string name="corneas">Corneas</string>
+    <string name="all_organs">All organs</string>
+    <string name="kidneys">Kidneys</string>
+    <string name="organ_donated">Organ donated</string>
+    <string name="save">Save</string>
+    <string name="unread_messages">Unread Messages</string>
+    <string name="visit_date">Visit date</string>
 </resources>

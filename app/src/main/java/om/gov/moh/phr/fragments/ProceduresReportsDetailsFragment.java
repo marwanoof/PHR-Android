@@ -80,7 +80,7 @@ public class ProceduresReportsDetailsFragment extends Fragment {
     private WebView wvReportPic;
     private boolean isWebView = false;
     private boolean isNotes = false;
-    private ImageButton ibHome, ibRefresh;
+    private ImageButton ibRefresh;
     private boolean isRAD;
     private ConstraintLayout swipeRefreshLayout;
 
@@ -171,27 +171,12 @@ public class ProceduresReportsDetailsFragment extends Fragment {
                 setupPage();
             }
         });
-        ibHome.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                backToHome();
-            }
-        });
         return view;
     }
 
     private void enableHomeandRefresh(View view) {
-        ibHome = view.findViewById(R.id.ib_home);
         ibRefresh = view.findViewById(R.id.ib_refresh);
-        ibHome.setVisibility(View.VISIBLE);
         ibRefresh.setVisibility(View.VISIBLE);
-    }
-
-    private void backToHome() {
-        FragmentManager fm = getActivity().getSupportFragmentManager();
-        for (int i = 0; i < fm.getBackStackEntryCount(); ++i) {
-            fm.popBackStack();
-        }
     }
 
     private void setupPage() {
@@ -236,7 +221,9 @@ public class ProceduresReportsDetailsFragment extends Fragment {
                 String fullUrl = API_PROCEDURES_REPORTS_WEBVIEW + mProcedureReport.getReportId();
                 getReportDetails(fullUrl);
             } else if (mProcedureReport.getProfileCode() == 113) {
-                tvHospital.setVisibility(View.GONE);
+                if(mProcedureReport.getEstFullname()!=null)
+                tvHospital.setText(getResources().getString(R.string.hospital_feild) + " " + mProcedureReport.getEstFullname());
+              //  tvHospital.setVisibility(View.GONE);
                 tvTime.setVisibility(View.GONE);
                 wvReportPic.setVisibility(View.GONE);
                 tvSummary.setVisibility(View.GONE);
@@ -245,7 +232,9 @@ public class ProceduresReportsDetailsFragment extends Fragment {
                 getReportDetails(fullUrl);
             } else {
                 isWebView = false;
-                tvHospital.setVisibility(View.GONE);
+                if(mProcedureReport.getEstFullname()!=null)
+                    tvHospital.setText(getResources().getString(R.string.hospital_feild) + " " + mProcedureReport.getEstFullname());
+               // tvHospital.setVisibility(View.GONE);
                 tvTime.setVisibility(View.GONE);
                 wvReportPic.setVisibility(View.GONE);
                 tvSummary.setVisibility(View.GONE);

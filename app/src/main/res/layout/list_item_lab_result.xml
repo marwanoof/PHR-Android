@@ -5,20 +5,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
-
     <TextView
-        android:id="@+id/tv_section_title_lab"
+        android:id="@+id/tvDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginStart="@dimen/space_4"
+        android:textColor="@android:color/black"
+        android:textSize="@dimen/text_size_14sp"
+        android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView"
         android:layout_width="0dp"
-        android:layout_height="60dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="10dp"
@@ -27,7 +27,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_section_title_lab">
+        app:layout_constraintTop_toBottomOf="@id/tvDate">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/labResult_constraint"
@@ -69,9 +69,17 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/imageView6"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.533"
-                app:srcCompat="@drawable/lab_complate" />
-
+                app:layout_constraintVertical_bias="0.533" />
+            <TextView
+                android:id="@+id/tv_section_title_lab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="10dp"
+                android:textSize="@dimen/text_size_10sp"
+                app:layout_constraintTop_toBottomOf="@id/tv_lab_title"
+                app:layout_constraintStart_toEndOf="@id/tv_lab_desc"
+                app:layout_constraintBottom_toBottomOf="parent" />
             <ImageView
                 android:id="@+id/imageView6"
                 android:layout_width="20dp"

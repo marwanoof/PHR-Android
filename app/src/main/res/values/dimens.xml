@@ -39,6 +39,7 @@
     <dimen name="text_size_12sp">12sp</dimen>
     <dimen name="space_72">72dp</dimen>
     <dimen name="text_18sp">18sp</dimen>
+    <dimen name="space_20dp">20dp</dimen>
 
 
 </resources>

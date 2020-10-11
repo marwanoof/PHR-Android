@@ -44,10 +44,21 @@ public class MedicationRecyclerViewAdapter extends RecyclerView.Adapter<Medicati
         final ApiMedicationHolder.ApiMedicationInfo medicineObj = medicineArrayList.get(position);
         holder.tvMedicineName.setText(medicineObj.getMedicineName());
         holder.tvDosage.setText(medicineObj.getDosage());
-        Date date = new Date(medicineObj.getDateWrittern());
-        SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yyyy");
-        String dateText = df2.format(date);
-        holder.tvDateWritten.setText(dateText);
+
+        SimpleDateFormat dateFormatGroupedDate = new SimpleDateFormat("dd-MM-YYYY", Locale.ENGLISH);
+        if (position != 0) {
+            int prev = position - 1;
+            long prevEncounterDate = medicineArrayList.get(prev).getDateWrittern();
+            if (dateFormatGroupedDate.format(new Date(medicineObj.getDateWrittern())).equals(dateFormatGroupedDate.format(new Date(prevEncounterDate)))) {
+                holder.tvDateWritten.setVisibility(View.GONE);
+            } else {
+                holder.tvDateWritten.setVisibility(View.VISIBLE);
+                holder.tvDateWritten.setText(context.getResources().getString(R.string.date_label)+ " " + dateFormatGroupedDate.format(new Date(medicineObj.getDateWrittern())));
+            }
+        } else {
+            holder.tvDateWritten.setVisibility(View.VISIBLE);
+            holder.tvDateWritten.setText(context.getResources().getString(R.string.date_label) + " " +dateFormatGroupedDate.format(new Date(medicineObj.getDateWrittern())));
+        }
         holder.tvEstName.setText(medicineObj.getEstName());
 
     }

@@ -8,7 +8,7 @@
 
     <include
         android:id="@+id/inc_simple_toolbar"
-        layout="@layout/toolbar_custom"
+        layout="@layout/toolbar_simple"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

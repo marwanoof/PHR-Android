@@ -61,6 +61,12 @@ public class ApiProceduresReportsHolder implements Serializable {
     @SerializedName("estFullname")
     private String estFullname;
 
+    @SerializedName("encounterDate")
+    private long encounterDate;
+
+    @SerializedName("encounterId")
+    private String encounterId;
+
     @SerializedName("patientId")
     private String patientId;
 
@@ -101,6 +107,9 @@ public class ApiProceduresReportsHolder implements Serializable {
 
     @SerializedName("reportDoneDate")
     private long reportDoneDate;
+
+    @SerializedName("patientClass")
+    private String patientClass;
 
     public String getProcName() {
         return procName;
@@ -158,6 +167,10 @@ public class ApiProceduresReportsHolder implements Serializable {
             return name;
     }
 
+    public long getEncounterDate() {
+        return encounterDate;
+    }
+
     public void setMediaSubType(String mediaSubType) {
         this.mediaSubType = mediaSubType;
     }
@@ -180,5 +193,28 @@ public class ApiProceduresReportsHolder implements Serializable {
 
     public long getCreationTime() {
         return creationTime;
+    }
+
+    public void setEncounterDate(long encounterDate) {
+        this.encounterDate = encounterDate;
+    }
+
+    public String getEncounterId() {
+        return encounterId;
+    }
+
+    public void setEncounterId(String encounterId) {
+        this.encounterId = encounterId;
+    }
+
+    public String getPatientClass() {
+        if (TextUtils.isEmpty(patientClass) || patientClass == null)
+            return "--";
+        else
+            return patientClass;
+    }
+
+    public void setPatientClass(String patientClass) {
+        this.patientClass = patientClass;
     }
 }
