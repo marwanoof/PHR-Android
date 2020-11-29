@@ -15,7 +15,7 @@
         android:layout_marginTop="@dimen/space_8"
         android:layout_marginEnd="@dimen/space_8"
         android:layout_marginBottom="@dimen/space_8"
-        android:fontFamily="@font/roboto_regular"
+        android:fontFamily="@font/sky"
         android:scrollbars="vertical"
         android:textColor="@color/colorLiteBlack"
         app:layout_constraintBottom_toTopOf="@+id/btn_accept"

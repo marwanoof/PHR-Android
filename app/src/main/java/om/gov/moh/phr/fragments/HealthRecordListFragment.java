@@ -9,6 +9,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
 import android.widget.ImageButton;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -305,6 +307,8 @@ public class HealthRecordListFragment extends Fragment implements AdapterToFragm
         DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(rvHealthRecords.getContext(),
                 mLayoutManager.getOrientation());
         rvHealthRecords.addItemDecoration(mDividerItemDecoration);
+        LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(mContext, R.anim.delay_slide_down);
+        rvHealthRecords.setLayoutAnimation(animation);
         rvHealthRecords.setLayoutManager(mLayoutManager);
         rvHealthRecords.setItemAnimator(new DefaultItemAnimator());
         rvHealthRecords.setAdapter(mHelathRecordsAdapter);

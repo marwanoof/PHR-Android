@@ -14,6 +14,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -333,7 +335,9 @@ public class LabResultsFragment extends Fragment implements SearchView.OnQueryTe
         //DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(rvLabOrders.getContext(), layoutManager.getOrientation());
         //recyclerView.addItemDecoration(mDividerItemDecoration);
         rvLabOrders.setLayoutManager(layoutManager);
-        rvLabOrders.setItemAnimator(new DefaultItemAnimator());
+        LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(mContext, R.anim.delay_slide_down);
+        rvLabOrders.setLayoutAnimation(animation);
+       // rvLabOrders.setItemAnimator(new DefaultItemAnimator());
         rvLabOrders.setAdapter(mAdapter);
 
     }

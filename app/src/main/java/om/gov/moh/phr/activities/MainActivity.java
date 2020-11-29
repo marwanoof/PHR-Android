@@ -256,8 +256,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         mDrawer.addDrawerListener(toggle);
         toggle.syncState();
         //*************************************
-     //   shouldLockDrawer(false);
-     //   changeFragmentTo(HomeFragment.newInstance(), HomeFragment.class.getSimpleName());
+
 
         mProgressDialog = new MyProgressDialog(mContext);// initializes progress dialog
         mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, getSocketFactory())); // initializes mQueue : we need to use  Volley.newRequestQueue(this, new HurlStack(null, getSocketFactory())) because we need to connect the app to secure server "https".
@@ -339,6 +338,28 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
                 String nav_Url = jsonObj.getString("templateUrl");
                 String nav_Url_ar = jsonObj.getString("templateUrlNls");
                 if (nav_icon.contains("sm_bmi")) {  // the resource exists...
+                    menu.add(Menu.NONE, nav_id, Menu.NONE, applyFontToMenuItem(getResources().getString(R.string.bmi_calculator))).setIcon(R.drawable.bmi_ic);
+                } else if (nav_icon.contains("sm_righ")) {  // the resource exists...
+                    menu.add(Menu.NONE, nav_id, Menu.NONE, applyFontToMenuItem(getResources().getString(R.string.patients_rights))).setIcon(R.drawable.terms_of_use_ic);
+                } else if (nav_icon.contains("sm_faci")) {  // the resource exists...
+                    menu.add(Menu.NONE, nav_id, Menu.NONE, applyFontToMenuItem(getResources().getString(R.string.heath_facilities))).setIcon(R.drawable.svg_ic_institute);
+                } else if (nav_icon.contains("sm_phar")) {  // the resource exists...
+                    menu.add(Menu.NONE, nav_id, Menu.NONE, applyFontToMenuItem(getResources().getString(R.string.find_pharmacy))).setIcon(R.drawable.search_pharmacy);
+                } else if (nav_icon.contains("sm_edd")) {  // the resource exists...
+                    menu.add(Menu.NONE, nav_id, Menu.NONE, applyFontToMenuItem(getResources().getString(R.string.edd_calculator))).setIcon(R.drawable.edd_ic);
+                } else if (nav_icon.contains("sm_form")) {  // the resource exists...
+                    menu.add(Menu.NONE, nav_id, Menu.NONE, applyFontToMenuItem(getResources().getString(R.string.forms))).setIcon(R.drawable.forms);
+                } else if (nav_icon.contains("sm_ask")) {  // the resource exists...
+                    menu.add(Menu.NONE, nav_id, Menu.NONE, applyFontToMenuItem(getResources().getString(R.string.ask_doctor))).setIcon(R.drawable.ask_doctor);
+                } else if (nav_icon.contains("sm_educ")) {  // the resource exists...
+                    menu.add(Menu.NONE, nav_id, Menu.NONE, applyFontToMenuItem(getResources().getString(R.string.health_education))).setIcon(R.drawable.health_education);
+                } else {  // checkExistence == 0  // the resource does NOT exist!!
+                    if (getStoredLanguage().equals(LANGUAGE_ENGLISH))
+                        menu.add(Menu.NONE, nav_id, Menu.NONE, applyFontToMenuItem(nav_name)).setIcon(R.drawable.terms_of_use_ic);
+                    else
+                        menu.add(Menu.NONE, nav_id, Menu.NONE, applyFontToMenuItem(nav_name_ar)).setIcon(R.drawable.terms_of_use_ic);
+                }
+                /*if (nav_icon.contains("sm_bmi")) {  // the resource exists...
                     if (getStoredLanguage().equals(LANGUAGE_ENGLISH))
                         menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name).setIcon(R.drawable.bmi_ic);
                     else
@@ -383,7 +404,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
                         menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name).setIcon(R.drawable.terms_of_use_ic);
                     else
                         menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name_ar).setIcon(R.drawable.terms_of_use_ic);
-                }
+                }*/
             }
         } catch (JSONException e) {
             e.printStackTrace();

@@ -255,11 +255,11 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
         return parentView;
     }
 
-    /*private void getNotificationList() {
+    private void getNotificationList() {
         dbHelper = new DBHelper(mContext);
         ArrayList<Notification> notificationsList = new ArrayList<>();
         notificationsList = dbHelper.retrieveNotificationsRecord();
-      *//*  if (notificationsList.size() == 0) {
+      /*  if (notificationsList.size() == 0) {
             Notification notification = new Notification();
             notification.setTitle(getResources().getString(R.string.no_notification));
             notification.setBody("");
@@ -727,9 +727,18 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
     @Override
     public <T> void onMyListItemClicked(T dataToPass, String dataTitle) {
         if (dataToPass instanceof DemographicsFragment) {
+            mToolbarCallback.changeSideMenuToolBarVisibility(View.GONE);
+            mMediatorCallback.changeFragmentTo(DemographicsFragment.newInstance(responseHolder.getmResult().getmHome().getInstitutesArrayList(),getPageTitle(responseHolder.getmResult().getmHome().getmMainMenus(),283)), dataTitle);
           //  mToolbarCallback.changeSideMenuToolBarVisibility(View.GONE);
             mMediatorCallback.changeFragmentTo(DemographicsFragment.newInstance(responseHolder.getmResult().getmHome().getInstitutesArrayList(),getPageTitle(responseHolder.getmResult().getmHome().getmMainMenus(),283)), dataTitle);
         } else if (dataToPass instanceof BodyMeasurementsFragment && responseHolder.getmResult().getmHome().getmRecentVitals() != null) {
+            mToolbarCallback.changeSideMenuToolBarVisibility(View.GONE);
+            mMediatorCallback.changeFragmentTo(BodyMeasurementsFragment.newInstance(responseHolder.getmResult().getmHome().getmRecentVitals(),getPageTitle(responseHolder.getmResult().getmHome().getmMainMenus(),284)), dataTitle);
+        }else if (dataToPass instanceof AppointmentsListFragment){
+            mToolbarCallback.changeSideMenuToolBarVisibility(View.GONE);
+            mMediatorCallback.changeFragmentTo(AppointmentsListFragment.newInstance(responseHolder.getmResult().getmHome().getInstitutesArrayList()), dataTitle);
+        }else {
+            mToolbarCallback.changeSideMenuToolBarVisibility(View.GONE);
           //  mToolbarCallback.changeSideMenuToolBarVisibility(View.GONE);
             mMediatorCallback.changeFragmentTo(BodyMeasurementsFragment.newInstance(responseHolder.getmResult().getmHome().getmRecentVitals(),getPageTitle(responseHolder.getmResult().getmHome().getmMainMenus(),284)), dataTitle);
         }else if (dataToPass instanceof AppointmentsListFragment){
@@ -745,6 +754,19 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
     public <T> void onMyListItemClicked(T dataToPass, String dataTitle, int position) {
 
     }
+    private String getPageTitle(ArrayList<ApiHomeHolder.ApiMainMenus> mainMenus,int menuId){
+        String result = "";
+        for (ApiHomeHolder.ApiMainMenus menus : mainMenus){
+            if (menus.getMenuId() == menuId){
+                if (GlobalMethods.getStoredLanguage(mContext).equals(LANGUAGE_ARABIC))
+                    result = menus.getMenuNameNls();
+                else
+                    result = menus.getMenuName();
+            }
+        }
+        return result;
+    }
+
     private String getPageTitle(ArrayList<ApiHomeHolder.ApiMainMenus> mainMenus,int menuId){
         String result = "";
         for (ApiHomeHolder.ApiMainMenus menus : mainMenus){

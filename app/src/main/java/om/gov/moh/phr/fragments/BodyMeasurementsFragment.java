@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -107,6 +109,8 @@ public class BodyMeasurementsFragment extends Fragment implements AdapterToFragm
 
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
+        LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(mContext, R.anim.delay_slide_down);
+        recyclerView.setLayoutAnimation(animation);
         recyclerView.setAdapter(mAdapter);
     }
 

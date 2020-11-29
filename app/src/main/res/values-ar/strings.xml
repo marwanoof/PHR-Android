@@ -14,7 +14,7 @@
 
     <string name="title_procedures_reports">تقارير الإجراءات</string>
     <string name="title_vital_info">التاريخ المرضي</string>
-    <string name="title_body_measurements">المؤشرات الحيوية</string>
+    <string name="title_body_measurements">العلامات الحيوية</string>
     <string name="title_health_records">السجلات الصحية</string>
     <string name="title_lab_results">الفحوصات المخبرية</string>
     <string name="title_medication">الأدوية</string>
@@ -24,21 +24,21 @@
     <string name="title_notification">الإشعارات</string>
     <string name="title_logout">تسجيل الخروج</string>
     <string name="alert_no_connection">خطأ: لا يوجد اتصال بالإنترنت.</string>
-    <string name="title_dependent_of">أقارب  </string>
-    <string name="title_linked_institutes">المؤسسات المرتبطة</string>
+    <string name="title_dependent_of">أفراد العائلة  </string>
+    <string name="title_linked_institutes">المؤسسات المسجلة</string>
     <string name="title_pending">قيد الإنتظار</string>
     <string name="title_patient_id">رقم المريض</string>
     <string name="title_card_expiry_date">تاريخ إنتهاء البطاقة</string>
     <string name="title_request_for_link">Request for Link</string>
-    <string name="title_select_institute">اختر مستشفى</string>
+    <string name="title_select_institute">اختر مؤسسة</string>
     <string name="title_institute_search">اسم المؤسسة</string>
-    <string name="title_demographic">البيانات الديموغرافية</string>
+    <string name="title_demographic">أفراد العائلة والمؤسسات الصحية</string>
     <string name="title_institutes">المؤسسات</string>
-    <string name="title_other_document">وثائق أخرى</string>
+    <string name="title_other_document">المستندات</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="title_home">الصفحة الرئيسية</string>
-    <string name="title_dependents">الأقارب من الدرجة الأولى</string>
+    <string name="title_dependents">أفراد العائلة</string>
     <string name="title_unavailable">- - - -</string>
     <string name="title_00">00</string>
     <string name="img_desc_back_icon">back button icon</string>
@@ -52,7 +52,7 @@
 
 
     <string name="title_recent">الحديثة</string>
-    <string name="title_vital_signs">بيانات المعاينة</string>
+    <string name="title_vital_signs">العلامات الحيوية</string>
 
 
     <string name="title_appointments_date_and_time">تاريخ ووقت المواعيد</string>
@@ -67,8 +67,8 @@
     <string name="title_cancel">إلغاء</string>
     <string name="title_reason">السبب</string>
     <string name="title_appointment_cancel_message">هل أنت متأكد من إلغاء الموعد؟</string>
-    <string name="alert_cancellation">رجاءًا اكتب سبب الإلغاء.</string>
-    <string name="title_reschedule_label">اختر جدول المواعيد المناسب لك</string>
+    <string name="alert_cancellation">الرجاء ذكر سبب الإلغاء.</string>
+    <string name="title_reschedule_label">اختر جدول المواعيد المناسب</string>
 
     <!--FCM-->
     <string name="default_notification_channel_id" translatable="false">Chat</string>
@@ -87,38 +87,38 @@
     <string name="title_value">القيمة</string>
     <string name="title_value_body_msmt">الاسم</string>
     <string name="title_component">المكونات</string>
-    <string name="title_media">الصور</string>
+    <string name="title_media">الوسائط</string>
     <string name="alert_dont_show_again">عدم الظهور مجددًا</string>
     <string name="title_all">الكل</string>
-    <string name="title_chat">المحادثة</string>
+    <string name="title_chat">الدردشة مع الطبيب</string>
     <string name="title_history">التاريخ المرضي</string>
     <string name="title_problem">التشخيص النهائي</string>
     <string name="no_allergy_msg">لا توجد حساسية.</string>
     <string name="no_history_msg">لا يوجد.</string>
     <string name="no_problem_msg">لا توجد مشاكل.</string>
     <string name="report_feild">تقرير</string>
-    <string name="released_by_feild">صدر بواسطة:</string>
+    <string name="released_by_feild">صدر عن طريق:</string>
     <string name="released_date_feild">تاريخ الإصدار:</string>
     <string name="status_feild">الحالة:</string>
     <string name="hospital_feild">المستشفى:</string>
-    <string name="ordered_by_feild">طلب بواسطة:</string>
-    <string name="ordered_date_feild">تم الطلب في:</string>
-    <string name="title_back">الخلف</string>
+    <string name="ordered_by_feild">طلب عن طريق:</string>
+    <string name="ordered_date_feild">تاريخ الطلب:</string>
+    <string name="title_back">رجوع</string>
     <string name="immunization_given">معطى</string>
     <string name="immunization_schedule">جدول المواعيد</string>
     <string name="summary">الملخص</string>
-    <string name="doc_provider">وثائق المؤسسات الصحية</string>
-    <string name="doc_self">وثائق شخصية</string>
+    <string name="doc_provider">مستندات المؤسسات الصحية</string>
+    <string name="doc_self">مستندات شخصية</string>
     <string name="delete_doc_msg">هل أنت متأكد من حذف المستند؟</string>
     <string name="yes_dialog">نعم</string>
     <string name="no_dialog">لا</string>
-    <string name="uploaded_docs">الوثائق المرفقة</string>
+    <string name="uploaded_docs">المستندات المرفقة</string>
     <string name="publish_doc_msg">هل أنت متأكد من نشر هذا المرفق؟</string>
     <string name="unpublish_doc_msg">هل أنت متأكد من إلغاء النشر؟</string>
     <string name="select_doc_type_msg">الرجاء اختيار نوع المستند.</string>
     <string name="enter_reference_msg">الرجاء ادخال المصدر.</string>
     <string name="enter_remark_msg">الرجاء ادخال ملاحظة.</string>
-    <string name="select_file_msg">الرجاء اختيار ملف للإرفاق!</string>
+    <string name="select_file_msg">الرجاء ارفاق ملف!</string>
     <string name="hrd_imp">ملاحظات</string>
     <string name="hrd_med">الأدوية</string>
     <string name="hrd_lab">المختبر</string>
@@ -127,7 +127,7 @@
     <string name="enter_msg_chat">اكتب هنا …</string>
     <string name="send_chat">ارسال</string>
     <string name="chat_messages_title">رسائل المحادثة</string>
-    <string name="enter_msg_to_send">اكتب رسالة للإرسال!</string>
+    <string name="enter_msg_to_send">اكتب محادثة ليتم الإرسال!</string>
     <string name="health_records_result_found">من النتائج المتوفرة </string>
     <string name="results_found">من النتائج المتوفرة!</string>
     <string name="health_education">التثقيف الصحي</string>
@@ -138,13 +138,13 @@
     <string name="no_notification">لا توجد إشعارات</string>
     <string name="cancel_done_msg">تم الإلغاء.</string>
     <string name="upload">إرفاق</string>
-    <string name="too_large_file">حجم الصورة كبير جدًا.</string>
+    <string name="too_large_file">حجم الملف كبير جدًا.</string>
     <string name="upload_an_image">إرفاق صورة</string>
     <string name="reference">المصدر</string>
     <string name="remark">ملاحظة</string>
     <string name="file_name">اسم الملف</string>
     <string name="refresh_msg">تم التحديث</string>
-    <string name="confirm_logout_msg">هل أنت متأكد أنك تريد تسجيل الخروج؟</string>
+    <string name="confirm_logout_msg">هل أنت متأكد من تسجيل الخروج؟</string>
     <string name="success_upload_msg">تم الإرفاق بنجاح.</string>
     <string name="success_publish_msg">تم نشر الملف بنجاح.</string>
     <string name="success_delete_msg">تم حذف الملف بنجاح.</string>
@@ -168,7 +168,7 @@
     <string name="feedback_saved_msg">شكرًا على مشاركتك في تقييم التطبيق.</string>
     <string name="answer_all_questions_msg">الرجاء الإجابة على جميع الأسئلة ..</string>
     <string name="at">في</string>
-    <string name="not_given_msg">لم يتم التحصين بعد.</string>
+    <string name="not_given_msg">لم يتم الإعطاء بعد.</string>
     <string name="given_msg">تم التحصين في</string>
     <string name="delete">حذف</string>
     <string name="delete_notification_msg">هل أنت متأكد أنك تريد حذف هذا الإشعار؟</string>
@@ -176,12 +176,12 @@
     <string name="invalid_phoneNo">رقم هاتفك غير صحيح.</string>
     <string name="select_time_slot">اختر الوقت المناسب</string>
     <string name="beta">النسخة التجريبية</string>
-    <string name="no_dependents_record_found">بيانات الأقارب من الدرجة الأولى غير متوفرة.</string>
+    <string name="no_dependents_record_found">بيانات أفراد العائلة غير متوفرة.</string>
     <string name="department_label">القسم: </string>
     <string name="date_label">التاريخ: </string>
-    <string name="no_appointment_msg">لا توجد مواعيد.</string>
-    <string name="no_refferals">لا توجد تحويلات.</string>
-    <string name="patients_rights">حقوق المستخدم</string>
+    <string name="no_appointment_msg">لا توجد مواعيد مجدولة.</string>
+    <string name="no_refferals">لا توجد تحويل لمؤسسة أخرى.</string>
+    <string name="patients_rights">حقوق المريض</string>
     <string name="publish">نشر</string>
     <string name="about_the_app">عن التطبيق</string>
     <string name="about_app_info"> تم تطوير تطبيق عافيتي بواسطة وزارة الصحة - المديرية العامة لتقنية المعلومات.  هذه النسخة التجريبية تسمح للمستخدمين من الإطلاع على ملفاتهم الشخصية الصحية عن طريق إدخال الرقم المدني ورقم الهاتف المسجل.</string>
@@ -192,7 +192,7 @@
     <string name="time_to_immunization">موعد تحصين لـ</string>
     <string name="location">عُمان</string>
     <string name="go_for_vaccination">يجب عليك التوجه إلى أقرب مركز صحي لأخذ هذا التطعيم</string>
-    <string name="title_select_relation">الصلة</string>
+    <string name="title_select_relation">صلة القرابة</string>
     <string name="title_update">تحديث</string>
     <string name="other_commets">ملاحظات أخرى ..</string>
     <string name="name_of_the_family_member_aware_of_your_wish"><font size="10">اسم فرد من العائلة يعلم برغبتك في التبرع</font></string>
@@ -207,12 +207,11 @@
     <string name="corneas">القرنيات</string>
     <string name="all_organs">جميع الأعضاء</string>
     <string name="kidneys">الكلى</string>
-    <string name="organ_donated">الأعضاء المتبرع بها</string>
+    <string name="organ_donated">العضو النتبرع به</string>
     <string name="save">حفظ</string>
     <string name="unread_messages">الرسائل الغير مقروءة</string>
     <string name="visit_date">تاريخ الزيارة</string>
-    <string name="no_medical_history">لا يوجد هناك أي سجلات حساسية أو تاريخ طبي أو تشخيص نهائي مسجل لك</string>
-    <string name="msg_no_vital">لا توجد بيانات مسجلة</string>
+    <string name="no_medical_history">لا توجد لديك حساسية أو تاريخ طبي أو تشخيص نهائي مسجل</string>
     <string name="visit_details">تفاصيل الزيارة</string>
     <string name="completed">مكتمل</string>
     <string name="take_medicine">تناول</string>
@@ -229,9 +228,9 @@
     <string name="no_records_proc_all">لا توجد بيانات اجراءات سريرية خاصة بك</string>
     <string name="no_records_proc_recent">لا توجد بيانات اجراءات سريرية حديثة</string>
     <string name="no_records_proc_encounter">لا توجد بيانات اجراءات سريرية خاصة بهذه الزيارة</string>
-    <string name="alert_no_connection_body_1">لا يوجد اتصال بالإنترنت</string>
-    <string name="alert_connection_body2">الرجاء التحقق من الإتصال والمحاولة مرة أخرى</string>
     <string name="alert_error_title">خطأ</string>
+    <string name="alert_connection_body2">الرجاء التحقق من الإتصال والمحاولة مرة أخرى</string>
+    <string name="alert_no_connection_body_1">لا يوجد اتصال بالإنترنت</string>
     <string name="no_records_imm_given">لا يوجد تحصين معطى لك</string>
     <string name="no_records_imm_schedule">لا يوجد تحصين مُجدول لك</string>
     <string name="wrong_msg">حدث خطأ ما يرجى المحاولة مرة أخرى</string>

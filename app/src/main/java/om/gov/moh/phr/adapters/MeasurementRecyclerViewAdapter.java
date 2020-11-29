@@ -127,6 +127,7 @@ public class MeasurementRecyclerViewAdapter extends
                 if (holder.vitalDetails.getVisibility() == View.VISIBLE){
                     holder.vitalDetails.setVisibility(View.GONE);
                 }else {
+
                     holder.getVitalRecords(result.getType());
 
 
