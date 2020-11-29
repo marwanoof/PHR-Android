@@ -1,220 +1,314 @@
 package om.gov.moh.phr.apimodels;
 
 import android.text.TextUtils;
+import android.text.format.DateFormat;
 
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 public class ApiProceduresReportsHolder implements Serializable {
-    @SerializedName("reportId")
-    private String reportId;
+    @SerializedName("result")
+    private ArrayList<ProceduresByEncounter> result;
 
-    @SerializedName("mediaSubType")
-    private String mediaSubType;
-
-    @SerializedName("mediaString")
-    private String mediaString;
-
-
-    @SerializedName("creationTime")
-    private long creationTime;
-
-    @SerializedName("estCode")
-    private long estCode;
-
-    public long getEstCode() {
-        return estCode;
+    public ArrayList<ProceduresByEncounter> getResult() {
+        return result;
     }
 
-    public void setEstCode(long estCode) {
-        this.estCode = estCode;
+    public class ProceduresByEncounter implements Serializable{
+        @SerializedName("encounterDate")
+        private long encounterDate;
+
+        @SerializedName("encounterDateFormat")
+        private String encounterDateFormat;
+
+        @SerializedName("encounterId")
+        private String encounterId;
+
+        @SerializedName("estFullName")
+        private String estFullName;
+
+        @SerializedName("procedures")
+        private ArrayList<Procedures> procedures;
+
+        public String getEncounterDate() {
+            Date date = new Date(encounterDate);
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yyyy",Locale.ENGLISH);
+            String dateResult = simpleDateFormat.format(date);
+            return dateResult;
+        }
+
+        public String getEncounterDateFormat() {
+            return encounterDateFormat;
+        }
+
+        public String getEncounterId() {
+            return encounterId;
+        }
+
+        public String getEstFullName() {
+            return estFullName;
+        }
+
+        public ArrayList<Procedures> getProcedures() {
+            return procedures;
+        }
     }
 
-    @SerializedName("procedureDoneDate")
-    private long procedureDoneDate;
+    public class Procedures implements Serializable{
 
-    public void setProcedureId(String procedureId) {
-        this.procedureId = procedureId;
-    }
+        @SerializedName("procedureId")
+        private String procedureId;
 
-    public String getReportId() {
-        return reportId;
-    }
+        @SerializedName("procedureDoneDate")
+        private long procedureDoneDate;
 
-    public long getProcedureDoneDate() {
-        return procedureDoneDate;
-    }
+        @SerializedName("procedure")
+        private ArrayList<Procedure> procedure;
 
-    public void setProcedureDoneDate(long procedureDoneDate) {
-        this.procedureDoneDate = procedureDoneDate;
-    }
+        @SerializedName("performer")
+        private ArrayList<Performer> performer;
 
-    public void setReportId(String reportId) {
-        this.reportId = reportId;
-    }
+        @SerializedName("notes")
+        private ArrayList<Notes> notes;
 
+        @SerializedName("status")
+        private String status;
 
-    @SerializedName("estName")
-    private String estName;
+        @SerializedName("startTime")
+        private long startTime;
 
-    @SerializedName("estFullname")
-    private String estFullname;
+        @SerializedName("endTime")
+        private long endTime;
 
-    @SerializedName("encounterDate")
-    private long encounterDate;
+        @SerializedName("locationCode")
+        private String locationCode;
 
-    @SerializedName("encounterId")
-    private String encounterId;
+        @SerializedName("reasonText")
+        private String reasonText;
 
-    @SerializedName("patientId")
-    private String patientId;
+        @SerializedName("profileCode")
+        private int profileCode;
 
-    @SerializedName("profileCode")
-    private long profileCode;
+        @SerializedName("outcomeDesc")
+        private String outcomeDesc;
 
-    public String getPatientId() {
-        return patientId;
-    }
+        @SerializedName("estName")
+        private String estName;
 
-    public void setPatientId(String patientId) {
-        this.patientId = patientId;
-    }
+        @SerializedName("encounterId")
+        private String encounterId;
 
-    @SerializedName("procedureId")
-    private String procedureId;
+        @SerializedName("diagnosis")
+        private String diagnosis;
 
-    public String getProcedureId() {
-        return procedureId;
-    }
+        @SerializedName("estFullname")
+        private String estFullname;
 
-    @SerializedName("startTime")
-    private long startTime;
+        @SerializedName("reportId")
+        private String reportId;
 
-    @SerializedName("name")
-    private String name;
+        @SerializedName("patientId")
+        private String patientId;
 
-    public String getEstFullname() {
-        return estFullname;
-    }
+        @SerializedName("encounterDate")
+        private long encounterDate;
 
-    public void setEstFullname(String estFullname) {
-        this.estFullname = estFullname;
-    }
+        @SerializedName("patientClass")
+        private String patientClass;
 
-    @SerializedName("procName")
-    private String procName;
+        @SerializedName("estFullnameNls")
+        private String estFullnameNls;
 
-    @SerializedName("reportDoneDate")
-    private long reportDoneDate;
+        public String getProcedureId() {
+            return procedureId;
+        }
 
-    @SerializedName("patientClass")
-    private String patientClass;
+        public long getProcedureDoneDate() {
+            return procedureDoneDate;
+        }
 
-    public String getProcName() {
-        return procName;
-    }
+        public ArrayList<Procedure> getProcedure() {
+            return procedure;
+        }
 
-    public long getReportDoneDate() {
-        return reportDoneDate;
-    }
+        public ArrayList<Performer> getPerformer() {
+            return performer;
+        }
 
-    public void setReportDoneDate(long reportDoneDate) {
-        this.reportDoneDate = reportDoneDate;
-    }
+        public ArrayList<Notes> getNotes() {
+            return notes;
+        }
 
-    public void setProcName(String procName) {
-        this.procName = procName;
-    }
+        public String getStatus() {
+            return status;
+        }
 
-    public void setEstName(String estName) {
-        this.estName = estName;
-    }
+        public long getStartTime() {
+            return startTime;
+        }
 
-    public void setProfileCode(long profileCode) {
-        this.profileCode = profileCode;
-    }
+        public long getEndTime() {
+            return endTime;
+        }
 
-    public void setStartTime(long startTime) {
-        this.startTime = startTime;
-    }
+        public String getLocationCode() {
+            return locationCode;
+        }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+        public String getReasonText() {
+            return reasonText;
+        }
 
-    public String getEstName() {
-        if (TextUtils.isEmpty(estName))
-            return "";
-        else
+        public int getProfileCode() {
+            return profileCode;
+        }
+
+        public String getOutcomeDesc() {
+            return outcomeDesc;
+        }
+
+        public String getEstName() {
             return estName;
-    }
+        }
 
+        public String getEncounterId() {
+            return encounterId;
+        }
 
-    public long getProfileCode() {
-        return profileCode;
-    }
+        public String getDiagnosis() {
+            return diagnosis;
+        }
 
-    public long getStartTime() {
-        return startTime;
-    }
+        public String getEstFullname() {
+            return estFullname;
+        }
 
+        public String getReportId() {
+            return reportId;
+        }
 
-    public String getName() {
-        if (TextUtils.isEmpty(name))
-            return "";
-        else
-            return name;
-    }
+        public String getPatientId() {
+            return patientId;
+        }
 
-    public long getEncounterDate() {
-        return encounterDate;
-    }
+        public long getEncounterDate() {
+            return encounterDate;
+        }
 
-    public void setMediaSubType(String mediaSubType) {
-        this.mediaSubType = mediaSubType;
-    }
-
-    public void setMediaString(String mediaString) {
-        this.mediaString = mediaString;
-    }
-
-    public void setCreationTime(long creationTime) {
-        this.creationTime = creationTime;
-    }
-
-    public String getMediaSubType() {
-        return mediaSubType;
-    }
-
-    public String getMediaString() {
-        return mediaString;
-    }
-
-    public long getCreationTime() {
-        return creationTime;
-    }
-
-    public void setEncounterDate(long encounterDate) {
-        this.encounterDate = encounterDate;
-    }
-
-    public String getEncounterId() {
-        return encounterId;
-    }
-
-    public void setEncounterId(String encounterId) {
-        this.encounterId = encounterId;
-    }
-
-    public String getPatientClass() {
-        if (TextUtils.isEmpty(patientClass) || patientClass == null)
-            return "--";
-        else
+        public String getPatientClass() {
             return patientClass;
+        }
+
+        public String getEstFullnameNls() {
+            return estFullnameNls;
+        }
+    }
+    public class Procedure implements Serializable{
+        @SerializedName("code")
+        private String code;
+
+        @SerializedName("name")
+        private String name;
+
+        @SerializedName("typeCode")
+        private int typeCode;
+
+        @SerializedName("typeName")
+        private String typeName;
+
+        public String getCode() {
+            return code;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public int getTypeCode() {
+            return typeCode;
+        }
+
+        public String getTypeName() {
+            return typeName;
+        }
+    }
+    public class Performer implements Serializable{
+        @SerializedName("id")
+        private int id;
+
+        @SerializedName("procedureId")
+        private String procedureId;
+
+        @SerializedName("roleCode")
+        private String roleCode;
+
+        @SerializedName("actorName")
+        private String actorName;
+
+        @SerializedName("roleDesc")
+        private String roleDesc;
+
+        public int getId() {
+            return id;
+        }
+
+        public String getProcedureId() {
+            return procedureId;
+        }
+
+        public String getRoleCode() {
+            return roleCode;
+        }
+
+        public String getActorName() {
+            return actorName;
+        }
+
+        public String getRoleDesc() {
+            return roleDesc;
+        }
     }
 
-    public void setPatientClass(String patientClass) {
-        this.patientClass = patientClass;
+    public class Notes implements Serializable{
+        @SerializedName("id")
+        private int id;
+
+        @SerializedName("authorName")
+        private String authorName;
+
+        @SerializedName("text")
+        private String text;
+
+        @SerializedName("time")
+        private long time;
+
+        @SerializedName("procedureId")
+        private String procedureId;
+
+        public int getId() {
+            return id;
+        }
+
+        public String getAuthorName() {
+            return authorName;
+        }
+
+        public String getText() {
+            return text;
+        }
+
+        public long getTime() {
+            return time;
+        }
+
+        public String getProcedureId() {
+            return procedureId;
+        }
     }
 }

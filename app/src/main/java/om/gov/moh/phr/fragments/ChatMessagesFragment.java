@@ -59,6 +59,7 @@ import om.gov.moh.phr.R;
 import om.gov.moh.phr.activities.MainActivity;
 import om.gov.moh.phr.adapters.ChatRoomAdapter;
 import om.gov.moh.phr.apimodels.ApiFriendChatListHolder;
+import om.gov.moh.phr.apimodels.ApiHomeHolder;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
 import om.gov.moh.phr.models.MyProgressDialog;
@@ -76,6 +77,7 @@ public class ChatMessagesFragment extends Fragment {
     private static final String API_URL_GET_MESSAGES_LIST = API_NEHR_URL + "chat/getMessage/";
     private static final String API_URL_SEND_MESSAGES_LIST = API_NEHR_URL + "chat/create";
     private static final String PARAM_API_Message_ITEM = "PARAM_API_Message_ITEM";
+    private static final String PARAM_API_HOME_Message_ITEM = "PARAM_API_HOME_Message_ITEM";
     private RequestQueue mQueue;
     private MyProgressDialog mProgressDialog;
     private Context mContext;
@@ -83,6 +85,7 @@ public class ChatMessagesFragment extends Fragment {
     private ToolbarControllerInterface mToolbarControllerCallback;
     private RecyclerView rvChatRoomMessages;
     private ApiFriendChatListHolder.ApiFriendListInfo messageObj;
+    private ApiHomeHolder.ApiChatMessages apiChatMessagesObj;
     public ChatRoomAdapter mAdapter;
     private EditText etNewMessageToSend;
     private ArrayList<ApiFriendChatListHolder.ApiFriendListInfo> messagesArrayList;
@@ -101,6 +104,14 @@ public class ChatMessagesFragment extends Fragment {
         return fragment;
     }
 
+    public static ChatMessagesFragment newInstance(ApiHomeHolder.ApiChatMessages apiChatMessagesObj) {
+        ChatMessagesFragment fragment = new ChatMessagesFragment();
+        Bundle args = new Bundle();
+        args.putSerializable(PARAM_API_HOME_Message_ITEM, apiChatMessagesObj);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -112,8 +123,10 @@ public class ChatMessagesFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
+        if (getArguments().getSerializable(PARAM_API_Message_ITEM) != null) {
             messageObj = (ApiFriendChatListHolder.ApiFriendListInfo) getArguments().getSerializable(PARAM_API_Message_ITEM);
+        }else {
+            apiChatMessagesObj = (ApiHomeHolder.ApiChatMessages) getArguments().getSerializable(PARAM_API_HOME_Message_ITEM);
         }
     }
 
@@ -152,7 +165,11 @@ public class ChatMessagesFragment extends Fragment {
                         sendNewMessage();
                 }
             });
-            String getMessagesUrl = API_URL_GET_MESSAGES_LIST + messageObj.getMessageId();
+            String getMessagesUrl;
+            if(messageObj!=null)
+             getMessagesUrl = API_URL_GET_MESSAGES_LIST + messageObj.getMessageId();
+            else
+                getMessagesUrl = API_URL_GET_MESSAGES_LIST + apiChatMessagesObj.getMessageId();
             getChatRoomMessages(getMessagesUrl);
         } else {
             if (view.getParent() != null)
@@ -296,7 +313,6 @@ public class ChatMessagesFragment extends Fragment {
         try {
             params.put("subject", "Subject");
             params.put("createdBy", mMediatorCallback.getCurrentUser().getCivilId());
-            params.put("prevMessageId", messageObj.getMessageId());
             params.put("reminderYn", "Y");
             params.put("reminderFreqId", 1);
             DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.US);
@@ -306,7 +322,13 @@ public class ChatMessagesFragment extends Fragment {
             params.put("expiryDate", ReminderDate);
             params.put("messageBody", etNewMessageToSend.getText().toString());
             JSONObject recipientObj = new JSONObject();
-            recipientObj.put("recipientCode", messageObj.getCreatedBy());
+            if(messageObj!=null) {
+                params.put("prevMessageId", messageObj.getMessageId());
+                recipientObj.put("recipientCode", messageObj.getCreatedBy());
+            }else {
+                recipientObj.put("recipientCode", apiChatMessagesObj.getCreatedBy());
+                params.put("prevMessageId", apiChatMessagesObj.getMessageId());
+            }
             params.put("recipient", recipientObj);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -332,6 +354,8 @@ public class ChatMessagesFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
+        if(apiChatMessagesObj!=null)
+            mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
     }
 
     private class DataUpdateReceiver extends BroadcastReceiver {
@@ -341,7 +365,19 @@ public class ChatMessagesFragment extends Fragment {
                 SharedPreferences sharedPref = mContext.getSharedPreferences("CHAT-BODY", Context.MODE_PRIVATE);
                 String messageBody = sharedPref.getString("MESSAGE-BODY", null);
                 String messageSender = sharedPref.getString("MESSAGE-SENDER", null);
-                if (messageObj.getCreatedBy().equals(messageSender)) {
+                if(messageObj!=null&&messageObj.getCreatedBy().equals(messageSender)){
+                    DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy hh:mm", Locale.US);
+                    Calendar calobj = Calendar.getInstance();
+                    String ReminderDate = dateFormat.format(calobj.getTime());
+                    ApiFriendChatListHolder.ApiFriendListInfo e = new ApiFriendChatListHolder().new ApiFriendListInfo();
+                    e.setSubject("Subject");
+                    e.setCreatedBy(messageSender);
+                    e.setMessageBody(messageBody);
+                    e.setCreatedDate(ReminderDate);
+                    messagesArrayList.add(e);
+                    setupRecyclerView(messagesArrayList);
+                    etNewMessageToSend.setText("");
+                }else if(apiChatMessagesObj!=null&&apiChatMessagesObj.getCreatedBy().equals(messageSender)){
                     DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy hh:mm", Locale.US);
                     Calendar calobj = Calendar.getInstance();
                     String ReminderDate = dateFormat.format(calobj.getTime());

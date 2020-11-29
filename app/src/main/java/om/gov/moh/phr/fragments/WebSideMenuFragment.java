@@ -53,6 +53,7 @@ public class WebSideMenuFragment extends Fragment {
         mContext = context;
         mMediatorCallback = (MediatorInterface) context;
         mToolbarControllerCallback = (ToolbarControllerInterface) context;
+        mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.GONE);
     }
 
     @Override
@@ -121,7 +122,6 @@ public class WebSideMenuFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        //mMediatorCallback.changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
         mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
     }
 }

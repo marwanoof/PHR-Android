@@ -21,8 +21,11 @@ import com.google.android.material.tabs.TabLayout;
 import java.util.ArrayList;
 
 import om.gov.moh.phr.R;
+import om.gov.moh.phr.apimodels.ApiHomeHolder;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
+
+import static om.gov.moh.phr.models.MyConstants.PARAM_API_DEMOGRAPHICS_ITEM;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -30,13 +33,16 @@ import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
 public class MedicationContainerFragment extends Fragment {
     private Context mContext;
     private ToolbarControllerInterface mToolbarControllerCallback;
+    private String pageTitle;
+    private static final String PARAM1 = "PARAM1";
     public MedicationContainerFragment() {
         // Required empty public constructor
     }
 
-    public static MedicationContainerFragment newInstance() {
+    public static MedicationContainerFragment newInstance(String title) {
         MedicationContainerFragment fragment = new MedicationContainerFragment();
         Bundle args = new Bundle();
+        args.putSerializable(PARAM1, title);
         fragment.setArguments(args);
         return fragment;
     }
@@ -46,6 +52,15 @@ public class MedicationContainerFragment extends Fragment {
         super.onAttach(context);
         mContext = context;
         mToolbarControllerCallback = (ToolbarControllerInterface) context;
+        mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.GONE);
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            pageTitle = (String) getArguments().getSerializable(PARAM1);
+        }
     }
 
     @Override
@@ -84,9 +99,9 @@ public class MedicationContainerFragment extends Fragment {
         @Override
         public Fragment getItem(int position) {
             if (position == 0)
-                return MedicationFragment.newInstance("Active");
+                return MedicationFragment.newInstance("Active",pageTitle);
             else
-                return MedicationFragment.newInstance("All");
+                return MedicationFragment.newInstance("All",pageTitle);
         }
 
         @Nullable
@@ -99,5 +114,11 @@ public class MedicationContainerFragment extends Fragment {
         public int getCount() {
             return mFragmentTitles.size();
         }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
     }
 }

@@ -33,15 +33,27 @@ public class DocsContainerFragment extends Fragment {
     private Context mContext;
     private ToolbarControllerInterface mToolbarControllerCallback;
     private MediatorInterface mMediatorCallback;
+    private static final String ARG_PARAM1 = "ARG_PARAM1";
+    private String pageTitle;
     public DocsContainerFragment() {
         // Required empty public constructor
     }
 
-    public static DocsContainerFragment newInstance() {
+    public static DocsContainerFragment newInstance(String title) {
         DocsContainerFragment fragment = new DocsContainerFragment();
         Bundle args = new Bundle();
+        args.putSerializable(ARG_PARAM1,title);
         fragment.setArguments(args);
         return fragment;
+    }
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if(getArguments()!=null) {
+            if (getArguments().getSerializable(ARG_PARAM1) != null)
+                pageTitle = (String) getArguments().getSerializable(ARG_PARAM1);
+
+        }
     }
     @Override
     public void onAttach(@NonNull Context context) {
@@ -49,6 +61,7 @@ public class DocsContainerFragment extends Fragment {
         mContext = context;
         mToolbarControllerCallback = (ToolbarControllerInterface) context;
         mMediatorCallback = (MediatorInterface) context;
+        mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.GONE);
     }
 
     @Override
@@ -132,4 +145,9 @@ public class DocsContainerFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
+    }
 }

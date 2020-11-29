@@ -136,7 +136,7 @@ public class DependentFragment extends Fragment implements AdapterToFragmentConn
                     if (response.getInt(API_RESPONSE_CODE) == 0) {
                         Gson gson = new Gson();
                         ApiDependentsHolder responseHolder = gson.fromJson(response.toString(), ApiDependentsHolder.class);
-                        Log.d("resp-demo", response.getJSONArray("result").toString());
+
                         setupRecyclerView(responseHolder.getResult());
 
                     } else {
@@ -153,7 +153,7 @@ public class DependentFragment extends Fragment implements AdapterToFragmentConn
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("resp-demographic", error.toString());
+
                 error.printStackTrace();
                 mProgressDialog.dismissDialog();
             }

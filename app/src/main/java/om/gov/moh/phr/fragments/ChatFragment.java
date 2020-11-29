@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -71,13 +72,16 @@ public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     private DataUpdateReceiver dataUpdateReceiver;
     private SwipeRefreshLayout swipeRefreshLayout;
     private View view;
+    private static final String PARAM1 = "PARAM1";
+    private String pageTitle;
     public ChatFragment() {
         // Required empty public constructor
     }
 
-    public static ChatFragment newInstance() {
+    public static ChatFragment newInstance(String title) {
         ChatFragment fragment = new ChatFragment();
         Bundle args = new Bundle();
+        args.putString(PARAM1,title);
         fragment.setArguments(args);
         return fragment;
     }
@@ -88,6 +92,14 @@ public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         mContext = context;
         mMediatorCallback = (MediatorInterface) context;
         mToolbarControllerCallback = (ToolbarControllerInterface) context;
+        mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.GONE);
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null)
+            pageTitle = getArguments().getString(PARAM1);
     }
 
     @Override
@@ -97,7 +109,7 @@ public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         if(view==null){
          view = inflater.inflate(R.layout.fragment_chat, container, false);
         TextView tvTitle = view.findViewById(R.id.tv_toolbar_title);
-        tvTitle.setText(getResources().getString(R.string.title_chat_list));
+        tvTitle.setText(pageTitle);
         tvTitle.setGravity(Gravity.CENTER);
         ImageButton ibBack = view.findViewById(R.id.ib_toolbar_back_button);
         //ibBack.setVisibility(View.GONE);

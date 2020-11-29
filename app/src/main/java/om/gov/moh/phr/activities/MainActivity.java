@@ -1,5 +1,6 @@
 package om.gov.moh.phr.activities;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.FragmentManager;
@@ -12,8 +13,11 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -36,6 +40,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -57,6 +62,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.bottomnavigation.BottomNavigationItemView;
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -109,11 +115,13 @@ import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
 import om.gov.moh.phr.models.AppCurrentUser;
 import om.gov.moh.phr.models.AppLanguage;
 import om.gov.moh.phr.models.ComponentConstants;
+import om.gov.moh.phr.models.CustomTypefaceSpan;
 import om.gov.moh.phr.models.HomePagerAdapter;
 import om.gov.moh.phr.models.MyProgressDialog;
 import om.gov.moh.phr.models.NetworkUtility;
 import om.gov.moh.phr.models.ViewPagerCustomDuration;
 
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static om.gov.moh.phr.models.MyConstants.API_ANDROID_APP_CODE;
 import static om.gov.moh.phr.models.MyConstants.API_ANDROID_FLAG;
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_ACCESS_TOKEN;
@@ -161,6 +169,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
     //  private ViewPagerCustomDuration mViewPager;
     private DrawerLayout mDrawer;
     private Toolbar toolbar;
+    private AppBarLayout appBarLayout;
     // private BottomNavigationView bottomNavigation;
     private MyProgressDialog mProgressDialog;
     private RequestQueue mQueue;
@@ -173,7 +182,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
     private DataUpdateReceiver dataUpdateReceiver;
     private String menus;
     private HomeFragment homeFragment;
-
+    final int callbackId = 42;
     //FCM
     public static boolean checkPlayServices(Activity activity) {
         final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
@@ -211,8 +220,11 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         storeLanguage(currentLanguage);
         setAppLanguage(currentLanguage);
         requestNotificationPermission();
+        checkPermission(callbackId, Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR);
+     //   homeFragment = new HomeFragment();
+        toolbar = findViewById(R.id.toolbar);
+        appBarLayout = findViewById(R.id.appbar_main);
 
-        homeFragment = new HomeFragment();
         //steps to change status bar color << start >>
         Window window = getWindow();
         //clear FLAG_TRANSLUCENT_STATUS flag :
@@ -232,8 +244,8 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         //TODO: delete this to remove the toolbar
         //*************************************
 
-        toolbar = findViewById(R.id.toolbar);
-        setTitle("");
+
+      //  setTitle("");
         ImageView ivLogout = findViewById(R.id.iv_logout);
         //TODO: delete this to remove the toolbar
         //*************************************
@@ -244,7 +256,8 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         mDrawer.addDrawerListener(toggle);
         toggle.syncState();
         //*************************************
-
+     //   shouldLockDrawer(false);
+     //   changeFragmentTo(HomeFragment.newInstance(), HomeFragment.class.getSimpleName());
 
         mProgressDialog = new MyProgressDialog(mContext);// initializes progress dialog
         mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, getSocketFactory())); // initializes mQueue : we need to use  Volley.newRequestQueue(this, new HurlStack(null, getSocketFactory())) because we need to connect the app to secure server "https".
@@ -285,7 +298,15 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         }
 
     }
+    private void checkPermission(int callbackId, String... permissionsId) {
+        boolean permissions = true;
+        for (String p : permissionsId) {
+            permissions = permissions && ContextCompat.checkSelfPermission(this, p) == PERMISSION_GRANTED;
+        }
 
+        if (!permissions)
+            ActivityCompat.requestPermissions(this, permissionsId, callbackId);
+    }
     private void setUpNavigationView() {
         NavigationView navigationView = findViewById(R.id.nav_view);
         Menu menu = navigationView.getMenu();
@@ -293,6 +314,20 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         SharedPreferences sharedPrefSideMenu = mContext.getSharedPreferences(PREFS_SIDE_MENU, Context.MODE_PRIVATE);
         menus = sharedPrefSideMenu.getString(PARAM_SIDE_MENU, "");
         Log.d("sideMenu", menus);
+        String arabicMenuItem = getResources().getString(R.string.arabic);
+        menu.findItem(R.id.nav_arabic).setTitle(applyFontToMenuItem(arabicMenuItem));
+
+        String englishMenuItem = getResources().getString(R.string.english);
+        menu.findItem(R.id.nav_english).setTitle(applyFontToMenuItem(englishMenuItem));
+
+        String aboutMenuItem = getResources().getString(R.string.about_the_app);
+        menu.findItem(R.id.nav_about).setTitle(applyFontToMenuItem(aboutMenuItem));
+
+        String feedbackMenuItem = getResources().getString(R.string.phr_feedback);
+        menu.findItem(R.id.nav_feedback).setTitle(applyFontToMenuItem(feedbackMenuItem));
+
+        String logoutMenuItem = getResources().getString(R.string.title_logout);
+        menu.findItem(R.id.nav_logout).setTitle(applyFontToMenuItem(logoutMenuItem));
         try {
             JSONArray array = new JSONArray(menus);
             for (int i = 0; i < array.length(); i++) {
@@ -630,6 +665,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
     @Override
     public void changeSideMenuToolBarVisibility(int visibility) {
         toolbar.setVisibility(visibility);
+        shouldLockDrawer(visibility != View.VISIBLE);
     }
 
     @Override
@@ -753,7 +789,15 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
                     .commit();
         }
     }
-
+    private SpannableString applyFontToMenuItem(String mi) {
+        Typeface font = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            font = getResources().getFont(R.font.sky);
+        }
+        SpannableString mNewTitle = new SpannableString(mi);
+        mNewTitle.setSpan(new CustomTypefaceSpan("", font), 0, mNewTitle.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+        return mNewTitle;
+    }
     private void logout() {
         displayLogoutDialog();
     }
@@ -942,21 +986,21 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         if (getCurrentFragment() != null) {
             //if screen rotated retain Fragment
             if (getCurrentFragment() instanceof HomeFragment) {
-                shouldLockDrawer(false);
-                /*  changeFragmentContainerVisibility(View.VISIBLE, View.VISIBLE);*/
+              //  shouldLockDrawer(false);
+              //  changeFragmentContainerVisibility(View.VISIBLE, View.VISIBLE);
                 changeSideMenuToolBarVisibility(View.VISIBLE);
             } else {
-                shouldLockDrawer(true);
-                /*  changeFragmentContainerVisibility(View.VISIBLE, View.GONE);*/
+              //  shouldLockDrawer(true);
+            //  changeFragmentContainerVisibility(View.VISIBLE, View.GONE);
                 changeSideMenuToolBarVisibility(View.GONE);
                 changeFragmentTo(getCurrentFragment(), getCurrentFragment().getTag());
             }
 
         } else {
             //set Home/Main/default fragment
-            /*     changeFragmentContainerVisibility(View.VISIBLE, View.VISIBLE);*/
+          // changeFragmentContainerVisibility(View.VISIBLE, View.VISIBLE);
             changeSideMenuToolBarVisibility(View.VISIBLE);
-            shouldLockDrawer(false);
+           // shouldLockDrawer(false);
             changeFragmentTo(HomeFragment.newInstance(), HomeFragment.class.getSimpleName());
         }
         //   } else {
@@ -1029,10 +1073,10 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
                         String deviceId = task.getResult().getToken();
 
                         registerDevice(deviceId);
-                        Log.d(TAG + "deviceID", deviceId);
-                        // Log and toast
-                        String msg = getString(R.string.msg_token_fmt, deviceId);
-                        Log.d(TAG + "-token", msg);
+
+
+
+
 //                        Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
 
                     }

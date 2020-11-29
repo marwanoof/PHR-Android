@@ -61,6 +61,8 @@ import om.gov.moh.phr.dialogfragments.CancelAppointmentDialogFragment;
 import om.gov.moh.phr.dialogfragments.DisclaimerDialogFragment;
 import om.gov.moh.phr.interfaces.DialogFragmentInterface;
 import om.gov.moh.phr.models.AppCurrentUser;
+import om.gov.moh.phr.models.AppLanguage;
+import om.gov.moh.phr.models.GlobalMethodsKotlin;
 import om.gov.moh.phr.models.MyProgressDialog;
 
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_ACCESS_TOKEN;
@@ -90,12 +92,15 @@ public class LoginActivity extends AppCompatActivity {
     private Button btnLogin;
     private TextView tvCancel;
     private DisclaimerDialogFragment mDisclaimerDialogFragment;
+    private String currentLanguage = getDeviceLanguage();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         changeLanguageTo(getStoredLanguage(), false);
         setContentView(R.layout.activity_login);
 
+        storeLanguage(currentLanguage);
+        setAppLanguage(currentLanguage);
         mProgressDialog = new MyProgressDialog(this);// initializes progress dialog
         mQueue = Volley.newRequestQueue(this, new HurlStack(null, getSocketFactory())); // initializes mQueue : we need to use  Volley.newRequestQueue(this, new HurlStack(null, getSocketFactory())) because we need to connect the app to secure server "https".
 
@@ -129,6 +134,7 @@ finish();
                 @Override
                 public void onClick(View v) {
                     if (TextUtils.isEmpty(tietCivilId.getText().toString())) {
+                        tietCivilId.setBackground(getResources().getDrawable(R.drawable.edit_text_round_error));
                         tietCivilId.setError(getString(R.string.alert_empty_field));
                     }
                 }
@@ -138,6 +144,7 @@ finish();
                 @Override
                 public void onClick(View v) {
                     if (TextUtils.isEmpty(tietCivilId.getText().toString())) {
+                        tietCivilId.setBackground(getResources().getDrawable(R.drawable.edit_text_round_error));
                         tietCivilId.setError(getString(R.string.alert_empty_field));
 
                     } else {
@@ -153,11 +160,13 @@ finish();
                     boolean shouldLogin = true;
 
                     if (TextUtils.isEmpty(tietCivilId.getText().toString())) {
+                        tietCivilId.setBackground(getResources().getDrawable(R.drawable.edit_text_round_error));
                         tietCivilId.setError(getString(R.string.alert_empty_field));
                         shouldLogin = false;
                     }
 
                     if (TextUtils.isEmpty(tietOTP.getText().toString())) {
+                        tietOTP.setBackground(getResources().getDrawable(R.drawable.edit_text_round_error));
                         tietOTP.setError(getString(R.string.alert_empty_field));
                         shouldLogin = false;
                     }
@@ -169,13 +178,16 @@ finish();
             });
         }
     }
-
-    /**
-     * getSocketFactory() will help us to create/start communicate with servers on https domain
-     * you would need to store the certificate in the project under raw folder. certificate : {@link om.gov.moh.phr.R.raw#cert}
-     *
-     * @return SSLSocketFactory to
-     */
+    private void storeLanguage(String language) {
+        SharedPreferences sharedPref = getSharedPreferences(LANGUAGE_PREFS, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString(LANGUAGE_SELECTED, language);
+        editor.apply();
+    }
+    private void setAppLanguage(String language) {
+        AppLanguage appLanguage = AppLanguage.getInstance();
+        appLanguage.setSelectedLanguage(language);
+    }
     public SSLSocketFactory getSocketFactory() {
         CertificateFactory cf = null;
         try {
@@ -241,22 +253,14 @@ finish();
         mProgressDialog.showDialog();
         String fullUrl = API_PHR + "v2/getOtp";
 
-        // getOtp api is using HTTP.GET inorder to get data, that's why we need Request.Method.GET
+
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, fullUrl, getJSONRequestParams(civilId)
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Log.d("api-getOtp", response.toString());
 
-                /**
-                 * all apis returns json response. if you need to parse or get certain object from json the you need try{} catch(JSONException e){}
-                 */
                 try {
 
-                    /**
-                     *  all apis return API_RESPONSE_CODE. If and only if API_RESPONSE_CODE == 0 then the api call was successful.
-                     *  all apis return API_RESPONSE_RESULT which is string message that describe the result of calling an api. can be very useful if API_RESPONSE_CODE != 0 which would tell what went wrong.
-                     */
                     if (response.getInt(API_RESPONSE_CODE) == 0
                             && response.getString(API_RESPONSE_RESULT) != null
                             && response.getString(API_RESPONSE_RESULT).equalsIgnoreCase("true")) {
@@ -266,7 +270,8 @@ finish();
                         mProgressDialog.dismissDialog();
                     }
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    GlobalMethodsKotlin.Companion.showAlertDialog(LoginActivity.this,getResources().getString(R.string.alert_error_title),getResources().getString(R.string.wrong_msg),getResources().getString(R.string.ok),R.drawable.ic_error);
+
                 }
                 mProgressDialog.dismissDialog();
 
@@ -274,8 +279,7 @@ finish();
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-//                Log.d("enc", error.toString());
-                error.printStackTrace();
+                GlobalMethodsKotlin.Companion.showAlertDialog(LoginActivity.this,getResources().getString(R.string.alert_error_title),getResources().getString(R.string.wrong_msg),getResources().getString(R.string.ok),R.drawable.ic_error);
                 mProgressDialog.dismissDialog();
             }
         }) {
@@ -317,6 +321,7 @@ finish();
         /* if (NetworkUtility.isConnected(mContext))*/
         {
             tilOTP.setVisibility(View.VISIBLE);
+            tilOTP.requestFocus();
             btnLogin.setVisibility(View.VISIBLE);
             btnGetOTP.setVisibility(View.INVISIBLE);
             tvCancel.setVisibility(View.GONE);
@@ -329,9 +334,6 @@ finish();
         mDisclaimerDialogFragment = DisclaimerDialogFragment.newInstance();
         mDisclaimerDialogFragment.setDialogFragmentListener(new DialogFragmentInterface() {
 
-            /**
-             * onAccept(), onAccept(int position) and onDecline() are overridden functions of {@link DialogFragmentInterface}
-             */
             @Override
             public void onAccept() {
                     login(tietCivilId.getText().toString(), tietOTP.getText().toString());
@@ -358,28 +360,23 @@ finish();
 
     private void login(final String civilId, String otp) {
         String fullUrl = API_PHR + "v2/validateOtp";
-        Log.d("resp-login_URl", fullUrl);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, fullUrl, getValidateJSONRequestParams(civilId, otp)
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Log.d("resp-login", response.toString());
                 try {
                     if (response.getInt(API_RESPONSE_CODE) == 0
                             && response.getString(API_RESPONSE_RESULT) != null) {
                         JSONObject jsonObject = response.getJSONObject(API_RESPONSE_RESULT);
                         storeAccessToken(jsonObject.optString(API_GET_TOKEN_ACCESS_TOKEN)
                                 , civilId, jsonObject.optString("personName"), jsonObject.optString("image"), jsonObject.getJSONArray("menus").toString());
-                        Log.d("sideMenu", response.toString());
 
                     } else {
                         Toast.makeText(LoginActivity.this, response.getString(API_RESPONSE_MESSAGE), Toast.LENGTH_SHORT).show();
                         mProgressDialog.dismissDialog();
                     }
                 } catch (JSONException e) {
-//                    Log.d("enc", e.getMessage());
-
-                    e.printStackTrace();
+                    GlobalMethodsKotlin.Companion.showAlertDialog(LoginActivity.this,"Error",getResources().getString(R.string.wrong_msg),getResources().getString(R.string.ok),R.drawable.ic_error);
                 }
 
                 mProgressDialog.dismissDialog();
@@ -388,7 +385,7 @@ finish();
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-//                Log.d("enc", error.toString());
+                GlobalMethodsKotlin.Companion.showAlertDialog(LoginActivity.this,"Error",getResources().getString(R.string.wrong_msg),getResources().getString(R.string.ok),R.drawable.ic_error);
                 error.printStackTrace();
                 mProgressDialog.dismissDialog();
             }
@@ -411,14 +408,6 @@ finish();
         mQueue.add(jsonObjectRequest);
     }
 
-
-    /**
-     * storeAccessToken() will store both civilId and accessToken in SharedPreferences, so we can use them in the future.
-     *
-     * @param accessTokenValue
-     * @param civilId
-     * @param menus
-     */
     private void storeAccessToken(String accessTokenValue, String civilId, String personName, String image, String menus) {
         SharedPreferences.Editor editor;
 
@@ -457,18 +446,12 @@ finish();
         moveToMainActivity();
     }
 
-    /**
-     * call moveToMainActivity() inorder to move to mainActivity
-     */
     private void moveToMainActivity() {
         finish();
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
 
-    /**
-     * login using SharedPreferences
-     */
     private void localLogin() {
         mDisclaimerDialogFragment.dismiss();
         moveToMainActivity();

@@ -2,6 +2,11 @@ package om.gov.moh.phr.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,10 +25,17 @@ import java.util.Locale;
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.apimodels.ApiEncountersHolder;
 import om.gov.moh.phr.apimodels.ApiLabOrdersListHolder;
+import om.gov.moh.phr.apimodels.ApiMedicationHolder;
 import om.gov.moh.phr.fragments.HealthRecordDetailsFragment;
 import om.gov.moh.phr.fragments.HealthRecordListFragment;
 import om.gov.moh.phr.interfaces.AdapterToFragmentConnectorInterface;
 import om.gov.moh.phr.interfaces.MediatorInterface;
+import om.gov.moh.phr.models.GlobalMethods;
+
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_ARABIC;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_ENGLISH;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_PREFS;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_SELECTED;
 
 public class HealthRecordsRecyclerViewAdapter extends ListAdapter<ApiEncountersHolder.Encounter, HealthRecordsRecyclerViewAdapter.MyViewHolder> {
     private static final DiffUtil.ItemCallback<ApiEncountersHolder.Encounter> DIFF_CALLBACK = new DiffUtil.ItemCallback<ApiEncountersHolder.Encounter>() {
@@ -63,41 +75,50 @@ public class HealthRecordsRecyclerViewAdapter extends ListAdapter<ApiEncountersH
     public void onBindViewHolder(@NonNull HealthRecordsRecyclerViewAdapter.MyViewHolder holder, final int position) {
         final ApiEncountersHolder.Encounter result = getItem(position);
 
-        String title;
+        String title = "";
         if (result.getDepartmentArrayList().size() == 0 || result.getDepartmentArrayList().get(0) == null) {
             title = "Not provided";
         } else {
-            title = result.getDepartmentArrayList().get(0).getValue().trim();
+            if (getStoredLanguage().equals(LANGUAGE_ARABIC)){
+                holder.tvDay.setText(GlobalMethods.convertToEnglishNumber(result.getEncounterDay()));
+                if (result.getDepartmentArrayList().get(0).getValueNls() == null){
+                    title = result.getDepartmentArrayList().get(0).getValue().trim();
+                }else {
+                    title = result.getDepartmentArrayList().get(0).getValueNls().trim();
+                }
+            }else {
+                title = result.getDepartmentArrayList().get(0).getValue().trim();
+                holder.tvDay.setText(result.getEncounterDay());
+            }
+
         }
 
         holder.tvTitle.setText(title);
-        String sub1 = result.getPatientClass() + " | " + result.getEstShortName();
-        holder.tvSub1.setText(sub1);
 
+        String patientClass = result.getPatientClass();
         switch (result.getPatientClass()){
             case "outpatient":
-                holder.patientClass.setImageDrawable(mContxt.getResources().getDrawable(R.drawable.ic_outpatient));
+                if (getStoredLanguage().equals(LANGUAGE_ARABIC)){patientClass = "العيادات الخارجية";}
+                //holder.patientClass.setImageDrawable(mContxt.getResources().getDrawable(R.drawable.ic_outpatient));
                 break;
             case "emergency":
-                holder.patientClass.setImageDrawable(mContxt.getResources().getDrawable(R.drawable.ic_emergency));
+                if (getStoredLanguage().equals(LANGUAGE_ARABIC)){patientClass = "الطوارئ";}
+                //holder.patientClass.setImageDrawable(mContxt.getResources().getDrawable(R.drawable.ic_emergency));
                 break;
             case "inpatient":
-                holder.patientClass.setImageDrawable(mContxt.getResources().getDrawable(R.drawable.ic_inpatient));
+                if (getStoredLanguage().equals(LANGUAGE_ARABIC)){patientClass = "العيادات الداخلية";}
+                //holder.patientClass.setImageDrawable(mContxt.getResources().getDrawable(R.drawable.ic_inpatient));
                 break;
             default:
                 holder.patientClass.setImageDrawable(null);
                 break;
         }
 
-        String sub2;
-        if (result.getDiagnosisArrayList() == null || result.getDiagnosisArrayList().size() == 0 || result.getDiagnosisArrayList().get(0) == null) {
-            sub2 = "";
-        } else {
-            sub2 = result.getDiagnosisArrayList().get(0).getValue().trim();
-        }
-        holder.tvSub2.setText(sub2);
+
+
+
         holder.tvMonth.setText(result.getEncounterMonth());
-        holder.tvDay.setText(result.getEncounterDay());
+        //holder.tvDay.setText(result.getEncounterDay());
 
         int currentYear = Calendar.getInstance().get(Calendar.YEAR);
         int recordYear = Integer.valueOf(result.getEncounterYear());
@@ -110,11 +131,30 @@ public class HealthRecordsRecyclerViewAdapter extends ListAdapter<ApiEncountersH
             holder.dateView.setBackgroundColor(holder.redColor);
         }
 
+        //Translation
+        if (getStoredLanguage().equals(LANGUAGE_ENGLISH)){
+            String sub2;
+            if (result.getDiagnosisArrayList() == null || result.getDiagnosisArrayList().size() == 0 || result.getDiagnosisArrayList().get(0) == null) {
+                sub2 = "";
+            } else {
+                sub2 = result.getDiagnosisArrayList().get(0).getValue().trim();
+            }
+            holder.tvSub2.setText(sub2);
+            holder.detailsArrow.setImageDrawable(mContxt.getResources().getDrawable(R.drawable.ic_arrow_right));
+            String sub1 = patientClass + " | " + result.getEstShortName();
+            holder.tvSub1.setText(sub1);
+        }else {
+            String sub1 = patientClass + " | " + result.getEstFullnameNls();
+            holder.tvSub1.setText(sub1);
+            holder.detailsArrow.setImageBitmap(flipImage());
+        }
+
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mCallback.onMyListItemClicked(result, result.getEstShortName(), position);
+                mediatorInterface.changeFragmentTo(HealthRecordDetailsFragment.newInstance(result),"HeathRecordsDetails");
+                //mCallback.onMyListItemClicked(result, result.getEstShortName(), position);
             }
         });
     }
@@ -137,6 +177,7 @@ public class HealthRecordsRecyclerViewAdapter extends ListAdapter<ApiEncountersH
         private final ImageView patientClass;
         private int grayColor = mContxt.getResources().getColor(R.color.colorSecendary);
         private int redColor = mContxt.getResources().getColor(R.color.colorPrimary);
+        private final ImageView detailsArrow;
 
         public boolean isOdd(int value){
             return value % 2 != 0;
@@ -152,6 +193,11 @@ public class HealthRecordsRecyclerViewAdapter extends ListAdapter<ApiEncountersH
             tvDay = itemView.findViewById(R.id.tv_day);
             dateView = itemView.findViewById(R.id.v_date_holder);
             patientClass = itemView.findViewById(R.id.img_patientClassIcon);
+            detailsArrow = itemView.findViewById(R.id.img_detail_arrow);
+
+            Bitmap bitmap = BitmapFactory.decodeResource(mContxt.getResources(),R.drawable.ic_arrow_right);
+            detailsArrow.setImageBitmap(bitmap);
+            //detailsArrow.setImageDrawable(mContxt.getResources().getDrawable(R.drawable.ic_keyboard_arrow_next));
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -161,19 +207,36 @@ public class HealthRecordsRecyclerViewAdapter extends ListAdapter<ApiEncountersH
                     }
                 }
             });
+
+
         }
     }
-    /*public void filter(String charText) {
+    private String getStoredLanguage() {
+        SharedPreferences sharedPref = mContxt.getSharedPreferences(LANGUAGE_PREFS, Context.MODE_PRIVATE);
+        return sharedPref.getString(LANGUAGE_SELECTED, LANGUAGE_ARABIC);
+    }
 
-        this.arraylist.addAll(ApiEncountersHolder.Encounter);
+    private Bitmap flipImage() {
+        Bitmap bitmap = BitmapFactory.decodeResource(mContxt.getResources(),R.drawable.ic_arrow_right);
+// create new matrix for transformation
+        Matrix matrix = new Matrix();
+        matrix.preScale(-1.0f, 1.0f);
+
+        Bitmap flipped_bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+
+        return flipped_bitmap;
+
+    }
+   /* // Filter Class
+    public void filter(String charText) {
         charText = charText.toLowerCase(Locale.getDefault());
-        labOrdersArrayList.clear();
+        mListener.clear();
         if (charText.length() == 0) {
-            labOrdersArrayList.addAll(arraylist);
+            mListener.addAll(arraylist);
         } else {
-            for (ApiLabOrdersListHolder.ApiOredresList wp : arraylist) {
-                if (wp.getProcName().toLowerCase(Locale.getDefault()).contains(charText)) {
-                    labOrdersArrayList.add(wp);
+            for (ApiMedicationHolder.ApiMedicationInfo wp : arraylist) {
+                if (wp.getMedicineName().toLowerCase(Locale.getDefault()).contains(charText)) {
+                    medicineArrayList.add(wp);
                 }
             }
         }

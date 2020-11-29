@@ -283,6 +283,9 @@ public class ApiDemographicsHolder {
             @SerializedName("name")
             private String name;
 
+            @SerializedName("type")
+            private String type;
+
             @SerializedName("unit")
             private String unit;
 
@@ -297,6 +300,10 @@ public class ApiDemographicsHolder {
 
             @SerializedName("rightColor")
             private String rightColor;
+
+            public String getType() {
+                return type;
+            }
 
             public String getVitalNameNls() {
                 if (TextUtils.isEmpty(vitalNameNls))
@@ -320,11 +327,12 @@ public class ApiDemographicsHolder {
             public RecentVitals() {
             }
 
-            public RecentVitals(String name, String vitalNameNls, String value, String unit) {
+            public RecentVitals(String name, String vitalNameNls, String value, String unit, String type) {
                 this.name = name;
                 this.vitalNameNls = vitalNameNls;
                 this.value = value;
                 this.unit = unit;
+                this.type = type;
             }
 
             public String getUnit() {
@@ -349,9 +357,9 @@ public class ApiDemographicsHolder {
             }
 
             public String getUnitNls() {
-                if (TextUtils.isEmpty(unitNls)||unitNls==null)
+               /* if (TextUtils.isEmpty(unitNls)||unitNls==null)
                     return "--";
-                else
+                else*/
                 return unitNls;
             }
             /*TODO : delete set methods*/

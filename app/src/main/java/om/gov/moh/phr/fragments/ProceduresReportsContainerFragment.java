@@ -30,13 +30,16 @@ import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
 public class ProceduresReportsContainerFragment extends Fragment {
     private Context mContext;
     private ToolbarControllerInterface mToolbarControllerCallback;
+    private static final String ARG_PARAM1 = "ARG_PARAM1";
+    private String pageTitle;
     public ProceduresReportsContainerFragment() {
         // Required empty public constructor
     }
 
-    public static ProceduresReportsContainerFragment newInstance() {
+    public static ProceduresReportsContainerFragment newInstance(String title) {
         ProceduresReportsContainerFragment fragment = new ProceduresReportsContainerFragment();
         Bundle args = new Bundle();
+        args.putSerializable(ARG_PARAM1, title);
         fragment.setArguments(args);
         return fragment;
     }
@@ -46,8 +49,17 @@ public class ProceduresReportsContainerFragment extends Fragment {
         super.onAttach(context);
         mContext = context;
         mToolbarControllerCallback = (ToolbarControllerInterface) context;
+        mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.GONE);
     }
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if(getArguments()!=null) {
+            if (getArguments().getSerializable(ARG_PARAM1) != null)
+                pageTitle = (String) getArguments().getSerializable(ARG_PARAM1);
 
+        }
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -85,7 +97,7 @@ public class ProceduresReportsContainerFragment extends Fragment {
         @Override
         public Fragment getItem(int position) {
             if (position == 0)
-                return ProceduresReportsFragment.newInstance();
+                return ProceduresReportsFragment.newInstance(pageTitle);
             else
                 return MediaProceduresReportsFragment.newInstance();
         }
@@ -100,5 +112,11 @@ public class ProceduresReportsContainerFragment extends Fragment {
         public int getCount() {
             return mFragmentTitles.size();
         }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
     }
 }

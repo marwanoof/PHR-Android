@@ -7,6 +7,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SearchView;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -46,6 +47,7 @@ import om.gov.moh.phr.adapters.UploadedDocsRecyclerViewAdapter;
 import om.gov.moh.phr.apimodels.ApiUploadsDocsHolder;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
+import om.gov.moh.phr.models.DividerItemDecorator;
 import om.gov.moh.phr.models.MyProgressDialog;
 
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
@@ -182,9 +184,8 @@ public class SelfDocsFragment extends Fragment implements SearchView.OnQueryText
                 new UploadedDocsRecyclerViewAdapter(mMediatorCallback, getmResult, mContext);
         LinearLayoutManager layoutManager
                 = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
-/*        DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(rvOtherDocsList.getContext(),
-                layoutManager.getOrientation());
-        rvOtherDocsList.addItemDecoration(mDividerItemDecoration);*/
+        RecyclerView.ItemDecoration dividerItemDecoration = new DividerItemDecorator(ContextCompat.getDrawable(mContext, R.drawable.divider));
+        rvOtherDocsList.addItemDecoration(dividerItemDecoration);
         rvOtherDocsList.setLayoutManager(layoutManager);
         rvOtherDocsList.setItemAnimator(new DefaultItemAnimator());
         rvOtherDocsList.setAdapter(mUploadedAdapter);

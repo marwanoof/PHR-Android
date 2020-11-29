@@ -31,12 +31,16 @@ public class LabResultsContainerFragment extends Fragment {
 
     private Context mContext;
     private ToolbarControllerInterface mToolbarControllerCallback;
+    private static final String PARAM1 = "PARAM1";
+    private String pageTitle;
+
     public LabResultsContainerFragment() {
         // Required empty public constructor
     }
-    public static LabResultsContainerFragment newInstance() {
+    public static LabResultsContainerFragment newInstance(String title) {
         LabResultsContainerFragment fragment = new LabResultsContainerFragment();
         Bundle args = new Bundle();
+        args.putString(PARAM1,title);
         fragment.setArguments(args);
         return fragment;
     }
@@ -46,6 +50,15 @@ public class LabResultsContainerFragment extends Fragment {
         super.onAttach(context);
         mContext = context;
         mToolbarControllerCallback = (ToolbarControllerInterface) context;
+        mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.GONE);
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null){
+            pageTitle = getArguments().getString(PARAM1);
+        }
     }
 
     @Override
@@ -83,9 +96,9 @@ public class LabResultsContainerFragment extends Fragment {
         @Override
         public Fragment getItem(int position) {
             if (position == 0)
-                return LabResultsFragment.newInstance("Recent");
+                return LabResultsFragment.newInstance("Recent",pageTitle);
             else
-                return LabResultsFragment.newInstance("All");
+                return LabResultsFragment.newInstance("All",pageTitle);
         }
 
         @Nullable
@@ -98,5 +111,11 @@ public class LabResultsContainerFragment extends Fragment {
         public int getCount() {
             return mFragmentTitles.size();
         }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
     }
 }

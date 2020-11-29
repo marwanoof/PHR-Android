@@ -84,7 +84,7 @@ public class RefferalsListRecyclerViewAdapter extends
             btnReschedule = itemView.findViewById(R.id.btn_reschedule);
             btnDelete = itemView.findViewById(R.id.btn_delete);
             tvTitle = itemView.findViewById(R.id.tv_title);
-            ibArrow = itemView.findViewById(R.id.imageButton);
+            ibArrow = itemView.findViewById(R.id.imgArrowDetailsSelf);
             btnReschedule.setVisibility(View.GONE);
             btnDelete.setVisibility(View.GONE);
             ibArrow.setVisibility(View.GONE);

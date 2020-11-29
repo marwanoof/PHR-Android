@@ -4,7 +4,7 @@
     android:id="@+id/sl_appointments_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/colorLiteGray"
+    android:animateLayoutChanges="true"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toBottomOf="@+id/v_appointments_label">
@@ -14,30 +14,31 @@
         android:id="@+id/tv_title"
         android:layout_width="@dimen/space_0"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/space_16"
-        android:layout_marginBottom="@dimen/space_16"
+        android:layout_marginTop="8dp"
         android:fontFamily="@font/roboto_regular"
-        android:textDirection="locale"
         android:padding="@dimen/space_16"
-        app:layout_constraintEnd_toStartOf="@id/imageButton"
-        android:text="@string/test_appointments"
         android:textColor="@color/colorTextViewFontNormal"
+        android:textDirection="locale"
+        app:layout_constraintEnd_toStartOf="@id/imgArrowDetailsSelf"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
         android:id="@+id/bottom_wraper"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
         android:orientation="horizontal"
-        app:layout_constraintEnd_toStartOf="@id/imageButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_title">
 
         <Button
             android:id="@+id/btn_reschedule"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:backgroundTint="#0076a5"
+            android:fontFamily="@font/sky_bold"
             android:text="@string/title_reschedule"
             android:textAllCaps="false"
             android:textColor="#fff" />
@@ -46,21 +47,25 @@
             android:id="@+id/btn_delete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:backgroundTint="#ff0000"
+            android:fontFamily="@font/sky_bold"
             android:text="@string/title_cancel"
             android:textAllCaps="false"
             android:textColor="#fff" />
 
 
     </LinearLayout>
+
     <ImageButton
-        android:id="@+id/imageButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:backgroundTint="@color/colorLiteGray"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:id="@+id/imgArrowDetailsSelf"
+        android:layout_width="13dp"
+        android:layout_height="13dp"
+        android:background="#00FFFFFF"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_title"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_keyboard_arrow_next" />
+        app:layout_constraintTop_toTopOf="@+id/tv_title"
+        app:srcCompat="@drawable/ic_arrow_right" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

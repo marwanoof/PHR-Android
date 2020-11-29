@@ -38,12 +38,12 @@ public class LabResultsDetailsRecyclerViewAdapter extends RecyclerView.Adapter<L
         if (object.getInterpretation().equals("A")) {
             setTextColorItem(holder.tvTestName);
             setTextColorItem(holder.tvResult);
-            setTextColorItem(holder.tvUnit);
+            //setTextColorItem(holder.tvUnit);
             setTextColorItem(holder.tvRange);
         }
         holder.tvTestName.setText(object.getTestName());
-        holder.tvResult.setText(object.getResult());
-        holder.tvUnit.setText(object.getUnit());
+        holder.tvResult.setText(object.getResult()+ " " + object.getUnit());
+       // holder.tvUnit.setText(object.getUnit());
         holder.tvRange.setText(object.getRangeHigh() + " - " + object.getRangeLow());
     }
 
@@ -59,6 +59,11 @@ public class LabResultsDetailsRecyclerViewAdapter extends RecyclerView.Adapter<L
         labResultArrayList = items;
         notifyDataSetChanged();
     }
+    public void clear(){
+        int size = labResultArrayList.size();
+        labResultArrayList.clear();
+        notifyItemRangeRemoved(0, size);
+    }
     public class MyViewHolder extends RecyclerView.ViewHolder {
         TextView tvTestName, tvResult, tvUnit, tvRange;
 
@@ -66,7 +71,7 @@ public class LabResultsDetailsRecyclerViewAdapter extends RecyclerView.Adapter<L
             super(view);
             tvTestName = view.findViewById(R.id.tv_testName);
             tvResult = view.findViewById(R.id.tv_testResult);
-            tvUnit = view.findViewById(R.id.tv_testUnit);
+           // tvUnit = view.findViewById(R.id.tv_testUnit);
             tvRange = view.findViewById(R.id.tv_testRange);
         }
     }

@@ -9,9 +9,6 @@
     <string name="title_login">تسجيل الدخول</string>
 
 
-    <string name="title_terms">    </string>
-
-
     <string name="title_accept">موافق</string>
     <string name="title_decline">غير موافق</string>
 
@@ -23,9 +20,7 @@
     <string name="title_medication">الأدوية</string>
     <string name="title_allergy">الحساسية</string>
     <string name="title_appointments">المواعيد</string>
-    <string name="credit_allergy_icon">Icons made by https://www.flaticon.com/authors/smashicons from https://www.flaticon.com/ is licensed by http://creativecommons.org/licenses/by/3.0/CC 3.0</string>
     <string name="title_immunization">التحصينات</string>
-    <string name="path_immunization">M490.783,123.385L512,102.167L409.834,0l-21.217,21.217l14.933,14.933l-53.012,53.012l-54.535,-54.535l-21.217,21.217l29.849,29.849L69.032,321.297l25.113,25.113l-50.226,50.227l25.114,25.113L0,490.783L21.217,512l69.032,-69.032l25.114,25.114l50.226,-50.226l25.113,25.113l235.603,-235.603l29.85,29.849l21.217,-21.217l-54.534,-54.535l53.012,-53.012L490.783,123.385zM115.363,425.646l-29.009,-29.009l29.009,-29.009l29.009,29.009L115.363,425.646zM190.703,400.533l-79.236,-79.236l30.285,-30.285l18.28,18.281l21.218,-21.217l-18.281,-18.281l21.457,-21.457l18.281,18.281l21.217,-21.218l-18.281,-18.28l21.458,-21.458l79.236,79.236L190.703,400.533zM327.555,263.681l-79.236,-79.236l21.457,-21.458l18.281,18.281l21.218,-21.217l-18.281,-18.281l34.857,-34.858l79.236,79.236L327.555,263.681zM401.621,140.246l-29.866,-29.866l53.012,-53.012l29.866,29.866L401.621,140.246z</string>
     <string name="title_notification">الإشعارات</string>
     <string name="title_logout">تسجيل الخروج</string>
     <string name="alert_no_connection">خطأ: لا يوجد اتصال بالإنترنت.</string>
@@ -56,14 +51,10 @@
     <string name="img_desc_pagination_icon">Pagination icon</string>
 
 
-    <string name="title_prev_1">القراءة1</string>
-    <string name="title_prev_2">القراءة2</string>
     <string name="title_recent">الحديثة</string>
     <string name="title_vital_signs">بيانات المعاينة</string>
 
 
-    <string name="title_prev_4">القراءة4</string>
-    <string name="title_prev_3">القراءة3</string>
     <string name="title_appointments_date_and_time">تاريخ ووقت المواعيد</string>
     <string name="alert_not_available">غير متوفر.</string>
     <string name="title_select_department">اختر القسم</string>
@@ -71,7 +62,6 @@
     <string name="title_remarks">ملاحظات</string>
     <string name="title_appointment_confirm_message">هل أنت متأكد من طلب الموعد في </string>
     <string name="title_confirm">تأكيد</string>
-    <string name="test_appointments">Hypertension Unit B | 01-jan-2020 | 09:50 | Al Wadi Al Kabeer Health Center</string>
     <string name="title_referrals">التحويلات</string>
     <string name="title_reschedule">تغيير الموعد</string>
     <string name="title_cancel">إلغاء</string>
@@ -83,8 +73,6 @@
     <!--FCM-->
     <string name="default_notification_channel_id" translatable="false">Chat</string>
     <string name="default_notification_channel_name" translatable="true">Chat</string>
-    <string name="msg_token_fmt" translatable="false">InstanceID Token: %s</string>
-    <string name="fcm_message">FCM Message</string>
     <string name="channel_chat">Chat</string>
     <string name="channel_chat_desc">This is chat channel, you can enable/disable chat notification using this channel.</string>
     <string name="channel_lab">Lab</string>
@@ -197,7 +185,7 @@
     <string name="publish">نشر</string>
     <string name="about_the_app">عن التطبيق</string>
     <string name="about_app_info"> تم تطوير تطبيق عافيتي بواسطة وزارة الصحة - المديرية العامة لتقنية المعلومات.  هذه النسخة التجريبية تسمح للمستخدمين من الإطلاع على ملفاتهم الشخصية الصحية عن طريق إدخال الرقم المدني ورقم الهاتف المسجل.</string>
-    <string name="ok">موافق</string>
+    <string name="ok">حسناً</string>
     <string name="title_organ">التبرع بالأعضاء</string>
     <string name="sub_title_phr">محفظة ملفك الصحي</string>
     <string name="language">اللغة</string>
@@ -208,7 +196,7 @@
     <string name="title_update">تحديث</string>
     <string name="other_commets">ملاحظات أخرى ..</string>
     <string name="name_of_the_family_member_aware_of_your_wish"><font size="10">اسم فرد من العائلة يعلم برغبتك في التبرع</font></string>
-    <string name="i_with_below_details_express_my_wish_to_donate_my_organs_after_death_to_be_implanted_fo_a_patient_in_need">مع التفاصيل أدناه ، أعرب عن رغبتي في التبرع بأعضائي بعد الوفاة لزرعها لمريض محتاج.</string>
+    <string name="oragen_statment">مع التفاصيل أدناه ، أعرب عن رغبتي في التبرع بأعضائي لزرعها لمريض محتاج.</string>
     <string name="mobile_no_of_the_family_member">رقم هاتف الشخص</string>
     <string name="select_relation_msg">الرجاء اختيار صلة القرابة !</string>
     <string name="title_chat_list">قائمة الأطباء</string>
@@ -223,4 +211,31 @@
     <string name="save">حفظ</string>
     <string name="unread_messages">الرسائل الغير مقروءة</string>
     <string name="visit_date">تاريخ الزيارة</string>
+    <string name="no_medical_history">لا يوجد هناك أي سجلات حساسية أو تاريخ طبي أو تشخيص نهائي مسجل لك</string>
+    <string name="visit_details">تفاصيل الزيارة</string>
+    <string name="completed">مكتمل</string>
+    <string name="take_medicine">تناول</string>
+    <string name="no_visit_details">لم يتم العثور على تفاصيل هذه الزيارة</string>
+    <string name="add_new_document">اضافة مستند جديد</string>
+    <string name="no_recodrs_dialog">لم يتم العثور على بيانات مسجلة</string>
+    <string name="no_records_lab_all">لا توجد نتائج مخبريّة خاصة بك</string>
+    <string name="no_records_lab_recent">لا توجد نتائج مخبريّة حديثة</string>
+    <string name="no_records_lab_encounter">لا توجد نتائج مخبريّة خاصة بهذه الزيارة</string>
+    <string name="no_records_med_all">لا توجد وصفات طبية خاصة بك</string>
+    <string name="no_records_med_recent">لا توجد وصفات طبية نشطة</string>
+    <string name="no_records_med_encounter">لا توجد وصفات طبية خاصة بهذه الزيارة</string>
+    <string name="no_records_rad">لا توجد نتائج أشعّة خاصة بهذه الزيارة</string>
+    <string name="no_records_proc_all">لا توجد بيانات اجراءات سريرية خاصة بك</string>
+    <string name="no_records_proc_recent">لا توجد بيانات اجراءات سريرية حديثة</string>
+    <string name="no_records_proc_encounter">لا توجد بيانات اجراءات سريرية خاصة بهذه الزيارة</string>
+    <string name="alert_error_title">خطأ</string>
+    <string name="alert_connection_body2">الرجاء التحقق من الإتصال والمحاولة مرة أخرى</string>
+    <string name="alert_no_connection_body_1">لا يوجد اتصال بالإنترنت</string>
+    <string name="no_records_imm_given">لا يوجد تحصين معطى لك</string>
+    <string name="no_records_imm_schedule">لا يوجد تحصين مُجدول لك</string>
+    <string name="wrong_msg">حدث خطأ ما يرجى المحاولة مرة أخرى</string>
+    <string name="decide_later">أقرر لاحقاً</string>
+    <string name="i_want_donate">أرغب بالتبرع بعد الموت؟</string>
+    <string name="no_doc_type_found">لم يتم العثور على بيانات أنواع المستندات. الرجاء المحاولة مرة أخرى.</string>
+    <string name="saved_successfully">تم حفظ البيانات بنجاح</string>
 </resources>

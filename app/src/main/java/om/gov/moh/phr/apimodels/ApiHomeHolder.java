@@ -110,6 +110,24 @@ public class ApiHomeHolder {
         @SerializedName("sixthName")
         private String sixthName;
 
+        @SerializedName("firstNameNls")
+        private String firstNameNls;
+
+        @SerializedName("secondNameNls")
+        private String secondNameNls;
+
+        @SerializedName("thirdNameNls")
+        private String thirdNameNls;
+
+        @SerializedName("fourthNameNls")
+        private String fourthNameNls;
+
+        @SerializedName("fifthNameNls")
+        private String fifthNameNls;
+
+        @SerializedName("sixthNameNls")
+        private String sixthNameNls;
+
         @SerializedName("dateOfBirth")
         private long dateOfBirth;
 
@@ -139,6 +157,30 @@ public class ApiHomeHolder {
 
         @SerializedName("image")
         private String image;
+
+        public String getFirstNameNls() {
+            return firstNameNls;
+        }
+
+        public String getSecondNameNls() {
+            return secondNameNls;
+        }
+
+        public String getThirdNameNls() {
+            return thirdNameNls;
+        }
+
+        public String getFourthNameNls() {
+            return fourthNameNls;
+        }
+
+        public String getFifthNameNls() {
+            return fifthNameNls;
+        }
+
+        public String getSixthNameNls() {
+            return sixthNameNls;
+        }
 
         public long getCivilId() {
             return civilId;
@@ -250,8 +292,15 @@ public class ApiHomeHolder {
         @SerializedName("dependentName")
         private String dependentName;
 
+        @SerializedName("dependentNameNls")
+        private String dependentNameNls;
+
         @SerializedName("relationType")
         private String relationType;
+
+        public String getDependentNameNls() {
+            return dependentNameNls;
+        }
 
         public long getRunId() {
             return runId;
@@ -338,6 +387,15 @@ public class ApiHomeHolder {
     public class ApiRecentVitals implements Serializable {
         @SerializedName("name")
         private String name;
+
+
+
+        @SerializedName("type")
+        private String type;
+
+        public String getType() {
+            return type;
+        }
 
         @SerializedName("unit")
         private String unit;

@@ -23,8 +23,7 @@ public class HomePagerAdapter extends FragmentPagerAdapter {
         //mFragmentTitles[2] = (context.getString(R.string.title_notification));//val : 3
         //mFragmentTitles[3] = (context.getString(R.string.title_chat));//val : 4
 
-
-        mFragmentsArray[0] = new HomeFragment().newInstance();//val : 1
+      //  mFragmentsArray[0] = new HomeFragment().newInstance();//val : 1
         //mFragmentsArray[1] = new AppointmentsListFragment().newInstance();//val : 2
         //mFragmentsArray[2] = new NotificationsFragment().newInstance();//val : 3
         //mFragmentsArray[3] = new ChatFragment().newInstance();//val : 4

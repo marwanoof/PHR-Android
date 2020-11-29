@@ -48,6 +48,12 @@ public class MessageChatsAdapter extends RecyclerView.Adapter<MessageChatsAdapte
 
         holder.tvTitle.setText(mItemsArrayList.get(position).getCreatedName());
         holder.tvDate.setText(mItemsArrayList.get(position).getCreatedDate());
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mediatorInterface.changeFragmentTo(ChatMessagesFragment.newInstance(mItemsArrayList.get(position)), "");
+            }
+        });
     }
 
 

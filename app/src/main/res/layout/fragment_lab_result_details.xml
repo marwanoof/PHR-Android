@@ -22,7 +22,7 @@
         <androidx.cardview.widget.CardView
             android:id="@+id/cardView2"
             android:layout_width="0dp"
-            android:layout_height="80dp"
+            android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginTop="15dp"
             android:layout_marginEnd="20dp"
@@ -42,11 +42,12 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginEnd="5dp"
+                    android:text="Hitopathology Examination"
                     android:textColor="@color/colorBlack"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    app:layout_constraintEnd_toStartOf="@+id/tv_estName"
+                    app:layout_constraintEnd_toStartOf="@+id/tv_conclusion"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -54,86 +55,83 @@
                     android:id="@+id/tv_conclusion"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
+                    android:layout_marginEnd="8dp"
                     android:fontFamily="@font/roboto_regular"
                     android:textColor="@color/colorRed"
                     android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="@+id/tv_procName" />
+                    app:layout_constraintBottom_toBottomOf="@+id/tv_procName"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/tv_procName" />
 
                 <TextView
                     android:id="@+id/tv_orderBy"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="5dp"
                     android:text="@string/ordered_by_feild"
                     android:textSize="12sp"
                     android:visibility="gone"
-                    app:layout_constraintBottom_toTopOf="@+id/tv_released_by"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent" />
+                    app:layout_constraintStart_toStartOf="@+id/tv_ScheduledDate"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_released_date" />
 
                 <TextView
                     android:id="@+id/tv_released_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
                     android:layout_marginBottom="8dp"
+                    android:text="@string/released_date_feild"
                     android:textSize="12sp"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent" />
+                    app:layout_constraintStart_toStartOf="@+id/tv_ScheduledDate"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_ScheduledDate" />
 
                 <TextView
                     android:id="@+id/tv_released_by"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
                     android:text="@string/released_by_feild"
                     android:textAlignment="center"
                     android:textSize="12sp"
                     android:visibility="gone"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent" />
+                    app:layout_constraintStart_toStartOf="@+id/tv_orderBy"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_orderBy" />
 
                 <TextView
                     android:id="@+id/tv_ScheduledDate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginBottom="5dp"
+                    android:layout_marginTop="5dp"
                     android:text="@string/ordered_date_feild"
                     android:textSize="12sp"
                     android:visibility="gone"
-                    app:layout_constraintBottom_toTopOf="@+id/tv_released_date"
-                    app:layout_constraintEnd_toEndOf="parent" />
+                    app:layout_constraintStart_toStartOf="@+id/tv_procName"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_procName" />
 
                 <TextView
                     android:id="@+id/tv_hospital"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginStart="10dp"
                     android:text="@string/hospital_feild"
                     android:textColor="@color/colorBlack"
                     android:textSize="12sp"
                     android:visibility="gone"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintStart_toEndOf="@+id/tv_estName"
+                    app:layout_constraintTop_toTopOf="@+id/tv_estName" />
 
                 <TextView
                     android:id="@+id/tv_estName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginBottom="8dp"
                     android:text="@string/status_feild"
                     android:textAlignment="center"
                     android:textColor="@color/colorBlack"
                     android:textSize="12sp"
                     android:visibility="gone"
-                    app:layout_constraintEnd_toStartOf="@+id/tv_hospital"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_released_by" />
 
                 <TextView
                     android:id="@+id/tv_report"
@@ -147,25 +145,24 @@
                     android:visibility="gone"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.64" />
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
             android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginTop="15dp"
             android:layout_marginEnd="20dp"
-            android:layout_marginBottom="20dp"
             app:cardCornerRadius="10dp"
             app:cardElevation="10dp"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cardView2"
-            app:layout_constraintVertical_bias="0.0">
+            app:layout_constraintTop_toBottomOf="@+id/cardView2">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
@@ -236,10 +233,9 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rv_tests"
                     android:layout_width="match_parent"
-                    android:layout_height="0dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
                     android:layout_marginEnd="5dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/ll_test_columns"></androidx.recyclerview.widget.RecyclerView>

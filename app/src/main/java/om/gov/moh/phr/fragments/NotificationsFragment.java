@@ -137,7 +137,7 @@ public class NotificationsFragment extends Fragment implements AdapterToFragment
                 mMediatorCallback.changeFragmentTo(LabResultDetailsFragment.newInstance(notificationsList.get(position)), LabResultDetailsFragment.class.getSimpleName());
                 break;
             case "3":
-                mMediatorCallback.changeFragmentTo(ImmunizationFragment.newInstance("Schedule", true), ImmunizationFragment.class.getSimpleName());
+                mMediatorCallback.changeFragmentTo(ImmunizationFragment.newInstance("Schedule", true,mContext.getResources().getString(R.string.title_immunization)), ImmunizationFragment.class.getSimpleName());
                 break;
             case "4":
                 mMediatorCallback.changeFragmentTo(RadFragment.newInstance(notificationsList.get(position)), RadFragment.class.getSimpleName());

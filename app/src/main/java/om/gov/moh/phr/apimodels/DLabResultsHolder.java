@@ -1,11 +1,16 @@
 package om.gov.moh.phr.apimodels;
 
 import android.text.TextUtils;
+import android.text.format.DateFormat;
 
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 import om.gov.moh.phr.fragments.LabResultDetailsFragment;
 
@@ -31,8 +36,11 @@ public class DLabResultsHolder {
         @SerializedName("releasedTime")
         private long releasedTime;
 
-        public long getReleasedTime() {
-            return releasedTime;
+        public String getReleasedTime() {
+            Date date = new Date(releasedTime);
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm a",Locale.ENGLISH);
+            String dateResult = simpleDateFormat.format(date);
+            return dateResult;
         }
         @SerializedName("releasedBy")
         private String releasedBy;

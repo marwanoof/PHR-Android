@@ -15,7 +15,7 @@ import om.gov.moh.phr.apimodels.ApiTextualDataHolder;
 import om.gov.moh.phr.apimodels.DLabResultsHolder;
 
 public class TextualDataRecyclerViewAdapter extends RecyclerView.Adapter<TextualDataRecyclerViewAdapter.MyViewHolder>{
-    private ArrayList<DLabResultsHolder.TextualData> textualDataArrayList=new ArrayList<>();
+    private ArrayList<ApiTextualDataHolder.TextualDataResult> textualDataArrayList=new ArrayList<>();
     private Context context;
 
     public TextualDataRecyclerViewAdapter(Context context) {
@@ -32,17 +32,23 @@ public class TextualDataRecyclerViewAdapter extends RecyclerView.Adapter<Textual
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        final DLabResultsHolder.TextualData textualDataObj = textualDataArrayList.get(position);
-        holder.tvResult.setText(textualDataObj.getParamName()+"\n"+textualDataObj.getResult());
+        final ApiTextualDataHolder.TextualDataResult textualDataObj = textualDataArrayList.get(position);
+        if (textualDataObj.getResult() != null)
+            holder.tvResult.setText(textualDataObj.getResult());
     }
 
     @Override
     public int getItemCount() {
         return textualDataArrayList.size();
     }
-    public void updateItemsList(ArrayList<DLabResultsHolder.TextualData> items) {
+    public void updateItemsList(ArrayList<ApiTextualDataHolder.TextualDataResult> items) {
         textualDataArrayList = items;
         notifyDataSetChanged();
+    }
+    public void clear(){
+        int size = textualDataArrayList.size();
+        textualDataArrayList.clear();
+        notifyItemRangeRemoved(0, size);
     }
     public class MyViewHolder extends RecyclerView.ViewHolder {
         TextView  tvResult;

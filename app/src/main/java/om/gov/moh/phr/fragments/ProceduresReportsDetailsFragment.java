@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Bundle;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -32,6 +33,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -47,10 +49,15 @@ import java.util.Locale;
 import java.util.Map;
 
 import om.gov.moh.phr.R;
+import om.gov.moh.phr.adapters.ApiRadiologyHolder;
+import om.gov.moh.phr.adapters.NurseNoteRecyclerViewAdapter;
 import om.gov.moh.phr.adapters.ProceduresReportsRecyclerView;
+import om.gov.moh.phr.apimodels.ApiMediaProcedureHolder;
+import om.gov.moh.phr.apimodels.ApiProceduresNurseNoteHolder;
 import om.gov.moh.phr.apimodels.ApiProceduresReportsHolder;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
+import om.gov.moh.phr.models.DividerItemDecorator;
 import om.gov.moh.phr.models.MyProgressDialog;
 
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
@@ -66,6 +73,8 @@ public class ProceduresReportsDetailsFragment extends Fragment {
     private static final String API_PROCEDURES_REPORTS_RECYCLERVIEW = API_NEHR_URL + "procedure/nurseNotes/";
     private static final String API_PROCEDURES_REPORTS_TEXT = API_NEHR_URL + "procedure/notes/";
     private static final String PARAM_API_PROCEDURE_REPORT_ITEM = "PARAM_API_PROCEDURE_REPORT_ITEM";
+    private static final String PARAM_API_MEDIA_REPORT_ITEM = "PARAM_API_MEDIA_REPORT_ITEM";
+    private static final String PARAM_API_RADIOLOGY_REPORT_ITEM = "PARAM_API_RADIOLOGY_REPORT_ITEM";
     private static final String PARAM_RAD_ITEM = "PARAM_API_RAD_ITEM";
     private static final String REPORT_KEY = "report";
     private static final String TEXT_KEY = "text";
@@ -74,7 +83,9 @@ public class ProceduresReportsDetailsFragment extends Fragment {
     private MediatorInterface mMediatorCallback;
     private Context mContext;
     private RequestQueue mQueue;
-    private ApiProceduresReportsHolder mProcedureReport;
+    private ApiProceduresReportsHolder.Procedures mProcedureReport;
+    private ApiMediaProcedureHolder.MediaProcedure mMediaReport;
+    private ApiRadiologyHolder.Radiology radiology;
     private RecyclerView rvRportDetails;
     private TextView tvAlert, tvProcedureName, tvTime, tvHospital, tvSummary, tvReport;
     private WebView wvReportPic;
@@ -88,7 +99,7 @@ public class ProceduresReportsDetailsFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static ProceduresReportsDetailsFragment newInstance(ApiProceduresReportsHolder procedureObj) {
+    public static ProceduresReportsDetailsFragment newInstance(ApiProceduresReportsHolder.Procedures procedureObj) {
         ProceduresReportsDetailsFragment fragment = new ProceduresReportsDetailsFragment();
         Bundle args = new Bundle();
         args.putSerializable(PARAM_API_PROCEDURE_REPORT_ITEM, procedureObj);
@@ -96,11 +107,18 @@ public class ProceduresReportsDetailsFragment extends Fragment {
         return fragment;
     }
 
-    public static ProceduresReportsDetailsFragment newInstance(ApiProceduresReportsHolder procedureObj, String radHRD) {
+    public static ProceduresReportsDetailsFragment newInstance(ApiRadiologyHolder.Radiology radiologyHolder, String radHRD) {
         ProceduresReportsDetailsFragment fragment = new ProceduresReportsDetailsFragment();
         Bundle args = new Bundle();
-        args.putSerializable(PARAM_API_PROCEDURE_REPORT_ITEM, procedureObj);
+        args.putSerializable(PARAM_API_RADIOLOGY_REPORT_ITEM, radiologyHolder);
         args.putString(PARAM_RAD_ITEM, radHRD);
+        fragment.setArguments(args);
+        return fragment;
+    }
+    public static ProceduresReportsDetailsFragment newInstance(ApiMediaProcedureHolder.MediaProcedure mediaProcedure) {
+        ProceduresReportsDetailsFragment fragment = new ProceduresReportsDetailsFragment();
+        Bundle args = new Bundle();
+        args.putSerializable(PARAM_API_MEDIA_REPORT_ITEM, mediaProcedure);
         fragment.setArguments(args);
         return fragment;
     }
@@ -117,10 +135,19 @@ public class ProceduresReportsDetailsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments().getSerializable(PARAM_API_PROCEDURE_REPORT_ITEM) != null) {
-            mProcedureReport = (ApiProceduresReportsHolder) getArguments().getSerializable(PARAM_API_PROCEDURE_REPORT_ITEM);
-            isRAD = getArguments().getString(PARAM_RAD_ITEM) != null && getArguments().getString(PARAM_RAD_ITEM).equals("RAD");
+        if (getArguments() != null){
+            if (getArguments().getSerializable(PARAM_API_PROCEDURE_REPORT_ITEM) != null) {
+                mProcedureReport = (ApiProceduresReportsHolder.Procedures) getArguments().getSerializable(PARAM_API_PROCEDURE_REPORT_ITEM);
+            }
+            if (getArguments().getSerializable(PARAM_API_MEDIA_REPORT_ITEM) != null) {
+                mMediaReport = (ApiMediaProcedureHolder.MediaProcedure) getArguments().getSerializable(PARAM_API_MEDIA_REPORT_ITEM);
+            }
+            if (getArguments().getSerializable(PARAM_API_RADIOLOGY_REPORT_ITEM) != null) {
+                radiology = (ApiRadiologyHolder.Radiology) getArguments().getSerializable(PARAM_API_RADIOLOGY_REPORT_ITEM);
+                isRAD = getArguments().getString(PARAM_RAD_ITEM) != null && getArguments().getString(PARAM_RAD_ITEM).equals("RAD");
+            }
         }
+
     }
 
     @Override
@@ -143,7 +170,7 @@ public class ProceduresReportsDetailsFragment extends Fragment {
                 mToolbarControllerCallback.customToolbarBackButtonClicked();
             }
         });
-        enableHomeandRefresh(view);
+        //enableHomeandRefresh(view);
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
         rvRportDetails = view.findViewById(R.id.rv_reportDetails);
         mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
@@ -165,12 +192,12 @@ public class ProceduresReportsDetailsFragment extends Fragment {
                                 }
         );*/
         setupPage();
-        ibRefresh.setOnClickListener(new View.OnClickListener() {
+       /* ibRefresh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 setupPage();
             }
-        });
+        });*/
         return view;
     }
 
@@ -181,33 +208,27 @@ public class ProceduresReportsDetailsFragment extends Fragment {
 
     private void setupPage() {
         if (isRAD) {
-            tvProcedureName.setText(mProcedureReport.getProcName());
-            tvHospital.setText(getResources().getString(R.string.hospital_feild) + " " + mProcedureReport.getEstFullname());
-            Date date = new Date(mProcedureReport.getProcedureDoneDate());
-            SimpleDateFormat df2 = new SimpleDateFormat("dd /MM /yyyy - HH:mm:ss", Locale.US);
+            tvProcedureName.setText(radiology.getProcName());
+            tvHospital.setText(radiology.getEstFullname());
+            Date date = new Date(radiology.getReportDoneDate());
+            SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
             String dateText = df2.format(date);
-            tvTime.setText(getResources().getString(R.string.title_date_time) + ": " + dateText);
-            if (mProcedureReport.getReportId() != null) {
+            tvTime.setText(dateText);
+
                 isWebView = true;
                 String fullUrl = API_PROCEDURES_REPORTS_WEBVIEW + mProcedureReport.getReportId();
                 getReportDetails(fullUrl);
-            } else {
-                wvReportPic.setVisibility(View.GONE);
-                tvReport.setVisibility(View.VISIBLE);
-                tvReport.setText(getResources().getString(R.string.alert_not_available));
-            }
-        } else {
-            tvProcedureName.setText(mProcedureReport.getName());
-            tvHospital.setText(getResources().getString(R.string.hospital_feild) + " " + mProcedureReport.getEstFullname());
-            Date date = new Date(mProcedureReport.getStartTime());
-            SimpleDateFormat df2 = new SimpleDateFormat("dd /MM /yyyy - HH:mm:ss", Locale.US);
-            String dateText = df2.format(date);
-            tvTime.setText(getResources().getString(R.string.title_date_time) + ": " + dateText);
-            if (mProcedureReport.getName().equals("ECG")) {
+
+
+        }  else {
+            if (mMediaReport != null){
+                tvProcedureName.setText(mMediaReport.getMediaSubType());
+                tvHospital.setText(mMediaReport.getEstFullname());
+                tvTime.setText(mMediaReport.getCreationTime());
                 isWebView = true;
                 try {
-                    if (mProcedureReport.getMediaString() != null) {
-                        byte[] data1 = Base64.decode(mProcedureReport.getMediaString(), Base64.DEFAULT);
+                    if (mMediaReport.getMediaString() != null) {
+                        byte[] data1 = Base64.decode(mMediaReport.getMediaString(), Base64.DEFAULT);
                         String text = new String(data1, "UTF-8");
                         //data == html data which you want to load
                         wvReportPic.loadData(text, "text/html", "utf-8");
@@ -215,34 +236,44 @@ public class ProceduresReportsDetailsFragment extends Fragment {
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
-                //swipeRefreshLayout.setRefreshing(false);
-            } else if (mProcedureReport.getProfileCode() == 101) {
-                isWebView = true;
-                String fullUrl = API_PROCEDURES_REPORTS_WEBVIEW + mProcedureReport.getReportId();
-                getReportDetails(fullUrl);
-            } else if (mProcedureReport.getProfileCode() == 113) {
-                if(mProcedureReport.getEstFullname()!=null)
-                tvHospital.setText(getResources().getString(R.string.hospital_feild) + " " + mProcedureReport.getEstFullname());
-              //  tvHospital.setVisibility(View.GONE);
-                tvTime.setVisibility(View.GONE);
-                wvReportPic.setVisibility(View.GONE);
-                tvSummary.setVisibility(View.GONE);
-                rvRportDetails.setVisibility(View.VISIBLE);
-                String fullUrl = API_PROCEDURES_REPORTS_RECYCLERVIEW + mProcedureReport.getPatientId();
-                getReportDetails(fullUrl);
-            } else {
-                isWebView = false;
-                if(mProcedureReport.getEstFullname()!=null)
-                    tvHospital.setText(getResources().getString(R.string.hospital_feild) + " " + mProcedureReport.getEstFullname());
-               // tvHospital.setVisibility(View.GONE);
-                tvTime.setVisibility(View.GONE);
-                wvReportPic.setVisibility(View.GONE);
-                tvSummary.setVisibility(View.GONE);
-                wvReportPic.setVisibility(View.GONE);
-                rvRportDetails.setVisibility(View.VISIBLE);
-                isNotes = true;
-                String url = API_PROCEDURES_REPORTS_TEXT + mProcedureReport.getProcedureId();
-                getReportDetails(url);
+
+
+
+            }else {
+                tvProcedureName.setText(mProcedureReport.getProcedure().get(0).getName());
+                tvHospital.setText(mProcedureReport.getEstFullname());
+                Date date = new Date(mProcedureReport.getProcedureDoneDate());
+                SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.ENGLISH);
+                String dateText = df2.format(date);
+                tvTime.setText(dateText);
+                if (mProcedureReport.getProfileCode() == 101) {
+                    isWebView = true;
+                    String fullUrl = API_PROCEDURES_REPORTS_WEBVIEW + mProcedureReport.getReportId();
+                    getReportDetails(fullUrl);
+                } else if (mProcedureReport.getProfileCode() == 113) {
+                    if (mProcedureReport.getEstFullname() != null)
+                        tvHospital.setText(mProcedureReport.getEstFullname());
+                    //  tvHospital.setVisibility(View.GONE);
+                    //tvTime.setVisibility(View.GONE);
+                    wvReportPic.setVisibility(View.GONE);
+                    tvSummary.setVisibility(View.GONE);
+                    rvRportDetails.setVisibility(View.VISIBLE);
+                    String fullUrl = API_PROCEDURES_REPORTS_RECYCLERVIEW + mProcedureReport.getPatientId();
+                    getNurseNoteData(fullUrl);
+                } else {
+                    isWebView = false;
+                    if (mProcedureReport.getEstFullname() != null)
+                        tvHospital.setText(mProcedureReport.getEstFullname());
+                    // tvHospital.setVisibility(View.GONE);
+                    //tvTime.setVisibility(View.GONE);
+                    wvReportPic.setVisibility(View.GONE);
+                    tvSummary.setVisibility(View.GONE);
+                    wvReportPic.setVisibility(View.GONE);
+                    rvRportDetails.setVisibility(View.VISIBLE);
+                    isNotes = true;
+                    String url = API_PROCEDURES_REPORTS_TEXT + mProcedureReport.getProcedureId();
+                    getNurseNoteData(url);
+                }
             }
         }
     }
@@ -323,6 +354,143 @@ public class ProceduresReportsDetailsFragment extends Fragment {
         mQueue.add(jsonObjectRequest);
     }
 
+    private void getDiagnosticReport(String url,String data, String source) {
+        mProgressDialog.showDialog();
+        //swipeRefreshLayout.setRefreshing(true);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, getJSONRequestParams(mMediatorCallback.getCurrentUser().getCivilId(),data,source)
+                , new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    if (response.getInt(API_RESPONSE_CODE) == 0) {
+                        if (isWebView) {
+                            JSONArray array = response.getJSONArray(API_RESPONSE_RESULT);
+                            JSONObject obj = array.getJSONObject(0);
+                            try {
+                                byte[] data1 = Base64.decode(obj.getString(REPORT_KEY), Base64.DEFAULT);
+                                String text = new String(data1, "UTF-8");
+                                //data == html data which you want to load
+                                wvReportPic.loadData(text, "text/html", "utf-8");
+                            } catch (UnsupportedEncodingException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            JSONArray jsonElements = response.getJSONArray(API_RESPONSE_RESULT);
+                            ArrayList<ReportData> reportsArrayList = new ArrayList<>();
+                            for (int i = 0; i < jsonElements.length(); i++) {
+                                JSONObject jsonObject = jsonElements.getJSONObject(i);
+                                String ReportText = jsonObject.getString(TEXT_KEY);
+                                ReportData reportData = new ReportData();
+                                reportData.setReportText(ReportText);
+                                if (!isNotes) {
+                                    long ReportTime = jsonObject.getLong("time");
+                                    reportData.setReportTime(ReportTime);
+                                }
+                                reportsArrayList.add(reportData);
+                            }
+                            setupRecyclerView(reportsArrayList);
+                        }
+
+                    } else {
+                        displayAlert(getResources().getString(R.string.no_record_found));
+                        mProgressDialog.dismissDialog();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                mProgressDialog.dismissDialog();
+                // swipeRefreshLayout.setRefreshing(false);
+            }
+
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("resp-demographic", error.toString());
+                error.printStackTrace();
+                mProgressDialog.dismissDialog();
+                // swipeRefreshLayout.setRefreshing(false);
+            }
+        }) {
+            //
+            @Override
+            public Map<String, String> getHeaders() {
+                HashMap<String, String> headers = new HashMap<>();
+//                headers.put("Accept", "application/json");
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
+                return headers;
+            }
+
+        };
+        int socketTimeout = 30000;//30 seconds - change to what you want
+        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        jsonObjectRequest.setRetryPolicy(policy);
+
+        mQueue.add(jsonObjectRequest);
+    }
+    private JSONObject getJSONRequestParams(String civilId, String data, String source) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("civilId", Long.parseLong(civilId));
+        params.put("data", data);
+        params.put("source", source);
+        return new JSONObject(params);
+    }
+
+    private void getNurseNoteData(String url) {
+        mProgressDialog.showDialog();
+        //swipeRefreshLayout.setRefreshing(true);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null
+                , new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    if (response.getInt(API_RESPONSE_CODE) == 0) {
+                        Gson gson = new Gson();
+                        ApiProceduresNurseNoteHolder responseHolder = gson.fromJson(response.toString(), ApiProceduresNurseNoteHolder.class);
+                        ArrayList<ApiProceduresNurseNoteHolder.NurseNote> reportsArrayList = responseHolder.getResult();
+
+                            setupRecyclerViewNurseNote(reportsArrayList);
+
+
+                    } else {
+                        displayAlert(getResources().getString(R.string.no_record_found));
+                        mProgressDialog.dismissDialog();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                mProgressDialog.dismissDialog();
+                // swipeRefreshLayout.setRefreshing(false);
+            }
+
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("resp-demographic", error.toString());
+                error.printStackTrace();
+                mProgressDialog.dismissDialog();
+                // swipeRefreshLayout.setRefreshing(false);
+            }
+        }) {
+            //
+            @Override
+            public Map<String, String> getHeaders() {
+                HashMap<String, String> headers = new HashMap<>();
+//                headers.put("Accept", "application/json");
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
+                return headers;
+            }
+
+        };
+        int socketTimeout = 30000;//30 seconds - change to what you want
+        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        jsonObjectRequest.setRetryPolicy(policy);
+
+        mQueue.add(jsonObjectRequest);
+    }
     private void displayAlert(String msg) {
         tvAlert.setVisibility(View.VISIBLE);
         tvProcedureName.setVisibility(View.GONE);
@@ -342,6 +510,15 @@ public class ProceduresReportsDetailsFragment extends Fragment {
         DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(rvRportDetails.getContext(),
                 layoutManager.getOrientation());
         //rvRportDetails.addItemDecoration(mDividerItemDecoration);
+        rvRportDetails.setLayoutManager(layoutManager);
+        rvRportDetails.setItemAnimator(new DefaultItemAnimator());
+        rvRportDetails.setAdapter(mAdapter);
+    }
+    private void setupRecyclerViewNurseNote(ArrayList<ApiProceduresNurseNoteHolder.NurseNote> reportsArrayList) {
+        NurseNoteRecyclerViewAdapter mAdapter = new NurseNoteRecyclerViewAdapter(reportsArrayList, mContext);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
+        RecyclerView.ItemDecoration dividerItemDecoration = new DividerItemDecorator(ContextCompat.getDrawable(mContext, R.drawable.divider));
+        rvRportDetails.addItemDecoration(dividerItemDecoration);
         rvRportDetails.setLayoutManager(layoutManager);
         rvRportDetails.setItemAnimator(new DefaultItemAnimator());
         rvRportDetails.setAdapter(mAdapter);

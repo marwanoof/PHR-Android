@@ -28,20 +28,23 @@ import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
 public class BodyMeasurementsFragment extends Fragment implements AdapterToFragmentConnectorInterface {
 
     private static final String PARAM_RECENT_VITALS = "PARAM_RECENT_VITALS";
+    private static final String PARAM2 = "PARAM2";
     private ArrayList<ApiHomeHolder.ApiRecentVitals> mRecentVitalsArrayList;
     private Context mContext;
     private MediatorInterface mMediatorCallback;
     private ToolbarControllerInterface mToolbarControllerCallback;
     private TextView tvAlert;
     private RecyclerView recyclerView;
+    private String pageTitle;
     public BodyMeasurementsFragment() {
         // Required empty public constructor
     }
 
-    public static BodyMeasurementsFragment newInstance(ArrayList<ApiHomeHolder.ApiRecentVitals> recentVitalsArrayList) {
+    public static BodyMeasurementsFragment newInstance(ArrayList<ApiHomeHolder.ApiRecentVitals> recentVitalsArrayList,String title) {
         BodyMeasurementsFragment fragment = new BodyMeasurementsFragment();
         Bundle args = new Bundle();
         args.putSerializable(PARAM_RECENT_VITALS, recentVitalsArrayList);
+        args.putSerializable(PARAM2, title);
         fragment.setArguments(args);
         return fragment;
     }
@@ -53,6 +56,7 @@ public class BodyMeasurementsFragment extends Fragment implements AdapterToFragm
         mContext = context;
         mMediatorCallback = (MediatorInterface) context;
         mToolbarControllerCallback = (ToolbarControllerInterface) context;
+        mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.GONE);
     }
 
     @Override
@@ -60,6 +64,7 @@ public class BodyMeasurementsFragment extends Fragment implements AdapterToFragm
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             mRecentVitalsArrayList = (ArrayList<ApiHomeHolder.ApiRecentVitals>) getArguments().getSerializable(PARAM_RECENT_VITALS);
+            pageTitle = (String) getArguments().getSerializable(PARAM2);
         }
     }
 
@@ -78,7 +83,7 @@ public class BodyMeasurementsFragment extends Fragment implements AdapterToFragm
             }
         });
         TextView tvToolBarTitle = parentView.findViewById(R.id.tv_toolbar_title);
-        tvToolBarTitle.setText(getString(R.string.title_body_measurements));
+        tvToolBarTitle.setText(pageTitle);
         tvToolBarTitle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -112,17 +117,20 @@ public class BodyMeasurementsFragment extends Fragment implements AdapterToFragm
 
     @Override
     public <T> void onMyListItemClicked(T dataToPass, String dataTitle, int position) {
-        mMediatorCallback.changeFragmentTo(VitalsGraphFragment.newInstance(mRecentVitalsArrayList.get(position).getName()), VitalsGraphFragment.class.getSimpleName());
+       // mMediatorCallback.changeFragmentTo(VitalsGraphFragment.newInstance(mRecentVitalsArrayList.get(position).getName()), VitalsGraphFragment.class.getSimpleName());
     }
 
-    private ArrayList<ApiDemographicsHolder.ApiDemographicItem.RecentVitals> getMeasurementArrayList() {
-        ArrayList<ApiDemographicsHolder.ApiDemographicItem.RecentVitals> measurementArrayList = new ArrayList<>();
+    private ArrayList<ApiHomeHolder.ApiRecentVitals> getMeasurementArrayList() {
+        ArrayList<ApiHomeHolder.ApiRecentVitals> measurementArrayList = new ArrayList<>();
         if (mRecentVitalsArrayList != null) {
             for (int i = 0; i < mRecentVitalsArrayList.size(); i++) {
-                if (!mRecentVitalsArrayList.get(i).getName().equals("G6PD")&&!mRecentVitalsArrayList.get(i).getName().equals("ABO Screening")) {
-                        measurementArrayList.add(new ApiDemographicsHolder().new ApiDemographicItem().new RecentVitals(mRecentVitalsArrayList.get(i).getName(), mRecentVitalsArrayList.get(i).getVitalNameNls(), mRecentVitalsArrayList.get(i).getValue(),
-                                mRecentVitalsArrayList.get(i).getUnit()));
+                if (mRecentVitalsArrayList.get(i).getShowVitalPageYn().equals("Y")){
+                    measurementArrayList.add(mRecentVitalsArrayList.get(i));
                 }
+                /*if (!mRecentVitalsArrayList.get(i).getName().equals("G6PD")&&!mRecentVitalsArrayList.get(i).getName().equals("ABO Screening")) {
+                        measurementArrayList.add(new ApiDemographicsHolder().new ApiDemographicItem().new RecentVitals(mRecentVitalsArrayList.get(i).getName(), mRecentVitalsArrayList.get(i).getVitalNameNls(), mRecentVitalsArrayList.get(i).getValue(),
+                                mRecentVitalsArrayList.get(i).getUnit(),mRecentVitalsArrayList.get(i).getType()));
+                }*/
             }
         } else
             displayAlert(getResources().getString(R.string.no_record_found));

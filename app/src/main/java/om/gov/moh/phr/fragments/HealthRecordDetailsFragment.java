@@ -1,8 +1,11 @@
 package om.gov.moh.phr.fragments;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,9 +21,24 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.RetryPolicy;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.HurlStack;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.material.tabs.TabLayout;
+import com.google.gson.Gson;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.apimodels.ApiEncountersHolder;
@@ -28,23 +46,38 @@ import om.gov.moh.phr.apimodels.ApiOtherDocsHolder;
 import om.gov.moh.phr.apimodels.ApiProceduresReportsHolder;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
+import om.gov.moh.phr.models.MyProgressDialog;
+
+import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
+import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
+import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
 
 
 public class HealthRecordDetailsFragment extends Fragment {
     private Context mContext;
     private MediatorInterface mMediatorCallback;
+    private RequestQueue mQueue;
+    private MyProgressDialog mProgressDialog;
     private ToolbarControllerInterface mToolbarControllerCallback;
     private static final String ARG_PARAM1 = "ARG_PARAM1";
     private static final String ARG_PARAM2 = "ARG_PARAM2";
     private static final String ARG_PARAM3 = "ARG_PARAM3";
+    private static final String ARG_PARAM4 = "ARG_PARAM4";
    private ApiEncountersHolder.Encounter encounterInfo;
    private ApiOtherDocsHolder.ApiDocInfo docInfo;
-   private ApiProceduresReportsHolder procedureObj;
+   private ApiProceduresReportsHolder.ProceduresByEncounter procedureObj;
 
     public HealthRecordDetailsFragment() {
         // Required empty public constructor
     }
 
+  /*  public static HealthRecordDetailsFragment newInstance(String encounterId) {
+        HealthRecordDetailsFragment fragment = new HealthRecordDetailsFragment();
+        Bundle args = new Bundle();
+        args.putSerializable(ARG_PARAM4, encounterId);
+        fragment.setArguments(args);
+        return fragment;
+    }*/
     public static HealthRecordDetailsFragment newInstance(ApiEncountersHolder.Encounter encounterObj) {
         HealthRecordDetailsFragment fragment = new HealthRecordDetailsFragment();
         Bundle args = new Bundle();
@@ -59,7 +92,7 @@ public class HealthRecordDetailsFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
-    public static HealthRecordDetailsFragment newInstance(ApiProceduresReportsHolder procedureObj) {
+    public static HealthRecordDetailsFragment newInstance(ApiProceduresReportsHolder.ProceduresByEncounter procedureObj) {
         HealthRecordDetailsFragment fragment = new HealthRecordDetailsFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_PARAM3, procedureObj);
@@ -83,7 +116,9 @@ public class HealthRecordDetailsFragment extends Fragment {
             if (getArguments().getSerializable(ARG_PARAM2) != null)
                 docInfo = (ApiOtherDocsHolder.ApiDocInfo) getArguments().getSerializable(ARG_PARAM2);
             if (getArguments().getSerializable(ARG_PARAM3) != null)
-                procedureObj = (ApiProceduresReportsHolder) getArguments().getSerializable(ARG_PARAM3);
+                procedureObj = (ApiProceduresReportsHolder.ProceduresByEncounter) getArguments().getSerializable(ARG_PARAM3);
+            /*if (getArguments().getSerializable(ARG_PARAM4) != null)
+                getEncounterResponse((String) getArguments().getSerializable(ARG_PARAM4));*/
         }
     }
 
@@ -93,6 +128,8 @@ public class HealthRecordDetailsFragment extends Fragment {
         // Inflate the layout for this fragment
         super.onCreate(savedInstanceState);
         View parentView = inflater.inflate(R.layout.fragment_health_record_details, container, false);
+        mProgressDialog = new MyProgressDialog(mContext);// initializes progress dialog
+        mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
         ImageButton ibToolbarBackButton = parentView.findViewById(R.id.ib_toolbar_back_button);
         ibToolbarBackButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -101,12 +138,13 @@ public class HealthRecordDetailsFragment extends Fragment {
             }
         });
         TextView tvTitle = parentView.findViewById(R.id.tv_title);
+
         if(encounterInfo!=null)
         tvTitle.setText(encounterInfo.getDepartmentArrayList().get(0).getValue() + ", " + encounterInfo.getEstShortName());
         else if(docInfo!=null)
             tvTitle.setText(docInfo.getLocationName() + ", " + docInfo.getEstName());
         else
-            tvTitle.setText("department name" + ", " + procedureObj.getEstName());
+            tvTitle.setText("department name" + ", " + procedureObj.getEstFullName());
         ViewPager mViewPager = parentView.findViewById(R.id.container);
         TabLayout tabs = parentView.findViewById(R.id.tabs);
         tabs.bringToFront();
@@ -181,5 +219,90 @@ public class HealthRecordDetailsFragment extends Fragment {
             return mFragmentTitles.size();
         }
     }
+
+    private void getEncounterResponse(final String encounterId) {
+        //ApiEncountersHolder.Encounter filteredEncounter;
+        mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
+        mProgressDialog = new MyProgressDialog(mContext);// initializes progress dialog
+        mProgressDialog.showDialog();
+        String fullUrl = API_NEHR_URL + "encounter/v2/civilId";
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, fullUrl, getJSONRequestParams(mMediatorCallback.getCurrentUser().getCivilId(),"PHR")
+                , new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                Activity activity = getActivity();
+                if (activity != null) {
+                    try {
+                        if (response.getInt(API_RESPONSE_CODE) == 0) {
+                            Gson gson = new Gson();
+
+                            ApiEncountersHolder responseHolder = gson.fromJson(response.toString(), ApiEncountersHolder.class);
+
+
+                            //encounterInfo = responseHolder.getResult();
+
+                            for (ApiEncountersHolder.Encounter encounter: responseHolder.getResult()){
+                                if (encounter.getEncounterId().equals(encounterId)){
+
+                                    encounterInfo = encounter;
+                                }
+                            }
+                                if (encounterInfo == null){
+
+                                }
+
+                        } else {
+                            //displayAlert(getResources().getString(R.string.no_record_found), View.VISIBLE, View.GONE);
+                            mProgressDialog.dismissDialog();
+                        }
+                    } catch (JSONException e) {
+//                    Log.d("enc", e.getMessage());
+
+                        e.printStackTrace();
+                    }
+
+                    mProgressDialog.dismissDialog();
+                    // showing refresh animation before making http call
+
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+//                Log.d("enc", error.toString());
+                Activity activity = getActivity();
+                if (activity != null && isAdded()) {
+                    mProgressDialog.dismissDialog();
+                    // showing refresh animation before making http call
+
+                    error.printStackTrace();
+                }
+            }
+        }) {
+            //
+            @Override
+            public Map<String, String> getHeaders() {
+                HashMap<String, String> headers = new HashMap<>();
+//                headers.put("Accept", "application/json");
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
+
+                return headers;
+            }
+
+        };
+        int socketTimeout = 30000;//30 seconds - change to what you want
+        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        jsonObjectRequest.setRetryPolicy(policy);
+        mQueue.add(jsonObjectRequest);
+    }
+    private JSONObject getJSONRequestParams(String civilId, String source) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("civilId", Long.parseLong(civilId));
+        params.put("source", source);
+        return new JSONObject(params);
+    }
+
+
 
 }

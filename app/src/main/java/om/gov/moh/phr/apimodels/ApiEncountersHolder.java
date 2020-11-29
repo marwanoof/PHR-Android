@@ -1,6 +1,9 @@
 package om.gov.moh.phr.apimodels;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.text.TextUtils;
+import android.text.format.DateFormat;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
@@ -10,7 +13,13 @@ import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
+
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_ARABIC;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_PREFS;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_SELECTED;
 
 public class ApiEncountersHolder {
 
@@ -28,7 +37,7 @@ public class ApiEncountersHolder {
     public class Encounter implements Serializable {
 
         @SerializedName("periodStartDate")
-        private String periodStartDate;
+        private long periodStartDate;
 
         @SerializedName("encounterId")
         private String encounterId;
@@ -38,6 +47,13 @@ public class ApiEncountersHolder {
 
         @SerializedName("estName")
         private String estShortName;
+
+        public String getEstFullnameNls() {
+            return estFullnameNls;
+        }
+
+        @SerializedName("estFullnameNls")
+        private String estFullnameNls;
 
         @SerializedName("patientClass")
         private String patientClass;
@@ -60,11 +76,22 @@ public class ApiEncountersHolder {
             this.encounterId = encounterId;
         }
 
-        public String getPeriodStartDate() {
-            if (TextUtils.isEmpty(periodStartDate))
-                return "";
-            else
-                return new java.text.SimpleDateFormat("dd/MMM/yyyy").format(new java.util.Date(Long.parseLong(periodStartDate)));
+        public Date getPeriodStartDate() {
+
+            Locale locale = new Locale("ar", "sa", "arab");
+                Calendar cal = Calendar.getInstance();
+                cal.setTimeInMillis(periodStartDate);
+                Date date = cal.getTime();
+                //String date2 = DateFormat.format("dd/MM/yyyy hh:mm a", cal).toString();
+                return date;
+
+                //return new java.text.SimpleDateFormat("dd/MMM/yyyy").format(new java.util.Date(Long.parseLong(periodStartDate)));
+
+        }
+        public String getPeriodStartDateString() {
+
+
+            return new java.text.SimpleDateFormat("dd/MMM/yyyy").format(new java.util.Date(periodStartDate));
 
         }
 
@@ -97,30 +124,35 @@ public class ApiEncountersHolder {
         }
 
         public String getEncounterDay() {
-            if (TextUtils.isEmpty(getPeriodStartDate()))
+            String day = (String) DateFormat.format("dd",   getPeriodStartDate());
+            return day;
+            /*if (TextUtils.isEmpty(getPeriodStartDate()))
                 return "";
             else {
                 return getPeriodStartDate().substring(0, 2);
-            }
+            }*/
         }
 
         public String getEncounterMonth() {
-            Log.d("epoch-month", getPeriodStartDate());
-            if (TextUtils.isEmpty(getPeriodStartDate()))
+            String month = (String) DateFormat.format("MMM",   getPeriodStartDate());
+            return month;
+            /*if (TextUtils.isEmpty(getPeriodStartDate()))
                 return "";
             else {
-                return getPeriodStartDate().substring(3, 6);
-            }
+                return getPeriodStartDate();
+            }*/
         }
 
         public String getEncounterYear() {
-            if (TextUtils.isEmpty(getPeriodStartDate()))
+            String year = (String) DateFormat.format("yyyy",   getPeriodStartDate());
+            return year;
+            /*if (TextUtils.isEmpty(getPeriodStartDate()))
                 return "";
             else {
            // to get same output of the year regardless of setting language
                 return getPeriodStartDate().substring(getPeriodStartDate().lastIndexOf("/")+1,getPeriodStartDate().length());
 
-            }
+            }*/
         }
 
         public String getEstShortName() {
@@ -142,7 +174,7 @@ public class ApiEncountersHolder {
         public boolean equals(@Nullable Object obj) {
             Encounter encounterNewItem = (Encounter) obj;
 
-            if (!getPeriodStartDate().equalsIgnoreCase(encounterNewItem.getPeriodStartDate()))
+            if (!getPeriodStartDateString().equalsIgnoreCase(encounterNewItem.getPeriodStartDateString()))
                 return false;
             if (!getEncounterId().equalsIgnoreCase(encounterNewItem.getEncounterId())) return false;
             if (!getEstFullname().equalsIgnoreCase(encounterNewItem.getEstFullname())) return false;
@@ -187,6 +219,13 @@ public class ApiEncountersHolder {
         @SerializedName("value")
         private String value;
 
+        @SerializedName("valueNls")
+        private String valueNls;
+
+        public String getValueNls() {
+            return valueNls;
+        }
+
         public String getValue() {
             return value;
         }
@@ -199,4 +238,6 @@ public class ApiEncountersHolder {
             return value;
         }
     }
+
+
 }

@@ -44,6 +44,7 @@ import om.gov.moh.phr.adapters.DatesViewPagerAdapter;
 import om.gov.moh.phr.apimodels.ApiAppointmentClinicsHolder;
 import om.gov.moh.phr.apimodels.ApiAppointmentDepartmentsHolder;
 import om.gov.moh.phr.apimodels.ApiDemographicsHolder;
+import om.gov.moh.phr.apimodels.ApiHomeHolder;
 import om.gov.moh.phr.apimodels.ApiSlotsHolder;
 import om.gov.moh.phr.interfaces.AppointmentsListInterface;
 import om.gov.moh.phr.interfaces.MediatorInterface;
@@ -89,15 +90,16 @@ public class AppointmentNewFragment extends Fragment {
     private ToolbarControllerInterface mToolbarControllerCallback;
     private AppointmentsListInterface mListener;
     private CardView vAppointmentContainer;
-
+    private static final String PARAM1 = "PARAM1";
+    private ArrayList<ApiHomeHolder.Patients> arrayList;
     public AppointmentNewFragment() {
         // Required empty public constructor
     }
 
-    public static AppointmentNewFragment newInstance() {
+    public static AppointmentNewFragment newInstance(ArrayList<ApiHomeHolder.Patients> patients) {
         AppointmentNewFragment fragment = new AppointmentNewFragment();
         Bundle args = new Bundle();
-//     args.putSerializable(PARAM_API_DEMOGRAPHICS_ITEM, apiDemographicItem);
+     args.putSerializable(PARAM1, patients);
         fragment.setArguments(args);
         return fragment;
     }
@@ -114,7 +116,7 @@ public class AppointmentNewFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-//            mApiDemographicItem = (ApiDemographicsHolder.ApiDemographicItem) getArguments().getSerializable(PARAM_API_DEMOGRAPHICS_ITEM);
+            arrayList = (ArrayList<ApiHomeHolder.Patients>) getArguments().getSerializable(PARAM1);
         }
     }
 
@@ -253,7 +255,8 @@ public class AppointmentNewFragment extends Fragment {
     }
 
     private void getDemographicResponse() {
-        mProgressDialog.showDialog();
+        setupSelectHospitalSpinner(arrayList);
+        /*mProgressDialog.showDialog();
 
         String fullUrl = API_URL_GET_DEMOGRAPHICS_INFO + mMediatorCallback.getCurrentUser().getCivilId() + "?source=PHR";
 //        String fullUrl = API_URL_GET_DEMOGRAPHICS_INFO + "62163078" + "?source=PHR";
@@ -306,16 +309,17 @@ public class AppointmentNewFragment extends Fragment {
         RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
         jsonObjectRequest.setRetryPolicy(policy);
 
-        mQueue.add(jsonObjectRequest);
+        mQueue.add(jsonObjectRequest);*/
     }
 
-    private void setupSelectHospitalSpinner(final ApiDemographicsHolder.ApiDemographicItem demographicItem) {
+    private void setupSelectHospitalSpinner(final ArrayList<ApiHomeHolder.Patients> demographicItem) {
         Log.d("appointmentFrag", "-setupSelectHospitalSpinner");
-
+        final ArrayList<ApiHomeHolder.Patients> institutes = new ArrayList<>();
         ArrayList<String> institutesNames = new ArrayList<>();
         institutesNames.add(0, getString(R.string.title_select_institute));
-        for (ApiDemographicsHolder.ApiDemographicItem.Patients patients : demographicItem.getInstitutesArrayList()) {
+        for (ApiHomeHolder.Patients patients : demographicItem) {
             if (patients.getEstTypeCode() == 106) {
+                institutes.add(patients);
                 if (getStoredLanguage().equals(LANGUAGE_ARABIC)&& !patients.getEstNameNls().isEmpty())
                     institutesNames.add(patients.getEstNameNls());
                 else
@@ -368,9 +372,9 @@ public class AppointmentNewFragment extends Fragment {
                         spnrClinic.setAdapter(null);
                     }
                     Log.d("appointmentFrag", "-setOnItemSelectedListener");
-                    mEstCode = demographicItem.getInstitutesArrayList().get(position - 1).getEstCode();
-                    getDepartments(demographicItem.getInstitutesArrayList().get(position - 1).getEstCode());
-                    Log.d("saveAppointment", "spnrHospital.setOnItemSelectedListener : " + demographicItem.getInstitutesArrayList().get(position - 1).getEstCode());
+                    mEstCode = institutes.get(position - 1).getEstCode();
+                    getDepartments(institutes.get(position - 1).getEstCode());
+                   // Log.d("saveAppointment", "spnrHospital.setOnItemSelectedListener : " + demographicItem.getInstitutesArrayList().get(position - 1).getEstCode());
 
                     setAppointmentGroupVisibility(View.GONE);
                 }
@@ -771,12 +775,6 @@ public class AppointmentNewFragment extends Fragment {
     public void onResume() {
         super.onResume();
         mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.GONE);
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
     }
 
 
