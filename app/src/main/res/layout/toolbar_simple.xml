@@ -38,7 +38,6 @@
             android:id="@+id/tv_toolbar_title"
             android:layout_width="@dimen/space_0"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/roboto_regular"
             android:textColor="@color/colorRed"
             android:textSize="@dimen/text_size_20sp"
             app:layout_constraintBottom_toBottomOf="parent"

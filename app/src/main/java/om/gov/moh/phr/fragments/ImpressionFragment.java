@@ -48,11 +48,13 @@ import om.gov.moh.phr.apimodels.ApiProceduresReportsHolder;
 import om.gov.moh.phr.apimodels.Immpression;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
+import om.gov.moh.phr.models.GlobalMethods;
 import om.gov.moh.phr.models.MyProgressDialog;
 
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
 import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_ARABIC;
 
 public class ImpressionFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
     private Context mContext;
@@ -63,7 +65,7 @@ public class ImpressionFragment extends Fragment implements SwipeRefreshLayout.O
     private static final String ARG_PARAM3 = "ARG_PARAM3";
     private ApiEncountersHolder.Encounter encounterInfo;
     private ApiOtherDocsHolder.ApiDocInfo docInfo;
-    private ApiProceduresReportsHolder procedureInfo;
+    private ApiProceduresReportsHolder.ProceduresByEncounter procedureInfo;
     private RecyclerView recyclerView;
     private MyProgressDialog mProgressDialog;
     private RequestQueue mQueue;
@@ -87,7 +89,7 @@ public class ImpressionFragment extends Fragment implements SwipeRefreshLayout.O
         return fragment;
     }
 
-    public static ImpressionFragment newInstance(ApiProceduresReportsHolder procedureInfo) {
+    public static ImpressionFragment newInstance(ApiProceduresReportsHolder.ProceduresByEncounter procedureInfo) {
         ImpressionFragment fragment = new ImpressionFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_PARAM3, procedureInfo);
@@ -112,7 +114,7 @@ public class ImpressionFragment extends Fragment implements SwipeRefreshLayout.O
             if (getArguments().getSerializable(ARG_PARAM2) != null)
                 docInfo = (ApiOtherDocsHolder.ApiDocInfo) getArguments().getSerializable(ARG_PARAM2);
             if (getArguments().getSerializable(ARG_PARAM3) != null)
-                procedureInfo = (ApiProceduresReportsHolder) getArguments().getSerializable(ARG_PARAM3);
+                procedureInfo = (ApiProceduresReportsHolder.ProceduresByEncounter) getArguments().getSerializable(ARG_PARAM3);
         }
     }
 
@@ -131,8 +133,13 @@ public class ImpressionFragment extends Fragment implements SwipeRefreshLayout.O
         swipeRefreshLayout = parentView.findViewById(R.id.swipe_refresh_layout);
         recyclerView = parentView.findViewById(R.id.recycler_view);
         if (encounterInfo != null) {
-            tvPatientClass.setText(encounterInfo.getPatientClass());
-            tvEstName.setText(encounterInfo.getEstShortName());
+            if (GlobalMethods.getStoredLanguage(mContext).equals(LANGUAGE_ARABIC)) {
+                tvEstName.setText(encounterInfo.getEstFullnameNls());
+                tvPatientClass.setText(GlobalMethods.setPatientClassArabicName(encounterInfo.getPatientClass()));
+            }else {
+                tvEstName.setText(encounterInfo.getEstFullname());
+                tvPatientClass.setText(encounterInfo.getPatientClass());
+            }
             String url = API_URL_GET_IMMPRESSION_INFO + encounterInfo.getEncounterId() + "?source=PHR";
             getImmpressionNotes(url);
         } else if (docInfo != null) {
@@ -140,15 +147,15 @@ public class ImpressionFragment extends Fragment implements SwipeRefreshLayout.O
             tvEstName.setText(docInfo.getEstName());
             String url = API_URL_GET_IMMPRESSION_INFO + docInfo.getEncounterId() + "?source=PHR";
             getImmpressionNotes(url);
-        } else {
-            tvPatientClass.setText(procedureInfo.getPatientClass());
+        } /*else {
+            tvPatientClass.setText(procedureInfo.getProcedures().get(0).);
             tvEstName.setText(procedureInfo.getEstName());
             String url = API_URL_GET_IMMPRESSION_INFO + procedureInfo.getEncounterId() + "?source=PHR";
             getImmpressionNotes(url);
-        }
+        }*/
 
         swipeRefreshLayout.setOnRefreshListener(this);
-        swipeRefreshLayout.post(new Runnable() {
+        /*swipeRefreshLayout.post(new Runnable() {
                                     @Override
                                     public void run() {
                                         swipeRefreshLayout.setRefreshing(true);
@@ -164,13 +171,13 @@ public class ImpressionFragment extends Fragment implements SwipeRefreshLayout.O
                                         }
                                     }
                                 }
-        );
+        );*/
         return parentView;
     }
 
     private void getImmpressionNotes(String url) {
         mProgressDialog.showDialog();
-        swipeRefreshLayout.setRefreshing(true);
+        //swipeRefreshLayout.setRefreshing(true);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null
                 , new Response.Listener<JSONObject>() {
             @Override
@@ -182,10 +189,10 @@ public class ImpressionFragment extends Fragment implements SwipeRefreshLayout.O
                             JSONObject jsonObject = response.getJSONArray("result").getJSONObject(0);
                             long noteDate = jsonObject.getLong("noteDate");
                             Date date = new Date(noteDate);
-                            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+                            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy",Locale.ENGLISH);
                             String NoteDate = dateFormat.format(date);
                             tvDate.setText(NoteDate);
-                            SimpleDateFormat ClockFormat = new SimpleDateFormat("hh:mm:ss aa", Locale.US);
+                            SimpleDateFormat ClockFormat = new SimpleDateFormat("hh:mm:ss aa", Locale.ENGLISH);
                             String NoteTime = ClockFormat.format(date);
                             tvTime.setText(NoteTime);
                             ArrayList<Immpression> immpressionNotes = new ArrayList<>();

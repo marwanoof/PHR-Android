@@ -60,6 +60,7 @@ import static om.gov.moh.phr.models.MyConstants.PARAM_API_DEMOGRAPHICS_ITEM;
 public class DemographicsFragment extends Fragment {
     private static final String API_URL_DEPENDENT_INFO = API_NEHR_URL + "demographics/dependent/civilId/";
     private static final String DEPENDENT_CIVILID = "DependentCivilID";
+    private static final String PARAM2 = "PARAM2";
     private Context mContext;
     private ArrayList<ApiHomeHolder.Patients> mApiDemographicItem;
 
@@ -70,6 +71,7 @@ public class DemographicsFragment extends Fragment {
     private MediatorInterface mMediatorCallback;
     private TextView tvNoDependents;
     private ScrollView scrollView;
+    private String pageTitle;
 
     public static DemographicsFragment newInstance() {
 
@@ -79,10 +81,11 @@ public class DemographicsFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
-    public static DemographicsFragment newInstance(ArrayList<ApiHomeHolder.Patients> apiDemographicItem) {
+    public static DemographicsFragment newInstance(ArrayList<ApiHomeHolder.Patients> apiDemographicItem, String title) {
         DemographicsFragment fragment = new DemographicsFragment();
         Bundle args = new Bundle();
         args.putSerializable(PARAM_API_DEMOGRAPHICS_ITEM, apiDemographicItem);
+        args.putSerializable(PARAM2, title);
         fragment.setArguments(args);
         return fragment;
     }
@@ -101,6 +104,7 @@ public class DemographicsFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             mApiDemographicItem = (ArrayList<ApiHomeHolder.Patients>) getArguments().getSerializable(PARAM_API_DEMOGRAPHICS_ITEM);
+            pageTitle = (String) getArguments().getSerializable(PARAM2);
         }
     }
 
@@ -125,7 +129,7 @@ public class DemographicsFragment extends Fragment {
             }
         });
         TextView tvToolBarTitle = parentView.findViewById(R.id.tv_toolbar_title);
-        tvToolBarTitle.setText(getString(R.string.title_demographic));
+        tvToolBarTitle.setText(pageTitle);
         tvToolBarTitle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -229,8 +233,6 @@ public class DemographicsFragment extends Fragment {
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
                             Gson gson = new Gson();
                             ApiDependentsHolder responseHolder = gson.fromJson(response.toString(), ApiDependentsHolder.class);
-                            Log.d("resp-dependants", response.getJSONArray("result").toString());
-
                             prepareDependantsCards(responseHolder, container, inflater, llDependentsContainer);
 
 
@@ -314,7 +316,7 @@ public class DemographicsFragment extends Fragment {
         dependentCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(mContext, dependent.getDependentName() + "/" + dependent.getDependentCivilId() + "/" + dependent.getRelationType(), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(mContext, dependent.getDependentName() + "/" + dependent.getDependentCivilId() + "/" + dependent.getRelationType(), Toast.LENGTH_SHORT).show();
 
                 updateCurrentUser(dependent.getDependentCivilId());
 
@@ -363,12 +365,12 @@ public class DemographicsFragment extends Fragment {
 
         TextView tvDName = instituteCard.findViewById(R.id.tv_dependant_name);
         tvDName.setText(patients.getEstName() + "\n" + patients.getEstPatientId());
-        instituteCard.setOnClickListener(new View.OnClickListener() {
+        /*instituteCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(mContext, patients.getEstName() + "/" + patients.getEstPatientId(), Toast.LENGTH_SHORT).show();
             }
-        });
+        });*/
 
         ImageButton ibArrow = instituteCard.findViewById(R.id.ib_arrow);
         ibArrow.setVisibility(View.GONE);

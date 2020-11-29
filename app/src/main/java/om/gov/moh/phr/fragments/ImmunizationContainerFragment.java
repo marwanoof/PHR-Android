@@ -30,12 +30,15 @@ import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
 public class ImmunizationContainerFragment extends Fragment {
     private Context mContext;
     private ToolbarControllerInterface mToolbarControllerCallback;
+    private static final String PARAM1 = "PARAM1";
+    private String pageTitle;
     public ImmunizationContainerFragment() {
         // Required empty public constructor
     }
-    public static ImmunizationContainerFragment newInstance() {
+    public static ImmunizationContainerFragment newInstance(String title) {
         ImmunizationContainerFragment fragment = new ImmunizationContainerFragment();
         Bundle args = new Bundle();
+        args.putSerializable(PARAM1,title);
         fragment.setArguments(args);
         return fragment;
     }
@@ -45,6 +48,13 @@ public class ImmunizationContainerFragment extends Fragment {
         super.onAttach(context);
         mContext = context;
         mToolbarControllerCallback = (ToolbarControllerInterface) context;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null)
+            pageTitle = (String) getArguments().getSerializable(PARAM1);
     }
 
     @Override
@@ -82,9 +92,9 @@ public class ImmunizationContainerFragment extends Fragment {
         @Override
         public Fragment getItem(int position) {
             if (position == 0)
-                return ImmunizationFragment.newInstance("Given", false);
+                return ImmunizationFragment.newInstance("Given", false,pageTitle);
             else
-                return ImmunizationFragment.newInstance("Schedule", false);
+                return ImmunizationFragment.newInstance("Schedule", false,pageTitle);
         }
 
         @Nullable

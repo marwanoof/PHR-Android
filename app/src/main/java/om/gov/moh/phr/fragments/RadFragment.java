@@ -7,6 +7,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -31,6 +32,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -41,13 +43,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 import om.gov.moh.phr.R;
+import om.gov.moh.phr.adapters.ApiRadiologyHolder;
+import om.gov.moh.phr.adapters.ProceduresAdapterItem;
 import om.gov.moh.phr.adapters.ProceduresReportsRecyclerView;
+import om.gov.moh.phr.adapters.RadiologyRecyclerViewAdapter;
 import om.gov.moh.phr.apimodels.ApiEncountersHolder;
 import om.gov.moh.phr.apimodels.ApiOtherDocsHolder;
 import om.gov.moh.phr.apimodels.ApiProceduresReportsHolder;
 import om.gov.moh.phr.apimodels.Notification;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
+import om.gov.moh.phr.models.DividerItemDecorator;
 import om.gov.moh.phr.models.MyProgressDialog;
 
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
@@ -58,7 +64,7 @@ import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_RESULT;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class RadFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
+public class RadFragment extends Fragment {
     private static final String API_URL_GET_RAD_HRD_INFO = API_NEHR_URL + "diagnosticOrder/encounterId/";
     private static final String API_URL_GET_RAD_NOTIFICATION_INFO = API_NEHR_URL + "diagnosticOrder/report/";
     private static final String ARG_PARAM1 = "ARG_PARAM1";
@@ -74,12 +80,12 @@ public class RadFragment extends Fragment implements SwipeRefreshLayout.OnRefres
     private ToolbarControllerInterface mToolbarControllerCallback;
     private RecyclerView rvProceduresReportsList;
     private TextView tvAlert;
-    private ArrayList<ApiProceduresReportsHolder> reportsArrayList;
+    private ArrayList<ApiRadiologyHolder.Radiology> reportsArrayList;
     private ApiEncountersHolder.Encounter encounterInfo;
     private ApiOtherDocsHolder.ApiDocInfo docInfo;
     private Notification notificationObj;
-    private ApiProceduresReportsHolder procedureObj;
-    private SwipeRefreshLayout swipeRefreshLayout;
+    private ApiProceduresReportsHolder.ProceduresByEncounter procedureObj;
+    //private SwipeRefreshLayout swipeRefreshLayout;
 
     public RadFragment() {
         // Required empty public constructor
@@ -107,7 +113,7 @@ public class RadFragment extends Fragment implements SwipeRefreshLayout.OnRefres
         fragment.setArguments(args);
         return fragment;
     }
-    public static RadFragment newInstance(ApiProceduresReportsHolder procedureInfo) {
+    public static RadFragment newInstance(ApiProceduresReportsHolder.ProceduresByEncounter procedureInfo) {
         RadFragment fragment = new RadFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_PARAM3, procedureInfo);
@@ -132,7 +138,7 @@ public class RadFragment extends Fragment implements SwipeRefreshLayout.OnRefres
         if (getArguments().getSerializable(ARG_PARAM2) != null)
             docInfo = (ApiOtherDocsHolder.ApiDocInfo) getArguments().getSerializable(ARG_PARAM2);
         if (getArguments().getSerializable(ARG_PARAM3) != null)
-            procedureObj = (ApiProceduresReportsHolder) getArguments().getSerializable(ARG_PARAM3);
+            procedureObj = (ApiProceduresReportsHolder.ProceduresByEncounter) getArguments().getSerializable(ARG_PARAM3);
     }
 
     @Override
@@ -147,7 +153,7 @@ public class RadFragment extends Fragment implements SwipeRefreshLayout.OnRefres
                     mMediatorCallback.changeFragmentTo(NotificationsFragment.newInstance(), NotificationsFragment.class.getSimpleName());
                 }
             });
-        swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
+        //swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
         TextView tvTitle = view.findViewById(R.id.tv_Title);
         mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
         mProgressDialog = new MyProgressDialog(mContext);
@@ -161,6 +167,7 @@ public class RadFragment extends Fragment implements SwipeRefreshLayout.OnRefres
 
             String procRADHRDUrl = null;
             if (encounterInfo != null) {
+                System.out.println("*********"+encounterInfo.getEncounterId());
                 procRADHRDUrl = API_URL_GET_RAD_HRD_INFO + encounterInfo.getEncounterId();
             } else if (notificationObj != null) {
                 tvTitle.setText(notificationObj.getTitle());
@@ -171,7 +178,7 @@ public class RadFragment extends Fragment implements SwipeRefreshLayout.OnRefres
                 procRADHRDUrl = API_URL_GET_RAD_HRD_INFO + procedureObj.getEncounterId();
             }
             getProceduresReportsList(procRADHRDUrl);
-            swipeRefreshLayout.setOnRefreshListener(this);
+            /*swipeRefreshLayout.setOnRefreshListener(this);
             swipeRefreshLayout.post(new Runnable() {
                                         @Override
                                         public void run() {
@@ -189,15 +196,14 @@ public class RadFragment extends Fragment implements SwipeRefreshLayout.OnRefres
                                             getProceduresReportsList(procRADHRDUrl);
                                         }
                                     }
-            );
+            );*/
         }
         return view;
     }
 
     private void getProceduresReportsList(String url) {
         mProgressDialog.showDialog();
-        swipeRefreshLayout.setRefreshing(true);
-
+        //swipeRefreshLayout.setRefreshing(true);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null
                 , new Response.Listener<JSONObject>() {
             @Override
@@ -207,21 +213,14 @@ public class RadFragment extends Fragment implements SwipeRefreshLayout.OnRefres
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
                             JSONArray jsonElements = response.getJSONArray(API_RESPONSE_RESULT);
                             reportsArrayList = new ArrayList<>();
+                            Gson gson = new Gson();
+                            ApiRadiologyHolder responseHolder = gson.fromJson(response.toString(), ApiRadiologyHolder.class);
+                            reportsArrayList = responseHolder.getResult();
 
-                            for (int i = 0; i < jsonElements.length(); i++) {
-                                JSONObject jsonObject = jsonElements.getJSONObject(i);
-                                ApiProceduresReportsHolder reportDetails = new ApiProceduresReportsHolder();
-                                reportDetails.setReportId(jsonObject.getString(REPORTID_KEY));
-                                reportDetails.setProcName(jsonObject.getString("procName"));
-                                reportDetails.setProcedureDoneDate(jsonObject.getLong("orderDate"));
-                                reportDetails.setEstName(jsonObject.getString(EST_NAME_KEY));
-                                reportDetails.setEstFullname(jsonObject.getString("estFullname"));
-                                reportsArrayList.add(reportDetails);
-                            }
                             setupRecyclerView(reportsArrayList);
 
                         } else {
-                            displayAlert(getResources().getString(R.string.no_record_found));
+                            displayAlert(getResources().getString(R.string.no_records_rad));
                             mProgressDialog.dismissDialog();
                         }
                     } catch (JSONException e) {
@@ -229,7 +228,7 @@ public class RadFragment extends Fragment implements SwipeRefreshLayout.OnRefres
                     }
 
                     mProgressDialog.dismissDialog();
-                    swipeRefreshLayout.setRefreshing(false);
+                    //swipeRefreshLayout.setRefreshing(false);
                 }
 
             }
@@ -240,7 +239,7 @@ public class RadFragment extends Fragment implements SwipeRefreshLayout.OnRefres
                     Log.d("resp-demographic", error.toString());
                     error.printStackTrace();
                     mProgressDialog.dismissDialog();
-                    swipeRefreshLayout.setRefreshing(false);
+                    //swipeRefreshLayout.setRefreshing(false);
                 }
             }
         }) {
@@ -262,13 +261,11 @@ public class RadFragment extends Fragment implements SwipeRefreshLayout.OnRefres
         mQueue.add(jsonObjectRequest);
     }
 
-    private void setupRecyclerView(ArrayList<ApiProceduresReportsHolder> getmResult) {
-        ProceduresReportsRecyclerView mAdapter = new ProceduresReportsRecyclerView(mMediatorCallback, getmResult, mContext, true);
-        LinearLayoutManager layoutManager
-                = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
-        DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(rvProceduresReportsList.getContext(),
-                layoutManager.getOrientation());
-        rvProceduresReportsList.addItemDecoration(mDividerItemDecoration);
+    private void setupRecyclerView(ArrayList<ApiRadiologyHolder.Radiology> getmResult) {
+        RadiologyRecyclerViewAdapter mAdapter = new RadiologyRecyclerViewAdapter(mContext,getmResult);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
+        RecyclerView.ItemDecoration dividerItemDecoration = new DividerItemDecorator(ContextCompat.getDrawable(mContext, R.drawable.divider));
+        rvProceduresReportsList.addItemDecoration(dividerItemDecoration);
         rvProceduresReportsList.setLayoutManager(layoutManager);
         rvProceduresReportsList.setItemAnimator(new DefaultItemAnimator());
         rvProceduresReportsList.setAdapter(mAdapter);
@@ -288,7 +285,7 @@ public class RadFragment extends Fragment implements SwipeRefreshLayout.OnRefres
             mMediatorCallback.changeFragmentTo(NotificationsFragment.newInstance(), NotificationsFragment.class.getSimpleName());
     }
 
-    @Override
+  /*  @Override
     public void onRefresh() {
         String procRADHRDUrl = null;
         if (encounterInfo != null) {
@@ -301,6 +298,6 @@ public class RadFragment extends Fragment implements SwipeRefreshLayout.OnRefres
             procRADHRDUrl = API_URL_GET_RAD_HRD_INFO + procedureObj.getEncounterId();
         }
         getProceduresReportsList(procRADHRDUrl);
-    }
+    }*/
 }
 

@@ -9,10 +9,12 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -64,6 +66,7 @@ import om.gov.moh.phr.R;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
 import om.gov.moh.phr.models.CameraUtils;
+import om.gov.moh.phr.models.GlobalMethodsKotlin;
 import om.gov.moh.phr.models.MyProgressDialog;
 
 import static android.app.Activity.RESULT_CANCELED;
@@ -202,7 +205,8 @@ public class AddDocFragment extends Fragment {
                             JSONArray documentsTypesArray = response.getJSONArray(API_RESPONSE_RESULT);
                             ArrayList<String> documentsTypes = new ArrayList<>();
                             documentsTypesCodes = new ArrayList<>();
-                            documentsTypes.add(getResources().getString(R.string.select_doc_type_msg));
+                            String defaultText = getResources().getString(R.string.select_doc_type_msg);
+                            documentsTypes.add(defaultText);
                             documentsTypesCodes.add("None");
                             for (int i = 0; i < documentsTypesArray.length(); i++) {
                                 JSONObject documentTypeObj = documentsTypesArray.getJSONObject(i);
@@ -214,7 +218,7 @@ public class AddDocFragment extends Fragment {
 
 
                         } else {
-
+                            noDocTypeFound();
                             mProgressDialog.dismissDialog();
                         }
                     }
@@ -253,10 +257,28 @@ public class AddDocFragment extends Fragment {
         mQueue.add(jsonObjectRequest);
     }
 
+    private void noDocTypeFound() {
+        String title = mContext.getResources().getString(R.string.alert_error_title);
+        String body = mContext.getResources().getString(R.string.no_doc_type_found);
+        String buttonText = mContext.getResources().getString(R.string.ok);
+        GlobalMethodsKotlin.Companion.showAlertDialog(mContext,title,body,buttonText,R.drawable.ic_error);
+    }
+
     private void setupSelectDocTypeSpinner(ArrayList<String> documentsTypes, ArrayList<String> documentsTypesCodes) {
         // Initializing an ArrayAdapter
         final ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(
                 mContext, android.R.layout.simple_spinner_dropdown_item, documentsTypes) {
+            @NonNull
+            @Override
+            public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+                View v = super.getView(position, convertView, parent);
+
+                Typeface externalFont=Typeface.createFromAsset(mContext.getAssets(), "sky.ttf");
+                ((TextView) v).setTypeface(externalFont);
+
+                return v;
+            }
+
             @Override
             public boolean isEnabled(int position) {
 
@@ -274,6 +296,8 @@ public class AddDocFragment extends Fragment {
                                         @NonNull ViewGroup parent) {
                 View view = super.getDropDownView(position, convertView, parent);
                 TextView tv = (TextView) view;
+                Typeface externalFont = Typeface.createFromAsset(mContext.getAssets(), "sky.ttf");
+                tv.setTypeface(externalFont);
                 if (position == 0) {
                     // Set the hint text color gray
                     tv.setTextColor(Color.GRAY);

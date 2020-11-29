@@ -4,8 +4,11 @@ package om.gov.moh.phr.fragments;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -16,6 +19,8 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -25,12 +30,14 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -47,16 +54,19 @@ import com.google.gson.Gson;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import om.gov.moh.phr.R;
+import om.gov.moh.phr.activities.MainActivity;
 import om.gov.moh.phr.adapters.ComingAppointmentListAdapter;
 import om.gov.moh.phr.adapters.DependentRecyclerViewAdapter;
 import om.gov.moh.phr.adapters.MessageChatsAdapter;
@@ -73,6 +83,8 @@ import om.gov.moh.phr.interfaces.AdapterToFragmentConnectorInterface;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
 import om.gov.moh.phr.models.DBHelper;
+import om.gov.moh.phr.models.GlobalMethods;
+import om.gov.moh.phr.models.GlobalMethodsKotlin;
 import om.gov.moh.phr.models.MyProgressDialog;
 
 
@@ -81,8 +93,11 @@ import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_MESSAGE;
 import static om.gov.moh.phr.models.MyConstants.IS_SCROLL_LIST;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_ARABIC;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_PREFS;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_SELECTED;
 
-public class HomeFragment extends Fragment implements AdapterToFragmentConnectorInterface, View.OnClickListener {
+public class HomeFragment extends Fragment implements AdapterToFragmentConnectorInterface, View.OnClickListener, SwipeRefreshLayout.OnRefreshListener {
 
     private static final String API_URL_GET_DEMOGRAPHICS_INFO = API_NEHR_URL + "demographics/phrHome";
 
@@ -109,6 +124,12 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
     private DBHelper dbHelper;
     private LinearLayout llMyVitalSigns, llAppointments, llNotification, llUnReadMessages;
     private View dependentDivider, parentView;
+    private boolean isArabic = false;
+    private ConstraintLayout personInfo, recentVitalConstraintLayout,appointmentConstraintLayout, notificationConstraintLayout, chatConstraintLayout, updateConstraintLayout;
+    private static final String DEPENDENT_CIVILID = "DependentCivilID";
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private LayoutAnimationController animation;
+    private Boolean isVitalShow = false, isAppointmentShow = false, isChatShow = false, isUpdateShow = false, isNotificationShow = false;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -132,14 +153,18 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        isArabic = getStoredLanguage().equals(LANGUAGE_ARABIC);
+        animation = AnimationUtils.loadLayoutAnimation(mContext, R.anim.delay_slide_down);
         if(parentView==null){
         // Inflate the layout for this fragment
-         parentView = inflater.inflate(R.layout.fragment_home, container, false);
+             parentView = inflater.inflate(R.layout.fragment_home, container, false);
+        //pageView = pageView.findViewById(R.id.view1);
 
-        mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
-        mProgressDialog = new MyProgressDialog(mContext);
-
-        setupView(parentView);
+            mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
+            mProgressDialog = new MyProgressDialog(mContext);
+            swipeRefreshLayout = parentView.findViewById(R.id.swipeRefreshLayoutHome);
+            swipeRefreshLayout.setOnRefreshListener(this);
+            setupView(parentView);
         if (IS_SCROLL_LIST) {
             menuListScrollView.setVisibility(View.VISIBLE);
             rvGrid.setVisibility(View.GONE);
@@ -150,13 +175,14 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
             menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_list));
         }
 
-        Log.d("accessToken", mMediatorCallback.getAccessToken().getAccessTokenString());
+
         //   if (mMediatorCallback.getAccessToken().getAccessCivilId().equals(mMediatorCallback.getCurrentUser().getCivilId()))
 
         if (mMediatorCallback.isConnected()) {
             setRecyclerViewGrid();
             getDemographicResponse();
         } else {
+
             displayAlert(getString(R.string.alert_no_connection));
         }
         menuButton.setOnClickListener(new View.OnClickListener() {
@@ -178,6 +204,7 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
                             });
                     menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_list));
                     rvGrid.setVisibility(View.VISIBLE);
+                    rvGrid.setLayoutAnimation(animation);
                     menuListScrollView.setVisibility(View.GONE);
                     IS_SCROLL_LIST = false;
                 } else {
@@ -197,6 +224,13 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
                     menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_item));
                     rvGrid.setVisibility(View.GONE);
                     menuListScrollView.setVisibility(View.VISIBLE);
+                    if (isVitalShow)
+                        myVital.setLayoutAnimation(animation);
+                    if (isAppointmentShow)
+                        appointmentList.setLayoutAnimation(animation);
+                    if (isChatShow)
+                        chatsList.setLayoutAnimation(animation);
+
                     IS_SCROLL_LIST = true;
                 }
             }
@@ -207,7 +241,7 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
         notificationExpandBtn.setOnClickListener(this);
         updatesExpandBtn.setOnClickListener(this);
         chatsExpandBtn.setOnClickListener(this);
-        getNotificationList();
+        //getNotificationList();
 
         /* setup updates list */
       /*  ArrayList<String> updates = new ArrayList<>();
@@ -221,17 +255,17 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
         return parentView;
     }
 
-    private void getNotificationList() {
+    /*private void getNotificationList() {
         dbHelper = new DBHelper(mContext);
         ArrayList<Notification> notificationsList = new ArrayList<>();
         notificationsList = dbHelper.retrieveNotificationsRecord();
-      /*  if (notificationsList.size() == 0) {
+      *//*  if (notificationsList.size() == 0) {
             Notification notification = new Notification();
             notification.setTitle(getResources().getString(R.string.no_notification));
             notification.setBody("");
             notification.setPnsType("10");
             notificationsList.add(notification);
-        }*/
+        }*//*
         //creating Calendar instance
         Calendar calendar = Calendar.getInstance();
         //Returns current time in millis
@@ -249,7 +283,7 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
             llNotification.setVisibility(View.GONE);
         else
             setNotificationRecyclerView(notificationsList);
-    }
+    }*/
 
     private void setNotificationRecyclerView(ArrayList<Notification> notificationsList) {
         NotificationsRecyclerViewAdapter mAdapter =
@@ -265,6 +299,8 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
     }
 
     private void setupView(View parentView) {
+        personInfo = parentView.findViewById(R.id.personInfoConstraintLayout);
+        personInfo.setVisibility(View.VISIBLE);
         tvAlert = parentView.findViewById(R.id.tv_alert);
         rvGrid = parentView.findViewById(R.id.vp_container);
         menuListScrollView = parentView.findViewById(R.id.menuListScrollView);
@@ -273,13 +309,26 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
         myVitalExpandBtn = parentView.findViewById(R.id.btn_myvital_expand);
         appointmentExpandBtn = parentView.findViewById(R.id.btn_appointment_expand);
         appointmentList = parentView.findViewById(R.id.recyclerView_coming_appointment);
-        notificationList = parentView.findViewById(R.id.recyclerView_notification_home);
+        //notificationList = parentView.findViewById(R.id.recyclerView_notification_home);
         notificationExpandBtn = parentView.findViewById(R.id.btn_notification_expand);
         //   updatesList = parentView.findViewById(R.id.recyclerView_updates_home);
         updatesExpandBtn = parentView.findViewById(R.id.btn_updates_expand);
         chatsList = parentView.findViewById(R.id.recyclerView_chats_home);
         chatsExpandBtn = parentView.findViewById(R.id.btn_chats_expand);
         rvGrid.setVisibility(View.GONE);
+
+        recentVitalConstraintLayout = parentView.findViewById(R.id.myVitalLayout);
+        appointmentConstraintLayout = parentView.findViewById(R.id.appointmentLayout);
+        updateConstraintLayout = parentView.findViewById(R.id.updatesLayout);
+        chatConstraintLayout = parentView.findViewById(R.id.chatsLayout);
+        notificationConstraintLayout = parentView.findViewById(R.id.notificationLayout);
+
+        recentVitalConstraintLayout.setVisibility(View.INVISIBLE);
+        appointmentConstraintLayout.setVisibility(View.INVISIBLE);
+        updateConstraintLayout.setVisibility(View.INVISIBLE);
+        chatConstraintLayout.setVisibility(View.INVISIBLE);
+        notificationConstraintLayout.setVisibility(View.INVISIBLE);
+
         LinearLayout sliderDotspanel = parentView.findViewById(R.id.slider_dots);
         dots = new ImageView[3];
         dots[0] = new ImageView(mContext);
@@ -335,19 +384,19 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
         tvDependentsTitle = parentView.findViewById(R.id.tvDependents);
         tvDependentsTitle.setText(getResources().getString(R.string.title_dependents) + ": ");
         tvFirstDependent = parentView.findViewById(R.id.tvFirstDependent);
-        tvFirstDependent.setOnClickListener(new View.OnClickListener() {
+        /*tvFirstDependent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mToolbarCallback.changeSideMenuToolBarVisibility(View.GONE);
                 mMediatorCallback.changeFragmentTo(DemographicsFragment.newInstance(responseHolder.getmResult().getmHome().getInstitutesArrayList()), DemographicsFragment.class.getSimpleName());
             }
-        });
+        });*/
         tvSecondDependent = parentView.findViewById(R.id.tvSecondDependent);
         tvSecondDependent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mToolbarCallback.changeSideMenuToolBarVisibility(View.GONE);
-                mMediatorCallback.changeFragmentTo(DemographicsFragment.newInstance(responseHolder.getmResult().getmHome().getInstitutesArrayList()), DemographicsFragment.class.getSimpleName());
+                mMediatorCallback.changeFragmentTo(DemographicsFragment.newInstance(responseHolder.getmResult().getmHome().getInstitutesArrayList(),getPageTitle(responseHolder.getmResult().getmHome().getmMainMenus(),283)), DemographicsFragment.class.getSimpleName());
             }
         });
         ivFirstArrow = parentView.findViewById(R.id.ivFirstDepArrow);
@@ -355,7 +404,7 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
             @Override
             public void onClick(View view) {
                 mToolbarCallback.changeSideMenuToolBarVisibility(View.GONE);
-                mMediatorCallback.changeFragmentTo(DemographicsFragment.newInstance(responseHolder.getmResult().getmHome().getInstitutesArrayList()), DemographicsFragment.class.getSimpleName());
+                mMediatorCallback.changeFragmentTo(DemographicsFragment.newInstance(responseHolder.getmResult().getmHome().getInstitutesArrayList(),getPageTitle(responseHolder.getmResult().getmHome().getmMainMenus(),283)), DemographicsFragment.class.getSimpleName());
             }
         });
         ivSecondArrow = parentView.findViewById(R.id.ivSecondDepArrow);
@@ -363,7 +412,7 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
             @Override
             public void onClick(View view) {
                 mToolbarCallback.changeSideMenuToolBarVisibility(View.GONE);
-                mMediatorCallback.changeFragmentTo(DemographicsFragment.newInstance(responseHolder.getmResult().getmHome().getInstitutesArrayList()), DemographicsFragment.class.getSimpleName());
+                mMediatorCallback.changeFragmentTo(DemographicsFragment.newInstance(responseHolder.getmResult().getmHome().getInstitutesArrayList(),getPageTitle(responseHolder.getmResult().getmHome().getmMainMenus(),283)), DemographicsFragment.class.getSimpleName());
             }
         });
         llMyVitalSigns = parentView.findViewById(R.id.linearLayout4);
@@ -374,11 +423,14 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
     }
 
     public void setupMyVitalList(ArrayList<ApiHomeHolder.ApiRecentVitals> myVitals) {
+        recentVitalConstraintLayout.setVisibility(View.VISIBLE);
+        recentVitalConstraintLayout.setAnimation(GlobalMethodsKotlin.Companion.setAnimation(mContext,R.anim.fade_in));
         MyVitalListAdapter myVitalListAdapter = new MyVitalListAdapter(myVitals, mContext);
-        LinearLayoutManager layoutManager
-                = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
         //DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(myVital.getContext(),layoutManager.getOrientation());
         // myVital.addItemDecoration(mDividerItemDecoration);
+        LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(mContext, R.anim.delay_slide_down);
+        myVital.setLayoutAnimation(animation);
         myVital.setLayoutManager(layoutManager);
         myVital.setItemAnimator(new DefaultItemAnimator());
         myVital.setAdapter(myVitalListAdapter);
@@ -386,11 +438,15 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
     }
 
     public void setupAppointmentList(ArrayList<ApiHomeHolder.ApiAppointments> appointments) {
+        appointmentConstraintLayout.setVisibility(View.VISIBLE);
+        appointmentConstraintLayout.setAnimation(GlobalMethodsKotlin.Companion.setAnimation(mContext,R.anim.fade_in));
         ComingAppointmentListAdapter comingAppointmentListAdapter = new ComingAppointmentListAdapter(appointments, mContext);
         LinearLayoutManager layoutManager
                 = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
         DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(appointmentList.getContext(), layoutManager.getOrientation());
         appointmentList.addItemDecoration(mDividerItemDecoration);
+        LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(mContext, R.anim.delay_slide_down);
+        appointmentList.setLayoutAnimation(animation);
         appointmentList.setLayoutManager(layoutManager);
         appointmentList.setItemAnimator(new DefaultItemAnimator());
         appointmentList.setAdapter(comingAppointmentListAdapter);
@@ -398,6 +454,8 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
     }
 
     public void setupNotificationList(ArrayList<String> notifications) {
+        notificationConstraintLayout.setVisibility(View.VISIBLE);
+        notificationConstraintLayout.setAnimation(GlobalMethodsKotlin.Companion.setAnimation(mContext,R.anim.fade_in));
         NotificationHomeAdapter comingAppointmentListAdapter = new NotificationHomeAdapter(notifications, mContext);
         LinearLayoutManager layoutManager
                 = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
@@ -410,7 +468,11 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
     }
 
     public void setupUpdatesList(ArrayList<String> updates) {
-     /*   UpdatesListAdapter comingAppointmentListAdapter = new UpdatesListAdapter(updates, mContext);
+        updateConstraintLayout.setVisibility(View.VISIBLE);
+        updateConstraintLayout.setAnimation(GlobalMethodsKotlin.Companion.setAnimation(mContext,R.anim.fade_in));
+     /*
+
+     UpdatesListAdapter comingAppointmentListAdapter = new UpdatesListAdapter(updates, mContext);
         LinearLayoutManager layoutManager
                 = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
         DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(updatesList.getContext(), layoutManager.getOrientation());
@@ -422,11 +484,15 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
     }
 
     public void setupChatsList(ArrayList<ApiHomeHolder.ApiChatMessages> chatsModels) {
+        chatConstraintLayout.setVisibility(View.VISIBLE);
+        chatConstraintLayout.setAnimation(GlobalMethodsKotlin.Companion.setAnimation(mContext,R.anim.fade_in));
         MessageChatsAdapter messageChatsAdapter = new MessageChatsAdapter(mMediatorCallback, chatsModels, mContext);
         LinearLayoutManager layoutManager
                 = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
         DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(chatsList.getContext(), layoutManager.getOrientation());
         chatsList.addItemDecoration(mDividerItemDecoration);
+        LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(mContext, R.anim.delay_slide_down);
+        chatsList.setLayoutAnimation(animation);
         chatsList.setLayoutManager(layoutManager);
         chatsList.setItemAnimator(new DefaultItemAnimator());
         chatsList.setAdapter(messageChatsAdapter);
@@ -443,7 +509,7 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
                     if (response.getInt(API_RESPONSE_CODE) == 0) {
                         Gson gson = new Gson();
                         responseHolder = gson.fromJson(response.toString(), ApiHomeHolder.class);
-                        Log.d("resp-home", responseHolder.getmResult().getmHome().getmMainMenus().toString());
+
                         if (mContext != null) {
                             mAdapter.updateList(responseHolder.getmResult().getmHome().getmMainMenus());
                             setupDempgraphicsData(responseHolder.getmResult().getmHome().getmDemographics());
@@ -451,17 +517,27 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
                             setupDependentsData(responseHolder.getmResult().getmHome().getmDependents());
                             setupChatMessages(responseHolder.getmResult().getmHome().getmChatMessages());
                             setupAppointments(responseHolder.getmResult().getmHome().getmAppointments());
+
+                            if (responseHolder.getmResult().getmHome().getmRecentVitals().size() >0)
+                                isVitalShow = true;
+                            if (responseHolder.getmResult().getmHome().getmAppointments().size() >0)
+                                isAppointmentShow = true;
+                            if (responseHolder.getmResult().getmHome().getmChatMessages().size() >0)
+                                isChatShow = true;
+
                         }
 
                     } else
-                        Toast.makeText(mContext, response.getString(API_RESPONSE_MESSAGE), Toast.LENGTH_SHORT).show();
+                        GlobalMethodsKotlin.Companion.showAlertErrorDialog(mContext);
+                        //Toast.makeText(mContext, response.getString(API_RESPONSE_MESSAGE), Toast.LENGTH_SHORT).show();
 
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    GlobalMethodsKotlin.Companion.showAlertErrorDialog(mContext);
+                    //e.printStackTrace();
                 }
 
                 mProgressDialog.dismissDialog();
-
+                swipeRefreshLayout.setRefreshing(false);
             }
         }, new Response.ErrorListener() {
             @Override
@@ -470,7 +546,8 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
                     mProgressDialog.dismissDialog();
                     Log.d("resp-home", error.toString());
                     error.printStackTrace();
-                    mProgressDialog.dismissDialog();
+                    GlobalMethodsKotlin.Companion.showAlertErrorDialog(mContext);
+                    swipeRefreshLayout.setRefreshing(false);
                 }
             }
         }) {
@@ -492,6 +569,8 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
 
     }
 
+
+
     private JSONObject getJSONRequestCivilIDParam() {
         Map<String, Object> params = new HashMap<>();
         params.put("civilId", mMediatorCallback.getCurrentUser().getCivilId());
@@ -499,16 +578,43 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
     }
 
     private void setupDempgraphicsData(ApiHomeHolder.ApiDemographics apiDemographicItem) {
-        tvFullName.setText("{ " + apiDemographicItem.getFirstName() + " " + apiDemographicItem.getSecondName() + " " + apiDemographicItem.getThirdName() + " }");
+
+        String nameShort = "";
+        String fullName = "";
+        if (getStoredLanguage().equals(LANGUAGE_ARABIC)){
+            nameShort = "{ " + apiDemographicItem.getFirstNameNls() + " " + apiDemographicItem.getSecondNameNls() + " " + apiDemographicItem.getSixthNameNls() + " }";
+            fullName = apiDemographicItem.getFirstNameNls() + " " + apiDemographicItem.getSecondNameNls() + " " + apiDemographicItem.getThirdNameNls() + " " + apiDemographicItem.getFourthNameNls() + " " + apiDemographicItem.getFifthNameNls()+ " " + apiDemographicItem.getSixthNameNls();
+        }else {
+            nameShort = "{ " + apiDemographicItem.getFirstName() + " " + apiDemographicItem.getSecondName() + " " + apiDemographicItem.getSixthName() + " }";
+            fullName = apiDemographicItem.getFirstName() + " " + apiDemographicItem.getSecondName() + " " + apiDemographicItem.getThirdName() + " " + apiDemographicItem.getFourthName() + " " + apiDemographicItem.getFifthName()+ " " + apiDemographicItem.getSixthName();
+        }
+        tvFullName.setText(nameShort);
         tvPatientId.setText(String.valueOf(apiDemographicItem.getCivilId()));
         tvAge.setText(apiDemographicItem.getAge());
         tvBloodGroup.setText(apiDemographicItem.getBloodGroup());
         Glide.with(mContext).load(getPersonPhoto(mContext, apiDemographicItem.getImage())).into(ivUserProfile);
-        tvNameInfo.setText(apiDemographicItem.getFirstName() + " " + apiDemographicItem.getSecondName() + " " + apiDemographicItem.getThirdName() + " " + apiDemographicItem.getFourthName() + " " + apiDemographicItem.getFifthName());
+        tvNameInfo.setText(fullName);
         tvMobile.setText(String.valueOf(apiDemographicItem.getMobile()));
         tvGender.setText(apiDemographicItem.getGender());
         tvNationality.setText(apiDemographicItem.getNationality());
         tvUserAddress.setText(apiDemographicItem.getBirthDown());
+        switch (apiDemographicItem.getGender()){
+            case "Male":
+                if (isArabic)
+                    tvGender.setText("ذكر");
+                else
+                    tvGender.setText("Male");
+                break;
+            case "Female":
+                if (isArabic)
+                    tvGender.setText("أنثى");
+                else
+                    tvGender.setText("Female");
+                break;
+            default:
+                tvGender.setText("");
+                break;
+        }
     }
 
     private void setupRecentVitalsData(ArrayList<ApiHomeHolder.ApiRecentVitals> apiRecentVitals) {
@@ -546,16 +652,37 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
             setupAppointmentList(apiAppointments);
     }
 
-    private void setupDependentsData(ArrayList<ApiHomeHolder.ApiDependents> apiDependents) {
+    private void setupDependentsData(final ArrayList<ApiHomeHolder.ApiDependents> apiDependents) {
         if (apiDependents != null && apiDependents.size() != 0) {
             if (apiDependents.get(0) != null)
-                tvFirstDependent.setText(apiDependents.get(0).getDependentName() + "\n" + apiDependents.get(0).getRelationType() + " | " + apiDependents.get(0).getDependentCivilId());
+                if (isArabic){
+                    tvFirstDependent.setText(apiDependents.get(0).getDependentNameNls() + "\n" + apiDependents.get(0).getRelationType() + " | " + apiDependents.get(0).getDependentCivilId());
+                }else {
+                    tvFirstDependent.setText(apiDependents.get(0).getDependentName() + "\n" + apiDependents.get(0).getRelationType() + " | " + apiDependents.get(0).getDependentCivilId());
+                }
+
             if (apiDependents.size() > 1) {
-                tvSecondDependent.setText(apiDependents.get(1).getDependentName() + "\n" + apiDependents.get(1).getRelationType() + " | " + apiDependents.get(1).getDependentCivilId());
+                if (isArabic){
+                    tvSecondDependent.setText(apiDependents.get(1).getDependentNameNls() + "\n" + apiDependents.get(1).getRelationType() + " | " + apiDependents.get(1).getDependentCivilId());
+                }else {
+                    tvSecondDependent.setText(apiDependents.get(1).getDependentName() + "\n" + apiDependents.get(1).getRelationType() + " | " + apiDependents.get(1).getDependentCivilId());
+                }
             } else {
                 tvSecondDependent.setText("");
                 ivSecondArrow.setVisibility(View.GONE);
             }
+            tvFirstDependent.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                   updateCurrentUser(String.valueOf(apiDependents.get(0).getDependentCivilId()));
+                }
+            });
+            tvSecondDependent.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    updateCurrentUser(String.valueOf(apiDependents.get(1).getDependentCivilId()));
+                }
+            });
         } else {
             tvFirstDependent.setText("");
             tvSecondDependent.setText("");
@@ -582,25 +709,33 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
         mAdapter = new PaginationRecyclerViewAdapter(HomeFragment.this, mContext);
         rvGrid.setLayoutManager(new GridLayoutManager(mContext, NUMBER_OF_COLUMNS));
         rvGrid.setItemAnimator(new DefaultItemAnimator());
+        LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(mContext, R.anim.delay_slide_down);
+        rvGrid.setLayoutAnimation(animation);
         rvGrid.setHasFixedSize(true);
         rvGrid.setAdapter(mAdapter);
     }
 
     private void displayAlert(String msg) {
+        menuListScrollView.setVisibility(View.GONE);
         rvGrid.setVisibility(View.GONE);
-        tvAlert.setVisibility(View.VISIBLE);
-        tvAlert.setText(msg);
+        personInfo.setVisibility(View.GONE);
+        String title = mContext.getResources().getString(R.string.alert_error_title);
+        String body = mContext.getResources().getString(R.string.alert_no_connection_body_1) + "\n" + mContext.getResources().getString(R.string.alert_connection_body2);
+        GlobalMethodsKotlin.Companion.showAlertDialog(mContext,title,body,mContext.getResources().getString(R.string.ok),R.drawable.ic_error);
     }
 
     @Override
     public <T> void onMyListItemClicked(T dataToPass, String dataTitle) {
         if (dataToPass instanceof DemographicsFragment) {
             mToolbarCallback.changeSideMenuToolBarVisibility(View.GONE);
-            mMediatorCallback.changeFragmentTo(DemographicsFragment.newInstance(responseHolder.getmResult().getmHome().getInstitutesArrayList()), dataTitle);
+            mMediatorCallback.changeFragmentTo(DemographicsFragment.newInstance(responseHolder.getmResult().getmHome().getInstitutesArrayList(),getPageTitle(responseHolder.getmResult().getmHome().getmMainMenus(),283)), dataTitle);
         } else if (dataToPass instanceof BodyMeasurementsFragment && responseHolder.getmResult().getmHome().getmRecentVitals() != null) {
             mToolbarCallback.changeSideMenuToolBarVisibility(View.GONE);
-            mMediatorCallback.changeFragmentTo(BodyMeasurementsFragment.newInstance(responseHolder.getmResult().getmHome().getmRecentVitals()), dataTitle);
-        } else {
+            mMediatorCallback.changeFragmentTo(BodyMeasurementsFragment.newInstance(responseHolder.getmResult().getmHome().getmRecentVitals(),getPageTitle(responseHolder.getmResult().getmHome().getmMainMenus(),284)), dataTitle);
+        }else if (dataToPass instanceof AppointmentsListFragment){
+            mToolbarCallback.changeSideMenuToolBarVisibility(View.GONE);
+            mMediatorCallback.changeFragmentTo(AppointmentsListFragment.newInstance(responseHolder.getmResult().getmHome().getInstitutesArrayList()), dataTitle);
+        }else {
             mToolbarCallback.changeSideMenuToolBarVisibility(View.GONE);
             mMediatorCallback.changeFragmentTo((Fragment) dataToPass, dataTitle);
         }
@@ -610,6 +745,19 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
     public <T> void onMyListItemClicked(T dataToPass, String dataTitle, int position) {
 
     }
+    private String getPageTitle(ArrayList<ApiHomeHolder.ApiMainMenus> mainMenus,int menuId){
+        String result = "";
+        for (ApiHomeHolder.ApiMainMenus menus : mainMenus){
+            if (menus.getMenuId() == menuId){
+                if (GlobalMethods.getStoredLanguage(mContext).equals(LANGUAGE_ARABIC))
+                    result = menus.getMenuNameNls();
+                else
+                    result = menus.getMenuName();
+            }
+        }
+        return result;
+    }
+
 
     public void expandCollapseBtn(View view) {
         Bitmap imgArrow = ((BitmapDrawable) getResources().getDrawable(R.drawable.ic_arrow_down)).getBitmap();
@@ -621,7 +769,12 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
                 if (imgBtn == imgArrow) {
 
                     myVital.setVisibility(View.GONE);
-                    myVitalExpandBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_arrow_right));
+                    if (getStoredLanguage().equals(LANGUAGE_ARABIC)){
+                        myVitalExpandBtn.setImageBitmap(flipImage());
+                    }else {
+                        myVitalExpandBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_arrow_right));
+                    }
+
                 } else {
 
                     myVital.setVisibility(View.VISIBLE);
@@ -634,7 +787,11 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
                 if (imgBtnApp == imgArrow) {
 
                     appointmentList.setVisibility(View.GONE);
-                    appointmentExpandBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_arrow_right));
+                    if (getStoredLanguage().equals(LANGUAGE_ARABIC)){
+                        appointmentExpandBtn.setImageBitmap(flipImage());
+                    }else {
+                        appointmentExpandBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_arrow_right));
+                    }
                 } else {
 
                     appointmentList.setVisibility(View.VISIBLE);
@@ -642,17 +799,21 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
                 }
                 break;
             case R.id.btn_notification_expand:
-                Bitmap imgBtnNot = ((BitmapDrawable) notificationExpandBtn.getDrawable()).getBitmap();
+               /* Bitmap imgBtnNot = ((BitmapDrawable) notificationExpandBtn.getDrawable()).getBitmap();
 
                 if (imgBtnNot == imgArrow) {
 
                     notificationList.setVisibility(View.GONE);
-                    notificationExpandBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_arrow_right));
+                    if (getStoredLanguage().equals(LANGUAGE_ARABIC)){
+                        notificationExpandBtn.setImageBitmap(flipImage());
+                    }else {
+                        notificationExpandBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_arrow_right));
+                    }
                 } else {
 
                     notificationList.setVisibility(View.VISIBLE);
                     notificationExpandBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_arrow_down));
-                }
+                }*/
                 break;
             case R.id.btn_updates_expand:
              /*   Bitmap imgBtnUpd = ((BitmapDrawable) updatesExpandBtn.getDrawable()).getBitmap();
@@ -660,7 +821,11 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
                 if (imgBtnUpd == imgArrow) {
 
                     updatesList.setVisibility(View.GONE);
-                    updatesExpandBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_arrow_right));
+                    if (getStoredLanguage().equals(LANGUAGE_ARABIC)){
+                        updatesExpandBtn.setImageBitmap(flipImage());
+                    }else {
+                        updatesExpandBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_arrow_right));
+                    }
                 } else {
 
                     updatesList.setVisibility(View.GONE);
@@ -673,7 +838,11 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
                 if (imgBtnChat == imgArrow) {
 
                     chatsList.setVisibility(View.GONE);
-                    chatsExpandBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_arrow_right));
+                    if (getStoredLanguage().equals(LANGUAGE_ARABIC)){
+                        chatsExpandBtn.setImageBitmap(flipImage());
+                    }else {
+                        chatsExpandBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_arrow_right));
+                    }
                 } else {
 
                     chatsList.setVisibility(View.VISIBLE);
@@ -683,7 +852,17 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
 
         }
     }
+    private Bitmap flipImage() {
+        Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(),R.drawable.ic_arrow_right);
+// create new matrix for transformation
+        Matrix matrix = new Matrix();
+        matrix.preScale(-1.0f, 1.0f);
 
+        Bitmap flipped_bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+
+        return flipped_bitmap;
+
+    }
 
     @Override
     public void onClick(View view) {
@@ -759,5 +938,21 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
     public void onDestroy() {
         super.onDestroy();
         viewFlipper.removeOnLayoutChangeListener(onLayoutChangeListener_viewFlipper);
+    }
+    private String getStoredLanguage() {
+        SharedPreferences sharedPref = mContext.getSharedPreferences(LANGUAGE_PREFS, Context.MODE_PRIVATE);
+        return sharedPref.getString(LANGUAGE_SELECTED, LANGUAGE_ARABIC);
+    }
+
+    private void updateCurrentUser(String civilId) {
+
+        Intent intent = new Intent(mContext, MainActivity.class);
+        intent.putExtra(DEPENDENT_CIVILID, civilId);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onRefresh() {
+        getDemographicResponse();
     }
 }

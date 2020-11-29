@@ -4,39 +4,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
-    <ImageView
-        android:id="@+id/iv_moreArrow"
-        android:layout_width="@dimen/space_24"
-        android:layout_height="@dimen/space_24"
-        android:src="@drawable/more_arrow"
-        android:tint="@color/colorRed"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/tvDate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/space_4"
-        android:text="Date"
-        android:textColor="@android:color/black"
-        android:textSize="@dimen/text_size_14sp"
-        app:layout_constraintStart_toEndOf="@id/iv_moreArrow"
-        app:layout_constraintTop_toTopOf="parent" />
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView_procContent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="20dp"
-        app:cardCornerRadius="10dp"
-        app:cardElevation="10dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:cardCornerRadius="0dp"
+        app:cardElevation="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvDate">
+        app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -49,9 +26,12 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
+                android:maxLines="1"
                 android:textAlignment="viewStart"
                 android:textColor="#000000"
                 android:textStyle="bold"
+                app:autoSizeMaxTextSize="14sp"
+                app:autoSizeMinTextSize="10sp"
                 app:layout_constraintBottom_toTopOf="@+id/tv_hospital_proc"
                 app:layout_constraintEnd_toStartOf="@+id/tv_date_proc"
                 app:layout_constraintHorizontal_bias="0.5"
@@ -60,8 +40,8 @@
 
             <ImageView
                 android:id="@+id/img_arrowDetails"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="13dp"
+                android:layout_height="8dp"
                 android:layout_marginEnd="8dp"
                 android:scaleType="fitCenter"
                 app:layout_constraintBottom_toBottomOf="parent"

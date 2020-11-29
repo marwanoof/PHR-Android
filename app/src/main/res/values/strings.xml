@@ -7,8 +7,6 @@
     <string name="alert_empty_field">This field can not be empty! </string>
     <string name="title_login">Login</string>
 
-    <string name="title_terms">    </string>
-
 
     <string name="title_accept">Accept</string>
     <string name="title_decline">Decline</string>
@@ -20,12 +18,10 @@
     <string name="title_medication">Medication</string>
     <string name="title_allergy">Allergy</string>
     <string name="title_appointments">Appointments</string>
-    <string name="credit_allergy_icon">Icons made by https://www.flaticon.com/authors/smashicons from https://www.flaticon.com/ is licensed by http://creativecommons.org/licenses/by/3.0/CC 3.0</string>
     <string name="title_immunization">Immunization</string>
-    <string name="path_immunization">M490.783,123.385L512,102.167L409.834,0l-21.217,21.217l14.933,14.933l-53.012,53.012l-54.535,-54.535l-21.217,21.217l29.849,29.849L69.032,321.297l25.113,25.113l-50.226,50.227l25.114,25.113L0,490.783L21.217,512l69.032,-69.032l25.114,25.114l50.226,-50.226l25.113,25.113l235.603,-235.603l29.85,29.849l21.217,-21.217l-54.534,-54.535l53.012,-53.012L490.783,123.385zM115.363,425.646l-29.009,-29.009l29.009,-29.009l29.009,29.009L115.363,425.646zM190.703,400.533l-79.236,-79.236l30.285,-30.285l18.28,18.281l21.218,-21.217l-18.281,-18.281l21.457,-21.457l18.281,18.281l21.217,-21.218l-18.281,-18.28l21.458,-21.458l79.236,79.236L190.703,400.533zM327.555,263.681l-79.236,-79.236l21.457,-21.458l18.281,18.281l21.218,-21.217l-18.281,-18.281l34.857,-34.858l79.236,79.236L327.555,263.681zM401.621,140.246l-29.866,-29.866l53.012,-53.012l29.866,29.866L401.621,140.246z</string>
     <string name="title_notification">Notification</string>
     <string name="title_logout">Logout</string>
-    <string name="alert_no_connection">Error : no internet connection</string>
+    <string name="alert_no_connection">There is no internet connection</string>
     <string name="title_dependent_of">Dependents of </string>
     <string name="title_linked_institutes">Linked Institutes</string>
     <string name="title_pending">Pending</string>
@@ -53,13 +49,9 @@
     <string name="img_desc_pagination_icon">Pagination icon</string>
 
 
-    <string name="title_prev_1">Prev 1</string>
-    <string name="title_prev_2">Prev 2</string>
     <string name="title_recent">Recent</string>
     <string name="title_vital_signs">Vital Signs</string>
 
-    <string name="title_prev_4">Prev 4</string>
-    <string name="title_prev_3">Prev 3</string>
     <string name="title_appointments_date_and_time">Appointments Date and Time</string>
     <string name="alert_not_available">Not Available</string>
     <string name="title_select_department">Select Department</string>
@@ -67,7 +59,6 @@
     <string name="title_remarks">Remarks</string>
     <string name="title_appointment_confirm_message">Are you sure you want to request for an appointment on</string>
     <string name="title_confirm">Confirm</string>
-    <string name="test_appointments">Hypertension Unit B | 01-jan-2020 | 09:50 | Al Wadi Al Kabeer Health Center</string>
     <string name="title_referrals">Referrals</string>
     <string name="title_reschedule">Reschedule</string>
     <string name="title_cancel">Cancel</string>
@@ -79,8 +70,6 @@
     <!--FCM-->
     <string name="default_notification_channel_id" translatable="false">Chat</string>
     <string name="default_notification_channel_name" translatable="true">Chat</string>
-    <string name="msg_token_fmt" translatable="false">InstanceID Token: %s</string>
-    <string name="fcm_message">FCM Message</string>
     <string name="channel_chat">Chat</string>
     <string name="channel_chat_desc">This is chat channel, you can enable/disable chat notification using this channel.</string>
     <string name="channel_lab">Lab</string>
@@ -205,7 +194,7 @@
     <string name="title_update">Update</string>
     <string name="other_commets">Other Comments..</string>
     <string name="name_of_the_family_member_aware_of_your_wish"><font size="10">Name of the family member aware of your wish</font></string>
-    <string name="i_with_below_details_express_my_wish_to_donate_my_organs_after_death_to_be_implanted_fo_a_patient_in_need">I with below details express my wish to donate my organs after death to be implanted fo a patient in need.</string>
+    <string name="oragen_statment">I with below details express my wish to donate my organs to be implanted for a patient in need</string>
     <string name="mobile_no_of_the_family_member">Mobile No. of the family member</string>
     <string name="select_relation_msg">Please select the relation !</string>
     <string name="title_chat_list">Doctors List</string>
@@ -220,4 +209,36 @@
     <string name="save">Save</string>
     <string name="unread_messages">Unread Messages</string>
     <string name="visit_date">Visit date</string>
+    <string name="no_medical_history">There are no allergy records,medical history, or final diagnosis recorded for you</string>
+    <string name="msg_no_vital">There is no data recorded for this vital</string>
+    <string name="visit_details">Visit Details</string>
+    <string name="completed">Completed</string>
+    <string name="take_medicine">Take</string>
+    <string name="no_visit_details">There is no visit details</string>
+    <string name="add_new_document">Add New Document</string>
+    <string name="no_recodrs_dialog">There are no records found</string>
+
+    <string name="no_records_lab_all">No lab orders are available for you</string>
+    <string name="no_records_lab_recent">No recent lab orders available</string>
+    <string name="no_records_lab_encounter">No Lab orders found for this visit</string>
+
+    <string name="no_records_med_all">No prescriptions are available for you</string>
+    <string name="no_records_med_recent">"No recent prescriptions available"</string>
+    <string name="no_records_med_encounter">No prescriptions found for this visit</string>
+
+    <string name="no_records_rad">No radiology orders found for this visit</string>
+
+    <string name="no_records_proc_all">No procedure orders are available for you</string>
+    <string name="no_records_proc_recent">"No recent procedures available"</string>
+    <string name="no_records_proc_encounter">No procedures order found for this visit</string>
+    <string name="alert_no_connection_body_1">There is no internet connection</string>
+    <string name="alert_connection_body2">Please check connection and try again</string>
+    <string name="alert_error_title">Error</string>
+    <string name="no_records_imm_given">No Immunization has been given to you</string>
+    <string name="no_records_imm_schedule">There is no scheduled immunization for you</string>
+    <string name="wrong_msg">Something went wrong. Please try again</string>
+    <string name="decide_later">Decide Later</string>
+    <string name="i_want_donate">I would like to donate after death?</string>
+    <string name="no_doc_type_found">No documents types found. Please try again.</string>
+    <string name="saved_successfully">The data has been saved successfully.</string>
 </resources>

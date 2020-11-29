@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/swipe_refresh_layout"
@@ -9,32 +9,71 @@
     tools:context=".fragments.VitalInfoFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:id="@+id/constraintLayout5"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_conversion_absoluteHeight="731dp"
+        tools:layout_conversion_absoluteWidth="411dp">
 
         <include
             android:id="@+id/include"
             layout="@layout/toolbar_simple"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="56dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:layout_conversion_absoluteHeight="56dp"
+            tools:layout_conversion_absoluteWidth="411dp" />
 
         <ScrollView
             android:id="@+id/scroll_view"
-            android:layout_width="@dimen/space_0"
-            android:layout_height="@dimen/space_0"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/include">
+            app:layout_constraintTop_toBottomOf="@+id/include"
+            tools:layout_conversion_absoluteHeight="675dp"
+            tools:layout_conversion_absoluteWidth="411dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/medicalHistoryConstraintLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:paddingBottom="10dp">
+
+                <LinearLayout
+                    android:id="@+id/ll_no_record"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="50dp"
+                    android:orientation="vertical"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:visibility="gone">
+
+                    <ImageView
+                        android:id="@+id/imageView11"
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        android:layout_gravity="center_horizontal"
+                        android:src="@drawable/ic_no_records" />
+
+                    <TextView
+                        android:id="@+id/textView4"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="@string/no_medical_history" />
+                </LinearLayout>
 
                 <LinearLayout
                     android:id="@+id/ll_allergy"
@@ -47,13 +86,24 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
 
+                    <ImageView
+                        android:id="@+id/imageView8"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:layout_marginEnd="5dp"
+                        android:layout_weight="0"
+                        android:src="@drawable/ic_allergy"
+                        android:tint="@color/colorSecendary" />
+
                     <TextView
                         android:id="@+id/tv_allergy"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
+                        android:layout_gravity="center_vertical"
                         android:layout_marginEnd="@dimen/space_16"
                         android:layout_weight="2"
+                        android:gravity="center_vertical"
                         android:text="@string/title_allergy"
                         android:textAllCaps="true"
                         android:textColor="@color/colorSecendary"
@@ -63,6 +113,7 @@
                         android:id="@+id/btn_allergy_expand"
                         android:layout_width="15dp"
                         android:layout_height="15dp"
+                        android:layout_gravity="center"
                         android:layout_weight="0"
                         android:background="#00FFFFFF"
                         android:scaleType="fitEnd"
@@ -76,17 +127,19 @@
                     android:layout_marginStart="20dp"
                     android:layout_marginTop="5dp"
                     android:layout_marginEnd="20dp"
+                    android:layout_marginBottom="20dp"
                     app:cardCornerRadius="10dp"
                     app:cardElevation="10dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/ll_allergy">
+                    app:layout_constraintTop_toBottomOf="@+id/ll_allergy"
+                    app:layout_constraintVertical_bias="0.0">
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv_allergy_recycler_view"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="8dp">
+                        android:layout_height="wrap_content">
 
                     </androidx.recyclerview.widget.RecyclerView>
                 </androidx.cardview.widget.CardView>
@@ -103,15 +156,25 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/cardView_allergy">
 
+                    <ImageView
+                        android:id="@+id/imageView9"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:layout_marginEnd="5dp"
+                        android:layout_weight="0"
+                        android:src="@drawable/ic_history"
+                        android:tint="@color/colorSecendary" />
+
                     <TextView
                         android:id="@+id/tv_history"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
                         android:layout_marginEnd="@dimen/space_16"
                         android:layout_weight="2"
+                        android:gravity="center_vertical"
                         android:text="@string/title_history"
-                       android:textAllCaps="true"
+                        android:textAllCaps="true"
                         android:textColor="@color/colorSecendary"
                         android:textSize="@dimen/text_size_16sp" />
 
@@ -119,6 +182,7 @@
                         android:id="@+id/btn_medicalhistory_expand"
                         android:layout_width="15dp"
                         android:layout_height="15dp"
+                        android:layout_gravity="center"
                         android:layout_weight="0"
                         android:background="#00FFFFFF"
                         android:scaleType="fitEnd"
@@ -132,17 +196,19 @@
                     android:layout_marginStart="20dp"
                     android:layout_marginTop="5dp"
                     android:layout_marginEnd="20dp"
+                    android:layout_marginBottom="20dp"
                     app:cardCornerRadius="10dp"
-                    app:cardElevation="10dp"
+                    app:cardElevation="8dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/ll_history">
+                    app:layout_constraintTop_toBottomOf="@+id/ll_history"
+                    app:layout_constraintVertical_bias="0.0">
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv_history_recycler_view"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="8dp" />
+                        android:layout_height="wrap_content" />
                 </androidx.cardview.widget.CardView>
 
                 <LinearLayout
@@ -156,6 +222,16 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/cardView_medical">
+
+                    <ImageView
+                        android:id="@+id/imageView10"
+                        android:layout_width="20dp"
+                        android:layout_height="@dimen/space_20dp"
+                        android:layout_gravity="center"
+                        android:layout_marginEnd="5dp"
+                        android:layout_weight="0"
+                        android:src="@drawable/ic_diagnosis"
+                        android:tint="@color/colorSecendary" />
 
                     <TextView
                         android:id="@+id/tv_problem"
@@ -172,6 +248,7 @@
                         android:id="@+id/btn_final_expand"
                         android:layout_width="15dp"
                         android:layout_height="15dp"
+                        android:layout_gravity="center"
                         android:layout_weight="0"
                         android:background="#00FFFFFF"
                         android:scaleType="fitEnd"
@@ -187,7 +264,7 @@
                     android:layout_marginEnd="20dp"
                     android:layout_marginBottom="20dp"
                     app:cardCornerRadius="10dp"
-                    app:cardElevation="10dp"
+                    app:cardElevation="8dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -196,8 +273,7 @@
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv_problem_recycler_view"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:padding="8dp" />
+                        android:layout_height="wrap_content" />
                 </androidx.cardview.widget.CardView>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -205,9 +281,8 @@
 
         <TextView
             android:id="@+id/tv_alert"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_32"
             android:fontFamily="@font/roboto_regular"
             android:text="@string/alert_no_connection"
             android:textAlignment="center"
@@ -216,6 +291,10 @@
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/scroll_view" />
+            app:layout_constraintTop_toBottomOf="@+id/scroll_view"
+            tools:layout_conversion_absoluteHeight="0dp"
+            tools:layout_conversion_absoluteWidth="0dp"
+            tools:layout_editor_absoluteX="0dp"
+            tools:layout_editor_absoluteY="731dp" />
     </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

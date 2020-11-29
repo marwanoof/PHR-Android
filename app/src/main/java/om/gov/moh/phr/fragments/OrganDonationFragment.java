@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
@@ -18,6 +19,8 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,6 +48,7 @@ import om.gov.moh.phr.apimodels.ApiOrganDonationHolder;
 import om.gov.moh.phr.apimodels.ApiRelationMaster;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
+import om.gov.moh.phr.models.GlobalMethodsKotlin;
 import om.gov.moh.phr.models.MyProgressDialog;
 import om.gov.moh.phr.models.UserEmailFetcher;
 
@@ -62,6 +66,7 @@ public class OrganDonationFragment extends Fragment {
 
     private static final String API_URL_GET_RELATION_MAST = API_NEHR_URL + "master/relation";
     private static final String API_URL_GET_ORGAN = API_NEHR_URL + "donation/findByCivilId";
+    private static final String PARAM1 = "PARAM1";
     private Context mContext;
     private ToolbarControllerInterface mToolbarControllerCallback;
     private MediatorInterface mMediatorCallback;
@@ -77,6 +82,10 @@ public class OrganDonationFragment extends Fragment {
     private int mRelationCode;
     private Long mDonerID = null;
     private boolean isAllChecked = true;
+    private RadioGroup radioGroup;
+    private RadioButton radioButtonYes, radioButtonNo, radioButtonD;
+    private String afterDeath = "D";
+    private String pageTitle;
 
     public OrganDonationFragment() {
         // Required empty public constructor
@@ -90,13 +99,21 @@ public class OrganDonationFragment extends Fragment {
         mToolbarControllerCallback = (ToolbarControllerInterface) context;
     }
 
-    public static OrganDonationFragment newInstance() {
+    public static OrganDonationFragment newInstance(String title) {
 
         Bundle args = new Bundle();
-
+        args.putSerializable(PARAM1,title);
         OrganDonationFragment fragment = new OrganDonationFragment();
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null){
+            pageTitle = (String) getArguments().getSerializable(PARAM1);
+        }
     }
 
     @Override
@@ -112,7 +129,7 @@ public class OrganDonationFragment extends Fragment {
             }
         });
         TextView tvToolBarTitle = parentView.findViewById(R.id.tv_toolbar_title);
-        String title = getString(R.string.title_organ);
+        String title = pageTitle;
         tvToolBarTitle.setText(title);
         mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
         relationMastArrayList = new ArrayList<>();
@@ -136,6 +153,11 @@ public class OrganDonationFragment extends Fragment {
         relation = parentView.findViewById(R.id.et_releation_organ);
 
         email.setText(UserEmailFetcher.getEmail(mContext));
+
+        radioGroup = parentView.findViewById(R.id.radioGroup);
+        radioButtonYes = parentView.findViewById(R.id.radioButtonYes);
+        radioButtonNo = parentView.findViewById(R.id.radioButtonNo);
+        radioButtonD = parentView.findViewById(R.id.radioButtonD);
 
         allOrgans.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -213,6 +235,29 @@ public class OrganDonationFragment extends Fragment {
                 mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
             }
         });
+
+
+
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch (checkedId){
+                    case 2131296758:
+                        afterDeath = "Y";
+                        break;
+                    case 2131296757:
+                        afterDeath = "N";
+                        break;
+                    case 2131296756:
+                        afterDeath = "D";
+                        break;
+                    default:
+                        break;
+                }
+                System.out.println(afterDeath);
+            }
+        });
+
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -232,7 +277,9 @@ public class OrganDonationFragment extends Fragment {
         return parentView;
     }
 
+
     public void saveOrgan() {
+
         mProgressDialog.showDialog();
         // showing refresh animation before making http call
 
@@ -246,10 +293,11 @@ public class OrganDonationFragment extends Fragment {
                 Log.d("organDonation", response.toString());
                 try {
                     if (response.getInt(API_RESPONSE_CODE) == 0) {
-                        Toast.makeText(mContext, "Saved Successfully.", Toast.LENGTH_SHORT).show();
-                        mToolbarControllerCallback.customToolbarBackButtonClicked();
+                        showSuccessfulAlert();
+                       // Toast.makeText(mContext, "Saved Successfully.", Toast.LENGTH_SHORT).show();
+                        //mToolbarControllerCallback.customToolbarBackButtonClicked();
                     } else
-                        Toast.makeText(mContext, response.getString(API_RESPONSE_MESSAGE), Toast.LENGTH_SHORT).show();
+                        GlobalMethodsKotlin.Companion.showAlertErrorDialog(mContext);
 
                 } catch (JSONException e) {
 //                    Log.d("enc", e.getMessage());
@@ -293,6 +341,12 @@ public class OrganDonationFragment extends Fragment {
         mQueue.add(jsonObjectRequest);
     }
 
+    private void showSuccessfulAlert() {
+        String title = "";
+        String body = mContext.getResources().getString(R.string.saved_successfully);
+        GlobalMethodsKotlin.Companion.showAlertDialog(mContext,title,body,mContext.getResources().getString(R.string.ok),R.drawable.ic_successful);
+    }
+
     private JSONObject getJSONRequestParams() {
         Map<String, Object> params = new HashMap<>();
         params.put("civilId", mMediatorCallback.getCurrentUser().getCivilId());
@@ -326,9 +380,11 @@ public class OrganDonationFragment extends Fragment {
         params.put("relationCode", mRelationCode);
         if (!etMobileNoOfFamilyMember.getText().toString().trim().isEmpty())
             params.put("relationContactNo", Long.parseLong(etMobileNoOfFamilyMember.getText().toString()));
-        Log.d("organDonation", params.toString());
+
         if (mDonerID != null)
             params.put("donorId", mDonerID);
+
+        params.put("afterDeathYn", afterDeath);
         return new JSONObject(params);
     }
 
@@ -354,7 +410,7 @@ public class OrganDonationFragment extends Fragment {
                         getOrganDonationData();
 
                     } else
-                        Toast.makeText(mContext, response.getString(API_RESPONSE_MESSAGE), Toast.LENGTH_SHORT).show();
+                        GlobalMethodsKotlin.Companion.showAlertErrorDialog(mContext);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -364,7 +420,8 @@ public class OrganDonationFragment extends Fragment {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("resp-demographic", error.toString());
+
+                GlobalMethodsKotlin.Companion.showAlertErrorDialog(mContext);
                 error.printStackTrace();
 
             }
@@ -424,7 +481,7 @@ public class OrganDonationFragment extends Fragment {
                     if (response.getInt(API_RESPONSE_CODE) == 0) {
                         Gson gson = new Gson();
                         ApiOrganDonationHolder responseHolder = gson.fromJson(response.toString(), ApiOrganDonationHolder.class);
-                        Log.d("organDonation", response.toString());
+
                         setupForm(responseHolder.getResult());
                     }
                 } catch (JSONException e) {
@@ -437,7 +494,7 @@ public class OrganDonationFragment extends Fragment {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("resp-demographic", error.toString());
+                GlobalMethodsKotlin.Companion.showAlertErrorDialog(mContext);
                 error.printStackTrace();
                 mProgressDialog.dismissDialog();
             }
@@ -491,6 +548,18 @@ public class OrganDonationFragment extends Fragment {
             corneas.setChecked(true);
 
         mDonerID = result.getDonorId();
+
+        switch (result.getAfterDeathYn()){
+            case "Y":
+                radioButtonYes.setChecked(true);
+                break;
+            case "N":
+                radioButtonNo.setChecked(true);
+                break;
+            case "D":
+                radioButtonD.setChecked(true);
+                break;
+        }
 
         etMobileNoOfFamilyMember.setText(String.valueOf(result.getRelationContactNo()));
 

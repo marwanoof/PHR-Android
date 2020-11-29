@@ -43,6 +43,7 @@ import om.gov.moh.phr.R;
 import om.gov.moh.phr.adapters.AppointmentsListRecyclerViewAdapter;
 import om.gov.moh.phr.adapters.RefferalsListRecyclerViewAdapter;
 import om.gov.moh.phr.apimodels.ApiAppointmentsListHolder;
+import om.gov.moh.phr.apimodels.ApiHomeHolder;
 import om.gov.moh.phr.dialogfragments.CancelAppointmentDialogFragment;
 import om.gov.moh.phr.interfaces.AdapterToFragmentConnectorInterface;
 import om.gov.moh.phr.interfaces.AppointmentsListInterface;
@@ -73,16 +74,17 @@ public class AppointmentsListFragment extends Fragment implements AdapterToFragm
     private TextView tvNoRefferals;
     private RecyclerView recyclerView;
     private RecyclerView rvRefferalls;
-
+    private static final String ARG_PARAM1 = "ARG_PARAM1";
+    private ArrayList<ApiHomeHolder.Patients> patientsArrayList;
     public AppointmentsListFragment() {
         // Required empty public constructor
     }
 
 
-    public static AppointmentsListFragment newInstance() {
+    public static AppointmentsListFragment newInstance(ArrayList<ApiHomeHolder.Patients> patients) {
         AppointmentsListFragment fragment = new AppointmentsListFragment();
         Bundle args = new Bundle();
-//        args.putString(ARG_PARAM1, param1);
+        args.putSerializable(ARG_PARAM1, patients);
         fragment.setArguments(args);
         return fragment;
     }
@@ -90,6 +92,9 @@ public class AppointmentsListFragment extends Fragment implements AdapterToFragm
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (getArguments() != null){
+            patientsArrayList = (ArrayList<ApiHomeHolder.Patients>) getArguments().getSerializable(ARG_PARAM1);
+        }
     }
 
     @Override
@@ -111,11 +116,17 @@ public class AppointmentsListFragment extends Fragment implements AdapterToFragm
 
         //simple toolbar
         ImageButton ibToolbarBackButton = parentView.findViewById(R.id.ib_toolbar_back_button);
-        ibToolbarBackButton.setVisibility(View.GONE);
+        ibToolbarBackButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mToolbarControllerCallback.customToolbarBackButtonClicked();
+            }
+        });
+        //ibToolbarBackButton.setVisibility(View.GONE);
         tvNoAppointmentAlert = parentView.findViewById(R.id.tv_no_appointment_alert);
         tvNoRefferals = parentView.findViewById(R.id.tv_no_refferals_alert);
-        ImageButton ibRefresh = parentView.findViewById(R.id.ib_refresh);
-        ibRefresh.setVisibility(View.VISIBLE);
+        //ImageButton ibRefresh = parentView.findViewById(R.id.ib_refresh);
+        //ibRefresh.setVisibility(View.VISIBLE);
         recyclerView = parentView.findViewById(R.id.recycler_view);
         rvRefferalls = parentView.findViewById(R.id.rv_referral);
         swipeRefreshLayout = parentView.findViewById(R.id.swipe_refresh_layout);
@@ -128,12 +139,12 @@ public class AppointmentsListFragment extends Fragment implements AdapterToFragm
                                     }
                                 }
         );
-        ibRefresh.setOnClickListener(new View.OnClickListener() {
+        /*ibRefresh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 getAppointmentsList();
             }
-        });
+        });*/
 
         TextView tvToolBarTitle = parentView.findViewById(R.id.tv_toolbar_title);
         tvToolBarTitle.setText(getString(R.string.title_appointments));
@@ -144,9 +155,9 @@ public class AppointmentsListFragment extends Fragment implements AdapterToFragm
             @Override
             public void onClick(View v) {
 
-                AppointmentNewFragment fragment = AppointmentNewFragment.newInstance();
-
-                AppointmentsListInterface listener = new AppointmentsListInterface() {
+                AppointmentNewFragment fragment = AppointmentNewFragment.newInstance(patientsArrayList);
+                mMediatorCallback.changeFragmentTo(fragment, AppointmentNewFragment.class.getSimpleName());
+               /* AppointmentsListInterface listener = new AppointmentsListInterface() {
                     @Override
                     public void onItemsChanged(int position) {
                         if (mMediatorCallback.isConnected()) {
@@ -158,7 +169,7 @@ public class AppointmentsListFragment extends Fragment implements AdapterToFragm
 
                 fragment.setAppointmentListListener(listener);
 
-                mMediatorCallback.changeFragmentTo(fragment, AppointmentNewFragment.class.getSimpleName());
+                mMediatorCallback.changeFragmentTo(fragment, AppointmentNewFragment.class.getSimpleName());*/
             }
         });
 

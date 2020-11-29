@@ -1,6 +1,7 @@
 package om.gov.moh.phr.adapters;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,9 @@ import java.util.ArrayList;
 
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.interfaces.AdapterToFragmentConnectorInterface;
+import om.gov.moh.phr.models.GlobalMethods;
+
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_ARABIC;
 
 
 public class YearsRecyclerViewAdapter extends
@@ -21,6 +25,7 @@ public class YearsRecyclerViewAdapter extends
     private Context mContext;
     private AdapterToFragmentConnectorInterface mCallback;
     private ArrayList<String> mYearsList = new ArrayList<>();
+    private int selectedPosition = 0;
 
     //the constructor of the LastRecordsRecyclerViewAdapter
     public YearsRecyclerViewAdapter(AdapterToFragmentConnectorInterface fragment, Context context) {
@@ -41,7 +46,21 @@ public class YearsRecyclerViewAdapter extends
     @Override
     public void onBindViewHolder(@NonNull YearsRecyclerViewAdapter.MyViewHolder holder, final int position) {
         final String result = mYearsList.get(position);
-        holder.tvYear.setText(result);
+        if (position == selectedPosition){
+            holder.setSelected();
+        }else {
+            holder.setUnselected();
+        }
+
+        if (position > 0){
+            if (GlobalMethods.getStoredLanguage(mContext).equals(LANGUAGE_ARABIC))
+                holder.tvYear.setText(GlobalMethods.convertToEnglishNumber(result));
+            else
+                holder.tvYear.setText(result);
+        }else
+            holder.tvYear.setText(result);
+
+
     }
 
 
@@ -59,6 +78,7 @@ public class YearsRecyclerViewAdapter extends
         return mYearsList.get(position);
     }
 
+
     public class MyViewHolder extends RecyclerView.ViewHolder {
         private final TextView tvYear;
         private final View yearView;
@@ -74,10 +94,20 @@ public class YearsRecyclerViewAdapter extends
                     //yearView.setBackground(mContext.getResources().getDrawable(R.drawable.shape_rect_year_red));
                     int position = getAdapterPosition();
                     if (position != RecyclerView.NO_POSITION) {
+                        selectedPosition = position;
+                        notifyDataSetChanged();
                         mCallback.onMyListItemClicked(getItemAt(position), null);
                     }
                 }
             });
+        }
+        public void setSelected(){
+            yearView.setBackground(mContext.getDrawable(R.drawable.shape_rect_year_red));
+            tvYear.setTextColor(Color.WHITE);
+        }
+        public void setUnselected(){
+            yearView.setBackground(mContext.getDrawable(R.drawable.shape_rect_year));
+            tvYear.setTextColor(Color.BLACK);
         }
     }
 

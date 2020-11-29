@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.appcompat.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/tb_toolbar_simple"
     android:layout_width="match_parent"
     android:layout_height="@dimen/space_56"
@@ -29,7 +30,6 @@
             android:contentDescription="@string/img_desc_back_icon"
             android:tint="@color/colorRed"
             app:layout_constraintBottom_toBottomOf="@+id/tv_toolbar_title"
-            app:layout_constraintEnd_toStartOf="@+id/tv_toolbar_title"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/tv_toolbar_title"
             app:srcCompat="@drawable/ic_arrow_back" />
@@ -38,7 +38,6 @@
             android:id="@+id/tv_toolbar_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/roboto_regular"
             android:textColor="@color/colorRed"
             android:textSize="@dimen/text_size_20sp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -53,7 +52,7 @@
             android:src="@drawable/ic_refresh"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
-           app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <Switch
@@ -61,6 +60,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:backgroundTint="@color/colorGray"
+            android:fontFamily="@font/sky"
             android:text="@string/publish"
             android:textColor="@color/colorTimeItemGray"
             android:textSize="@dimen/text_size_12sp"
@@ -82,7 +82,7 @@
 
         <View
             android:id="@+id/view11"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="1dp"
             android:background="#ECEBEB"
             app:layout_constraintBottom_toBottomOf="parent"

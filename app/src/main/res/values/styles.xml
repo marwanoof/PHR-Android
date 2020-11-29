@@ -8,10 +8,21 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
         <item name="android:textViewStyle">@style/SkyTextViewStyle</item>
+        <item name="android:searchViewStyle">@style/SkySearchViewStyle</item>
+<!--        <item name="android:spinnerDropDownItemStyle">@style/SkySpinnerStyle</item>-->
 <!--        <item name="android:button">@style/SkyBottonStyle</item>-->
     </style>
 
     <style name="SkyTextViewStyle" parent="android:Widget.TextView">
+        <item name="android:fontFamily">@font/sky</item>
+    </style>
+
+    <style name="SkySpinnerStyle" parent="android:Widget.Spinner.DropDown">
+        <item name="android:fontFamily">@font/sky</item>
+        <item name="android:spinnerDropDownItemStyle">@android:style/Widget.Material.Light.Spinner.Underlined</item>
+    </style>
+
+    <style name="SkySearchViewStyle" parent="android:Widget.Material.SearchView">
         <item name="android:fontFamily">@font/sky</item>
     </style>
 

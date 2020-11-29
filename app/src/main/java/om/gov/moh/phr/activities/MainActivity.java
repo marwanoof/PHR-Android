@@ -1,5 +1,6 @@
 package om.gov.moh.phr.activities;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.FragmentManager;
@@ -12,8 +13,11 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -36,6 +40,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -109,11 +114,13 @@ import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
 import om.gov.moh.phr.models.AppCurrentUser;
 import om.gov.moh.phr.models.AppLanguage;
 import om.gov.moh.phr.models.ComponentConstants;
+import om.gov.moh.phr.models.CustomTypefaceSpan;
 import om.gov.moh.phr.models.HomePagerAdapter;
 import om.gov.moh.phr.models.MyProgressDialog;
 import om.gov.moh.phr.models.NetworkUtility;
 import om.gov.moh.phr.models.ViewPagerCustomDuration;
 
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static om.gov.moh.phr.models.MyConstants.API_ANDROID_APP_CODE;
 import static om.gov.moh.phr.models.MyConstants.API_ANDROID_FLAG;
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_ACCESS_TOKEN;
@@ -173,7 +180,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
     private DataUpdateReceiver dataUpdateReceiver;
     private String menus;
     private HomeFragment homeFragment;
-
+    final int callbackId = 42;
     //FCM
     public static boolean checkPlayServices(Activity activity) {
         final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
@@ -211,7 +218,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         storeLanguage(currentLanguage);
         setAppLanguage(currentLanguage);
         requestNotificationPermission();
-
+        checkPermission(callbackId, Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR);
         homeFragment = new HomeFragment();
         //steps to change status bar color << start >>
         Window window = getWindow();
@@ -285,7 +292,15 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         }
 
     }
+    private void checkPermission(int callbackId, String... permissionsId) {
+        boolean permissions = true;
+        for (String p : permissionsId) {
+            permissions = permissions && ContextCompat.checkSelfPermission(this, p) == PERMISSION_GRANTED;
+        }
 
+        if (!permissions)
+            ActivityCompat.requestPermissions(this, permissionsId, callbackId);
+    }
     private void setUpNavigationView() {
         NavigationView navigationView = findViewById(R.id.nav_view);
         Menu menu = navigationView.getMenu();
@@ -293,6 +308,20 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         SharedPreferences sharedPrefSideMenu = mContext.getSharedPreferences(PREFS_SIDE_MENU, Context.MODE_PRIVATE);
         menus = sharedPrefSideMenu.getString(PARAM_SIDE_MENU, "");
         Log.d("sideMenu", menus);
+        String arabicMenuItem = getResources().getString(R.string.arabic);
+        menu.findItem(R.id.nav_arabic).setTitle(applyFontToMenuItem(arabicMenuItem));
+
+        String englishMenuItem = getResources().getString(R.string.english);
+        menu.findItem(R.id.nav_english).setTitle(applyFontToMenuItem(englishMenuItem));
+
+        String aboutMenuItem = getResources().getString(R.string.about_the_app);
+        menu.findItem(R.id.nav_about).setTitle(applyFontToMenuItem(aboutMenuItem));
+
+        String feedbackMenuItem = getResources().getString(R.string.phr_feedback);
+        menu.findItem(R.id.nav_feedback).setTitle(applyFontToMenuItem(feedbackMenuItem));
+
+        String logoutMenuItem = getResources().getString(R.string.title_logout);
+        menu.findItem(R.id.nav_logout).setTitle(applyFontToMenuItem(logoutMenuItem));
         try {
             JSONArray array = new JSONArray(menus);
             for (int i = 0; i < array.length(); i++) {
@@ -304,6 +333,28 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
                 String nav_Url = jsonObj.getString("templateUrl");
                 String nav_Url_ar = jsonObj.getString("templateUrlNls");
                 if (nav_icon.contains("sm_bmi")) {  // the resource exists...
+                    menu.add(Menu.NONE, nav_id, Menu.NONE, applyFontToMenuItem(getResources().getString(R.string.bmi_calculator))).setIcon(R.drawable.bmi_ic);
+                } else if (nav_icon.contains("sm_righ")) {  // the resource exists...
+                    menu.add(Menu.NONE, nav_id, Menu.NONE, applyFontToMenuItem(getResources().getString(R.string.patients_rights))).setIcon(R.drawable.terms_of_use_ic);
+                } else if (nav_icon.contains("sm_faci")) {  // the resource exists...
+                    menu.add(Menu.NONE, nav_id, Menu.NONE, applyFontToMenuItem(getResources().getString(R.string.heath_facilities))).setIcon(R.drawable.svg_ic_institute);
+                } else if (nav_icon.contains("sm_phar")) {  // the resource exists...
+                    menu.add(Menu.NONE, nav_id, Menu.NONE, applyFontToMenuItem(getResources().getString(R.string.find_pharmacy))).setIcon(R.drawable.search_pharmacy);
+                } else if (nav_icon.contains("sm_edd")) {  // the resource exists...
+                    menu.add(Menu.NONE, nav_id, Menu.NONE, applyFontToMenuItem(getResources().getString(R.string.edd_calculator))).setIcon(R.drawable.edd_ic);
+                } else if (nav_icon.contains("sm_form")) {  // the resource exists...
+                    menu.add(Menu.NONE, nav_id, Menu.NONE, applyFontToMenuItem(getResources().getString(R.string.forms))).setIcon(R.drawable.forms);
+                } else if (nav_icon.contains("sm_ask")) {  // the resource exists...
+                    menu.add(Menu.NONE, nav_id, Menu.NONE, applyFontToMenuItem(getResources().getString(R.string.ask_doctor))).setIcon(R.drawable.ask_doctor);
+                } else if (nav_icon.contains("sm_educ")) {  // the resource exists...
+                    menu.add(Menu.NONE, nav_id, Menu.NONE, applyFontToMenuItem(getResources().getString(R.string.health_education))).setIcon(R.drawable.health_education);
+                } else {  // checkExistence == 0  // the resource does NOT exist!!
+                    if (getStoredLanguage().equals(LANGUAGE_ENGLISH))
+                        menu.add(Menu.NONE, nav_id, Menu.NONE, applyFontToMenuItem(nav_name)).setIcon(R.drawable.terms_of_use_ic);
+                    else
+                        menu.add(Menu.NONE, nav_id, Menu.NONE, applyFontToMenuItem(nav_name_ar)).setIcon(R.drawable.terms_of_use_ic);
+                }
+                /*if (nav_icon.contains("sm_bmi")) {  // the resource exists...
                     if (getStoredLanguage().equals(LANGUAGE_ENGLISH))
                         menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name).setIcon(R.drawable.bmi_ic);
                     else
@@ -348,7 +399,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
                         menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name).setIcon(R.drawable.terms_of_use_ic);
                     else
                         menu.add(Menu.NONE, nav_id, Menu.NONE, nav_name_ar).setIcon(R.drawable.terms_of_use_ic);
-                }
+                }*/
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -753,7 +804,15 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
                     .commit();
         }
     }
-
+    private SpannableString applyFontToMenuItem(String mi) {
+        Typeface font = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            font = getResources().getFont(R.font.sky);
+        }
+        SpannableString mNewTitle = new SpannableString(mi);
+        mNewTitle.setSpan(new CustomTypefaceSpan("", font), 0, mNewTitle.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+        return mNewTitle;
+    }
     private void logout() {
         displayLogoutDialog();
     }
@@ -1029,10 +1088,10 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
                         String deviceId = task.getResult().getToken();
 
                         registerDevice(deviceId);
-                        Log.d(TAG + "deviceID", deviceId);
-                        // Log and toast
-                        String msg = getString(R.string.msg_token_fmt, deviceId);
-                        Log.d(TAG + "-token", msg);
+
+
+
+
 //                        Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
 
                     }

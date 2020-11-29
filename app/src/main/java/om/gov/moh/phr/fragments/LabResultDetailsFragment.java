@@ -71,11 +71,11 @@ public class LabResultDetailsFragment extends Fragment implements SwipeRefreshLa
 
     private static final String API_URL_GET_LAB_RESULTS_TAMPLATE_D = API_NEHR_URL + "labReport/patient/tabular/";
     private static final String API_URL_GET_LAB_RESULTS_TAMPLATE_C = API_NEHR_URL + "labReport/patient/culture/";
-    private static final String API_URL_GET_LAB_RESULTS_TAMPLATE_H = API_NEHR_URL + "labReport/patient/textual/";
+    private static final String API_URL_GET_LAB_RESULTS_TAMPLATE_H = API_NEHR_URL + "labReport/textual/";
     private static final String PARAM_API_ORDERLAB_ITEM = "OrderObj";
     private static final String PARAM_API_NOTIFICATION_ITEM = "NotificationObj";
     private LabResultsDetailsRecyclerViewAdapter labResultsDetailsRecyclerViewAdapter;
-    private ApiLabOrdersListHolder.ApiOredresList mApiOderItem;
+    private ApiLabOrdersListHolder.LabOrder mApiOderItem;
     private MyProgressDialog mProgressDialog;
     private ToolbarControllerInterface mToolbarControllerCallback;
     private MediatorInterface mMediatorCallback;
@@ -93,7 +93,7 @@ public class LabResultDetailsFragment extends Fragment implements SwipeRefreshLa
         // Required empty public constructor
     }
 
-    public static LabResultDetailsFragment newInstance(ApiLabOrdersListHolder.ApiOredresList orderObj) {
+    public static LabResultDetailsFragment newInstance(ApiLabOrdersListHolder.LabOrder orderObj) {
         LabResultDetailsFragment fragment = new LabResultDetailsFragment();
         Bundle args = new Bundle();
         args.putSerializable(PARAM_API_ORDERLAB_ITEM, orderObj);
@@ -123,7 +123,7 @@ public class LabResultDetailsFragment extends Fragment implements SwipeRefreshLa
         super.onCreate(savedInstanceState);
         assert getArguments() != null;
         if (getArguments().getSerializable(PARAM_API_ORDERLAB_ITEM) != null)
-            mApiOderItem = (ApiLabOrdersListHolder.ApiOredresList) getArguments().getSerializable(PARAM_API_ORDERLAB_ITEM);
+            mApiOderItem = (ApiLabOrdersListHolder.LabOrder) getArguments().getSerializable(PARAM_API_ORDERLAB_ITEM);
         if (getArguments().getSerializable(PARAM_API_NOTIFICATION_ITEM) != null)
             notificationObj = (Notification) getArguments().getSerializable(PARAM_API_NOTIFICATION_ITEM);
     }
@@ -148,7 +148,7 @@ public class LabResultDetailsFragment extends Fragment implements SwipeRefreshLa
                 mToolbarControllerCallback.customToolbarBackButtonClicked();
             }
         });
-        enableHomeandRefresh(view);
+        //enableHomeandRefresh(view);
         rvLabResults = view.findViewById(R.id.rv_tests);
         mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
         mProgressDialog = new MyProgressDialog(mContext);
@@ -187,7 +187,7 @@ public class LabResultDetailsFragment extends Fragment implements SwipeRefreshLa
         if (notificationObj != null) {
             tvProcName.setText(notificationObj.getTitle());
         }
-        ibRefresh.setOnClickListener(new View.OnClickListener() {
+        /*ibRefresh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 setupPage();
@@ -202,7 +202,7 @@ public class LabResultDetailsFragment extends Fragment implements SwipeRefreshLa
                 } else if (notificationObj != null)
                     tvProcName.setText(notificationObj.getTitle());
             }
-        });
+        });*/
         return view;
     }
 
@@ -221,7 +221,7 @@ public class LabResultDetailsFragment extends Fragment implements SwipeRefreshLa
                     String fullUrl = API_URL_GET_LAB_RESULTS_TAMPLATE_C + mApiOderItem.getOrderId() + "/" + mApiOderItem.getPatientId();
                     setReportsDetailsForTextual(fullUrl);
                 } else if (mApiOderItem.getTemplateType().equals(API_TEXTUAL_TEMPLATE)) {
-                    String fullUrl = API_URL_GET_LAB_RESULTS_TAMPLATE_H + mApiOderItem.getOrderId() + "/" + mApiOderItem.getPatientId();
+                    String fullUrl = API_URL_GET_LAB_RESULTS_TAMPLATE_H + mApiOderItem.getOrderId();
                     rvTextualResults.setVisibility(View.VISIBLE);
                     setupTextualRecyclerView();
                     tvReport.setVisibility(View.GONE);
@@ -251,21 +251,22 @@ public class LabResultDetailsFragment extends Fragment implements SwipeRefreshLa
         if (isDTamplate) {
             tvConclusion.setVisibility(View.VISIBLE);
             ll_testColumns.setVisibility(View.VISIBLE);
-            rvLabResults.setVisibility(View.VISIBLE);
-            tvReleasedDate.setBackground(null);
+            //rvLabResults.setVisibility(View.VISIBLE);
+            tvReleasedDate.setVisibility(View.VISIBLE);
+            //tvReleasedDate.setBackground(null);
             setupTabualrRecyclerView();
             setReportsDetailsForTabular();
         } else {
             tvConclusion.setVisibility(View.GONE);
             ll_testColumns.setVisibility(View.GONE);
-            rvLabResults.setVisibility(View.GONE);
-            tvOrderDate.setVisibility(View.VISIBLE);
-            tvOrderBy.setVisibility(View.VISIBLE);
-            tvStatus.setVisibility(View.VISIBLE);
+            //rvLabResults.setVisibility(View.GONE);
+            //tvOrderDate.setVisibility(View.VISIBLE);
+           // tvOrderBy.setVisibility(View.VISIBLE);
+            //tvStatus.setVisibility(View.VISIBLE);
             tvReleasedDate.setVisibility(View.VISIBLE);
-            tvReleasedBy.setVisibility(View.VISIBLE);
-            tvHospital.setVisibility(View.VISIBLE);
-            tvReport.setVisibility(View.VISIBLE);
+            //tvReleasedBy.setVisibility(View.VISIBLE);
+            //tvHospital.setVisibility(View.VISIBLE);
+            //tvReport.setVisibility(View.VISIBLE);
         }
     }
 
@@ -316,10 +317,10 @@ public class LabResultDetailsFragment extends Fragment implements SwipeRefreshLa
                     try {
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
                             Gson gson = new Gson();
-                            DLabResultsHolder resultsHolder = gson.fromJson(response.toString(), DLabResultsHolder.class);
+                            ApiTextualDataHolder resultsHolder = gson.fromJson(response.toString(), ApiTextualDataHolder.class);
                         //    Log.d("resultResponse", resultsHolder.getResult().getConclusion() + ", " + resultsHolder.getResult().getReleasedTime() + ", " + resultsHolder.getResult().getStatus()+ ", " + ", " + resultsHolder.getResult().getTextualData().get(0).getParamName()+", "+ resultsHolder.getResult().getTextualData().get(0).getResult());
 
-                            DLabResultsHolder.LabResultDetails obj = resultsHolder.getResult();
+                            ApiTextualDataHolder.TextualLabResult obj = resultsHolder.getResult();
                             tvStatus.setText(getResources().getString(R.string.status_feild) + "  " + obj.getStatus());
                             Date date = new Date(obj.getReleasedTime());
                             SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yyyy");
@@ -389,17 +390,16 @@ public class LabResultDetailsFragment extends Fragment implements SwipeRefreshLa
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
                             Gson gson = new Gson();
                             DLabResultsHolder resultsHolder = gson.fromJson(response.toString(), DLabResultsHolder.class);
-                            Log.d("resultResponse", resultsHolder.getResult().getConclusion() + ", " + resultsHolder.getResult().getReleasedTime() + ", " + ", " + resultsHolder.getResult().getTabularData().toString());
                             String objConclusion = resultsHolder.getResult().getConclusion();
                             if (objConclusion.equals("Abnormal"))
                                 tvConclusion.setTextColor(getResources().getColor(R.color.colorRed));
                             else
                                 tvConclusion.setTextColor(getResources().getColor(R.color.colorGreen));
                             tvConclusion.setText(objConclusion);
-                            long objReleasedTime = resultsHolder.getResult().getReleasedTime();
-                            SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yyyy");
-                            String releasedTime = df2.format(objReleasedTime);
-                            tvReleasedDate.setText(releasedTime);
+                            String objReleasedTime = resultsHolder.getResult().getReleasedTime();
+                            /*SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yyyy");
+                            String releasedTime = df2.format(objReleasedTime);*/
+                            tvReleasedDate.setText(getResources().getString(R.string.released_date_feild)+" "+objReleasedTime);
                             updateRecyclerView(resultsHolder.getResult().getTabularData());
 
                         } else {
@@ -448,7 +448,7 @@ public class LabResultDetailsFragment extends Fragment implements SwipeRefreshLa
         labResultsDetailsRecyclerViewAdapter.updateItemsList(items);
     }
 
-    private void updateTextualRecyclerView(ArrayList<DLabResultsHolder.TextualData> items) {
+    private void updateTextualRecyclerView(ArrayList<ApiTextualDataHolder.TextualDataResult> items) {
         mAdapter.updateItemsList(items);
     }
 

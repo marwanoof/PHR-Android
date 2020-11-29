@@ -3,16 +3,21 @@ package om.gov.moh.phr.fragments;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
 import android.widget.ImageButton;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -71,18 +76,21 @@ public class HealthRecordListFragment extends Fragment implements AdapterToFragm
     private TextView tvResultsFound;
     private ArrayList<ApiEncountersHolder.Encounter> mEncountersList;
     private YearsRecyclerViewAdapter mYearsAdapter;
-    private ArrayList<ApiEncountersHolder.Encounter> result;
+    private ArrayList<ApiEncountersHolder.Encounter> result ;
     private SwipeRefreshLayout swipeRefreshLayout;
-
+    private SearchView searchView;
+    private String pageTitle;
+    private static final String PARAM1 = "PARAM1";
+    //ArrayList<ApiEncountersHolder.Encounter> filteredList;
     public HealthRecordListFragment() {
         // Required empty public constructor
     }
 
 
-    public static HealthRecordListFragment newInstance() {
+    public static HealthRecordListFragment newInstance(String title) {
         HealthRecordListFragment fragment = new HealthRecordListFragment();
         Bundle args = new Bundle();
-//        args.putString(ARG_PARAM1, param1);
+        args.putString(PARAM1, title);
         fragment.setArguments(args);
         return fragment;
     }
@@ -98,9 +106,9 @@ public class HealthRecordListFragment extends Fragment implements AdapterToFragm
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-/*        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-        }*/
+        if (getArguments() != null) {
+            pageTitle = (String) getArguments().getString(PARAM1);
+        }
     }
 
     @Override
@@ -109,6 +117,8 @@ public class HealthRecordListFragment extends Fragment implements AdapterToFragm
         // Inflate the layout for this fragment
         super.onCreate(savedInstanceState);
         View parentView = inflater.inflate(R.layout.fragment_health_record_list, container, false);
+
+
 
         //simple toolbar
         ImageButton ibToolbarBackButton = parentView.findViewById(R.id.ib_toolbar_back_button);
@@ -119,7 +129,7 @@ public class HealthRecordListFragment extends Fragment implements AdapterToFragm
             }
         });
         TextView tvToolBarTitle = parentView.findViewById(R.id.tv_toolbar_title);
-        tvToolBarTitle.setText(getString(R.string.title_health_records));
+        tvToolBarTitle.setText(pageTitle);
         tvToolBarTitle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -135,17 +145,55 @@ public class HealthRecordListFragment extends Fragment implements AdapterToFragm
         setupListView();
         vResultsFound = parentView.findViewById(R.id.v_results_found);
         tvResultsFound = parentView.findViewById(R.id.tv_results_found);
+        vResultsFound.setVisibility(View.GONE);
+        tvResultsFound.setVisibility(View.GONE);
+
+        searchView = parentView.findViewById(R.id.searchViewHealthRecord);
+        /*TextView searchTextView = (TextView) parentView.findViewById(androidx.appcompat.R.id.search_src_text);
+        Typeface typeface = Typeface.createFromAsset(mContext.getAssets(),"sky.ttf");
+        searchTextView.setTypeface(typeface);*/
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                if (s.length() == 0){
+                    updateRecyclerViewItems(mEncountersList);
+                }else {
+                    ArrayList<ApiEncountersHolder.Encounter> filteredList = new ArrayList<>();
+                    for (ApiEncountersHolder.Encounter encounter : mEncountersList) {
+                        if (encounter.getDepartmentArrayList().get(0).getValue().toLowerCase().contains(s) ||
+                                encounter.getEstShortName().toLowerCase().contains(s) ||
+                                encounter.getEstFullname().toLowerCase().contains(s) ||
+                                encounter.getPatientClass().toLowerCase().contains(s))
+                        {
+                            filteredList.add(encounter);
+                        }
+
+                    }
+                    updateRecyclerViewItems(filteredList);
+                }
+
+                return false;
+            }
+        });
+
         swipeRefreshLayout = parentView.findViewById(R.id.swipe_refresh_layout);
         swipeRefreshLayout.setOnRefreshListener(this);
-        swipeRefreshLayout.post(new Runnable() {
+        /*swipeRefreshLayout.post(new Runnable() {
                                     @Override
                                     public void run() {
                                         swipeRefreshLayout.setRefreshing(true);
                                         getEncounterResponse();
                                     }
                                 }
-        );
+        );*/
         getEncounterResponse();
+
+
 
         return parentView;
 }
@@ -161,7 +209,7 @@ public class HealthRecordListFragment extends Fragment implements AdapterToFragm
     private void getEncounterResponse() {
         mProgressDialog.showDialog();
         // showing refresh animation before making http call
-        swipeRefreshLayout.setRefreshing(true);
+        //swipeRefreshLayout.setRefreshing(true);
         Log.d("enc", "Called");
         String fullUrl = API_NEHR_URL + "encounter/v2/civilId";
         //String fullUrl = "https://5.162.223.156/nehrapi/encounter/civilId/" + mMediatorCallback.getCurrentUser().getCivilId();
@@ -222,7 +270,7 @@ public class HealthRecordListFragment extends Fragment implements AdapterToFragm
 //                headers.put("Accept", "application/json");
                 headers.put("Content-Type", "application/json");
                 headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
-                Log.d("enc-auth", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
+
                 return headers;
             }
 
@@ -258,6 +306,8 @@ public class HealthRecordListFragment extends Fragment implements AdapterToFragm
         DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(rvHealthRecords.getContext(),
                 mLayoutManager.getOrientation());
         rvHealthRecords.addItemDecoration(mDividerItemDecoration);
+        LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(mContext, R.anim.delay_slide_down);
+        rvHealthRecords.setLayoutAnimation(animation);
         rvHealthRecords.setLayoutManager(mLayoutManager);
         rvHealthRecords.setItemAnimator(new DefaultItemAnimator());
         rvHealthRecords.setAdapter(mHelathRecordsAdapter);
@@ -272,12 +322,15 @@ public class HealthRecordListFragment extends Fragment implements AdapterToFragm
     private void filter(String searchKey) {
         if (!searchKey.equalsIgnoreCase(getString(R.string.title_all))) {
             ArrayList<ApiEncountersHolder.Encounter> filteredList = new ArrayList<>();
+
+
             for (ApiEncountersHolder.Encounter encounter : mEncountersList) {
                 if (encounter.getEncounterYear().contains(searchKey)) {
                     filteredList.add(encounter);
                 }
             }
             tvResultsFound.setText(filteredList.size() + " " + getResources().getString(R.string.health_records_result_found) + searchKey + "!");
+
             updateRecyclerViewItems(filteredList);
         } else {
             tvResultsFound.setText(mEncountersList.size() + " " + getResources().getString(R.string.results_found));
@@ -316,4 +369,6 @@ public class HealthRecordListFragment extends Fragment implements AdapterToFragm
     public void onRefresh() {
         getEncounterResponse();
     }
+
+
 }

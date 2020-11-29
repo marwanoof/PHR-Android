@@ -3,12 +3,9 @@ package om.gov.moh.phr.adapters;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -18,8 +15,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.concurrent.TimeUnit;
 
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.apimodels.Notification;
@@ -104,7 +99,7 @@ public class NotificationsRecyclerViewAdapter extends RecyclerView.Adapter<Notif
             tvTitle = view.findViewById(R.id.tv_title);
             tvBody = view.findViewById(R.id.tv_body);
             ivNotificationitem = view.findViewById(R.id.iv_notification_ic);
-            ibArrow = view.findViewById(R.id.imageButton);
+            ibArrow = view.findViewById(R.id.imgArrowDetailsSelf);
         }
     }
 

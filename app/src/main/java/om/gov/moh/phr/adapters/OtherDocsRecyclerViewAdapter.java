@@ -1,6 +1,10 @@
 package om.gov.moh.phr.adapters;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +27,10 @@ import om.gov.moh.phr.apimodels.ApiOtherDocsHolder;
 import om.gov.moh.phr.fragments.HealthRecordDetailsFragment;
 import om.gov.moh.phr.fragments.OtherDocsDetailsFragment;
 import om.gov.moh.phr.interfaces.MediatorInterface;
+
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_ARABIC;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_PREFS;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_SELECTED;
 
 public class OtherDocsRecyclerViewAdapter extends RecyclerView.Adapter<OtherDocsRecyclerViewAdapter.MyViewHolder> {
     private ArrayList<ApiOtherDocsHolder.ApiDocInfo> othersDocsArrayList;
@@ -52,13 +60,21 @@ public class OtherDocsRecyclerViewAdapter extends RecyclerView.Adapter<OtherDocs
         final ApiOtherDocsHolder.ApiDocInfo docObj = othersDocsArrayList.get(position);
         holder.tvDocType.setText(docObj.getTitle());
         Date date = new Date(docObj.getIndexed());
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-YYYY" + "\n" + " HH:mm:ss", Locale.ENGLISH);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-YYYY" + " " + " HH:mm", Locale.ENGLISH);
         String dateText = dateFormat.format(date);
         holder.tvDateWritten.setText(dateText);
+
+        if (getStoredLanguage().equals(LANGUAGE_ARABIC)){
+
+            holder.moreDetails.setImageBitmap(flipImage());
+        }else {
+
+            holder.moreDetails.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_arrow_right));
+        }
         long encounterDate = docObj.getEncounterDate();
 
         SimpleDateFormat dateFormatGroupedDate = new SimpleDateFormat("dd-MM-YYYY", Locale.ENGLISH);
-        if (position != 0) {
+        /*if (position != 0) {
             int prev = position - 1;
             long prevEncounterDate = othersDocsArrayList.get(prev).getEncounterDate();
             if (dateFormatGroupedDate.format(new Date(encounterDate)).equals(dateFormatGroupedDate.format(new Date(prevEncounterDate)))) {
@@ -73,8 +89,8 @@ public class OtherDocsRecyclerViewAdapter extends RecyclerView.Adapter<OtherDocs
             holder.tvDate.setVisibility(View.VISIBLE);
             holder.ivMoreArrow.setVisibility(View.VISIBLE);
             holder.tvDate.setText(context.getResources().getString(R.string.visit_date) + ": " + dateFormatGroupedDate.format(new Date(encounterDate)));
-        }
-        holder.tvDosage.setText(docObj.getEstName());
+        }*/
+        holder.tvDosage.setText(docObj.getEstFullname());
    /*   if (row_index == position) {
             // holder.imageButton.setBackgroundTintList(context.getResources().getColorStateList(R.color.colorPeach));
             holder.clOrderItem.setBackgroundColor(context.getResources().getColor(R.color.colorPeach));
@@ -118,12 +134,12 @@ public class OtherDocsRecyclerViewAdapter extends RecyclerView.Adapter<OtherDocs
                 mediatorInterface.changeFragmentTo(OtherDocsDetailsFragment.newInstance(docObj), docObj.getEstFullname());
             }
         });
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
+        /*holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mediatorInterface.changeFragmentTo(HealthRecordDetailsFragment.newInstance(docObj), docObj.getEstFullname());
             }
-        });
+        });*/
     }
 
     @Override
@@ -135,7 +151,7 @@ public class OtherDocsRecyclerViewAdapter extends RecyclerView.Adapter<OtherDocs
         TextView tvDocType, tvDosage, tvDateWritten, tvEstName, tvDate;
         CardView clOrderItem;
         ImageButton imageButton;
-        ImageView ivMoreArrow, ivDoctype;
+        ImageView ivMoreArrow, ivDoctype, moreDetails;
 
         public MyViewHolder(View view) {
             super(view);
@@ -146,6 +162,13 @@ public class OtherDocsRecyclerViewAdapter extends RecyclerView.Adapter<OtherDocs
             clOrderItem = view.findViewById(R.id.constraintLayout_documents);
             ivMoreArrow = view.findViewById(R.id.iv_moreArrow);
             ivDoctype = view.findViewById(R.id.ivDocType);
+
+            ivMoreArrow.setVisibility(View.GONE);
+            tvDate.setVisibility(View.GONE);
+
+            moreDetails = view.findViewById(R.id.imgArrowDetails);
+            Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(),R.drawable.ic_arrow_right);
+            moreDetails.setImageBitmap(bitmap);
             //imageButton = view.findViewById(R.id.imageButton);
         }
     }
@@ -164,5 +187,21 @@ public class OtherDocsRecyclerViewAdapter extends RecyclerView.Adapter<OtherDocs
             }
         }
         notifyDataSetChanged();
+    }
+    private String getStoredLanguage() {
+        SharedPreferences sharedPref = context.getSharedPreferences(LANGUAGE_PREFS, Context.MODE_PRIVATE);
+        return sharedPref.getString(LANGUAGE_SELECTED, LANGUAGE_ARABIC);
+    }
+
+    private Bitmap flipImage() {
+        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(),R.drawable.ic_arrow_right);
+// create new matrix for transformation
+        Matrix matrix = new Matrix();
+        matrix.preScale(-1.0f, 1.0f);
+
+        Bitmap flipped_bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+
+        return flipped_bitmap;
+
     }
 }
