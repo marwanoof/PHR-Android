@@ -11,7 +11,8 @@ import androidx.fragment.app.Fragment;
 
 import android.text.InputFilter;
 import android.text.InputType;
-import android.util.Log;
+import android.text.Spanned;
+import android.text.method.DigitsKeyListener;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,7 +25,6 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -35,6 +35,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 
 import org.json.JSONArray;
@@ -47,6 +48,7 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -67,7 +69,6 @@ import om.gov.moh.phr.models.MyProgressDialog;
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
 import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
-import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_RESULT;
 import static om.gov.moh.phr.models.MyConstants.LANGUAGE_ARABIC;
 import static om.gov.moh.phr.models.MyConstants.LANGUAGE_PREFS;
 import static om.gov.moh.phr.models.MyConstants.LANGUAGE_SELECTED;
@@ -85,10 +86,20 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
     private EditText etUserEmail, etUserMobileNo, editText, etOtherComments;
     private ApiFeedbackHolder responseHolder;
     private ArrayList<RadioGroup> radioGroupArray;
-    // private ArrayList<LinearLayout> checkBoxesArray;
-    private LinearLayout constraintLayout;
+    private LinearLayout linearLayout;
     private RadioButton[] rb;
-
+   private InputFilter filter = new InputFilter() {
+        @Override
+        public CharSequence filter(CharSequence source, int start, int end,
+                                   Spanned dest, int dstart, int dend) {
+            for (int i = start; i < end; i++) {
+                if (!Character.isLetterOrDigit(source.charAt(i))) {
+                    return "";
+                }
+            }
+            return null;
+        }
+    };
     public FeedbackFragment() {
         // Required empty public constructor
     }
@@ -131,7 +142,7 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
                 mToolbarControllerCallback.customToolbarBackButtonClicked();
             }
         });
-        constraintLayout = view.findViewById(R.id.main_layout);
+        linearLayout = view.findViewById(R.id.main_layout);
         tvAlert = view.findViewById(R.id.tv_alert);
         mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
         mProgressDialog = new MyProgressDialog(mContext);
@@ -160,21 +171,17 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
 
     private void getQuestions() {
         String QuestionsUrl = API_NEHR_URL + "feedback/questions";
-        Log.d("questions", QuestionsUrl);
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, QuestionsUrl, null
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                if (mContext != null) {
+                if (mContext != null&&isAdded()) {
                     try {
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
                             Gson gson = new Gson();
                             responseHolder = gson.fromJson(response.toString(), ApiFeedbackHolder.class);
                             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                            for (int i = 0; i < response.getJSONArray(API_RESPONSE_RESULT).length(); i++)
-                                Log.d("questions" + i, response.getJSONArray(API_RESPONSE_RESULT).getJSONObject(i).toString());
-                            // checkBoxesArray = new ArrayList<>();
                             for (int i = 0; i < responseHolder.getResult().size(); i++) {
                                 TextView textView = new TextView(mContext);
                                 if (responseHolder.getResult().get(i).getDataType().equals("select")) {
@@ -182,7 +189,7 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
                                         textView.setText(responseHolder.getResult().get(i).getParamValueNls());
                                     else
                                         textView.setText(responseHolder.getResult().get(i).getParamValue());
-                                    constraintLayout.addView(textView);
+                                    linearLayout.addView(textView);
                                     // add radio buttons
                                     rb = new RadioButton[responseHolder.getResult().get(i).getOptionMast().size()];
                                     radioGroupArray = new ArrayList<>();
@@ -198,7 +205,7 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
                                         radioGroup.addView(rb[y]);
                                     }
                                     radioGroupArray.add(radioGroup);
-                                    constraintLayout.addView(radioGroup);
+                                    linearLayout.addView(radioGroup);
                                 } else if (responseHolder.getResult().get(i).getDataType().equals("multiselect")) {
                                     if (getStoredLanguage().equals(LANGUAGE_ARABIC))
                                         textView.setText(responseHolder.getResult().get(i).getParamValueNls());
@@ -222,24 +229,25 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
 
                                     }
                                     // checkBoxesArray.add(checkBoxLayout);
-                                    constraintLayout.addView(textView);
-                                    constraintLayout.addView(checkBoxLayout);
+                                    linearLayout.addView(textView);
+                                    linearLayout.addView(checkBoxLayout);
                                 } else {
                                     if (getStoredLanguage().equals(LANGUAGE_ARABIC))
                                         textView.setText(responseHolder.getResult().get(i).getParamValueNls());
                                     else
                                         textView.setText(responseHolder.getResult().get(i).getParamValue());
-                                    constraintLayout.addView(textView);
+                                    linearLayout.addView(textView);
                                     // add text area
                                     editText = new EditText(mContext);
                                     editText.setLayoutParams(layoutParams);
                                     editText.setTextSize(14);
                                     editText.setMaxLines(3);
                                     editText.setLines(3);
+
                                     //editText.setHint("write here your comments.");
                                     editText.setId(responseHolder.getResult().get(i).getParamId());
-                                    editText.setFilters(new InputFilter[] { new InputFilter.LengthFilter(100) });
-                                    constraintLayout.addView(editText);
+                                    editText.setFilters(new InputFilter[]{filter, new InputFilter.LengthFilter(100)});
+                                    linearLayout.addView(editText);
                                 }
 
 
@@ -250,23 +258,25 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
                             etOtherComments.setHint(getResources().getString(R.string.other_commets));
                             etOtherComments.setMaxLines(3);
                             etOtherComments.setLines(3);
-                            etOtherComments.setFilters(new InputFilter[] { new InputFilter.LengthFilter(100) });
-                            constraintLayout.addView(etOtherComments);
+
+                            etOtherComments.setFilters(new InputFilter[]{filter, new InputFilter.LengthFilter(100)});
+                           // etOtherComments.setFilters(new InputFilter[] { new InputFilter.LengthFilter(100) });
+                            linearLayout.addView(etOtherComments);
                             etUserEmail = new EditText(mContext);
                             etUserEmail.setLayoutParams(layoutParams);
                             etUserEmail.setHint(getResources().getString(R.string.enter_your_email));
                             etUserEmail.setTextSize(14);
                             etUserEmail.setSingleLine(true);
-                            constraintLayout.addView(etUserEmail);
+                            linearLayout.addView(etUserEmail);
                             etUserMobileNo = new EditText(mContext);
                             etUserMobileNo.setLayoutParams(layoutParams);
                             etUserMobileNo.setHint(getResources().getString(R.string.enter_your_mobile_no));
                             etUserMobileNo.setTextSize(14);
                             etUserMobileNo.setSingleLine(true);
+                            etUserMobileNo.setFilters(new InputFilter[] { new InputFilter.LengthFilter(8) });
                             etUserMobileNo.setInputType(InputType.TYPE_CLASS_PHONE);
-                            constraintLayout.addView(etUserMobileNo);
+                            linearLayout.addView(etUserMobileNo);
                         } else {
-
                             mProgressDialog.dismissDialog();
                         }
                     } catch (JSONException e) {
@@ -281,7 +291,6 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
             @Override
             public void onErrorResponse(VolleyError error) {
                 if (mContext != null && isAdded()) {
-                    Log.d("add_feedback", error.toString());
                     error.printStackTrace();
                     mProgressDialog.dismissDialog();
                 }
@@ -291,7 +300,6 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
             @Override
             public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
-//                headers.put("Accept", "application/json");
                 headers.put("Content-Type", "application/json");
                 headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
                 return headers;
@@ -305,15 +313,17 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
         mQueue.add(jsonObjectRequest);
     }
 
-    private void saveFeedback(View view) {
+    private void saveFeedback() {
         String saveFeedbackUrl = API_NEHR_URL + "feedback/save";
         mProgressDialog.showDialog();
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, saveFeedbackUrl, getJSONRequestParams(view)
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, saveFeedbackUrl, getJSONRequestParams()
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 if (mContext != null && isAdded()) {
-                    Toast.makeText(mContext, getResources().getString(R.string.feedback_saved_msg), Toast.LENGTH_SHORT).show();
+                    Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(android.R.id.content), getResources().getString(R.string.feedback_saved_msg), Snackbar.LENGTH_SHORT)
+                            .setBackgroundTint(getResources().getColor(R.color.colorPrimary))
+                            .show();
                     mProgressDialog.dismissDialog();
                     mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
                     mToolbarControllerCallback.customToolbarBackButtonClicked();
@@ -323,9 +333,10 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
             @Override
             public void onErrorResponse(VolleyError error) {
                 if (mContext != null && isAdded()) {
-                    Log.d("upload_error", error.toString());
                     error.printStackTrace();
-                    Toast.makeText(mContext, error.toString(), Toast.LENGTH_SHORT).show();
+                    Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(android.R.id.content), error.toString(), Snackbar.LENGTH_SHORT)
+                            .setBackgroundTint(getResources().getColor(R.color.colorPrimary))
+                            .show();
                     mProgressDialog.dismissDialog();
                 }
             }
@@ -334,7 +345,6 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
             @Override
             public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
-//                headers.put("Accept", "application/json");
                 headers.put("Content-Type", "application/json");
                 headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
 
@@ -350,7 +360,7 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
         mQueue.add(jsonObjectRequest);
     }
 
-    private JSONObject getJSONRequestParams(View view) {
+    private JSONObject getJSONRequestParams() {
         Map<String, Object> params = new HashMap<>();
         params.put("civilId", Long.parseLong(mMediatorCallback.getCurrentUser().getCivilId()));
         params.put("appType", "phrApp");
@@ -375,9 +385,8 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
                     }
                 } else if (responseHolder.getResult().get(i).getDataType().equals("multiselect")) {
                     ArrayList<String> getCheckBoxesId = new ArrayList<>();
-                    Object object = constraintLayout.findViewById(responseHolder.getResult().get(i).getParamId()+100);
+                    Object object = linearLayout.findViewById(responseHolder.getResult().get(i).getParamId()+100);
                     if (object instanceof LinearLayout) {
-                        Log.d("questions", "LL");
                         LinearLayout linearLayout = (LinearLayout) object;
                         final int childCount = linearLayout.getChildCount();
                         for (int obj = 0; obj < childCount; obj++) {
@@ -404,7 +413,6 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
 
         }
         params.put("values", jsonArray);
-        Log.d("questions-answers", new JSONObject(params).toString());
         return new JSONObject(params);
     }
 
@@ -419,14 +427,15 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
 
     private void checkDataFilled(View view) {
         if (radioGroupArray == null /*&& radioGroupArray.getCheckedRadioButtonId() == -1*/) {
-            Toast.makeText(mContext, "Please try to answer all questions!", Toast.LENGTH_SHORT).show();
-        } else if (editText != null && editText.getText().toString().trim().equals("")) {
-            editText.setError(getResources().getString(R.string.alert_empty_field));
-            editText.requestFocus();
-        } else if (etUserEmail.getText().toString().trim().equals("")) {
+            Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(android.R.id.content), "Please try to answer all questions!", Snackbar.LENGTH_SHORT)
+                    .setBackgroundTint(getResources().getColor(R.color.colorPrimary))
+                    .show();
+        }  else if (etUserEmail.getText().toString().trim().equals("")) {
             etUserEmail.setError(getResources().getString(R.string.alert_empty_field));
             etUserEmail.requestFocus();
-            Toast.makeText(mContext, getResources().getString(R.string.alert_empty_field), Toast.LENGTH_SHORT).show();
+            Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(android.R.id.content), getResources().getString(R.string.alert_empty_field), Snackbar.LENGTH_SHORT)
+                    .setBackgroundTint(getResources().getColor(R.color.colorPrimary))
+                    .show();
         } else if (!isEmailValid(etUserEmail.getText().toString())) {
             etUserEmail.setError(getResources().getString(R.string.invalid_email));
             etUserEmail.requestFocus();
@@ -437,7 +446,7 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
             etUserMobileNo.setError(getResources().getString(R.string.invalid_phoneNo));
             etUserMobileNo.requestFocus();
         } else {
-             saveFeedback(view);
+             saveFeedback();
         }
     }
 
@@ -474,58 +483,9 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
 
     private String getStoredLanguage() {
         SharedPreferences sharedPref = mContext.getSharedPreferences(LANGUAGE_PREFS, Context.MODE_PRIVATE);
-        return sharedPref.getString(LANGUAGE_SELECTED, LANGUAGE_ARABIC);
+        return sharedPref.getString(LANGUAGE_SELECTED, getDeviceLanguage());
     }
-
-    @SuppressLint("TrulyRandom")
-    private void handleSSLHandshake() {
-        try {
-            TrustManager[] byPassTrustManagers = new TrustManager[]{new X509TrustManager() {
-                public X509Certificate[] getAcceptedIssuers() {
-                    return new X509Certificate[0];
-                }
-
-                public void checkClientTrusted(X509Certificate[] chain, String authType) {
-
-                    try {
-                        for (X509Certificate cert : chain) {
-                            Log.d("cert", cert.getIssuerX500Principal().getName());
-                            // check if current certificate belongs to google
-                            if (cert.getIssuerX500Principal().getName().contains(".moh.gov.om"))
-                                return;
-                        }
-                        // if none certificate trusted throw certificate exception to tell to not trust connection
-                        throw new CertificateException("Certificate not valid or trusted.");
-                    } catch (CertificateException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-
-                public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-
-                    for (X509Certificate cert : chain) {
-                        Log.d("cert", cert.getIssuerX500Principal().getName());
-                        if (cert.getIssuerX500Principal().getName().contains("Sectigo RSA Domain Validation Secure Server"))
-                            return;
-                    }
-
-
-                    // if none certificate trusted throw certificate exception to tell to not trust connection
-                    throw new CertificateException("Certificate not valid or trusted.");
-                }
-            }
-            };
-            SSLContext sc = SSLContext.getInstance("SSL");
-            sc.init(null, byPassTrustManagers, new SecureRandom());
-            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-            HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
-                @Override
-                public boolean verify(String hostname, SSLSession arg1) {
-                    return hostname.endsWith(".moh.gov.om");
-                }
-            });
-        } catch (Exception ignored) {
-        }
+    private String getDeviceLanguage() {
+        return Locale.getDefault().getLanguage();
     }
 }

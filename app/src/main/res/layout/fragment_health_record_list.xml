@@ -95,6 +95,21 @@
                     app:layout_constraintTop_toTopOf="parent"
                     tools:itemCount="2"
                     tools:listitem="@layout/health_record_item" />
+                <TextView
+                    android:id="@+id/tv_no_records_alert"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:text="@string/no_health_records_available_for_you"
+                    android:textAlignment="center"
+                    android:visibility="gone"
+                    android:textColor="@color/colorTextViewFontNormal"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.cardview.widget.CardView>

@@ -9,7 +9,6 @@
     tools:context=".fragments.VitalInfoFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/constraintLayout5"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -61,14 +60,12 @@
                     tools:visibility="gone">
 
                     <ImageView
-                        android:id="@+id/imageView11"
                         android:layout_width="100dp"
                         android:layout_height="100dp"
                         android:layout_gravity="center_horizontal"
                         android:src="@drawable/ic_no_records" />
 
                     <TextView
-                        android:id="@+id/textView4"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
@@ -87,7 +84,6 @@
                     app:layout_constraintTop_toTopOf="parent">
 
                     <ImageView
-                        android:id="@+id/imageView8"
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:layout_gravity="center"
@@ -97,7 +93,6 @@
                         android:tint="@color/colorSecendary" />
 
                     <TextView
-                        android:id="@+id/tv_allergy"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
@@ -157,7 +152,6 @@
                     app:layout_constraintTop_toBottomOf="@+id/cardView_allergy">
 
                     <ImageView
-                        android:id="@+id/imageView9"
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:layout_gravity="center"
@@ -167,7 +161,6 @@
                         android:tint="@color/colorSecendary" />
 
                     <TextView
-                        android:id="@+id/tv_history"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="@dimen/space_16"
@@ -224,7 +217,6 @@
                     app:layout_constraintTop_toBottomOf="@+id/cardView_medical">
 
                     <ImageView
-                        android:id="@+id/imageView10"
                         android:layout_width="20dp"
                         android:layout_height="@dimen/space_20dp"
                         android:layout_gravity="center"
@@ -234,7 +226,6 @@
                         android:tint="@color/colorSecendary" />
 
                     <TextView
-                        android:id="@+id/tv_problem"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"

@@ -25,12 +25,12 @@ public class ApiImmunizationHolder {
         private long immunizationDate;
 
         @SerializedName("scheduledOn")
-        private long scheduledOn;
+        private Long scheduledOn;
 
         @SerializedName("givenOn")
         private Long givenOn;
 
-        public long getScheduledOn() {
+        public Long getScheduledOn() {
             return scheduledOn;
         }
 

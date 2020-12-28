@@ -3,7 +3,9 @@ package om.gov.moh.phr.fragments;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
@@ -36,6 +39,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import om.gov.moh.phr.R;
@@ -50,6 +54,9 @@ import om.gov.moh.phr.models.MyProgressDialog;
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
 import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_ENGLISH;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_PREFS;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_SELECTED;
 import static om.gov.moh.phr.models.MyConstants.PARAM_API_DEMOGRAPHICS_ITEM;
 
 /**
@@ -69,9 +76,10 @@ public class DemographicsFragment extends Fragment {
     private MyProgressDialog mProgressDialog;
     private ToolbarControllerInterface mToolbarControllerCallback;
     private MediatorInterface mMediatorCallback;
-    private TextView tvNoDependents;
+    private TextView tvNoDependents, tvNoInstitutes;
     private ScrollView scrollView;
     private String pageTitle;
+    private CardView cvNoDependentsRecord, cvNoInstitutesRecord;
 
     public static DemographicsFragment newInstance() {
 
@@ -81,6 +89,7 @@ public class DemographicsFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
+
     public static DemographicsFragment newInstance(ArrayList<ApiHomeHolder.Patients> apiDemographicItem, String title) {
         DemographicsFragment fragment = new DemographicsFragment();
         Bundle args = new Bundle();
@@ -138,6 +147,9 @@ public class DemographicsFragment extends Fragment {
             }
         });
         tvNoDependents = parentView.findViewById(R.id.tv_dependents_alert);
+        tvNoInstitutes = parentView.findViewById(R.id.tv_institutes_alert);
+        cvNoDependentsRecord = parentView.findViewById(R.id.cardViewNoDependentsRecords);
+        cvNoInstitutesRecord = parentView.findViewById(R.id.cardViewNoInstitutesRecords);
         //setupPersonalInfo(parentView);
         LinearLayout llDependentsContainer = parentView.findViewById(R.id.ll_dependents_container);
         getDependents(container, inflater, llDependentsContainer);
@@ -239,6 +251,7 @@ public class DemographicsFragment extends Fragment {
 
                         } else {
                             tvNoDependents.setVisibility(View.VISIBLE);
+                            cvNoDependentsRecord.setVisibility(View.VISIBLE);
                             // displayAlert(getResources().getString(R.string.no_record_found));
                             mProgressDialog.dismissDialog();
                         }
@@ -254,7 +267,6 @@ public class DemographicsFragment extends Fragment {
             @Override
             public void onErrorResponse(VolleyError error) {
                 if (mContext != null && isAdded()) {
-                    Log.d("resp-demographic", error.toString());
                     error.printStackTrace();
                     mProgressDialog.dismissDialog();
                 }
@@ -341,18 +353,23 @@ public class DemographicsFragment extends Fragment {
     private void prepareInstitutesCards(ViewGroup container, LayoutInflater inflater, LinearLayout llDependentsContainer) {
 
         ArrayList<ApiHomeHolder.Patients> institutesArrayList = mApiDemographicItem;
-        int size = institutesArrayList.size();
+        if(mApiDemographicItem.size()>0) {
+            int size = institutesArrayList.size();
 
-        for (int i = 0; i < size; i++) {
-            if (i == 0) {//top
-                addInstituteCard(container, inflater, llDependentsContainer, R.drawable.shape_rect_round_top, institutesArrayList.get(i));
+            for (int i = 0; i < size; i++) {
+                if (i == 0) {//top
+                    addInstituteCard(container, inflater, llDependentsContainer, R.drawable.shape_rect_round_top, institutesArrayList.get(i));
+                }
+                if (i > 0 && i < size - 1) {//center
+                    addInstituteCard(container, inflater, llDependentsContainer, R.drawable.shape_rect_round_center, institutesArrayList.get(i));
+                }
+                if (i == size - 1 && size != 1) { //bottom
+                    addInstituteCard(container, inflater, llDependentsContainer, R.drawable.shape_rect_round_bottom, institutesArrayList.get(i));
+                }
             }
-            if (i > 0 && i < size - 1) {//center
-                addInstituteCard(container, inflater, llDependentsContainer, R.drawable.shape_rect_round_center, institutesArrayList.get(i));
-            }
-            if (i == size - 1 && size != 1) { //bottom
-                addInstituteCard(container, inflater, llDependentsContainer, R.drawable.shape_rect_round_bottom, institutesArrayList.get(i));
-            }
+        }else {
+            tvNoInstitutes.setVisibility(View.VISIBLE);
+            cvNoInstitutesRecord.setVisibility(View.VISIBLE);
         }
     }
 
@@ -365,7 +382,12 @@ public class DemographicsFragment extends Fragment {
         instituteCard.setBackground(ContextCompat.getDrawable(mContext, cardShape));
 
         TextView tvDName = instituteCard.findViewById(R.id.tv_dependant_name);
-        tvDName.setText(patients.getEstName() + "\n" + patients.getEstPatientId());
+        String patientID = patients.getEstPatientId();
+        String grayColoredID = "<br><br><font color='#B1BCBE'>" + patientID + "</font>";
+        if (getStoredLanguage().equals(LANGUAGE_ENGLISH))
+            tvDName.setText(Html.fromHtml(patients.getEstName() + grayColoredID));
+        else
+            tvDName.setText(Html.fromHtml(patients.getEstNameNls() + grayColoredID));
         /*instituteCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -380,6 +402,15 @@ public class DemographicsFragment extends Fragment {
 
         View divider = inflater.inflate(R.layout.divider, container, false);
         llInstitutesContainer.addView(divider);
+    }
+
+    private String getStoredLanguage() {
+        SharedPreferences sharedPref = mContext.getSharedPreferences(LANGUAGE_PREFS, Context.MODE_PRIVATE);
+        return sharedPref.getString(LANGUAGE_SELECTED, getDeviceLanguage());
+    }
+
+    private String getDeviceLanguage() {
+        return Locale.getDefault().getLanguage();
     }
 
     private void displayAlert(String msg) {

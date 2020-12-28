@@ -213,7 +213,10 @@ public class HealthRecordsRecyclerViewAdapter extends ListAdapter<ApiEncountersH
     }
     private String getStoredLanguage() {
         SharedPreferences sharedPref = mContxt.getSharedPreferences(LANGUAGE_PREFS, Context.MODE_PRIVATE);
-        return sharedPref.getString(LANGUAGE_SELECTED, LANGUAGE_ARABIC);
+        return sharedPref.getString(LANGUAGE_SELECTED, getDeviceLanguage());
+    }
+    private String getDeviceLanguage() {
+        return Locale.getDefault().getLanguage();
     }
 
     private Bitmap flipImage() {

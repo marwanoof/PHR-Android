@@ -85,7 +85,7 @@
         android:id="@+id/appbar_main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
+        android:background="@color/colorBackground"
         android:elevation="0dp"
         android:stateListAnimator="@null"
         android:theme="@style/AppTheme.AppBarOverlay"
@@ -99,8 +99,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:contentInsetStartWithNavigation="0dp"
-            app:popupTheme="@style/AppTheme.PopupOverlay"
-            app:titleTextColor="@color/design_default_color_primary">
+            app:popupTheme="@style/AppTheme.PopupOverlay">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"

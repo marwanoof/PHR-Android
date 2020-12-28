@@ -1,5 +1,6 @@
 package om.gov.moh.phr.fragments;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -7,8 +8,11 @@ import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
+import android.text.InputFilter;
+import android.text.Spanned;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,7 +27,6 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -34,6 +37,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 
 import org.json.JSONException;
@@ -41,6 +45,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import om.gov.moh.phr.R;
@@ -72,7 +77,7 @@ public class OrganDonationFragment extends Fragment {
     private MediatorInterface mMediatorCallback;
     private EditText mobileNo, email, familyMember, etMobileNoOfFamilyMember;
     private CheckBox allOrgans, kidneys, liver, heart, lungs, pancreas, corneas;
-    private Button saveBtn, cancelBtn;
+    private Button saveBtn;
     private Spinner relation;
     private RequestQueue mQueue;
     private MyProgressDialog mProgressDialog;
@@ -82,10 +87,11 @@ public class OrganDonationFragment extends Fragment {
     private int mRelationCode;
     private Long mDonerID = null;
     private boolean isAllChecked = true;
-    private RadioGroup radioGroup;
     private RadioButton radioButtonYes, radioButtonNo, radioButtonD;
     private String afterDeath = "D";
     private String pageTitle;
+    private CardView cvPersonalInfo, cvSelectionOrganDonated;
+
 
     public OrganDonationFragment() {
         // Required empty public constructor
@@ -103,7 +109,7 @@ public class OrganDonationFragment extends Fragment {
     public static OrganDonationFragment newInstance(String title) {
 
         Bundle args = new Bundle();
-        args.putSerializable(PARAM1,title);
+        args.putSerializable(PARAM1, title);
         OrganDonationFragment fragment = new OrganDonationFragment();
         fragment.setArguments(args);
         return fragment;
@@ -112,7 +118,7 @@ public class OrganDonationFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null){
+        if (getArguments() != null) {
             pageTitle = (String) getArguments().getSerializable(PARAM1);
         }
     }
@@ -150,41 +156,42 @@ public class OrganDonationFragment extends Fragment {
         pancreas = parentView.findViewById(R.id.checkBox_pancreas);
         corneas = parentView.findViewById(R.id.checkBox_corneas);
         saveBtn = parentView.findViewById(R.id.btn_save_organ);
-        cancelBtn = parentView.findViewById(R.id.btn_cancel_organ);
         relation = parentView.findViewById(R.id.et_releation_organ);
+        cvPersonalInfo = parentView.findViewById(R.id.cardView5);
+        cvSelectionOrganDonated = parentView.findViewById(R.id.cardView6);
 
         email.setText(UserEmailFetcher.getEmail(mContext));
 
-        radioGroup = parentView.findViewById(R.id.radioGroup);
+        RadioGroup radioGroup = parentView.findViewById(R.id.radioGroup);
         radioButtonYes = parentView.findViewById(R.id.radioButtonYes);
         radioButtonNo = parentView.findViewById(R.id.radioButtonNo);
         radioButtonD = parentView.findViewById(R.id.radioButtonD);
 
         allOrgans.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isAllChecked=false)
+                if (isAllChecked = false)
                     allOrgans.setChecked(false);
-                  else if (isChecked) {
-                        kidneys.setChecked(true);
-                        liver.setChecked(true);
-                        heart.setChecked(true);
-                        lungs.setChecked(true);
-                        pancreas.setChecked(true);
-                        corneas.setChecked(true);
-                    } else {
-                        kidneys.setChecked(false);
-                        liver.setChecked(false);
-                        heart.setChecked(false);
-                        lungs.setChecked(false);
-                        pancreas.setChecked(false);
-                        corneas.setChecked(false);
-                    }
+                else if (isChecked) {
+                    kidneys.setChecked(true);
+                    liver.setChecked(true);
+                    heart.setChecked(true);
+                    lungs.setChecked(true);
+                    pancreas.setChecked(true);
+                    corneas.setChecked(true);
+                } else {
+                    kidneys.setChecked(false);
+                    liver.setChecked(false);
+                    heart.setChecked(false);
+                    lungs.setChecked(false);
+                    pancreas.setChecked(false);
+                    corneas.setChecked(false);
                 }
+            }
         });
         kidneys.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (!isChecked) {
-                   isAllChecked = false;
+                    isAllChecked = false;
                     allOrgans.setChecked(false);
                 }
             }
@@ -229,33 +236,35 @@ public class OrganDonationFragment extends Fragment {
                 }
             }
         });
-        cancelBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mToolbarControllerCallback.customToolbarBackButtonClicked();
-                mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
-            }
-        });
-
 
 
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @SuppressLint("NonConstantResourceId")
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                switch (checkedId){
-                    case 2131296758:
+                // find which radio button is selected
+                switch (checkedId) {
+                    case R.id.radioButtonYes:
                         afterDeath = "Y";
+                        cvPersonalInfo.setVisibility(View.VISIBLE);
+                        cvSelectionOrganDonated.setVisibility(View.VISIBLE);
                         break;
-                    case 2131296757:
+                    case R.id.radioButtonNo:
                         afterDeath = "N";
+                        resetAllInfo();
+                        cvPersonalInfo.setVisibility(View.GONE);
+                        cvSelectionOrganDonated.setVisibility(View.GONE);
                         break;
-                    case 2131296756:
+                    case R.id.radioButtonD:
                         afterDeath = "D";
+                        resetAllInfo();
+                        cvPersonalInfo.setVisibility(View.GONE);
+                        cvSelectionOrganDonated.setVisibility(View.GONE);
                         break;
                     default:
                         break;
                 }
-                System.out.println(afterDeath);
+                System.out.println("isAgreeToDonate" + afterDeath);
             }
         });
 
@@ -263,13 +272,24 @@ public class OrganDonationFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 getRelationCode();
-                if (!email.getText().toString().isEmpty() && !isEmailValid(email.getText().toString()))
-                    email.setError(getResources().getString(R.string.invalid_email));
-                else if (familyMember.getText().toString().isEmpty())
-                    familyMember.setError(getResources().getString(R.string.alert_empty_field));
-                else if (mRelationCode == 0)
-                    Toast.makeText(mContext, getResources().getString(R.string.select_relation_msg), Toast.LENGTH_SHORT).show();
-                else
+                if (radioButtonYes.isChecked()) {
+                    if (mobileNo.getText().toString().isEmpty())
+                        mobileNo.setError(getResources().getString(R.string.alert_empty_field));
+                    else if (email.getText().toString().isEmpty())
+                        email.setError(getResources().getString(R.string.alert_empty_field));
+                    else if (!isEmailValid(email.getText().toString()))
+                        email.setError(getResources().getString(R.string.invalid_email));
+                    else if (familyMember.getText().toString().isEmpty())
+                        familyMember.setError(getResources().getString(R.string.alert_empty_field));
+                    else if (etMobileNoOfFamilyMember.getText().toString().isEmpty())
+                        etMobileNoOfFamilyMember.setError(getResources().getString(R.string.alert_empty_field));
+                    else if (mRelationCode == 0) {
+                        Snackbar.make(relation, getResources().getString(R.string.select_relation_msg), Snackbar.LENGTH_SHORT)
+                                .setBackgroundTint(getResources().getColor(R.color.colorPrimary))
+                                .show();
+                    }  else
+                        saveOrgan();
+                } else
                     saveOrgan();
             }
         });
@@ -282,44 +302,35 @@ public class OrganDonationFragment extends Fragment {
     public void saveOrgan() {
 
         mProgressDialog.showDialog();
-        // showing refresh animation before making http call
 
-        Log.d("enc", "Called");
         String fullUrl = API_NEHR_URL + "donation/save";
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, fullUrl, getJSONRequestParams()
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Log.d("organDonation", response.toString());
-                try {
-                    if (response.getInt(API_RESPONSE_CODE) == 0) {
-                        showSuccessfulAlert();
-                       // Toast.makeText(mContext, "Saved Successfully.", Toast.LENGTH_SHORT).show();
-                        //mToolbarControllerCallback.customToolbarBackButtonClicked();
-                    } else
-                        GlobalMethodsKotlin.Companion.showAlertErrorDialog(mContext);
+                if (mContext != null && isAdded()) {
+                    try {
+                        if (response.getInt(API_RESPONSE_CODE) == 0) {
+                            showSuccessfulAlert();
+                            mToolbarControllerCallback.customToolbarBackButtonClicked();
+                        } else
+                            GlobalMethodsKotlin.Companion.showAlertErrorDialog(mContext);
 
-                } catch (JSONException e) {
-//                    Log.d("enc", e.getMessage());
+                    } catch (JSONException e) {
 
-                    e.printStackTrace();
+                        e.printStackTrace();
+                    }
+
+                    mProgressDialog.dismissDialog();
                 }
-
-                mProgressDialog.dismissDialog();
-                // showing refresh animation before making http call
-
             }
 
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-//                Log.d("enc", error.toString());
-                Activity activity = getActivity();
-                if (activity != null && isAdded()) {
+                if (mContext != null && isAdded()) {
                     mProgressDialog.dismissDialog();
-                    // showing refresh animation before making http call
-
                     error.printStackTrace();
                 }
             }
@@ -328,10 +339,8 @@ public class OrganDonationFragment extends Fragment {
             @Override
             public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
-//                headers.put("Accept", "application/json");
                 headers.put("Content-Type", "application/json");
                 headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
-                //Log.d("enc-auth", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
                 return headers;
             }
 
@@ -345,46 +354,58 @@ public class OrganDonationFragment extends Fragment {
     private void showSuccessfulAlert() {
         String title = "";
         String body = mContext.getResources().getString(R.string.saved_successfully);
-        GlobalMethodsKotlin.Companion.showAlertDialog(mContext,title,body,mContext.getResources().getString(R.string.ok),R.drawable.ic_successful);
+        GlobalMethodsKotlin.Companion.showAlertDialog(mContext, title, body, mContext.getResources().getString(R.string.ok), R.drawable.ic_successful);
     }
 
     private JSONObject getJSONRequestParams() {
         Map<String, Object> params = new HashMap<>();
         params.put("civilId", mMediatorCallback.getCurrentUser().getCivilId());
-        params.put("mobileNo", mobileNo.getText().toString());
-        params.put("email", email.getText().toString());
-        params.put("familyMemberName", familyMember.getText().toString());
-        if (kidneys.isChecked())
-            params.put("kidneysYn", "Y");
-        else
+        if (radioButtonYes.isChecked()) {
+            params.put("mobileNo", mobileNo.getText().toString());
+            params.put("email", email.getText().toString());
+            params.put("familyMemberName", familyMember.getText().toString());
+            if (kidneys.isChecked())
+                params.put("kidneysYn", "Y");
+            else
+                params.put("kidneysYn", "N");
+            if (liver.isChecked())
+                params.put("liverYn", "Y");
+            else
+                params.put("liverYn", "N");
+            if (heart.isChecked())
+                params.put("heartYn", "Y");
+            else
+                params.put("heartYn", "N");
+            if (lungs.isChecked())
+                params.put("lungsYn", "Y");
+            else
+                params.put("lungsYn", "N");
+            if (pancreas.isChecked())
+                params.put("pancreasYn", "Y");
+            else
+                params.put("pancreasYn", "N");
+            if (corneas.isChecked())
+                params.put("corneasYn", "Y");
+            else
+                params.put("corneasYn", "N");
+            params.put("relationCode", mRelationCode);
+            if (!etMobileNoOfFamilyMember.getText().toString().trim().isEmpty())
+                params.put("relationContactNo", Long.parseLong(etMobileNoOfFamilyMember.getText().toString()));
+        } else {
+            params.put("mobileNo", 0);
+            params.put("email", "");
+            params.put("familyMemberName", "");
             params.put("kidneysYn", "N");
-        if (liver.isChecked())
-            params.put("liverYn", "Y");
-        else
             params.put("liverYn", "N");
-        if (heart.isChecked())
-            params.put("heartYn", "Y");
-        else
             params.put("heartYn", "N");
-        if (lungs.isChecked())
-            params.put("lungsYn", "Y");
-        else
             params.put("lungsYn", "N");
-        if (pancreas.isChecked())
-            params.put("pancreasYn", "Y");
-        else
             params.put("pancreasYn", "N");
-        if (corneas.isChecked())
-            params.put("corneasYn", "Y");
-        else
             params.put("corneasYn", "N");
-        params.put("relationCode", mRelationCode);
-        if (!etMobileNoOfFamilyMember.getText().toString().trim().isEmpty())
-            params.put("relationContactNo", Long.parseLong(etMobileNoOfFamilyMember.getText().toString()));
-
+            params.put("relationCode", 0);
+            params.put("relationContactNo", null);
+        }
         if (mDonerID != null)
             params.put("donorId", mDonerID);
-
         params.put("afterDeathYn", afterDeath);
         return new JSONObject(params);
     }
@@ -394,47 +415,45 @@ public class OrganDonationFragment extends Fragment {
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                try {
-                    if (response.getInt(API_RESPONSE_CODE) == 0) {
-                        Gson gson = new Gson();
-                        ApiRelationMaster responseHolder = gson.fromJson(response.toString(), ApiRelationMaster.class);
-                        Log.d("organDonation", response.toString());
-                        for (int i = 0; i < responseHolder.getResult().size(); i++) {
-                            if (getStoredLanguage().equals(LANGUAGE_ARABIC) && responseHolder.getResult().get(i).getRelationNameNls() != null)
-                                relationMastArrayList.add(responseHolder.getResult().get(i).getRelationNameNls());
-                            else
-                                relationMastArrayList.add(responseHolder.getResult().get(i).getRelationName());
-                            relationsCodesArrayList.add(responseHolder.getResult().get(i).getRelationCode());
-                        }
+                if (mContext != null && isAdded()) {
+                    try {
+                        if (response.getInt(API_RESPONSE_CODE) == 0) {
+                            Gson gson = new Gson();
+                            ApiRelationMaster responseHolder = gson.fromJson(response.toString(), ApiRelationMaster.class);
+                            for (int i = 0; i < responseHolder.getResult().size(); i++) {
+                                if (getStoredLanguage().equals(LANGUAGE_ARABIC) && responseHolder.getResult().get(i).getRelationNameNls() != null && !responseHolder.getResult().get(i).getRelationNameNls().equals(""))
+                                    relationMastArrayList.add(responseHolder.getResult().get(i).getRelationNameNls());
+                                else
+                                    relationMastArrayList.add(responseHolder.getResult().get(i).getRelationName());
+                                relationsCodesArrayList.add(responseHolder.getResult().get(i).getRelationCode());
+                            }
 
-                        setupSelectRelationSpinner(relationMastArrayList);
-                        getOrganDonationData();
+                            setupSelectRelationSpinner(relationMastArrayList);
+                            getOrganDonationData();
 
-                    } else
-                        GlobalMethodsKotlin.Companion.showAlertErrorDialog(mContext);
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                        } else
+                            GlobalMethodsKotlin.Companion.showAlertErrorDialog(mContext);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
                 }
-
-
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-
-                GlobalMethodsKotlin.Companion.showAlertErrorDialog(mContext);
-                error.printStackTrace();
-
+                if (mContext != null && isAdded()) {
+                    GlobalMethodsKotlin.Companion.showAlertErrorDialog(mContext);
+                    error.printStackTrace();
+                }
             }
         }) {
             //
             @Override
             public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
-//                headers.put("Accept", "application/json");
                 headers.put("Content-Type", "application/json");
                 headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
-                // headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
                 return headers;
             }
 
@@ -478,36 +497,37 @@ public class OrganDonationFragment extends Fragment {
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                try {
-                    if (response.getInt(API_RESPONSE_CODE) == 0) {
-                        Gson gson = new Gson();
-                        ApiOrganDonationHolder responseHolder = gson.fromJson(response.toString(), ApiOrganDonationHolder.class);
+                if (mContext != null && isAdded()) {
+                    try {
+                        if (response.getInt(API_RESPONSE_CODE) == 0) {
+                            Gson gson = new Gson();
+                            ApiOrganDonationHolder responseHolder = gson.fromJson(response.toString(), ApiOrganDonationHolder.class);
 
-                        setupForm(responseHolder.getResult());
+                            setupForm(responseHolder.getResult());
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+
+                    mProgressDialog.dismissDialog();
                 }
-
-                mProgressDialog.dismissDialog();
-
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                GlobalMethodsKotlin.Companion.showAlertErrorDialog(mContext);
-                error.printStackTrace();
-                mProgressDialog.dismissDialog();
+                if (mContext != null && isAdded()) {
+                    GlobalMethodsKotlin.Companion.showAlertErrorDialog(mContext);
+                    error.printStackTrace();
+                    mProgressDialog.dismissDialog();
+                }
             }
         }) {
             //
             @Override
             public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
-//                headers.put("Accept", "application/json");
                 headers.put("Content-Type", "application/json");
                 headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
-                // headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
                 return headers;
             }
 
@@ -526,9 +546,12 @@ public class OrganDonationFragment extends Fragment {
     }
 
     private void setupForm(ApiOrganDonationHolder.OrganDonationJson result) {
-        mobileNo.setText(result.getMobileNo());
-        email.setText(result.getEmail());
-        familyMember.setText(result.getFamilyMemberName());
+        if (result.getMobileNo() != null && !result.getMobileNo().equals(""))
+            mobileNo.setText(result.getMobileNo());
+        if (result.getEmail() != null && !result.getEmail().equals(""))
+            email.setText(result.getEmail());
+        if (result.getFamilyMemberName() != null && !result.getFamilyMemberName().equals(""))
+            familyMember.setText(result.getFamilyMemberName());
 
         if (result.getKidneysYn().equals("Y"))
             kidneys.setChecked(true);
@@ -547,27 +570,34 @@ public class OrganDonationFragment extends Fragment {
 
         if (result.getCorneasYn().equals("Y"))
             corneas.setChecked(true);
-
-        mDonerID = result.getDonorId();
-
-        switch (result.getAfterDeathYn()){
-            case "Y":
-                radioButtonYes.setChecked(true);
-                break;
-            case "N":
-                radioButtonNo.setChecked(true);
-                break;
-            case "D":
-                radioButtonD.setChecked(true);
-                break;
+        if (result.getDonorId() != null)
+            mDonerID = result.getDonorId();
+        if (result.getAfterDeathYn() != null) {
+            switch (result.getAfterDeathYn()) {
+                case "Y":
+                    radioButtonYes.setChecked(true);
+                    int spinnerPosition = spinnerArrayAdapter.getPosition(getRelationByCode(result.getRelationCode()));
+                    relation.setSelection(spinnerPosition);
+                    break;
+                case "N":
+                    radioButtonNo.setChecked(true);
+                    resetAllInfo();
+                    break;
+                case "D":
+                    radioButtonD.setChecked(true);
+                    resetAllInfo();
+                    break;
+                default:
+                    radioButtonYes.setChecked(false);
+                    radioButtonNo.setChecked(false);
+                    radioButtonD.setChecked(true);
+                    resetAllInfo();
+                    break;
+            }
+            if (result.getRelationContactNo() != 0)
+                etMobileNoOfFamilyMember.setText(String.valueOf(result.getRelationContactNo()));
+            saveBtn.setText(R.string.title_update);
         }
-
-        etMobileNoOfFamilyMember.setText(String.valueOf(result.getRelationContactNo()));
-
-
-        saveBtn.setText(R.string.title_update);
-        int spinnerPosition = spinnerArrayAdapter.getPosition(getRelationByCode(result.getRelationCode()));
-        relation.setSelection(spinnerPosition);
     }
 
     public String getRelationByCode(int code) {
@@ -581,7 +611,11 @@ public class OrganDonationFragment extends Fragment {
 
     private String getStoredLanguage() {
         SharedPreferences sharedPref = mContext.getSharedPreferences(LANGUAGE_PREFS, Context.MODE_PRIVATE);
-        return sharedPref.getString(LANGUAGE_SELECTED, LANGUAGE_ARABIC);
+        return sharedPref.getString(LANGUAGE_SELECTED, getDeviceLanguage());
+    }
+
+    private String getDeviceLanguage() {
+        return Locale.getDefault().getLanguage();
     }
 
     @Override
@@ -595,12 +629,26 @@ public class OrganDonationFragment extends Fragment {
             if (relation.getSelectedItemPosition() == i) {
                 relation.setSelection(i);
                 mRelationCode = relationsCodesArrayList.get(i);
-
             }
         }
     }
 
     private boolean isEmailValid(CharSequence email) {
         return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    }
+
+    private void resetAllInfo() {
+        mobileNo.setText("");
+        email.setText("");
+        familyMember.setText("");
+        kidneys.setChecked(false);
+        liver.setChecked(false);
+        heart.setChecked(false);
+        lungs.setChecked(false);
+        pancreas.setChecked(false);
+        corneas.setChecked(false);
+        radioButtonYes.setChecked(false);
+        etMobileNoOfFamilyMember.setText("");
+        relation.setSelection(0);
     }
 }

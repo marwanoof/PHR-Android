@@ -22,10 +22,36 @@
             android:background="@drawable/selector_card"
             android:fontFamily="@font/roboto_regular"
             app:iconifiedByDefault="false"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/addDoc"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:queryHint="@string/hint_search" />
+        <TextView
+            android:id="@+id/tv_no_records_alert"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:text="@string/you_did_not_upload_any_docs_n_click_on_to_upload"
+            android:visibility="gone"
+            android:textAlignment="center"
+            android:padding="@dimen/space_8"
+            android:textColor="@color/colorTextViewFontNormal"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@id/addDoc"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/addDoc" />
+        <TextView
+            android:id="@+id/addDoc"
+            android:layout_width="@dimen/space_24"
+            android:layout_height="@dimen/space_24"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/ic_add_24"
+            android:backgroundTint="@color/colorRed"
+            android:padding="@dimen/space_10"
+            app:layout_constraintBottom_toBottomOf="@id/sv_searchView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/sv_searchView" />
 
         <TextView
             android:id="@+id/tv_alert"
@@ -44,6 +70,7 @@
 
 
         <androidx.cardview.widget.CardView
+            android:id="@+id/cvPersonalDocs"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginStart="20dp"

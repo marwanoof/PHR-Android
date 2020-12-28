@@ -62,9 +62,10 @@ public class ProviderDocumentsFragment extends Fragment implements SearchView.On
     private MediatorInterface mMediatorCallback;
     private ToolbarControllerInterface mToolbarControllerCallback;
     private RecyclerView rvOtherDocsList;
-    private TextView tvAlert;
+    private TextView tvAlert, tvNoRecords;
     private OtherDocsRecyclerViewAdapter mAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private SearchView searchView;
     private View view;
 
     public ProviderDocumentsFragment() {
@@ -91,14 +92,17 @@ public class ProviderDocumentsFragment extends Fragment implements SearchView.On
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         if (view == null) {
-             view = inflater.inflate(R.layout.fragment_other_documents, container, false);
+            view = inflater.inflate(R.layout.fragment_other_documents, container, false);
 
             //  TextView tvTitle = view.findViewById(R.id.tv_Title);
             // tvTitle.setText(getResources().getString(R.string.title_other_document));
             mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
             mProgressDialog = new MyProgressDialog(mContext);
             tvAlert = view.findViewById(R.id.tv_alert);
+            tvNoRecords = view.findViewById(R.id.tv_no_records_alert);
             rvOtherDocsList = view.findViewById(R.id.rv_DocsList);
+            searchView = (SearchView) view.findViewById(R.id.sv_searchView);
+            searchView.setOnQueryTextListener(this);
             swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
 
             if (mMediatorCallback.isConnected()) {
@@ -118,8 +122,7 @@ public class ProviderDocumentsFragment extends Fragment implements SearchView.On
             } else {
                 displayAlert(getString(R.string.alert_no_connection));
             }
-            SearchView searchView = (SearchView) view.findViewById(R.id.sv_searchView);
-            searchView.setOnQueryTextListener(this);
+
         } else {
             ((ViewGroup) view.getParent()).removeView(view);
         }
@@ -136,43 +139,49 @@ public class ProviderDocumentsFragment extends Fragment implements SearchView.On
         mProgressDialog.showDialog();
         swipeRefreshLayout.setRefreshing(true);
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, getJSONRequestParams(mMediatorCallback.getCurrentUser().getCivilId(),"","")
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, getJSONRequestParams(mMediatorCallback.getCurrentUser().getCivilId(), "", "")
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                try {
-                    if (response.getInt(API_RESPONSE_CODE) == 0) {
-                        Gson gson = new Gson();
-                        ApiOtherDocsHolder responseHolder = gson.fromJson(response.toString(), ApiOtherDocsHolder.class);
-                        setupRecyclerView(responseHolder.getmResult());
+                Log.d("ProviderResp", response.toString());
+                if (mContext != null && isAdded()) {
+                    try {
+                        if (response.getInt(API_RESPONSE_CODE) == 0) {
+                            Gson gson = new Gson();
+                            ApiOtherDocsHolder responseHolder = gson.fromJson(response.toString(), ApiOtherDocsHolder.class);
+                            setupRecyclerView(responseHolder.getmResult());
 
-                    } else {
-                        displayAlert(getResources().getString(R.string.no_record_found));
-                        mProgressDialog.dismissDialog();
+                        } else {
+                            tvNoRecords.setVisibility(View.VISIBLE);
+                            rvOtherDocsList.setVisibility(View.GONE);
+                            searchView.setVisibility(View.GONE);
+                            mProgressDialog.dismissDialog();
 
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
 
-                mProgressDialog.dismissDialog();
-                swipeRefreshLayout.setRefreshing(false);
+                    mProgressDialog.dismissDialog();
+                    swipeRefreshLayout.setRefreshing(false);
+                }
             }
 
 
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
-                mProgressDialog.dismissDialog();
-                swipeRefreshLayout.setRefreshing(false);
+                if (mContext != null && isAdded()) {
+                    error.printStackTrace();
+                    mProgressDialog.dismissDialog();
+                    swipeRefreshLayout.setRefreshing(false);
+                }
             }
         }) {
             //
             @Override
             public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
-//                headers.put("Accept", "application/json");
                 headers.put("Content-Type", "application/json");
                 headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
                 return headers;
@@ -185,6 +194,7 @@ public class ProviderDocumentsFragment extends Fragment implements SearchView.On
 
         mQueue.add(jsonObjectRequest);
     }
+
     private JSONObject getJSONRequestParams(String civilId, String data, String source) {
         Map<String, Object> params = new HashMap<>();
         params.put("civilId", Long.parseLong(civilId));
@@ -192,6 +202,7 @@ public class ProviderDocumentsFragment extends Fragment implements SearchView.On
         params.put("source", source);
         return new JSONObject(params);
     }
+
     private void setupRecyclerView(ArrayList<ApiOtherDocsHolder.ApiDocInfo> getmResult) {
         rvOtherDocsList.setAdapter(null);
         mAdapter = new OtherDocsRecyclerViewAdapter(mMediatorCallback, getmResult, mContext);
@@ -219,15 +230,13 @@ public class ProviderDocumentsFragment extends Fragment implements SearchView.On
     @Override
     public void onDetach() {
         super.onDetach();
-        mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
-
+        //  mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
     }
 
     @Override
     public void onRefresh() {
         rvOtherDocsList.setVisibility(View.VISIBLE);
         tvAlert.setVisibility(View.GONE);
-        String providerDocs = API_URL_GET_OTHER_DOCS + mMediatorCallback.getCurrentUser().getCivilId();
-        getProviderDocsList(providerDocs);
+        getProviderDocsList(API_URL_GET_OTHER_DOCS);
     }
 }

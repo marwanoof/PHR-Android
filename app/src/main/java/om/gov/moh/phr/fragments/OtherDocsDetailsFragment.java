@@ -55,14 +55,12 @@ import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_RESULT;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class OtherDocsDetailsFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
+public class OtherDocsDetailsFragment extends Fragment {
     private static final String PARAM_API_DOC_ITEM_ITEM = "PARAM_API_PROCEDURE_REPORT_ITEM";
     private static final String API_DOC_INFO = API_NEHR_URL + "documentReference/id/";
     private static final String PARAM_API_PROCEDURE_REPORT_ITEM = "PARAM_API_PROCEDURE_REPORT_ITEM";
     private static final String DATA_KEY = "data";
     private MyProgressDialog mProgressDialog;
-    private static final String ARG_NOTIFICATION = "ARG_NOTIFICATION";
-    private Notification notificationObj;
     private ToolbarControllerInterface mToolbarControllerCallback;
     private MediatorInterface mMediatorCallback;
     private Context mContext;
@@ -70,8 +68,7 @@ public class OtherDocsDetailsFragment extends Fragment implements SwipeRefreshLa
     private ApiOtherDocsHolder.ApiDocInfo mDocInfo;
     private TextView tvAlert, tvDocType, tvTime, tvHospital, tvSource;
     private WebView wvDocView;
-    private ImageButton ibRefresh;
-    private SwipeRefreshLayout swipeRefreshLayout;
+   // private ImageButton ibRefresh;
 
     public OtherDocsDetailsFragment() {
         // Required empty public constructor
@@ -81,14 +78,6 @@ public class OtherDocsDetailsFragment extends Fragment implements SwipeRefreshLa
         OtherDocsDetailsFragment fragment = new OtherDocsDetailsFragment();
         Bundle args = new Bundle();
         args.putSerializable(PARAM_API_DOC_ITEM_ITEM, docObj);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    public static OtherDocsDetailsFragment newInstance(Notification notification) {
-        OtherDocsDetailsFragment fragment = new OtherDocsDetailsFragment();
-        Bundle args = new Bundle();
-        args.putSerializable(ARG_NOTIFICATION, notification);
         fragment.setArguments(args);
         return fragment;
     }
@@ -107,8 +96,6 @@ public class OtherDocsDetailsFragment extends Fragment implements SwipeRefreshLa
         if (getArguments().getSerializable(PARAM_API_PROCEDURE_REPORT_ITEM) != null) {
             mDocInfo = (ApiOtherDocsHolder.ApiDocInfo) getArguments().getSerializable(PARAM_API_PROCEDURE_REPORT_ITEM);
         }
-        if (getArguments().getSerializable(ARG_NOTIFICATION) != null)
-            notificationObj = (Notification) getArguments().getSerializable(ARG_NOTIFICATION);
     }
 
     @Override
@@ -128,14 +115,10 @@ public class OtherDocsDetailsFragment extends Fragment implements SwipeRefreshLa
         ibToolbarBackButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (notificationObj != null)
-                    mMediatorCallback.changeFragmentTo(NotificationsFragment.newInstance(), NotificationsFragment.class.getSimpleName());
-                else
                     mToolbarControllerCallback.customToolbarBackButtonClicked();
             }
         });
-        enableHomeandRefresh(view);
-        swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
+       // enableHomeandRefresh(view);
         mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
         mProgressDialog = new MyProgressDialog(mContext);
         tvAlert = view.findViewById(R.id.tv_alert);
@@ -155,43 +138,8 @@ public class OtherDocsDetailsFragment extends Fragment implements SwipeRefreshLa
             final String fullUrl = API_DOC_INFO + mDocInfo.getDocumentRefId();
             getReportDetails(fullUrl);
         }
-        if (notificationObj != null) {
-            String providerDocsUrl = API_DOC_INFO + notificationObj.getKeyId();
-            getReportDetails(providerDocsUrl);
-        }
-        ibRefresh.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mDocInfo != null) {
-                    final String fullUrl = API_DOC_INFO + mDocInfo.getDocumentRefId();
-                    getReportDetails(fullUrl);
-                } else {
-                    String providerDocsUrl = API_DOC_INFO + notificationObj.getKeyId();
-                    getReportDetails(providerDocsUrl);
-                }
-            }
-        });
-        swipeRefreshLayout.setOnRefreshListener(this);
-        swipeRefreshLayout.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        swipeRefreshLayout.setRefreshing(true);
-                                        if (mDocInfo != null) {
-                                            final String fullUrl = API_DOC_INFO + mDocInfo.getDocumentRefId();
-                                            getReportDetails(fullUrl);
-                                        } else {
-                                            String providerDocsUrl = API_DOC_INFO + notificationObj.getKeyId();
-                                            getReportDetails(providerDocsUrl);
-                                        }
-                                    }
-                                }
-        );
-        return view;
-    }
 
-    private void enableHomeandRefresh(View view) {
-        ibRefresh = view.findViewById(R.id.ib_refresh);
-        ibRefresh.setVisibility(View.VISIBLE);
+        return view;
     }
 
     private void backToHome() {
@@ -203,26 +151,16 @@ public class OtherDocsDetailsFragment extends Fragment implements SwipeRefreshLa
 
     private void getReportDetails(String url) {
         mProgressDialog.showDialog();
-        swipeRefreshLayout.setRefreshing(true);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                if (mContext != null) {
+                if (mContext != null&&isAdded()) {
                     try {
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
                         JSONArray array = response.getJSONArray(API_RESPONSE_RESULT);
                         JSONObject obj = array.getJSONObject(0);
                         try {
-                            if (notificationObj != null) {
-                                tvDocType.setText(obj.getString("title"));
-                                tvSource.setText(getResources().getString(R.string.department_label) + " " + obj.getString("locationName"));
-                                tvHospital.setText(getResources().getString(R.string.hospital_feild) + " " + obj.getString("estFullname"));
-                                Date date = new Date(obj.getLong("indexed"));
-                                SimpleDateFormat df2 = new SimpleDateFormat("dd /MM /yyyy");
-                                String dateText = df2.format(date);
-                                tvTime.setText(getResources().getString(R.string.date_label) + " " + dateText);
-                            }
                             byte[] data1 = Base64.decode(obj.getString(DATA_KEY), Base64.DEFAULT);
                             String text = new String(data1, "UTF-8");
                             //data == html data which you want to load
@@ -239,7 +177,6 @@ public class OtherDocsDetailsFragment extends Fragment implements SwipeRefreshLa
                     }
 
                     mProgressDialog.dismissDialog();
-                    swipeRefreshLayout.setRefreshing(false);
                 }
             }
 
@@ -247,10 +184,8 @@ public class OtherDocsDetailsFragment extends Fragment implements SwipeRefreshLa
             @Override
             public void onErrorResponse(VolleyError error) {
                 if (mContext != null && isAdded()) {
-                    Log.d("resp-demographic", error.toString());
                     error.printStackTrace();
                     mProgressDialog.dismissDialog();
-                    swipeRefreshLayout.setRefreshing(false);
                 }
             }
         }) {
@@ -258,7 +193,6 @@ public class OtherDocsDetailsFragment extends Fragment implements SwipeRefreshLa
             @Override
             public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
-//                headers.put("Accept", "application/json");
                 headers.put("Content-Type", "application/json");
                 headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
                 return headers;
@@ -280,17 +214,6 @@ public class OtherDocsDetailsFragment extends Fragment implements SwipeRefreshLa
         tvSource.setVisibility(View.GONE);
         wvDocView.setVisibility(View.GONE);
         tvAlert.setText(msg);
-    }
-
-    @Override
-    public void onRefresh() {
-        if (mDocInfo != null) {
-            final String fullUrl = API_DOC_INFO + mDocInfo.getDocumentRefId();
-            getReportDetails(fullUrl);
-        } else {
-            String providerDocsUrl = API_DOC_INFO + notificationObj.getKeyId();
-            getReportDetails(providerDocsUrl);
-        }
     }
 
     @Override

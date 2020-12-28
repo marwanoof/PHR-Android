@@ -7,16 +7,13 @@ import android.os.Bundle;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 
 import android.util.Base64;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,7 +46,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import om.gov.moh.phr.R;
-import om.gov.moh.phr.adapters.ApiRadiologyHolder;
+import om.gov.moh.phr.apimodels.ApiRadiologyHolder;
 import om.gov.moh.phr.adapters.NurseNoteRecyclerViewAdapter;
 import om.gov.moh.phr.adapters.ProceduresReportsRecyclerView;
 import om.gov.moh.phr.apimodels.ApiMediaProcedureHolder;
@@ -115,6 +112,7 @@ public class ProceduresReportsDetailsFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
+
     public static ProceduresReportsDetailsFragment newInstance(ApiMediaProcedureHolder.MediaProcedure mediaProcedure) {
         ProceduresReportsDetailsFragment fragment = new ProceduresReportsDetailsFragment();
         Bundle args = new Bundle();
@@ -135,7 +133,7 @@ public class ProceduresReportsDetailsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null){
+        if (getArguments() != null) {
             if (getArguments().getSerializable(PARAM_API_PROCEDURE_REPORT_ITEM) != null) {
                 mProcedureReport = (ApiProceduresReportsHolder.Procedures) getArguments().getSerializable(PARAM_API_PROCEDURE_REPORT_ITEM);
             }
@@ -210,18 +208,19 @@ public class ProceduresReportsDetailsFragment extends Fragment {
         if (isRAD) {
             tvProcedureName.setText(radiology.getProcName());
             tvHospital.setText(radiology.getEstFullname());
-            Date date = new Date(radiology.getReportDoneDate());
-            SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
-            String dateText = df2.format(date);
-            tvTime.setText(dateText);
+            if (radiology.getReportDoneDate() != 0) {
+                Date date = new Date(radiology.getReportDoneDate());
+                SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
+                String dateText = df2.format(date);
+                tvTime.setText(dateText);
+            }
+            isWebView = true;
+            String fullUrl = API_PROCEDURES_REPORTS_WEBVIEW + mProcedureReport.getReportId();
+            getReportDetails(fullUrl);
 
-                isWebView = true;
-                String fullUrl = API_PROCEDURES_REPORTS_WEBVIEW + mProcedureReport.getReportId();
-                getReportDetails(fullUrl);
 
-
-        }  else {
-            if (mMediaReport != null){
+        } else {
+            if (mMediaReport != null) {
                 tvProcedureName.setText(mMediaReport.getMediaSubType());
                 tvHospital.setText(mMediaReport.getEstFullname());
                 tvTime.setText(mMediaReport.getCreationTime());
@@ -238,14 +237,15 @@ public class ProceduresReportsDetailsFragment extends Fragment {
                 }
 
 
-
-            }else {
+            } else {
                 tvProcedureName.setText(mProcedureReport.getProcedure().get(0).getName());
                 tvHospital.setText(mProcedureReport.getEstFullname());
-                Date date = new Date(mProcedureReport.getProcedureDoneDate());
-                SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.ENGLISH);
-                String dateText = df2.format(date);
-                tvTime.setText(dateText);
+                if (mProcedureReport.getProcedureDoneDate() != 0) {
+                    Date date = new Date(mProcedureReport.getProcedureDoneDate());
+                    SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.ENGLISH);
+                    String dateText = df2.format(date);
+                    tvTime.setText(dateText);
+                }
                 if (mProcedureReport.getProfileCode() == 101) {
                     isWebView = true;
                     String fullUrl = API_PROCEDURES_REPORTS_WEBVIEW + mProcedureReport.getReportId();
@@ -280,67 +280,66 @@ public class ProceduresReportsDetailsFragment extends Fragment {
 
     private void getReportDetails(String url) {
         mProgressDialog.showDialog();
-        //swipeRefreshLayout.setRefreshing(true);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                try {
-                    if (response.getInt(API_RESPONSE_CODE) == 0) {
-                        if (isWebView) {
-                            JSONArray array = response.getJSONArray(API_RESPONSE_RESULT);
-                            JSONObject obj = array.getJSONObject(0);
-                            try {
-                                byte[] data1 = Base64.decode(obj.getString(REPORT_KEY), Base64.DEFAULT);
-                                String text = new String(data1, "UTF-8");
-                                //data == html data which you want to load
-                                wvReportPic.loadData(text, "text/html", "utf-8");
-                            } catch (UnsupportedEncodingException e) {
-                                e.printStackTrace();
-                            }
-                        } else {
-                            JSONArray jsonElements = response.getJSONArray(API_RESPONSE_RESULT);
-                            ArrayList<ReportData> reportsArrayList = new ArrayList<>();
-                            for (int i = 0; i < jsonElements.length(); i++) {
-                                JSONObject jsonObject = jsonElements.getJSONObject(i);
-                                String ReportText = jsonObject.getString(TEXT_KEY);
-                                ReportData reportData = new ReportData();
-                                reportData.setReportText(ReportText);
-                                if (!isNotes) {
-                                    long ReportTime = jsonObject.getLong("time");
-                                    reportData.setReportTime(ReportTime);
+                if (mContext != null && isAdded()) {
+                    try {
+                        if (response.getInt(API_RESPONSE_CODE) == 0) {
+                            if (isWebView) {
+                                JSONArray array = response.getJSONArray(API_RESPONSE_RESULT);
+                                JSONObject obj = array.getJSONObject(0);
+                                try {
+                                    byte[] data1 = Base64.decode(obj.getString(REPORT_KEY), Base64.DEFAULT);
+                                    String text = new String(data1, "UTF-8");
+                                    //data == html data which you want to load
+                                    wvReportPic.loadData(text, "text/html", "utf-8");
+                                } catch (UnsupportedEncodingException e) {
+                                    e.printStackTrace();
                                 }
-                                reportsArrayList.add(reportData);
+                            } else {
+                                JSONArray jsonElements = response.getJSONArray(API_RESPONSE_RESULT);
+                                ArrayList<ReportData> reportsArrayList = new ArrayList<>();
+                                for (int i = 0; i < jsonElements.length(); i++) {
+                                    JSONObject jsonObject = jsonElements.getJSONObject(i);
+                                    String ReportText = jsonObject.getString(TEXT_KEY);
+                                    ReportData reportData = new ReportData();
+                                    reportData.setReportText(ReportText);
+                                    if (!isNotes) {
+                                        long ReportTime = jsonObject.getLong("time");
+                                        reportData.setReportTime(ReportTime);
+                                    }
+                                    reportsArrayList.add(reportData);
+                                }
+                                setupRecyclerView(reportsArrayList);
                             }
-                            setupRecyclerView(reportsArrayList);
+
+                        } else {
+                            displayAlert(getResources().getString(R.string.no_record_found));
+                            mProgressDialog.dismissDialog();
                         }
-
-                    } else {
-                        displayAlert(getResources().getString(R.string.no_record_found));
-                        mProgressDialog.dismissDialog();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
 
-                mProgressDialog.dismissDialog();
-               // swipeRefreshLayout.setRefreshing(false);
+                    mProgressDialog.dismissDialog();
+                }
             }
 
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("resp-demographic", error.toString());
-                error.printStackTrace();
-                mProgressDialog.dismissDialog();
-               // swipeRefreshLayout.setRefreshing(false);
+                if (mContext != null && isAdded()) {
+                    error.printStackTrace();
+                    mProgressDialog.dismissDialog();
+                }
             }
         }) {
             //
             @Override
             public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
-//                headers.put("Accept", "application/json");
                 headers.put("Content-Type", "application/json");
                 headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
                 return headers;
@@ -354,69 +353,69 @@ public class ProceduresReportsDetailsFragment extends Fragment {
         mQueue.add(jsonObjectRequest);
     }
 
-    private void getDiagnosticReport(String url,String data, String source) {
+    private void getDiagnosticReport(String url, String data, String source) {
         mProgressDialog.showDialog();
         //swipeRefreshLayout.setRefreshing(true);
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, getJSONRequestParams(mMediatorCallback.getCurrentUser().getCivilId(),data,source)
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, getJSONRequestParams(mMediatorCallback.getCurrentUser().getCivilId(), data, source)
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                try {
-                    if (response.getInt(API_RESPONSE_CODE) == 0) {
-                        if (isWebView) {
-                            JSONArray array = response.getJSONArray(API_RESPONSE_RESULT);
-                            JSONObject obj = array.getJSONObject(0);
-                            try {
-                                byte[] data1 = Base64.decode(obj.getString(REPORT_KEY), Base64.DEFAULT);
-                                String text = new String(data1, "UTF-8");
-                                //data == html data which you want to load
-                                wvReportPic.loadData(text, "text/html", "utf-8");
-                            } catch (UnsupportedEncodingException e) {
-                                e.printStackTrace();
-                            }
-                        } else {
-                            JSONArray jsonElements = response.getJSONArray(API_RESPONSE_RESULT);
-                            ArrayList<ReportData> reportsArrayList = new ArrayList<>();
-                            for (int i = 0; i < jsonElements.length(); i++) {
-                                JSONObject jsonObject = jsonElements.getJSONObject(i);
-                                String ReportText = jsonObject.getString(TEXT_KEY);
-                                ReportData reportData = new ReportData();
-                                reportData.setReportText(ReportText);
-                                if (!isNotes) {
-                                    long ReportTime = jsonObject.getLong("time");
-                                    reportData.setReportTime(ReportTime);
+                if (mContext != null && isAdded()) {
+                    try {
+                        if (response.getInt(API_RESPONSE_CODE) == 0) {
+                            if (isWebView) {
+                                JSONArray array = response.getJSONArray(API_RESPONSE_RESULT);
+                                JSONObject obj = array.getJSONObject(0);
+                                try {
+                                    byte[] data1 = Base64.decode(obj.getString(REPORT_KEY), Base64.DEFAULT);
+                                    String text = new String(data1, "UTF-8");
+                                    //data == html data which you want to load
+                                    wvReportPic.loadData(text, "text/html", "utf-8");
+                                } catch (UnsupportedEncodingException e) {
+                                    e.printStackTrace();
                                 }
-                                reportsArrayList.add(reportData);
+                            } else {
+                                JSONArray jsonElements = response.getJSONArray(API_RESPONSE_RESULT);
+                                ArrayList<ReportData> reportsArrayList = new ArrayList<>();
+                                for (int i = 0; i < jsonElements.length(); i++) {
+                                    JSONObject jsonObject = jsonElements.getJSONObject(i);
+                                    String ReportText = jsonObject.getString(TEXT_KEY);
+                                    ReportData reportData = new ReportData();
+                                    reportData.setReportText(ReportText);
+                                    if (!isNotes) {
+                                        long ReportTime = jsonObject.getLong("time");
+                                        reportData.setReportTime(ReportTime);
+                                    }
+                                    reportsArrayList.add(reportData);
+                                }
+                                setupRecyclerView(reportsArrayList);
                             }
-                            setupRecyclerView(reportsArrayList);
+
+                        } else {
+                            displayAlert(getResources().getString(R.string.no_record_found));
+                            mProgressDialog.dismissDialog();
                         }
-
-                    } else {
-                        displayAlert(getResources().getString(R.string.no_record_found));
-                        mProgressDialog.dismissDialog();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
 
-                mProgressDialog.dismissDialog();
-                // swipeRefreshLayout.setRefreshing(false);
+                    mProgressDialog.dismissDialog();
+                }
             }
 
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("resp-demographic", error.toString());
-                error.printStackTrace();
-                mProgressDialog.dismissDialog();
-                // swipeRefreshLayout.setRefreshing(false);
+                if (mContext != null && isAdded()) {
+                    error.printStackTrace();
+                    mProgressDialog.dismissDialog();
+                }
             }
         }) {
             //
             @Override
             public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
-//                headers.put("Accept", "application/json");
                 headers.put("Content-Type", "application/json");
                 headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
                 return headers;
@@ -429,6 +428,7 @@ public class ProceduresReportsDetailsFragment extends Fragment {
 
         mQueue.add(jsonObjectRequest);
     }
+
     private JSONObject getJSONRequestParams(String civilId, String data, String source) {
         Map<String, Object> params = new HashMap<>();
         params.put("civilId", Long.parseLong(civilId));
@@ -444,41 +444,42 @@ public class ProceduresReportsDetailsFragment extends Fragment {
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                try {
-                    if (response.getInt(API_RESPONSE_CODE) == 0) {
-                        Gson gson = new Gson();
-                        ApiProceduresNurseNoteHolder responseHolder = gson.fromJson(response.toString(), ApiProceduresNurseNoteHolder.class);
-                        ArrayList<ApiProceduresNurseNoteHolder.NurseNote> reportsArrayList = responseHolder.getResult();
+                if (mContext != null && isAdded()) {
+                    try {
+                        if (response.getInt(API_RESPONSE_CODE) == 0) {
+                            Gson gson = new Gson();
+                            ApiProceduresNurseNoteHolder responseHolder = gson.fromJson(response.toString(), ApiProceduresNurseNoteHolder.class);
+                            ArrayList<ApiProceduresNurseNoteHolder.NurseNote> reportsArrayList = responseHolder.getResult();
 
                             setupRecyclerViewNurseNote(reportsArrayList);
 
 
-                    } else {
-                        displayAlert(getResources().getString(R.string.no_record_found));
-                        mProgressDialog.dismissDialog();
+                        } else {
+                            displayAlert(getResources().getString(R.string.no_record_found));
+                            mProgressDialog.dismissDialog();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
 
-                mProgressDialog.dismissDialog();
-                // swipeRefreshLayout.setRefreshing(false);
+                    mProgressDialog.dismissDialog();
+                    // swipeRefreshLayout.setRefreshing(false);
+                }
             }
 
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("resp-demographic", error.toString());
-                error.printStackTrace();
-                mProgressDialog.dismissDialog();
-                // swipeRefreshLayout.setRefreshing(false);
+                if (mContext != null && isAdded()) {
+                    error.printStackTrace();
+                    mProgressDialog.dismissDialog();
+                }
             }
         }) {
-            //
+
             @Override
             public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
-//                headers.put("Accept", "application/json");
                 headers.put("Content-Type", "application/json");
                 headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
                 return headers;
@@ -491,6 +492,7 @@ public class ProceduresReportsDetailsFragment extends Fragment {
 
         mQueue.add(jsonObjectRequest);
     }
+
     private void displayAlert(String msg) {
         tvAlert.setVisibility(View.VISIBLE);
         tvProcedureName.setVisibility(View.GONE);
@@ -514,6 +516,7 @@ public class ProceduresReportsDetailsFragment extends Fragment {
         rvRportDetails.setItemAnimator(new DefaultItemAnimator());
         rvRportDetails.setAdapter(mAdapter);
     }
+
     private void setupRecyclerViewNurseNote(ArrayList<ApiProceduresNurseNoteHolder.NurseNote> reportsArrayList) {
         NurseNoteRecyclerViewAdapter mAdapter = new NurseNoteRecyclerViewAdapter(reportsArrayList, mContext);
         LinearLayoutManager layoutManager = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
@@ -524,11 +527,11 @@ public class ProceduresReportsDetailsFragment extends Fragment {
         rvRportDetails.setAdapter(mAdapter);
     }
 
-  /*  @Override
-    public void onRefresh() {
-        setupPage();
-    }
-*/
+    /*  @Override
+      public void onRefresh() {
+          setupPage();
+      }
+  */
     public class ReportData {
         private String reportText;
         private Long reportTime;

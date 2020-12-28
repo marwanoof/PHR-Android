@@ -6,22 +6,17 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.SearchView;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -43,14 +38,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import om.gov.moh.phr.R;
-import om.gov.moh.phr.adapters.ApiRadiologyHolder;
-import om.gov.moh.phr.adapters.ProceduresAdapterItem;
-import om.gov.moh.phr.adapters.ProceduresReportsRecyclerView;
+import om.gov.moh.phr.apimodels.ApiRadiologyHolder;
 import om.gov.moh.phr.adapters.RadiologyRecyclerViewAdapter;
 import om.gov.moh.phr.apimodels.ApiEncountersHolder;
 import om.gov.moh.phr.apimodels.ApiOtherDocsHolder;
 import om.gov.moh.phr.apimodels.ApiProceduresReportsHolder;
-import om.gov.moh.phr.apimodels.Notification;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
 import om.gov.moh.phr.models.DividerItemDecorator;
@@ -70,7 +62,6 @@ public class RadFragment extends Fragment {
     private static final String ARG_PARAM1 = "ARG_PARAM1";
     private static final String ARG_PARAM2 = "ARG_PARAM2";
     private static final String ARG_PARAM3 = "ARG_PARAM3";
-    private static final String ARG_NOTIFICATION = "ARG_NOTIFICATION";
     private static final String REPORTID_KEY = "reportId";
     private static final String EST_NAME_KEY = "estName";
     private RequestQueue mQueue;
@@ -83,7 +74,6 @@ public class RadFragment extends Fragment {
     private ArrayList<ApiRadiologyHolder.Radiology> reportsArrayList;
     private ApiEncountersHolder.Encounter encounterInfo;
     private ApiOtherDocsHolder.ApiDocInfo docInfo;
-    private Notification notificationObj;
     private ApiProceduresReportsHolder.ProceduresByEncounter procedureObj;
     //private SwipeRefreshLayout swipeRefreshLayout;
 
@@ -95,14 +85,6 @@ public class RadFragment extends Fragment {
         RadFragment fragment = new RadFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_PARAM1, encounterObj);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    public static RadFragment newInstance(Notification notification) {
-        RadFragment fragment = new RadFragment();
-        Bundle args = new Bundle();
-        args.putSerializable(ARG_NOTIFICATION, notification);
         fragment.setArguments(args);
         return fragment;
     }
@@ -133,8 +115,6 @@ public class RadFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments().getSerializable(ARG_PARAM1) != null)
             encounterInfo = (ApiEncountersHolder.Encounter) getArguments().getSerializable(ARG_PARAM1);
-        if (getArguments().getSerializable(ARG_NOTIFICATION) != null)
-            notificationObj = (Notification) getArguments().getSerializable(ARG_NOTIFICATION);
         if (getArguments().getSerializable(ARG_PARAM2) != null)
             docInfo = (ApiOtherDocsHolder.ApiDocInfo) getArguments().getSerializable(ARG_PARAM2);
         if (getArguments().getSerializable(ARG_PARAM3) != null)
@@ -147,13 +127,6 @@ public class RadFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_rad, container, false);
         final ImageButton ibToolbarBackButton = view.findViewById(R.id.ib_toolbar_back_button);
-            ibToolbarBackButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mMediatorCallback.changeFragmentTo(NotificationsFragment.newInstance(), NotificationsFragment.class.getSimpleName());
-                }
-            });
-        //swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
         TextView tvTitle = view.findViewById(R.id.tv_Title);
         mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
         mProgressDialog = new MyProgressDialog(mContext);
@@ -169,9 +142,6 @@ public class RadFragment extends Fragment {
             if (encounterInfo != null) {
                 System.out.println("*********"+encounterInfo.getEncounterId());
                 procRADHRDUrl = API_URL_GET_RAD_HRD_INFO + encounterInfo.getEncounterId();
-            } else if (notificationObj != null) {
-                tvTitle.setText(notificationObj.getTitle());
-                procRADHRDUrl = API_URL_GET_RAD_NOTIFICATION_INFO + notificationObj.getKeyId();
             }else if(docInfo!=null){
                 procRADHRDUrl = API_URL_GET_RAD_HRD_INFO + docInfo.getEncounterId();
             }else {
@@ -228,7 +198,6 @@ public class RadFragment extends Fragment {
                     }
 
                     mProgressDialog.dismissDialog();
-                    //swipeRefreshLayout.setRefreshing(false);
                 }
 
             }
@@ -236,10 +205,8 @@ public class RadFragment extends Fragment {
             @Override
             public void onErrorResponse(VolleyError error) {
                 if(mContext!=null&&isAdded()) {
-                    Log.d("resp-demographic", error.toString());
                     error.printStackTrace();
                     mProgressDialog.dismissDialog();
-                    //swipeRefreshLayout.setRefreshing(false);
                 }
             }
         }) {
@@ -277,27 +244,5 @@ public class RadFragment extends Fragment {
         tvAlert.setVisibility(View.VISIBLE);
         tvAlert.setText(msg);
     }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        if (notificationObj != null)
-            mMediatorCallback.changeFragmentTo(NotificationsFragment.newInstance(), NotificationsFragment.class.getSimpleName());
-    }
-
-  /*  @Override
-    public void onRefresh() {
-        String procRADHRDUrl = null;
-        if (encounterInfo != null) {
-            procRADHRDUrl = API_URL_GET_RAD_HRD_INFO + encounterInfo.getEncounterId();
-        } else if (notificationObj != null) {
-            procRADHRDUrl = API_URL_GET_RAD_NOTIFICATION_INFO + notificationObj.getKeyId();
-        }else if(docInfo!=null){
-            procRADHRDUrl = API_URL_GET_RAD_HRD_INFO + docInfo.getEncounterId();
-        }else {
-            procRADHRDUrl = API_URL_GET_RAD_HRD_INFO + procedureObj.getEncounterId();
-        }
-        getProceduresReportsList(procRADHRDUrl);
-    }*/
 }
 

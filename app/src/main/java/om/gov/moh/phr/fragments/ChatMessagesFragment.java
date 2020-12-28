@@ -137,7 +137,6 @@ public class ChatMessagesFragment extends Fragment {
         if (view == null) {
             view = inflater.inflate(R.layout.fragment_chat_messages, container, false);
             TextView tvTitle = view.findViewById(R.id.tv_toolbar_title);
-            tvTitle.setText(getResources().getString(R.string.chat_messages_title));
             ImageButton ibBack = view.findViewById(R.id.ib_toolbar_back_button);
             tvTitle.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -159,17 +158,18 @@ public class ChatMessagesFragment extends Fragment {
             ivSend.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (etNewMessageToSend.getText().toString().isEmpty())
-                        Toast.makeText(mContext, getResources().getString(R.string.enter_msg_to_send), Toast.LENGTH_SHORT).show();
-                    else
+                    if (!etNewMessageToSend.getText().toString().isEmpty())
                         sendNewMessage();
                 }
             });
             String getMessagesUrl;
-            if(messageObj!=null)
-             getMessagesUrl = API_URL_GET_MESSAGES_LIST + messageObj.getMessageId();
-            else
+            if(messageObj!=null) {
+                tvTitle.setText(messageObj.getCreatedName());
+                getMessagesUrl = API_URL_GET_MESSAGES_LIST + messageObj.getMessageId();
+            }else {
+                tvTitle.setText(apiChatMessagesObj.getCreatedName());
                 getMessagesUrl = API_URL_GET_MESSAGES_LIST + apiChatMessagesObj.getMessageId();
+            }
             getChatRoomMessages(getMessagesUrl);
         } else {
             if (view.getParent() != null)
@@ -185,19 +185,15 @@ public class ChatMessagesFragment extends Fragment {
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                if (mContext != null) {
+                if (mContext != null&&isAdded()) {
                     try {
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
-                            try {
                                 Gson gson = new Gson();
                                 ApiFriendChatListHolder responseHolder = gson.fromJson(response.toString(), ApiFriendChatListHolder.class);
-                                Log.d("resp-dependants", response.getJSONArray(API_RESPONSE_RESULT).toString());
                                 messagesArrayList = new ArrayList<>();
                                 messagesArrayList.addAll(responseHolder.getmResult());
                                 setupRecyclerView(responseHolder.getmResult());
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
+
                         } else {
 
                             mProgressDialog.dismissDialog();
@@ -213,7 +209,6 @@ public class ChatMessagesFragment extends Fragment {
             @Override
             public void onErrorResponse(VolleyError error) {
                 if (mContext != null && isAdded()) {
-                    Log.d("get_friendList", error.toString());
                     error.printStackTrace();
                     mProgressDialog.dismissDialog();
                 }
@@ -223,7 +218,6 @@ public class ChatMessagesFragment extends Fragment {
             @Override
             public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
-//                headers.put("Accept", "application/json");
                 headers.put("Content-Type", "application/json");
                 headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
                 return headers;
@@ -247,7 +241,7 @@ public class ChatMessagesFragment extends Fragment {
         mAdapter.notifyDataSetChanged();
         // this line to show the last message in the chat room ..
         layoutManager.setStackFromEnd(true);
-        clearChatBodySharedPrefs();
+       // clearChatBodySharedPrefs();
     }
 
     private void sendNewMessage() {
@@ -258,11 +252,9 @@ public class ChatMessagesFragment extends Fragment {
                 if (mContext != null) {
                     try {
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
-                            Log.d("upload", response.getString(API_RESPONSE_MESSAGE));
                             addNewItemIntoRecyclerView();
                         }
                     } catch (JSONException e) {
-                        Log.d("createChat", e.getMessage());
                         e.printStackTrace();
                     }
 
@@ -272,7 +264,6 @@ public class ChatMessagesFragment extends Fragment {
             @Override
             public void onErrorResponse(VolleyError error) {
                 if (mContext != null && isAdded()) {
-                    Log.d("creatChat_error", error.toString());
                     error.printStackTrace();
                 }
             }
@@ -365,7 +356,18 @@ public class ChatMessagesFragment extends Fragment {
                 SharedPreferences sharedPref = mContext.getSharedPreferences("CHAT-BODY", Context.MODE_PRIVATE);
                 String messageBody = sharedPref.getString("MESSAGE-BODY", null);
                 String messageSender = sharedPref.getString("MESSAGE-SENDER", null);
-                if(messageObj!=null&&messageObj.getCreatedBy().equals(messageSender)){
+             if(messageObj!=null&&messageObj.getCreatedName().trim().equalsIgnoreCase(messageSender.trim())){
+                    DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy hh:mm", Locale.US);
+                    Calendar calobj = Calendar.getInstance();
+                    String ReminderDate = dateFormat.format(calobj.getTime());
+                    ApiFriendChatListHolder.ApiFriendListInfo e = new ApiFriendChatListHolder().new ApiFriendListInfo();
+                    e.setSubject("Subject");
+                    e.setCreatedBy(messageSender);
+                    e.setMessageBody(messageBody);
+                    e.setCreatedDate(ReminderDate);
+                    messagesArrayList.add(e);
+                   setupRecyclerView(messagesArrayList);
+                }else if(apiChatMessagesObj!=null&&apiChatMessagesObj.getCreatedName().trim().equalsIgnoreCase(messageSender.trim())){
                     DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy hh:mm", Locale.US);
                     Calendar calobj = Calendar.getInstance();
                     String ReminderDate = dateFormat.format(calobj.getTime());
@@ -376,21 +378,8 @@ public class ChatMessagesFragment extends Fragment {
                     e.setCreatedDate(ReminderDate);
                     messagesArrayList.add(e);
                     setupRecyclerView(messagesArrayList);
-                    etNewMessageToSend.setText("");
-                }else if(apiChatMessagesObj!=null&&apiChatMessagesObj.getCreatedBy().equals(messageSender)){
-                    DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy hh:mm", Locale.US);
-                    Calendar calobj = Calendar.getInstance();
-                    String ReminderDate = dateFormat.format(calobj.getTime());
-                    ApiFriendChatListHolder.ApiFriendListInfo e = new ApiFriendChatListHolder().new ApiFriendListInfo();
-                    e.setSubject("Subject");
-                    e.setCreatedBy(messageSender);
-                    e.setMessageBody(messageBody);
-                    e.setCreatedDate(ReminderDate);
-                    messagesArrayList.add(e);
-                    setupRecyclerView(messagesArrayList);
-                    etNewMessageToSend.setText("");
                 }
-                clearChatBodySharedPrefs();
+               clearChatBodySharedPrefs();
             }
         }
     }

@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +25,7 @@ import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
  * A simple {@link Fragment} subclass.
  */
 public class WebSideMenuFragment extends Fragment {
-    private static final String ARG_SIDEMENU_URL = "ARG_PARAM1";
+    private static final String ARG_SIDEMENU_URL = "ARG_PARAM";
     private static final String ARG_SIDEMENU_NAME = "ARG_PARAM1";
     private Context mContext;
     private MediatorInterface mMediatorCallback;
@@ -38,10 +39,10 @@ public class WebSideMenuFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static WebSideMenuFragment newInstance(String sideMenuItem, String sideMenuName) {
+    public static WebSideMenuFragment newInstance(String sideMenuURL, String sideMenuName) {
         WebSideMenuFragment fragment = new WebSideMenuFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_SIDEMENU_URL, sideMenuItem);
+        args.putString(ARG_SIDEMENU_URL, sideMenuURL);
         args.putString(ARG_SIDEMENU_NAME, sideMenuName);
         fragment.setArguments(args);
         return fragment;

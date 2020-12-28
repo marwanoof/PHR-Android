@@ -75,6 +75,17 @@ public class ApiFriendChatListHolder {
         @SerializedName("receivedBy")
         private String receivedBy;
 
+        @SerializedName("isNew")
+        private boolean isNew;
+
+        public boolean isNew() {
+            return isNew;
+        }
+
+        public void setNew(boolean aNew) {
+            isNew = aNew;
+        }
+
         public String getSubject() {
             return subject;
         }

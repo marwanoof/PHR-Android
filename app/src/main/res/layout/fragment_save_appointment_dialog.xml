@@ -57,7 +57,7 @@
         android:layout_marginStart="16dp"
         android:background="@drawable/cancel_btn"
         android:fontFamily="@font/roboto_regular"
-        android:text="@string/title_decline"
+        android:text="@string/title_cancel"
         android:textAllCaps="false"
         android:textColor="@color/colorPrimary"
         app:layout_constraintBottom_toBottomOf="@+id/btn_confirm"

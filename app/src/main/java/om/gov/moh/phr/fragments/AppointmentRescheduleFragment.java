@@ -194,72 +194,66 @@ public class AppointmentRescheduleFragment extends Fragment {
 
     private void getSlots() {
         mProgressDialog.showDialog();
-        String fullUrl = API_NEHR_URL+"appointment/getRescheduleSlots";
+        String fullUrl = API_NEHR_URL + "appointment/getRescheduleSlots";
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, fullUrl, getJSONRequestParams()
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                try {
-                    if (response.getInt(API_RESPONSE_CODE) == 0) {
-                        Log.d("resp-slots", response.getJSONObject("result").toString());
-                        Gson gson = new Gson();
-                        final ApiSlotsHolder responseHolder = gson.fromJson(response.toString(), ApiSlotsHolder.class);
-
-                        Log.d("re-runId", " new JsonObjectRequest-AppointmentReschedule:" + responseHolder.getResult().getSlotsArrayList().get(0).getTimeBlock() + " / " + responseHolder.getResult().getSlotsArrayList().get(0).getRunId());
-
-                        vpContainer.setAdapter(null);
-                        final RescheduleDatesViewAdapter datesViewPagerAdapter =
-                                new RescheduleDatesViewAdapter(getChildFragmentManager(), responseHolder, mAppointments.getEstCode(), mAppointments.getReservationId());
-                        vpContainer.setAdapter(datesViewPagerAdapter);
+                if (mContext != null && isAdded()) {
+                    try {
+                        if (response.getInt(API_RESPONSE_CODE) == 0) {
+                            Gson gson = new Gson();
+                            final ApiSlotsHolder responseHolder = gson.fromJson(response.toString(), ApiSlotsHolder.class);
 
 
-                        final int pageCount = getPageCount(responseHolder.getResult().getSlotsArrayList());
-                        Log.d("PageCount", pageCount + "");
-
-                        ibNext.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                viewPagerNext();
-                            }
-                        });
-                        ibPrevious.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                viewPagerPrevious();
-                            }
-                        });
+                            vpContainer.setAdapter(null);
+                            final RescheduleDatesViewAdapter datesViewPagerAdapter =
+                                    new RescheduleDatesViewAdapter(getChildFragmentManager(), responseHolder, mAppointments.getEstCode(), mAppointments.getReservationId());
+                            vpContainer.setAdapter(datesViewPagerAdapter);
 
 
-                    } else {
+                            final int pageCount = getPageCount(responseHolder.getResult().getSlotsArrayList());
 
-                        mProgressDialog.dismissDialog();
+                            ibNext.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    viewPagerNext();
+                                }
+                            });
+                            ibPrevious.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    viewPagerPrevious();
+                                }
+                            });
+
+
+                        } else {
+
+                            mProgressDialog.dismissDialog();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                } catch (JSONException e) {
-                    Log.d("resp-slots", e.getMessage());
-                    e.printStackTrace();
+
+                    mProgressDialog.dismissDialog();
                 }
-
-                mProgressDialog.dismissDialog();
-
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("resp-slots", error.toString());
-                error.printStackTrace();
-                mProgressDialog.dismissDialog();
+                if (mContext != null && isAdded()) {
+                    error.printStackTrace();
+                    mProgressDialog.dismissDialog();
+                }
             }
         }) {
             //
             @Override
             public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
-//                headers.put("Accept", "application/json");
                 headers.put("Content-Type", "application/json");
-//                headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessTokenString().getAccessTokenString());
-
-
                 return headers;
             }
 

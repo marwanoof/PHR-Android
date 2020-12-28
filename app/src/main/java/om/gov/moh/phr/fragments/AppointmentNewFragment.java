@@ -14,7 +14,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -29,6 +28,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 
 import org.json.JSONException;
@@ -36,7 +36,9 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.adapters.DateItemsGridViewAdapter;
@@ -86,12 +88,14 @@ public class AppointmentNewFragment extends Fragment {
     private NonSwipeableViewPager vpContainer;
     private String mAppointmentPeriod;
     private TextView tvAppointmentsLabel;
-   // private View vAppointmentContainer;
+    // private View vAppointmentContainer;
     private ToolbarControllerInterface mToolbarControllerCallback;
     private AppointmentsListInterface mListener;
     private CardView vAppointmentContainer;
     private static final String PARAM1 = "PARAM1";
     private ArrayList<ApiHomeHolder.Patients> arrayList;
+    private View parentView;
+
     public AppointmentNewFragment() {
         // Required empty public constructor
     }
@@ -99,7 +103,7 @@ public class AppointmentNewFragment extends Fragment {
     public static AppointmentNewFragment newInstance(ArrayList<ApiHomeHolder.Patients> patients) {
         AppointmentNewFragment fragment = new AppointmentNewFragment();
         Bundle args = new Bundle();
-     args.putSerializable(PARAM1, patients);
+        args.putSerializable(PARAM1, patients);
         fragment.setArguments(args);
         return fragment;
     }
@@ -124,7 +128,7 @@ public class AppointmentNewFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View parentView = inflater.inflate(R.layout.fragment_appointment, container, false);
+         parentView = inflater.inflate(R.layout.fragment_appointment, container, false);
 
         mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
         mProgressDialog = new MyProgressDialog(mContext);
@@ -313,19 +317,16 @@ public class AppointmentNewFragment extends Fragment {
     }
 
     private void setupSelectHospitalSpinner(final ArrayList<ApiHomeHolder.Patients> demographicItem) {
-        Log.d("appointmentFrag", "-setupSelectHospitalSpinner");
         final ArrayList<ApiHomeHolder.Patients> institutes = new ArrayList<>();
         ArrayList<String> institutesNames = new ArrayList<>();
         institutesNames.add(0, getString(R.string.title_select_institute));
         for (ApiHomeHolder.Patients patients : demographicItem) {
             if (patients.getEstTypeCode() == 106) {
                 institutes.add(patients);
-                if (getStoredLanguage().equals(LANGUAGE_ARABIC)&& !patients.getEstNameNls().isEmpty())
+                if (getStoredLanguage().equals(LANGUAGE_ARABIC) && !patients.getEstNameNls().isEmpty())
                     institutesNames.add(patients.getEstNameNls());
                 else
                     institutesNames.add(patients.getEstName());
-                Log.d("appointmentFrag", patients.getEstName());
-                Log.d("appointmentFrag", patients.getEstNameNls());
             }
         }
 
@@ -371,10 +372,8 @@ public class AppointmentNewFragment extends Fragment {
                     if (spnrClinic.getAdapter() != null) {
                         spnrClinic.setAdapter(null);
                     }
-                    Log.d("appointmentFrag", "-setOnItemSelectedListener");
                     mEstCode = institutes.get(position - 1).getEstCode();
                     getDepartments(institutes.get(position - 1).getEstCode());
-                   // Log.d("saveAppointment", "spnrHospital.setOnItemSelectedListener : " + demographicItem.getInstitutesArrayList().get(position - 1).getEstCode());
 
                     setAppointmentGroupVisibility(View.GONE);
                 }
@@ -392,38 +391,36 @@ public class AppointmentNewFragment extends Fragment {
 
 
         String fullUrl = API_NEHR_URL + "appointment/getDepts?estCode=" + estCode;//Integer.parseInt(estCode);
-        Log.d("fullURL-getDep", fullUrl);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, fullUrl, null
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                try {
-                    Log.d("get-departments", response.getString(API_RESPONSE_MESSAGE));
+                if (isAdded() && mContext != null) {
+                    try {
 
-                    if (response.getInt(API_RESPONSE_CODE) == 0) {
-                        Gson gson = new Gson();
-                        ApiAppointmentDepartmentsHolder responseHolder = gson.fromJson(response.toString(), ApiAppointmentDepartmentsHolder.class);
-                        Log.d("get-departments", response.getJSONArray("result").toString());
-                        setupSelectDepartmentSpinner(responseHolder.getResult(), estCode);
+                        if (response.getInt(API_RESPONSE_CODE) == 0) {
+                            Gson gson = new Gson();
+                            ApiAppointmentDepartmentsHolder responseHolder = gson.fromJson(response.toString(), ApiAppointmentDepartmentsHolder.class);
+                            setupSelectDepartmentSpinner(responseHolder.getResult(), estCode);
 
-                    } else {
-                        Log.d("get-departments", response.getString(API_RESPONSE_MESSAGE));
-                        mProgressDialog.dismissDialog();
+                        } else {
+                            mProgressDialog.dismissDialog();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    Log.d("get-departments", "JSONException/" + e);
-                }
 
-                mProgressDialog.dismissDialog();
+                    mProgressDialog.dismissDialog();
+                }
 
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
-                Log.d("get-departments", "VolleyError/" + error);
-                mProgressDialog.dismissDialog();
+                if (mContext != null && isAdded()) {
+                    error.printStackTrace();
+                    mProgressDialog.dismissDialog();
+                }
             }
         }) {
             //
@@ -450,7 +447,7 @@ public class AppointmentNewFragment extends Fragment {
         for (ApiAppointmentDepartmentsHolder.Department d : result) {
             if (getStoredLanguage().equals(LANGUAGE_ARABIC) && !d.getDeptnameNl().isEmpty())
                 departmentsNames.add(d.getDeptnameNl());
-             else
+            else
                 departmentsNames.add(d.getDeptName());
         }
         departmentsNames.add(0, getString(R.string.title_select_department));
@@ -492,7 +489,9 @@ public class AppointmentNewFragment extends Fragment {
                     if (spnrClinic.getAdapter() != null) {
                         spnrClinic.setAdapter(null);
                     }
-                    Toast.makeText(mContext, "position/" + position, Toast.LENGTH_SHORT).show();
+                    Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(android.R.id.content), "position/" + position, Snackbar.LENGTH_SHORT)
+                            .setBackgroundTint(getResources().getColor(R.color.colorPrimary))
+                            .show();
                     setAppointmentGroupVisibility(View.GONE);
                     getClinics(result.get(position - 1), mEstCode);
 
@@ -509,45 +508,43 @@ public class AppointmentNewFragment extends Fragment {
     private void getClinics(ApiAppointmentDepartmentsHolder.Department department, String mEstCode) {
 
         String fullUrl = API_NEHR_URL + "appointment/getClinics?estCode=" + mEstCode + "&deptId=" + department.getDeptId();//Integer.parseInt(estCode);
-        Log.d("fullURL-getCli", fullUrl);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, fullUrl, null
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                try {
+                if (mContext != null && isAdded()) {
+                    try {
 
-                    if (response.getInt(API_RESPONSE_CODE) == 0) {
-                        Gson gson = new Gson();
-                        ApiAppointmentClinicsHolder responseHolder = gson.fromJson(response.toString(), ApiAppointmentClinicsHolder.class);
-                        Log.d("get-clinics", response.getJSONArray("result").toString());
-                        setupSelectClinicSpinner(responseHolder.getResult());
+                        if (response.getInt(API_RESPONSE_CODE) == 0) {
+                            Gson gson = new Gson();
+                            ApiAppointmentClinicsHolder responseHolder = gson.fromJson(response.toString(), ApiAppointmentClinicsHolder.class);
+                            setupSelectClinicSpinner(responseHolder.getResult());
 
-                    } else {
-                        mProgressDialog.dismissDialog();
+                        } else {
+                            mProgressDialog.dismissDialog();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+
+                    mProgressDialog.dismissDialog();
                 }
-
-                mProgressDialog.dismissDialog();
-
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
-                mProgressDialog.dismissDialog();
+                if (mContext != null && isAdded()) {
+                    error.printStackTrace();
+                    mProgressDialog.dismissDialog();
+                }
             }
         }) {
             //
             @Override
             public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
-//                headers.put("Accept", "application/json");
                 headers.put("Content-Type", "application/json");
                 headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
-               /* headers.put("estCode", TEST_EST_CODE);
-                headers.put("deptId", TEST_DEPT_ID);*/
                 return headers;
             }
 
@@ -562,8 +559,8 @@ public class AppointmentNewFragment extends Fragment {
     private void setupSelectClinicSpinner(final ArrayList<ApiAppointmentClinicsHolder.Clinic> result) {
         final ArrayList<String> clinicsNames = new ArrayList<>();
         for (ApiAppointmentClinicsHolder.Clinic c : result) {
-            if (getStoredLanguage().equals(LANGUAGE_ARABIC)&& !c.getDoctdeptnameNl().isEmpty())
-                    clinicsNames.add(c.getDoctdeptnameNl());
+            if (getStoredLanguage().equals(LANGUAGE_ARABIC) && !c.getDoctdeptnameNl().isEmpty())
+                clinicsNames.add(c.getDoctdeptnameNl());
             else
                 clinicsNames.add(c.getDoctDeptName());
         }
@@ -608,10 +605,6 @@ public class AppointmentNewFragment extends Fragment {
 
                     setAppointmentGroupVisibility(View.VISIBLE);
                     setupSelectDateRangeSpinner();
-
-
-                    Log.d("saveAppointment", "spnrClinic.setOnItemSelectedListener : " + result.get(position - 1).getDoctDeptId());
-
                 }
             }
 
@@ -632,69 +625,58 @@ public class AppointmentNewFragment extends Fragment {
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                try {
-                    if (response.getInt(API_RESPONSE_CODE) == 0) {
-                        Log.d("resp-slots", response.getJSONObject("result").toString());
-                        Gson gson = new Gson();
-                        final ApiSlotsHolder responseHolder = gson.fromJson(response.toString(), ApiSlotsHolder.class);
+                if (mContext != null && isAdded()) {
+                    try {
+                        if (response.getInt(API_RESPONSE_CODE) == 0) {
+                            Gson gson = new Gson();
+                            final ApiSlotsHolder responseHolder = gson.fromJson(response.toString(), ApiSlotsHolder.class);
+                            vpContainer.setAdapter(null);
+                            final DatesViewPagerAdapter datesViewPagerAdapter =
+                                    new DatesViewPagerAdapter(getChildFragmentManager(), responseHolder, mEstCode, mClinicId, mListener);
+                            vpContainer.setAdapter(datesViewPagerAdapter);
 
 
-                        mEstCode = spnrHospital.getSelectedItem().toString();
-                        mClinicId = spnrClinic.getSelectedItem().toString();
+                            final int pageCount = getPageCount(responseHolder.getResult().getSlotsArrayList());
+
+                            ibNext.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    viewPagerNext();
+                                }
+                            });
+                            ibPrevious.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    viewPagerPrevious();
+                                }
+                            });
 
 
-                        vpContainer.setAdapter(null);
-                        final DatesViewPagerAdapter datesViewPagerAdapter =
-                                new DatesViewPagerAdapter(getChildFragmentManager(), responseHolder, mEstCode, mClinicId, mListener);
-                        vpContainer.setAdapter(datesViewPagerAdapter);
+                        } else {
 
-
-                        final int pageCount = getPageCount(responseHolder.getResult().getSlotsArrayList());
-                        Log.d("PageCount", pageCount + "");
-
-                        ibNext.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                viewPagerNext();
-                            }
-                        });
-                        ibPrevious.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                viewPagerPrevious();
-                            }
-                        });
-
-
-                    } else {
-
-                        mProgressDialog.dismissDialog();
+                            mProgressDialog.dismissDialog();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                } catch (JSONException e) {
-                    Log.d("resp-slots", e.getMessage());
-                    e.printStackTrace();
+
+                    mProgressDialog.dismissDialog();
                 }
-
-                mProgressDialog.dismissDialog();
-
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("resp-slots", error.toString());
-                error.printStackTrace();
-                mProgressDialog.dismissDialog();
+                if (mContext != null && isAdded()) {
+                    error.printStackTrace();
+                    mProgressDialog.dismissDialog();
+                }
             }
         }) {
             //
             @Override
             public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
-//                headers.put("Accept", "application/json");
                 headers.put("Content-Type", "application/json");
-//                headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessTokenString().getAccessTokenString());
-
-
                 return headers;
             }
 
@@ -785,7 +767,10 @@ public class AppointmentNewFragment extends Fragment {
 
     private String getStoredLanguage() {
         SharedPreferences sharedPref = mContext.getSharedPreferences(LANGUAGE_PREFS, Context.MODE_PRIVATE);
-        return sharedPref.getString(LANGUAGE_SELECTED, LANGUAGE_ARABIC);
+        return sharedPref.getString(LANGUAGE_SELECTED, getDeviceLanguage());
+    }
+    private String getDeviceLanguage() {
+        return Locale.getDefault().getLanguage();
     }
 }
 

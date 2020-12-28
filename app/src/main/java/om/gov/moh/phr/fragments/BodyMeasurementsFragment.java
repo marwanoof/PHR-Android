@@ -99,8 +99,6 @@ public class BodyMeasurementsFragment extends Fragment implements AdapterToFragm
     }
 
     private void setupRecyclerView(RecyclerView recyclerView) {
-        //declare recycler view adapter
-        //TODO : change getMeasurementArrayList() to mRecentVitalsArrayList
         MeasurementRecyclerViewAdapter mAdapter =
                 new MeasurementRecyclerViewAdapter(BodyMeasurementsFragment.this, mContext, getMeasurementArrayList());
         recyclerView.setHasFixedSize(true);// not required

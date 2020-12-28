@@ -69,18 +69,19 @@ public class HealthRecordListFragment extends Fragment implements AdapterToFragm
     private Context mContext;
     private MediatorInterface mMediatorCallback;
     private ToolbarControllerInterface mToolbarCallback;
-    private TextView tvAlert;
+    private TextView tvAlert, tvNoRecords;
     private RecyclerView rvHealthRecords;
     private RecyclerView rvYears;
     private View vResultsFound;
     private TextView tvResultsFound;
     private ArrayList<ApiEncountersHolder.Encounter> mEncountersList;
     private YearsRecyclerViewAdapter mYearsAdapter;
-    private ArrayList<ApiEncountersHolder.Encounter> result ;
+    private ArrayList<ApiEncountersHolder.Encounter> result;
     private SwipeRefreshLayout swipeRefreshLayout;
     private SearchView searchView;
     private String pageTitle;
     private static final String PARAM1 = "PARAM1";
+
     //ArrayList<ApiEncountersHolder.Encounter> filteredList;
     public HealthRecordListFragment() {
         // Required empty public constructor
@@ -120,7 +121,6 @@ public class HealthRecordListFragment extends Fragment implements AdapterToFragm
         View parentView = inflater.inflate(R.layout.fragment_health_record_list, container, false);
 
 
-
         //simple toolbar
         ImageButton ibToolbarBackButton = parentView.findViewById(R.id.ib_toolbar_back_button);
         ibToolbarBackButton.setOnClickListener(new View.OnClickListener() {
@@ -142,6 +142,7 @@ public class HealthRecordListFragment extends Fragment implements AdapterToFragm
         rvHealthRecords = parentView.findViewById(R.id.rv_health_records);
         setRecyclerView();
         tvAlert = parentView.findViewById(R.id.tv_alert);
+        tvNoRecords = parentView.findViewById(R.id.tv_no_records_alert);
         rvYears = parentView.findViewById(R.id.rv_years);
         setupListView();
         vResultsFound = parentView.findViewById(R.id.v_results_found);
@@ -161,20 +162,20 @@ public class HealthRecordListFragment extends Fragment implements AdapterToFragm
 
             @Override
             public boolean onQueryTextChange(String s) {
-                if (s.length() == 0){
+                if (s.length() == 0) {
                     updateRecyclerViewItems(mEncountersList);
-                }else {
+                } else {
                     ArrayList<ApiEncountersHolder.Encounter> filteredList = new ArrayList<>();
                     for (ApiEncountersHolder.Encounter encounter : mEncountersList) {
                         if (encounter.getDepartmentArrayList().get(0).getValue().toLowerCase().contains(s) ||
                                 encounter.getEstShortName().toLowerCase().contains(s) ||
                                 encounter.getEstFullname().toLowerCase().contains(s) ||
-                                encounter.getPatientClass().toLowerCase().contains(s))
-                        {
+                                encounter.getPatientClass().toLowerCase().contains(s) ||
+                                encounter.getEstFullnameNls().toLowerCase().contains(s)) {
                             filteredList.add(encounter);
                         }
-
                     }
+                    updateRecyclerViewItems(null);
                     updateRecyclerViewItems(filteredList);
                 }
 
@@ -184,20 +185,19 @@ public class HealthRecordListFragment extends Fragment implements AdapterToFragm
 
         swipeRefreshLayout = parentView.findViewById(R.id.swipe_refresh_layout);
         swipeRefreshLayout.setOnRefreshListener(this);
-        /*swipeRefreshLayout.post(new Runnable() {
+        swipeRefreshLayout.post(new Runnable() {
                                     @Override
                                     public void run() {
                                         swipeRefreshLayout.setRefreshing(true);
                                         getEncounterResponse();
                                     }
                                 }
-        );*/
+        );
         getEncounterResponse();
 
 
-
         return parentView;
-}
+    }
 
     private void setupListView() {
         mYearsAdapter = new YearsRecyclerViewAdapter(HealthRecordListFragment.this, mContext);
@@ -209,24 +209,18 @@ public class HealthRecordListFragment extends Fragment implements AdapterToFragm
 
     private void getEncounterResponse() {
         mProgressDialog.showDialog();
-        // showing refresh animation before making http call
-        //swipeRefreshLayout.setRefreshing(true);
-        Log.d("enc", "Called");
-        String fullUrl = API_NEHR_URL + "encounter/v2/civilId";
-        //String fullUrl = "https://5.162.223.156/nehrapi/encounter/civilId/" + mMediatorCallback.getCurrentUser().getCivilId();
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, fullUrl, getJSONRequestParams(mMediatorCallback.getCurrentUser().getCivilId(),"PHR")
+        String fullUrl = API_NEHR_URL + "encounter/v2/civilId";
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, fullUrl, getJSONRequestParams(mMediatorCallback.getCurrentUser().getCivilId(), "PHR")
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Activity activity = getActivity();
-                if (activity != null) {
+                Log.d("EncounterResp", response.toString());
+                if (mContext != null && isAdded()) {
                     try {
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
                             Gson gson = new Gson();
-                            Log.d("resp-encount", response.getJSONArray("result").toString());
                             ApiEncountersHolder responseHolder = gson.fromJson(response.toString(), ApiEncountersHolder.class);
-                            Log.d("resp-encount", response.getJSONArray("result").toString());
 
                             mEncountersList = responseHolder.getResult();
                             tvResultsFound.setText(responseHolder.getResult().size() + " " + getResources().getString(R.string.results_found));
@@ -237,12 +231,10 @@ public class HealthRecordListFragment extends Fragment implements AdapterToFragm
                             //setUpAddresseesList(responseHolder.getmResult());
 
                         } else {
-                            displayAlert(getResources().getString(R.string.no_record_found), View.VISIBLE, View.GONE);
+                            displayAlert();
                             mProgressDialog.dismissDialog();
                         }
                     } catch (JSONException e) {
-//                    Log.d("enc", e.getMessage());
-
                         e.printStackTrace();
                     }
 
@@ -254,11 +246,8 @@ public class HealthRecordListFragment extends Fragment implements AdapterToFragm
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-//                Log.d("enc", error.toString());
-                Activity activity = getActivity();
-                if (activity != null && isAdded()) {
+                if (mContext != null && isAdded()) {
                     mProgressDialog.dismissDialog();
-                    // showing refresh animation before making http call
                     swipeRefreshLayout.setRefreshing(false);
                     error.printStackTrace();
                 }
@@ -268,7 +257,6 @@ public class HealthRecordListFragment extends Fragment implements AdapterToFragm
             @Override
             public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
-//                headers.put("Accept", "application/json");
                 headers.put("Content-Type", "application/json");
                 headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
 
@@ -281,12 +269,14 @@ public class HealthRecordListFragment extends Fragment implements AdapterToFragm
         jsonObjectRequest.setRetryPolicy(policy);
         mQueue.add(jsonObjectRequest);
     }
+
     private JSONObject getJSONRequestParams(String civilId, String source) {
         Map<String, Object> params = new HashMap<>();
         params.put("civilId", Long.parseLong(civilId));
         params.put("source", source);
         return new JSONObject(params);
     }
+
     private void updateYearsListView(ArrayList<ApiEncountersHolder.Encounter> encounterArrayList) {
         ArrayList<String> yearsArrayList = new ArrayList<>();
         yearsArrayList.add(getString(R.string.title_all));
@@ -323,15 +313,13 @@ public class HealthRecordListFragment extends Fragment implements AdapterToFragm
     private void filter(String searchKey) {
         if (!searchKey.equalsIgnoreCase(getString(R.string.title_all))) {
             ArrayList<ApiEncountersHolder.Encounter> filteredList = new ArrayList<>();
-
-
             for (ApiEncountersHolder.Encounter encounter : mEncountersList) {
                 if (encounter.getEncounterYear().contains(searchKey)) {
                     filteredList.add(encounter);
                 }
             }
             tvResultsFound.setText(filteredList.size() + " " + getResources().getString(R.string.health_records_result_found) + searchKey + "!");
-
+            updateRecyclerViewItems(null);
             updateRecyclerViewItems(filteredList);
         } else {
             tvResultsFound.setText(mEncountersList.size() + " " + getResources().getString(R.string.results_found));
@@ -340,14 +328,14 @@ public class HealthRecordListFragment extends Fragment implements AdapterToFragm
     }
 
 
-    private void displayAlert(String msg, int alertVisibility, int otherViewsVisibility) {
-        rvHealthRecords.setVisibility(otherViewsVisibility);
-        tvAlert.setVisibility(otherViewsVisibility);
-        rvYears.setVisibility(otherViewsVisibility);
-        vResultsFound.setVisibility(otherViewsVisibility);
-        tvResultsFound.setVisibility(otherViewsVisibility);
-        tvAlert.setVisibility(alertVisibility);
-        tvAlert.setText(msg);
+    private void displayAlert() {
+        searchView.setVisibility(View.GONE);
+        rvHealthRecords.setVisibility(View.GONE);
+        rvYears.setVisibility(View.GONE);
+        vResultsFound.setVisibility(View.GONE);
+        tvResultsFound.setVisibility(View.GONE);
+        tvAlert.setVisibility(View.GONE);
+        tvNoRecords.setVisibility(View.VISIBLE);
     }
 
     @Override

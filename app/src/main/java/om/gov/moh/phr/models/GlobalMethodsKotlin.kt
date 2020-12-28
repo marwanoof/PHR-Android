@@ -8,54 +8,66 @@ import android.view.animation.AnimationUtils
 import com.example.awesomedialog.*
 import om.gov.moh.phr.R
 
- class GlobalMethodsKotlin {
-     companion object{
+class GlobalMethodsKotlin {
+    companion object {
 
-         fun showAlertDialog(context: Context,title:String,body:String,buttonText:String,iconDrawable: Int){
-             val activity = context as Activity
-             AwesomeDialog.build(context)
-                     .title(title)
-                     .body(body)
-                     .icon(iconDrawable)
-                     .onPositive(buttonText,buttonBackgroundColor = R.drawable.bg_circle) {
+        fun showAlertDialog(context: Context, title: String, body: String, buttonText: String, iconDrawable: Int) {
+            val activity = context as Activity
+            AwesomeDialog.build(context)
+                    .title(title)
+                    .body(body)
+                    .icon(iconDrawable)
+                    .onPositive(buttonText, buttonBackgroundColor = R.drawable.bg_circle) {
 
-                     }
-         }
+                    }
+        }
 
-         fun showAlertErrorDialog(context: Context){
-             val activity = context as Activity
-             val title = context.resources.getString(R.string.alert_error_title)
-             val body = context.resources.getString(R.string.wrong_msg)
-             val buttonText = context.resources.getString(R.string.ok)
-             AwesomeDialog.build(context)
-                     .title(title)
-                     .body(body)
-                     .icon(R.drawable.ic_error)
-                     .onPositive(buttonText,buttonBackgroundColor = R.drawable.bg_circle) {
+        fun showAlertErrorDialog(context: Context) {
+            val activity = context as Activity
+            val title = context.resources.getString(R.string.alert_error_title)
+            val body = context.resources.getString(R.string.wrong_msg)
+            val buttonText = context.resources.getString(R.string.ok)
+            AwesomeDialog.build(context)
+                    .title(title)
+                    .body(body)
+                    .icon(R.drawable.ic_error)
+                    .onPositive(buttonText, buttonBackgroundColor = R.drawable.bg_circle) {
 
-                     }
-         }
+                    }
+        }
 
-         fun setAnimation(context: Context,type:Int): Animation{
-             return AnimationUtils.loadAnimation(context, type)
-         }
-            /* val animationfadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in)
+        fun setAnimation(context: Context, type: Int): Animation {
+            return AnimationUtils.loadAnimation(context, type)
+        }
 
-             val animationFadeOut = AnimationUtils.loadAnimation(this, R.anim.fade_out)
+        // USED ONCE GET OTP BUTTON CLICKED
+        fun showSimpleAlertDialog(context: Context, title: String, body: String, buttonText: String, iconDrawable: Int) {
+            val activity = context as Activity
+            AwesomeDialog.build(context)
+                    //.title(title)
+                    .body(body)
+                    .icon(iconDrawable)
+                    .onPositive(buttonText, buttonBackgroundColor = R.drawable.bg_circle) {
 
-             val animationZoomIn = AnimationUtils.loadAnimation(this, R.anim.zoom_in)
+                    }
+        }
+        /* val animationfadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in)
 
-             val animationZoomOut = AnimationUtils.loadAnimation(this, R.anim.zoom_out)
+         val animationFadeOut = AnimationUtils.loadAnimation(this, R.anim.fade_out)
 
-             val animationSlideDown = AnimationUtils.loadAnimation(this, R.anim.slide_down)
+         val animationZoomIn = AnimationUtils.loadAnimation(this, R.anim.zoom_in)
 
-             val animationSlideUp = AnimationUtils.loadAnimation(this, R.anim.slide_up)
+         val animationZoomOut = AnimationUtils.loadAnimation(this, R.anim.zoom_out)
 
-             val animationBounce = AnimationUtils.loadAnimation(this, R.anim.bounce)
+         val animationSlideDown = AnimationUtils.loadAnimation(this, R.anim.slide_down)
 
-             val animationRotate = AnimationUtils.loadAnimation(this, R.anim.rotate)*/
+         val animationSlideUp = AnimationUtils.loadAnimation(this, R.anim.slide_up)
+
+         val animationBounce = AnimationUtils.loadAnimation(this, R.anim.bounce)
+
+         val animationRotate = AnimationUtils.loadAnimation(this, R.anim.rotate)*/
 
 
-     }
+    }
 
 }

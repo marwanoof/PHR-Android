@@ -1,7 +1,6 @@
 package om.gov.moh.phr.adapters;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
@@ -20,7 +19,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import om.gov.moh.phr.R;
-import om.gov.moh.phr.apimodels.ApiLabResultCultureHolder;
+import om.gov.moh.phr.apimodels.ApiRadiologyHolder;
 import om.gov.moh.phr.fragments.ProceduresReportsDetailsFragment;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.models.GlobalMethods;

@@ -2,7 +2,6 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/frameLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorBackground"
@@ -19,7 +18,6 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ScrollView
-        android:id="@+id/scrollView2"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -29,7 +27,7 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardView5"
@@ -40,9 +38,10 @@
                 android:layout_marginEnd="20dp"
                 app:cardCornerRadius="10dp"
                 app:cardElevation="8dp"
+                android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toBottomOf="@id/cardView8">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -74,7 +73,7 @@
                         android:ems="10"
                         android:fontFamily="@font/sky"
                         android:hint="@string/enter_your_mobile_no"
-                        android:inputType="number"
+                        android:inputType="phone"
                         android:maxLength="8"
                         android:paddingStart="8dp"
                         android:paddingEnd="8dp"
@@ -120,6 +119,7 @@
                         android:paddingStart="8sp"
                         android:singleLine="true"
                         android:textSize="@dimen/text_size_12sp"
+                        android:digits="abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ أإآذدجحخهعغفقثصضطكمنتالبيسشظزوةىرؤءئ"
                         app:layout_constraintEnd_toStartOf="@+id/et_releation_organ"
                         app:layout_constraintHorizontal_bias="0.5"
                         app:layout_constraintStart_toStartOf="parent"
@@ -172,6 +172,7 @@
                 android:layout_marginEnd="20dp"
                 app:cardCornerRadius="10dp"
                 app:cardElevation="8dp"
+                android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView12">
@@ -202,7 +203,6 @@
                             app:layout_constraintTop_toTopOf="parent" />
 
                         <View
-                            android:id="@+id/viewliver"
                             android:layout_width="0dp"
                             android:layout_height="1dp"
                             android:background="@color/colorBackground"
@@ -234,7 +234,6 @@
                             app:layout_constraintTop_toTopOf="parent" />
 
                         <View
-                            android:id="@+id/viewHeart"
                             android:layout_width="0dp"
                             android:layout_height="1dp"
                             android:background="@color/colorBackground"
@@ -266,7 +265,6 @@
                             app:layout_constraintTop_toTopOf="parent" />
 
                         <View
-                            android:id="@+id/viewLungs"
                             android:layout_width="0dp"
                             android:layout_height="1dp"
                             android:background="@color/colorBackground"
@@ -298,7 +296,6 @@
                             app:layout_constraintTop_toTopOf="parent" />
 
                         <View
-                            android:id="@+id/viewPancreas"
                             android:layout_width="0dp"
                             android:layout_height="1dp"
                             android:background="@color/colorBackground"
@@ -308,7 +305,6 @@
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
                     <androidx.constraintlayout.widget.ConstraintLayout
-                        android:id="@+id/cl_corneas"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="15dp"
@@ -380,7 +376,6 @@
                             app:layout_constraintTop_toTopOf="parent" />
 
                         <View
-                            android:id="@+id/view9"
                             android:layout_width="0dp"
                             android:layout_height="1dp"
                             android:background="@color/colorBackground"
@@ -403,7 +398,7 @@
                 app:cardElevation="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/cardView5">
+                app:layout_constraintTop_toTopOf="parent">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -419,8 +414,7 @@
                         android:layout_marginBottom="8dp"
                         android:text="@string/i_want_donate"
                         android:textColor="#000000"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/radioGroup"
+                       app:layout_constraintEnd_toStartOf="@+id/radioGroup"
                         app:layout_constraintHorizontal_bias="0.0"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
@@ -434,7 +428,7 @@
                         android:layout_marginBottom="8dp"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent">
+                        app:layout_constraintTop_toBottomOf="@id/textView10">
 
                         <RadioButton
                             android:id="@+id/radioButtonYes"
@@ -457,7 +451,6 @@
                             android:checked="true"
                             android:fontFamily="@font/sky"
                             android:text="@string/decide_later" />
-
                     </RadioGroup>
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.cardview.widget.CardView>
@@ -469,11 +462,11 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="20dp"
                 android:text="@string/organ_donated"
+                android:visibility="gone"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/cardView8" />
+                app:layout_constraintTop_toBottomOf="@+id/cardView5" />
 
             <LinearLayout
-                android:id="@+id/linearLayout7"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"
@@ -488,24 +481,13 @@
 
                 <Button
                     android:id="@+id/btn_save_organ"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="40dp"
                     android:layout_marginEnd="8dp"
-                    android:layout_weight="1"
                     android:background="@drawable/upload_btn"
                     android:fontFamily="@font/sky"
                     android:text="@string/save"
                     android:textColor="#FFFFFF" />
-
-                <Button
-                    android:id="@+id/btn_cancel_organ"
-                    android:layout_width="wrap_content"
-                    android:layout_height="40dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/cancel_btn"
-                    android:fontFamily="@font/sky"
-                    android:text="@string/title_cancel"
-                    android:textColor="@color/colorPrimary" />
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>

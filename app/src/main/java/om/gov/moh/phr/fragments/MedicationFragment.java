@@ -157,8 +157,8 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_medication, container, false);
 
-        TextView tvTitle = view.findViewById(R.id.tv_Title);
-        tvTitle.setText(pageTitle);
+       // TextView tvTitle = view.findViewById(R.id.tv_Title);
+       // tvTitle.setText(pageTitle);
 
         mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
         mProgressDialog = new MyProgressDialog(mContext);
@@ -175,7 +175,7 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
         if (medicationType != null) {
 
         } else {
-            tvTitle.setVisibility(View.GONE);
+           // tvTitle.setVisibility(View.GONE);
             searchView.setVisibility(View.GONE);
         }
         if (mMediatorCallback.isConnected()) {
@@ -185,7 +185,7 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
                     getMedicationList(API_URL_GET_MEDICATIONS_INFO,"recent","","");
                 } else {
                     //String allMedicationUrl = API_URL_GET_MEDICATIONS_INFO + mMediatorCallback.getCurrentUser().getCivilId();
-                    getMedicationList(API_URL_GET_MEDICATIONS_INFO,"","","");
+                    getMedicationList(API_URL_GET_MEDICATIONS_INFO,"all","","");
                 }
 
            }  else if(encounterInfo!=null){
@@ -251,6 +251,7 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
+                Log.d("MedicationResp", response.toString());
                 if (mContext != null&&isAdded()) {
                     try {
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
@@ -294,10 +295,8 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
             @Override
             public void onErrorResponse(VolleyError error) {
                 if (mContext != null && isAdded()) {
-                    Log.d("resp-demographic", error.toString());
                     error.printStackTrace();
                     mProgressDialog.dismissDialog();
-                    //swipeRefreshLayout.setRefreshing(false);
                 }
             }
         }) {
@@ -305,7 +304,6 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
             @Override
             public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
-//                headers.put("Accept", "application/json");
                 headers.put("Content-Type", "application/json");
                 headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
                 return headers;

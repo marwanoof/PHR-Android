@@ -5,14 +5,12 @@
     android:id="@+id/swipeRefreshLayoutHome"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_marginTop="?actionBarSize"
     android:background="@color/colorGray"
-    tools:context=".fragments.HomeFragment"
-    android:layout_marginTop="?actionBarSize">
-
+    tools:context=".fragments.HomeFragment">
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/view1"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -38,7 +36,6 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <include
-                android:id="@+id/inc_personal_info"
                 layout="@layout/fragment_home_person_info"
                 android:layout_width="@dimen/space_0"
                 android:layout_height="wrap_content" />
@@ -65,6 +62,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_gravity="start"
+                    android:layout_marginTop="@dimen/space_8"
                     android:foregroundGravity="top|left">
 
                     <androidx.recyclerview.widget.RecyclerView
@@ -91,7 +89,6 @@
                         app:layout_constraintTop_toTopOf="parent">
 
                         <ImageView
-                            android:id="@+id/imageView4"
                             android:layout_width="30dp"
                             android:layout_height="30dp"
                             android:layout_gravity="start|left"
@@ -100,7 +97,6 @@
                             android:src="@drawable/ic_vital_main" />
 
                         <TextView
-                            android:id="@+id/textView5"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="5dp"
@@ -125,7 +121,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_gravity="start"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="@dimen/space_8"
                     android:foregroundGravity="top|left">
 
                     <androidx.recyclerview.widget.RecyclerView
@@ -152,7 +148,6 @@
                         app:layout_constraintTop_toTopOf="parent">
 
                         <ImageView
-                            android:id="@+id/imageView44"
                             android:layout_width="30dp"
                             android:layout_height="30dp"
                             android:layout_gravity="start|left"
@@ -161,7 +156,6 @@
                             android:src="@drawable/ic_appointment_main" />
 
                         <TextView
-                            android:id="@+id/textView55"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="5dp"
@@ -182,15 +176,73 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/referralsLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="start"
+                    android:layout_marginTop="@dimen/space_8"
+                    android:foregroundGravity="top|left">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_referrals"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginEnd="10dp"
+                        app:layout_constraintEnd_toEndOf="@+id/llReferrals"
+                        app:layout_constraintStart_toStartOf="@+id/llReferrals"
+                        app:layout_constraintTop_toBottomOf="@+id/llReferrals"
+                        tools:itemCount="4"
+                        tools:listitem="@layout/list_item_coming_appointment" />
+
+                    <LinearLayout
+                        android:id="@+id/llReferrals"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="start|center_vertical"
+                        android:orientation="horizontal"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <ImageView
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_gravity="start|left"
+                            android:layout_weight="0"
+                            android:scaleType="fitStart"
+                            android:src="@drawable/ic_referral" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="5dp"
+                            android:layout_weight="2"
+                            android:text="@string/title_referrals"
+                            android:textColor="@color/colorSecendary"
+                            android:textStyle="bold" />
+
+                        <ImageButton
+                            android:id="@+id/btn_referrals_expand"
+                            android:layout_width="15dp"
+                            android:layout_height="15dp"
+                            android:layout_weight="0"
+                            android:background="#00FFFFFF"
+                            android:scaleType="fitEnd"
+                            android:src="@drawable/ic_arrow_down" />
+                    </LinearLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/notificationLayout"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_gravity="start"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="@dimen/space_8"
                     android:foregroundGravity="top|left">
 
                     <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/recyclerView_notification_home"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="10dp"
@@ -213,7 +265,6 @@
                         app:layout_constraintTop_toTopOf="parent">
 
                         <ImageView
-                            android:id="@+id/imageView42"
                             android:layout_width="30dp"
                             android:layout_height="30dp"
                             android:layout_gravity="start|left"
@@ -222,7 +273,6 @@
                             android:src="@drawable/ic_notification" />
 
                         <TextView
-                            android:id="@+id/textView52"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="5dp"
@@ -247,11 +297,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="@dimen/space_8"
                     android:foregroundGravity="top|left">
 
                     <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/recyclerView_updates_home"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="10dp"
@@ -274,7 +323,6 @@
                         app:layout_constraintTop_toTopOf="parent">
 
                         <ImageView
-                            android:id="@+id/imageView43"
                             android:layout_width="30dp"
                             android:layout_height="30dp"
                             android:layout_gravity="start|left"
@@ -283,7 +331,6 @@
                             android:src="@drawable/ic_update" />
 
                         <TextView
-                            android:id="@+id/textView53"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="5dp"
@@ -308,7 +355,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="@dimen/space_8"
                     android:foregroundGravity="top|left">
 
                     <androidx.recyclerview.widget.RecyclerView
@@ -334,7 +381,6 @@
                         app:layout_constraintTop_toTopOf="parent">
 
                         <ImageView
-                            android:id="@+id/imageView335"
                             android:layout_width="30dp"
                             android:layout_height="30dp"
                             android:layout_gravity="start|left"
@@ -343,7 +389,6 @@
                             android:src="@drawable/ic_message" />
 
                         <TextView
-                            android:id="@+id/textView335"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="5dp"
@@ -351,6 +396,18 @@
                             android:text="@string/unread_messages"
                             android:textColor="@color/colorSecendary"
                             android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvNoOfChatNotification"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="@dimen/space_10"
+                            android:background="@drawable/badge"
+                            android:textAlignment="center"
+                            android:textColor="@color/colorWhite"
+                            android:textSize="@dimen/text_size_10sp"
+                            android:textStyle="bold"
+                            android:visibility="gone" />
 
                         <ImageButton
                             android:id="@+id/btn_chats_expand"
@@ -390,7 +447,6 @@
             app:layout_constraintStart_toStartOf="parent">
 
             <View
-                android:id="@+id/view7"
                 android:layout_width="0dp"
                 android:layout_height="30dp"
                 android:background="@drawable/home_footer"

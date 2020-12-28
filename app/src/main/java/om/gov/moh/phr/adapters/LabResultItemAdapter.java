@@ -39,6 +39,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import om.gov.moh.phr.R;
@@ -470,7 +471,10 @@ public class LabResultItemAdapter extends RecyclerView.Adapter<LabResultItemAdap
 
     private String getStoredLanguage() {
         SharedPreferences sharedPref = context.getSharedPreferences(LANGUAGE_PREFS, Context.MODE_PRIVATE);
-        return sharedPref.getString(LANGUAGE_SELECTED, LANGUAGE_ARABIC);
+        return sharedPref.getString(LANGUAGE_SELECTED, getDeviceLanguage());
+    }
+    private String getDeviceLanguage() {
+        return Locale.getDefault().getLanguage();
     }
 
     private Bitmap flipImage() {

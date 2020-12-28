@@ -4,6 +4,7 @@ package om.gov.moh.phr.fragments;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -33,7 +34,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -44,11 +44,13 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -56,7 +58,10 @@ import java.io.InputStream;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.EventListener;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
@@ -77,6 +82,10 @@ import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_RESULT;
 import static om.gov.moh.phr.models.MyConstants.CAMERA;
 import static om.gov.moh.phr.models.MyConstants.GALLERY;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_ARABIC;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_ENGLISH;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_PREFS;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_SELECTED;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -136,7 +145,7 @@ public class AddDocFragment extends Fragment {
                 mToolbarControllerCallback.customToolbarBackButtonClicked();
             }
         });
-        enableHomeandRefresh(view);
+        //enableHomeandRefresh(view);
         mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
         mProgressDialog = new MyProgressDialog(mContext);
         spnDocTypes = view.findViewById(R.id.spnr_DocType);
@@ -192,30 +201,29 @@ public class AddDocFragment extends Fragment {
         mProgressDialog.showDialog();
 
         String fullUrl = API_NEHR_URL + "master/getDocType";
-        Log.d("fullURL", fullUrl);
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, fullUrl, null
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 try {
-                    if (mContext != null) {
+                    if (mContext != null && isAdded()) {
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
                             JSONArray documentsTypesArray = response.getJSONArray(API_RESPONSE_RESULT);
                             ArrayList<String> documentsTypes = new ArrayList<>();
                             documentsTypesCodes = new ArrayList<>();
-                            String defaultText = getResources().getString(R.string.select_doc_type_msg);
+                            String defaultText = getResources().getString(R.string.select_doc_type_msg)+"*";
                             documentsTypes.add(defaultText);
                             documentsTypesCodes.add("None");
                             for (int i = 0; i < documentsTypesArray.length(); i++) {
                                 JSONObject documentTypeObj = documentsTypesArray.getJSONObject(i);
-                                documentsTypes.add(documentTypeObj.getString("typeName"));
-                                documentsTypesCodes.add(documentTypeObj.getString("typeCode"));
+                                if (getStoredLanguage().equals(LANGUAGE_ARABIC)&&documentTypeObj.optString("typeNameNls")!=null&&!documentTypeObj.optString("typeNameNls").equals(""))
+                                    documentsTypes.add(documentTypeObj.optString("typeNameNls"));
+                                else
+                                    documentsTypes.add(documentTypeObj.optString("typeName"));
+                                documentsTypesCodes.add(documentTypeObj.optString("typeCode"));
                             }
-                            Log.d("AddDocFrag", "-Demo" + response.getJSONArray(API_RESPONSE_RESULT));
                             setupSelectDocTypeSpinner(documentsTypes, documentsTypesCodes);
-
-
                         } else {
                             noDocTypeFound();
                             mProgressDialog.dismissDialog();
@@ -232,7 +240,6 @@ public class AddDocFragment extends Fragment {
             @Override
             public void onErrorResponse(VolleyError error) {
                 if (mContext != null && isAdded()) {
-                    Log.d("add_doc", error.toString());
                     error.printStackTrace();
                     mProgressDialog.dismissDialog();
                 }
@@ -260,7 +267,7 @@ public class AddDocFragment extends Fragment {
         String title = mContext.getResources().getString(R.string.alert_error_title);
         String body = mContext.getResources().getString(R.string.no_doc_type_found);
         String buttonText = mContext.getResources().getString(R.string.ok);
-        GlobalMethodsKotlin.Companion.showAlertDialog(mContext,title,body,buttonText,R.drawable.ic_error);
+        GlobalMethodsKotlin.Companion.showAlertDialog(mContext, title, body, buttonText, R.drawable.ic_error);
     }
 
     private void setupSelectDocTypeSpinner(ArrayList<String> documentsTypes, ArrayList<String> documentsTypesCodes) {
@@ -272,7 +279,7 @@ public class AddDocFragment extends Fragment {
             public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
                 View v = super.getView(position, convertView, parent);
 
-                Typeface externalFont=Typeface.createFromAsset(mContext.getAssets(), "sky.ttf");
+                Typeface externalFont = Typeface.createFromAsset(mContext.getAssets(), "sky.ttf");
                 ((TextView) v).setTypeface(externalFont);
 
                 return v;
@@ -312,44 +319,53 @@ public class AddDocFragment extends Fragment {
 
     private void uploadFile() {
         if (spnDocTypes.getSelectedItemPosition() == 0) {
-            Toast.makeText(mContext, getResources().getString(R.string.select_doc_type_msg), Toast.LENGTH_SHORT).show();
+            Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(android.R.id.content), getResources().getString(R.string.select_doc_type_msg), Snackbar.LENGTH_SHORT)
+                    .setBackgroundTint(getResources().getColor(R.color.colorPrimary))
+                    .show();
         } else if (etReference.getText().toString().isEmpty()) {
-            Toast.makeText(mContext, getResources().getString(R.string.enter_reference_msg), Toast.LENGTH_SHORT).show();
+            Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(android.R.id.content), getResources().getString(R.string.enter_reference_msg), Snackbar.LENGTH_SHORT)
+                    .setBackgroundTint(getResources().getColor(R.color.colorPrimary))
+                    .show();
         } else if (etRemark.getText().toString().isEmpty()) {
-            Toast.makeText(mContext, getResources().getString(R.string.enter_remark_msg), Toast.LENGTH_SHORT).show();
+            Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(android.R.id.content), getResources().getString(R.string.enter_remark_msg), Snackbar.LENGTH_SHORT)
+                    .setBackgroundTint(getResources().getColor(R.color.colorPrimary))
+                    .show();
         } else if (etFileName.getText().toString().isEmpty()) {
-            Toast.makeText(mContext, getResources().getString(R.string.select_file_msg), Toast.LENGTH_SHORT).show();
+            Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(android.R.id.content), getResources().getString(R.string.select_file_msg), Snackbar.LENGTH_SHORT)
+                    .setBackgroundTint(getResources().getColor(R.color.colorPrimary))
+                    .show();
         } else if (imageStoragePath != null) {
             File img = new File(imageStoragePath);
             long length = img.length();
             if (length > 5 * 1000 * 1000) {
-                Toast.makeText(mContext, getResources().getString(R.string.too_large_file), Toast.LENGTH_SHORT).show();
+                Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(android.R.id.content), getResources().getString(R.string.too_large_file), Snackbar.LENGTH_SHORT)
+                        .setBackgroundTint(getResources().getColor(R.color.colorPrimary))
+                        .show();
             } else {
                 getDocTypeCode();
                 mProgressDialog.showDialog();
 
                 String fullUrl = API_NEHR_URL + "file/uploadAndroid";
-                Log.d("fileUpload", fullUrl);
                 JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, fullUrl, getJSONRequestParams()
                         , new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        Toast.makeText(mContext, getResources().getString(R.string.success_upload_msg), Toast.LENGTH_SHORT).show();
-                        mToolbarControllerCallback.customToolbarBackButtonClicked();
-                        mProgressDialog.dismissDialog();
+                        if (mContext != null && isAdded()) {
+                            Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(android.R.id.content), getResources().getString(R.string.success_upload_msg), Snackbar.LENGTH_SHORT)
+                                    .setBackgroundTint(getResources().getColor(R.color.colorPrimary))
+                                    .show();
+                            mToolbarControllerCallback.customToolbarBackButtonClicked();
+                            mProgressDialog.dismissDialog();
+                        }
                     }
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        if(mContext!=null&&isAdded()) {
-                            Log.d("upload_error", error.toString());
-                            Log.i("jsonObjectRequest", "Error, Status Code " + error.networkResponse.statusCode);
-                      //      Log.i("jsonObjectRequest", "URL: " + payOp.getURL());
-                     //       Log.i("jsonObjectRequest", "Payload: " + payOp.getJson().toString());
-                            Log.i("jsonObjectRequest", "Net Response to String: " + error.networkResponse.toString());
-                            Log.i("jsonObjectRequest", "Error bytes: " + new String(error.networkResponse.data));
+                        if (mContext != null && isAdded()) {
                             error.printStackTrace();
-                            Toast.makeText(mContext, error.toString(), Toast.LENGTH_SHORT).show();
+                            Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(android.R.id.content), error.toString(), Snackbar.LENGTH_SHORT)
+                                    .setBackgroundTint(getResources().getColor(R.color.colorPrimary))
+                                    .show();
                             mProgressDialog.dismissDialog();
                         }
                     }
@@ -358,12 +374,8 @@ public class AddDocFragment extends Fragment {
                     @Override
                     public Map<String, String> getHeaders() {
                         HashMap<String, String> headers = new HashMap<>();
-//                headers.put("Accept", "application/json");
                         headers.put("Content-Type", "application/json");
-                        //         headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
-
-
-                        return headers;
+                      return headers;
                     }
 
                 };
@@ -394,7 +406,6 @@ public class AddDocFragment extends Fragment {
         params.put("imageString", convertPic(imageStoragePath));
         params.put("remarks", etRemark.getText().toString());
         params.put("sourceRef", etReference.getText().toString());
-        Log.d("fileUpload", new JSONObject(params).toString());
         return new JSONObject(params);
     }
 
@@ -449,22 +460,13 @@ public class AddDocFragment extends Fragment {
             Bitmap cameraBitmap = CameraUtils.optimizeBitmap(8,
                     imageStoragePath);
             Uri imageRealUri = getImageUri(mContext, cameraBitmap);
-            imageStoragePath=getRealPathFromURI(imageRealUri);
+            imageStoragePath = getRealPathFromURI(imageRealUri);
             ivImageView.setImageBitmap(cameraBitmap);
             ibGalleryFile.setEnabled(false);
         }
-
-        char[] chars = "abcdefghijklmnopqrstuvwxyz".toCharArray();
-        StringBuilder sb = new StringBuilder(3);
-        Random random = new Random();
-        for (int i = 0; i < 3; i++) {
-            char c = chars[random.nextInt(chars.length)];
-            sb.append(c);
-        }
-        String output = "File" + mMediatorCallback.getCurrentUser().getCivilId() + sb.toString() + ".jpg";
+        long currentTime = Calendar.getInstance().getTimeInMillis();
+        String output = "File" + mMediatorCallback.getCurrentUser().getCivilId() + currentTime + ".jpg";
         etFileName.setText(output);
-
-
     }
 
     private String getRealPathFromURI(Uri uri) {
@@ -491,7 +493,7 @@ public class AddDocFragment extends Fragment {
             ActivityCompat.requestPermissions(Objects.requireNonNull(getActivity()), new String[]{android.Manifest
                     .permission.CAMERA, Manifest
                     .permission.WRITE_EXTERNAL_STORAGE}, 1);
-        }
+            }
     }
 
     private String convertPic(String path) {
@@ -501,9 +503,13 @@ public class AddDocFragment extends Fragment {
         byte[] b = baos.toByteArray();
         return Base64.encodeToString(b, Base64.DEFAULT);
     }
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
+
+    private String getStoredLanguage() {
+        SharedPreferences sharedPref = mContext.getSharedPreferences(LANGUAGE_PREFS, Context.MODE_PRIVATE);
+        return sharedPref.getString(LANGUAGE_SELECTED, getDeviceLanguage());
+    }
+
+    private String getDeviceLanguage() {
+        return Locale.getDefault().getLanguage();
     }
 }

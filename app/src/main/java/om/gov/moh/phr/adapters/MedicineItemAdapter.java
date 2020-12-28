@@ -207,7 +207,10 @@ public class MedicineItemAdapter extends RecyclerView.Adapter<MedicineItemAdapte
 
     private String getStoredLanguage() {
         SharedPreferences sharedPref = context.getSharedPreferences(LANGUAGE_PREFS, Context.MODE_PRIVATE);
-        return sharedPref.getString(LANGUAGE_SELECTED, LANGUAGE_ARABIC);
+        return sharedPref.getString(LANGUAGE_SELECTED, getDeviceLanguage());
+    }
+    private String getDeviceLanguage() {
+        return Locale.getDefault().getLanguage();
     }
 
     private void insertIntoCalender(String title, String desc, String untilDate, Date currentDate, Date endDate){

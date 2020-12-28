@@ -86,6 +86,13 @@ public class ApiHomeHolder {
         public ArrayList<Patients> getInstitutesArrayList() {
             return institutesArrayList;
         }
+
+        @SerializedName("referrals")
+        ArrayList<Referrals> referralsArrayList = new ArrayList<>();
+
+        public ArrayList<Referrals> getReferralsArrayList() {
+            return referralsArrayList;
+        }
     }
 
     public class ApiDemographics implements Serializable {
@@ -550,6 +557,17 @@ public class ApiHomeHolder {
         @SerializedName("createdDate")
         private String createdDate;
 
+        @SerializedName("isNew")
+        private boolean isNew;
+
+        public boolean isNew() {
+            return isNew;
+        }
+
+        public void setNew(boolean aNew) {
+            isNew = aNew;
+        }
+
         public long getMessageId() {
             return messageId;
         }
@@ -636,5 +654,34 @@ public class ApiHomeHolder {
         public void setIsPending(boolean pending) {
             isPending = pending;
         }
+    }
+    public class Referrals implements Serializable {
+        @SerializedName("referralBy")
+        private String referralBy;
+
+        @SerializedName("sendDate")
+        private long sendDate;
+
+        @SerializedName("refInstitute")
+        private String refInstitute;
+
+        public String getReferralBy() {
+            return referralBy;
+        }
+
+        public long getSendDate() {
+            return sendDate;
+        }
+
+        public String getRefInstitute() {
+            return refInstitute;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        @SerializedName("description")
+        private String description;
     }
 }

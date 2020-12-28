@@ -1,6 +1,7 @@
 package om.gov.moh.phr.adapters;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,13 +45,26 @@ public class MessageChatsAdapter extends RecyclerView.Adapter<MessageChatsAdapte
     //onBindViewHolder , allows you to write the data into the fields
     @Override
     public void onBindViewHolder(@NonNull final MessageChatsAdapter.MyViewHolder holder, final int position) {
-
-
+        /*if (mSender != null) {
+            if (mItemsArrayList.get(position).getCreatedName().trim().equals(mSender.trim())) {
+                holder.ivUnreadMsg.setVisibility(View.VISIBLE);
+            } else
+                holder.ivUnreadMsg.setVisibility(View.GONE);
+        }*/
+        if (mItemsArrayList.get(position).isNew()) {
+            holder.ivUnreadMsg.setVisibility(View.VISIBLE);
+        }
         holder.tvTitle.setText(mItemsArrayList.get(position).getCreatedName());
         holder.tvDate.setText(mItemsArrayList.get(position).getCreatedDate());
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                    if (mItemsArrayList.get(position).isNew()) {
+                        clearNotificationSharedPrefs(3);
+                        mItemsArrayList.get(position).setNew(false);
+                        notifyDataSetChanged();
+                        holder.ivUnreadMsg.setVisibility(View.GONE);
+                    }
                 mediatorInterface.changeFragmentTo(ChatMessagesFragment.newInstance(mItemsArrayList.get(position)), "");
             }
         });
@@ -67,6 +81,7 @@ public class MessageChatsAdapter extends RecyclerView.Adapter<MessageChatsAdapte
 
 
         private TextView tvTitle, tvDate;
+        private ImageView ivUnreadMsg;
 
 
         public MyViewHolder(View view) {
@@ -74,7 +89,34 @@ public class MessageChatsAdapter extends RecyclerView.Adapter<MessageChatsAdapte
 
             tvTitle = itemView.findViewById(R.id.tv_chat_title);
             tvDate = itemView.findViewById(R.id.tv_chat_date);
+            ivUnreadMsg = itemView.findViewById(R.id.img_chat_icon);
+        }
+    }
 
+    private void clearNotificationSharedPrefs(int notificationType) {
+        SharedPreferences sharedPref;
+        SharedPreferences.Editor editor;
+
+        sharedPref = mContext.getSharedPreferences("Counting", Context.MODE_PRIVATE);
+        editor = sharedPref.edit();
+        switch (notificationType) {
+            case 1:
+                editor.remove("appointmentCount");
+                editor.apply();
+                break;
+            case 2:
+                editor.remove("notificationCount");
+                editor.apply();
+                break;
+            case 3:
+                editor.remove("chatCount");
+                editor.apply();
+                break;
+            default:
+                editor.remove("appointmentCount");
+                editor.remove("notificationCount");
+                editor.remove("chatCount");
+                editor.apply();
         }
     }
 }

@@ -64,7 +64,7 @@ import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_RESULT;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ProceduresReportsFragment extends Fragment implements SearchView.OnQueryTextListener{
+public class ProceduresReportsFragment extends Fragment implements SearchView.OnQueryTextListener {
 
     private static final String API_URL_GET_ALL_PROCEDURES_REPORTS_INFO = API_NEHR_URL + "procedure/groupByEncounters";
     //private static final String API_URL_GET_PROC_HRD_INFO = API_NEHR_URL + "procedure/encounterId/";
@@ -162,8 +162,8 @@ public class ProceduresReportsFragment extends Fragment implements SearchView.On
             // Inflate the layout for this fragment
             view = inflater.inflate(R.layout.fragment_procedures_reports, container, false);
 
-            TextView tvTitle = view.findViewById(R.id.tv_Title);
-            tvTitle.setText(pageTitle);
+         /*   TextView tvTitle = view.findViewById(R.id.tv_Title);
+            tvTitle.setText(pageTitle);*/
             mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
             mProgressDialog = new MyProgressDialog(mContext);
             tvAlert = view.findViewById(R.id.tv_alert);
@@ -173,25 +173,25 @@ public class ProceduresReportsFragment extends Fragment implements SearchView.On
             noRecordCardView = view.findViewById(R.id.cardViewNoRecords);
             noRecordCardView.setVisibility(View.GONE);
             //swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
-            if (encounterInfo != null || docInfo != null || procedureInfo!=null) {
-                tvTitle.setVisibility(View.GONE);
+            if (encounterInfo != null || docInfo != null || procedureInfo != null) {
+                //tvTitle.setVisibility(View.GONE);
                 searchView.setVisibility(View.GONE);
             }
             if (mMediatorCallback.isConnected()) {
                 if (encounterInfo != null) {
-                    getProceduresReportsList(API_URL_GET_ALL_PROCEDURES_REPORTS_INFO,"","",encounterInfo.getEncounterId());
+                    getProceduresReportsList(API_URL_GET_ALL_PROCEDURES_REPORTS_INFO, "", "", encounterInfo.getEncounterId());
 
                 } else if (docInfo != null) {
 
-                    getProceduresReportsList(API_URL_GET_ALL_PROCEDURES_REPORTS_INFO,"","",docInfo.getEncounterId());
+                    getProceduresReportsList(API_URL_GET_ALL_PROCEDURES_REPORTS_INFO, "", "", docInfo.getEncounterId());
 
                 } else if (procedureInfo != null) {
 
-                    getProceduresReportsList(API_URL_GET_ALL_PROCEDURES_REPORTS_INFO,"","",procedureInfo.getEncounterId());
+                    getProceduresReportsList(API_URL_GET_ALL_PROCEDURES_REPORTS_INFO, "", "", procedureInfo.getEncounterId());
 
-                }else {
+                } else {
 
-                    getProceduresReportsList(API_URL_GET_ALL_PROCEDURES_REPORTS_INFO,"recent","","");
+                    getProceduresReportsList(API_URL_GET_ALL_PROCEDURES_REPORTS_INFO, "recent", "", "");
 
                 }
                 /*swipeRefreshLayout.setOnRefreshListener(this);
@@ -241,7 +241,7 @@ public class ProceduresReportsFragment extends Fragment implements SearchView.On
         mProgressDialog.showDialog();
         //swipeRefreshLayout.setRefreshing(true);
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, getJSONRequestParams(mMediatorCallback.getCurrentUser().getCivilId(),data,source)
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, getJSONRequestParams(mMediatorCallback.getCurrentUser().getCivilId(), data, source)
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -253,26 +253,23 @@ public class ProceduresReportsFragment extends Fragment implements SearchView.On
                             ApiProceduresReportsHolder responseHolder = gson.fromJson(response.toString(), ApiProceduresReportsHolder.class);
                             reportsArrayList = responseHolder.getResult();
                             ArrayList<ApiProceduresReportsHolder.ProceduresByEncounter> filteredLabInfo = new ArrayList<>();
-                            if (!encounterId.isEmpty()){
-                                for (ApiProceduresReportsHolder.ProceduresByEncounter proceduresInfo:reportsArrayList){
-                                    if (proceduresInfo.getEncounterId().equals(encounterId)){
+                            if (!encounterId.isEmpty()) {
+                                for (ApiProceduresReportsHolder.ProceduresByEncounter proceduresInfo : reportsArrayList) {
+                                    if (proceduresInfo.getEncounterId().equals(encounterId)) {
                                         filteredLabInfo.add(proceduresInfo);
                                     }
                                 }
                                 if (filteredLabInfo.size() > 0)
-                                    setupRecyclerView(filteredLabInfo,false);
+                                    setupRecyclerView(filteredLabInfo, false);
                                 else
                                     displayAlert(getResources().getString(R.string.no_records_proc_encounter));
-                            }else {
-                                setupRecyclerView(reportsArrayList,true);
+                            } else {
+                                setupRecyclerView(reportsArrayList, true);
                             }
 
 
                         } else {
-                            if (data.equals("all"))
-                                displayAlert(getResources().getString(R.string.no_records_proc_all));
-                            else if (data.equals("recent"))
-                                displayAlert(getResources().getString(R.string.no_records_proc_recent));
+                            displayAlert(getResources().getString(R.string.no_records_proc_all));
                             mProgressDialog.dismissDialog();
                         }
                     } catch (JSONException e) {
@@ -280,24 +277,21 @@ public class ProceduresReportsFragment extends Fragment implements SearchView.On
                     }
 
                     mProgressDialog.dismissDialog();
-                    //swipeRefreshLayout.setRefreshing(false);
                 }
 
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("resp-demographic", error.toString());
-                error.printStackTrace();
-                mProgressDialog.dismissDialog();
-                //swipeRefreshLayout.setRefreshing(false);
+                if (mContext != null && isAdded()) {
+                    error.printStackTrace();
+                    mProgressDialog.dismissDialog();
+                }
             }
         }) {
-            //
             @Override
             public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
-//                headers.put("Accept", "application/json");
                 headers.put("Content-Type", "application/json");
                 headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
                 return headers;
@@ -310,6 +304,7 @@ public class ProceduresReportsFragment extends Fragment implements SearchView.On
 
         mQueue.add(jsonObjectRequest);
     }
+
     private JSONObject getJSONRequestParams(String civilId, String data, String source) {
         Map<String, Object> params = new HashMap<>();
         params.put("civilId", Long.parseLong(civilId));
@@ -317,6 +312,7 @@ public class ProceduresReportsFragment extends Fragment implements SearchView.On
         params.put("source", source);
         return new JSONObject(params);
     }
+
     private void setupRecyclerView(ArrayList<ApiProceduresReportsHolder.ProceduresByEncounter> getmResult, Boolean showVisitDate) {
         mAdapter = new ProceduresReportsRecyclerView(mMediatorCallback, getmResult, mContext, false, showVisitDate);
         LinearLayoutManager layoutManager
@@ -333,13 +329,15 @@ public class ProceduresReportsFragment extends Fragment implements SearchView.On
     @Override
     public void onDetach() {
         super.onDetach();
-        if (encounterInfo == null && docInfo == null && procedureInfo==null) {
+        if (encounterInfo == null && docInfo == null && procedureInfo == null) {
             mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
         }
     }
+
     private void updateRecyclerViewItems(ArrayList<ApiProceduresReportsHolder.ProceduresByEncounter> result) {
         mAdapter.updateItemsListFiltered(result);
     }
+
     @Override
     public boolean onQueryTextSubmit(String query) {
         return false;
@@ -347,14 +345,13 @@ public class ProceduresReportsFragment extends Fragment implements SearchView.On
 
     @Override
     public boolean onQueryTextChange(String s) {
-        if (s.length() == 0){
+        if (s.length() == 0) {
             updateRecyclerViewItems(reportsArrayList);
-        }else {
+        } else {
             ArrayList<ApiProceduresReportsHolder.ProceduresByEncounter> filteredList = new ArrayList<>();
-            for (int i = 0;i< reportsArrayList.size();i++) {
-                for (int j = 0; j< reportsArrayList.get(i).getProcedures().size();j++){
-                    if (reportsArrayList.get(i).getProcedures().get(j).getProcedure().get(0).getName().toLowerCase().contains(s))
-                    {
+            for (int i = 0; i < reportsArrayList.size(); i++) {
+                for (int j = 0; j < reportsArrayList.get(i).getProcedures().size(); j++) {
+                    if (reportsArrayList.get(i).getProcedures().get(j).getProcedure().get(0).getName().toLowerCase().contains(s)) {
                         filteredList.add(reportsArrayList.get(i));
                     }
                 }

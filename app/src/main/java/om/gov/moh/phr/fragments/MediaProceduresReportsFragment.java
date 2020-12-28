@@ -66,11 +66,11 @@ public class MediaProceduresReportsFragment extends Fragment implements SearchVi
     private MediatorInterface mMediatorCallback;
     private ToolbarControllerInterface mToolbarControllerCallback;
     private RecyclerView rvProceduresReportsList;
-    private TextView tvAlert;
+    private TextView tvAlert, tvNoRecordsFound;
     private static final String API_URL_GET_MEDIA_PROCEDURES_REPORTS_INFO = API_NEHR_URL + "diagnosticOrder/media/";
     private ArrayList<ApiProceduresReportsHolder> reportsArrayList;
     private MediaRecyclerViewAdapter mAdapter;
-    //private SwipeRefreshLayout swipeRefreshLayout;
+   private SearchView searchView;
     private View view;
     public MediaProceduresReportsFragment() {
         // Required empty public constructor
@@ -95,13 +95,14 @@ public class MediaProceduresReportsFragment extends Fragment implements SearchVi
         if (view == null) {
          view = inflater.inflate(R.layout.fragment_media_procedures_reports, container, false);
 
-            TextView tvTitle = view.findViewById(R.id.tv_Title);
-            tvTitle.setText(getResources().getString(R.string.title_media));
+           // TextView tvTitle = view.findViewById(R.id.tv_Title);
+           // tvTitle.setText(getResources().getString(R.string.title_media));
             tvAlert = view.findViewById(R.id.tv_alert);
+            tvNoRecordsFound = view.findViewById(R.id.tv_no_records_alert);
             rvProceduresReportsList = view.findViewById(R.id.rv_reportsList);
             mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
             mProgressDialog = new MyProgressDialog(mContext);
-            SearchView searchView = (SearchView) view.findViewById(R.id.sv_searchView);
+             searchView = (SearchView) view.findViewById(R.id.sv_searchView);
             searchView.setOnQueryTextListener(this);
 
             if (mMediatorCallback.isConnected()) {
@@ -130,18 +131,18 @@ public class MediaProceduresReportsFragment extends Fragment implements SearchVi
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                if (mContext != null) {
+                Log.d("MediaResp", response.toString());
+                if (mContext != null&&isAdded()) {
                     try {
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
                             Gson gson = new Gson();
                             ApiMediaProcedureHolder responseHolder = gson.fromJson(response.toString(), ApiMediaProcedureHolder.class);
                             ArrayList<ApiMediaProcedureHolder.MediaProcedure> reportsArrayList = responseHolder.getResult();
-
-
                             setupRecyclerView(reportsArrayList);
 
                         } else {
-                            displayAlert(getResources().getString(R.string.no_record_found));
+                            searchView.setVisibility(View.GONE);
+                            tvNoRecordsFound.setVisibility(View.VISIBLE);
                             mProgressDialog.dismissDialog();
                         }
                     } catch (JSONException e) {
@@ -157,7 +158,6 @@ public class MediaProceduresReportsFragment extends Fragment implements SearchVi
             @Override
             public void onErrorResponse(VolleyError error) {
                 if(mContext!=null&&isAdded()) {
-                    Log.d("resp-demographic", error.toString());
                     error.printStackTrace();
                     mProgressDialog.dismissDialog();
 
@@ -168,7 +168,6 @@ public class MediaProceduresReportsFragment extends Fragment implements SearchVi
             @Override
             public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
-//                headers.put("Accept", "application/json");
                 headers.put("Content-Type", "application/json");
                 headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
                 return headers;

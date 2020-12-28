@@ -76,13 +76,13 @@ public class DocsContainerFragment extends Fragment {
                 mToolbarControllerCallback.customToolbarBackButtonClicked();
             }
         });
-        final TextView tvAddDoc = view.findViewById(R.id.addDoc);
+    /*    final TextView tvAddDoc = view.findViewById(R.id.addDoc);
         tvAddDoc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mMediatorCallback.changeFragmentTo(AddDocFragment.newInstance(), getResources().getString(R.string.title_other_document));
             }
-        });
+        });*/
         ViewPager mViewPager = view.findViewById(R.id.container);
         TabLayout tabs = view.findViewById(R.id.tabs);
         tabs.bringToFront();
@@ -95,15 +95,15 @@ public class DocsContainerFragment extends Fragment {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 int position = tab.getPosition();
-                if(position==1)
-                    tvAddDoc.setVisibility(View.VISIBLE);
+               // if(position==1)
+                   // tvAddDoc.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
                 int position = tab.getPosition();
-                if(position==1)
-                tvAddDoc.setVisibility(View.GONE);
+              //  if(position==1)
+               // tvAddDoc.setVisibility(View.GONE);
             }
 
             @Override

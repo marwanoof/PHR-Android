@@ -60,7 +60,7 @@ public class OtherDocsRecyclerViewAdapter extends RecyclerView.Adapter<OtherDocs
         final ApiOtherDocsHolder.ApiDocInfo docObj = othersDocsArrayList.get(position);
         holder.tvDocType.setText(docObj.getTitle());
         Date date = new Date(docObj.getIndexed());
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-YYYY" + " " + " HH:mm", Locale.ENGLISH);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy  HH:mm", Locale.ENGLISH);
         String dateText = dateFormat.format(date);
         holder.tvDateWritten.setText(dateText);
 
@@ -73,7 +73,6 @@ public class OtherDocsRecyclerViewAdapter extends RecyclerView.Adapter<OtherDocs
         }
         long encounterDate = docObj.getEncounterDate();
 
-        SimpleDateFormat dateFormatGroupedDate = new SimpleDateFormat("dd-MM-YYYY", Locale.ENGLISH);
         /*if (position != 0) {
             int prev = position - 1;
             long prevEncounterDate = othersDocsArrayList.get(prev).getEncounterDate();
@@ -190,7 +189,10 @@ public class OtherDocsRecyclerViewAdapter extends RecyclerView.Adapter<OtherDocs
     }
     private String getStoredLanguage() {
         SharedPreferences sharedPref = context.getSharedPreferences(LANGUAGE_PREFS, Context.MODE_PRIVATE);
-        return sharedPref.getString(LANGUAGE_SELECTED, LANGUAGE_ARABIC);
+        return sharedPref.getString(LANGUAGE_SELECTED, getDeviceLanguage());
+    }
+    private String getDeviceLanguage() {
+        return Locale.getDefault().getLanguage();
     }
 
     private Bitmap flipImage() {

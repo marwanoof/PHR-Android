@@ -10,7 +10,6 @@ import om.gov.moh.phr.R;
 import om.gov.moh.phr.fragments.AppointmentsListFragment;
 import om.gov.moh.phr.fragments.ChatFragment;
 import om.gov.moh.phr.fragments.HomeFragment;
-import om.gov.moh.phr.fragments.NotificationsFragment;
 
 public class HomePagerAdapter extends FragmentPagerAdapter {
     private String[] mFragmentTitles = new String[1];

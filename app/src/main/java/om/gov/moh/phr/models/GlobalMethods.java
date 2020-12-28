@@ -9,6 +9,8 @@ import android.graphics.Matrix;
 
 import com.example.awesomedialog.AwesomeDialog;
 
+import java.util.Locale;
+
 import om.gov.moh.phr.R;
 
 import static om.gov.moh.phr.models.MyConstants.LANGUAGE_ARABIC;
@@ -16,9 +18,12 @@ import static om.gov.moh.phr.models.MyConstants.LANGUAGE_PREFS;
 import static om.gov.moh.phr.models.MyConstants.LANGUAGE_SELECTED;
 
 public class GlobalMethods {
+
+    private static String getDeviceLanguage = Locale.getDefault().getLanguage();
+
     public static String getStoredLanguage(Context context) {
         SharedPreferences sharedPref = context.getSharedPreferences(LANGUAGE_PREFS, Context.MODE_PRIVATE);
-        return sharedPref.getString(LANGUAGE_SELECTED, LANGUAGE_ARABIC);
+        return sharedPref.getString(LANGUAGE_SELECTED, getDeviceLanguage);
     }
     public static void storeLanguage(String language,Context context) {
         SharedPreferences sharedPref = context.getSharedPreferences(LANGUAGE_PREFS, Context.MODE_PRIVATE);

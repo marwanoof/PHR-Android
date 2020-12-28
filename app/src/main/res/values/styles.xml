@@ -17,18 +17,10 @@
         <item name="android:fontFamily">@font/sky</item>
     </style>
 
-    <style name="SkySpinnerStyle" parent="android:Widget.Spinner.DropDown">
-        <item name="android:fontFamily">@font/sky</item>
-        <item name="android:spinnerDropDownItemStyle">@android:style/Widget.Material.Light.Spinner.Underlined</item>
-    </style>
-
     <style name="SkySearchViewStyle" parent="android:Widget.Material.SearchView">
         <item name="android:fontFamily">@font/sky</item>
     </style>
 
-    <style name="SkyBottonStyle" parent="android:Widget.Button">
-        <item name="android:fontFamily">@font/sky</item>
-    </style>
     <style name="SkyFont" parent="android:Widget.Toolbar.Button.Navigation">
         <item name="android:fontFamily">@font/sky</item>
     </style>

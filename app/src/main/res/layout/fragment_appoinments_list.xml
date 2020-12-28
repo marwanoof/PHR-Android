@@ -10,10 +10,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">-->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".fragments.AppointmentsListFragment">
+        android:layout_height="wrap_content">
 
         <include
             android:id="@+id/inc_simple_toolbar"
@@ -24,20 +26,14 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <!--<ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">-->
-
-
         <androidx.cardview.widget.CardView
             android:id="@+id/cardView10"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
             android:layout_marginBottom="20dp"
             app:cardCornerRadius="10dp"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHeight_max="wrap"
             app:layout_constraintStart_toStartOf="parent"
@@ -50,23 +46,23 @@
 
                 <TextView
                     android:id="@+id/tv_no_appointment_alert"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:background="@color/colorLiteGray"
-                    android:fontFamily="@font/roboto_regular"
                     android:text="@string/no_appointment_msg"
+                    android:textAlignment="center"
                     android:textColor="@color/colorBlack"
                     android:visibility="gone"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toBottomOf="@id/v_appointments_label" />
 
                 <View
                     android:id="@+id/v_appointments_label"
                     android:layout_width="0dp"
                     android:layout_height="@dimen/space_48"
-                    android:background="@color/colorRed"
+                    android:background="@color/colorPrimary"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -76,15 +72,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
-                    android:backgroundTint="@color/colorRed"
-                    android:src="@drawable/ic_add_24dp"
+                    android:backgroundTint="@color/colorPrimary"
+                    android:src="@drawable/ic_add_24"
                     android:tint="@color/colorWhite"
                     app:layout_constraintBottom_toBottomOf="@id/v_appointments_label"
                     app:layout_constraintEnd_toEndOf="@+id/v_appointments_label"
                     app:layout_constraintTop_toTopOf="@id/v_appointments_label" />
 
                 <TextView
-                    android:id="@+id/textView2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
@@ -100,15 +95,16 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:src="@drawable/ic_time"
-                    android:tint="@color/colorWhite"
                     app:layout_constraintBottom_toBottomOf="@+id/v_appointments_label"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="@id/v_appointments_label" />
+                    app:layout_constraintTop_toTopOf="@id/v_appointments_label"
+                    app:tint="@color/colorWhite" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recycler_view"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/space_0"
+                    android:nestedScrollingEnabled="false"
                     android:orientation="vertical"
                     android:paddingStart="@dimen/space_16"
                     android:paddingEnd="@dimen/space_16"
@@ -121,39 +117,43 @@
         </androidx.cardview.widget.CardView>
 
         <LinearLayout
+            android:id="@+id/llReferrals"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
             app:layout_constraintEnd_toEndOf="parent"
-            tools:visibility="gone">
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cardView10">
 
             <androidx.cardview.widget.CardView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginEnd="20dp">
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/space_20dp"
+                android:layout_marginTop="@dimen/space_20dp"
+                android:layout_marginEnd="@dimen/space_20dp"
+                android:layout_marginBottom="@dimen/space_20dp"
+                app:cardCornerRadius="10dp">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="wrap_content">
 
                     <View
                         android:id="@+id/v_referrals_label"
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/space_48"
-                        android:background="#f9d696"
+                        android:background="@color/colorPrimary"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <TextView
                         android:id="@+id/tv_no_refferals_alert"
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
                         android:background="@color/colorLiteGray"
-                        android:fontFamily="@font/roboto_regular"
                         android:text="@string/no_refferals"
+                        android:textAlignment="center"
                         android:textColor="@color/colorBlack"
                         android:visibility="gone"
                         app:layout_constraintBottom_toBottomOf="parent"
@@ -162,7 +162,6 @@
                         app:layout_constraintTop_toBottomOf="@+id/v_referrals_label" />
 
                     <TextView
-                        android:id="@+id/textView3"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="5dp"
@@ -178,8 +177,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
-                        android:src="@drawable/ic_group_add_24dp"
-                        android:tint="@color/colorWhite"
+                        android:src="@drawable/ic_referral"
                         app:layout_constraintBottom_toBottomOf="@+id/v_referrals_label"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
@@ -188,17 +186,19 @@
                         android:id="@+id/rv_referral"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false"
                         android:paddingStart="@dimen/space_16"
                         android:paddingEnd="@dimen/space_16"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/v_referrals_label" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.cardview.widget.CardView>
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-    <!--   </ScrollView>-->
+    </ScrollView>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 

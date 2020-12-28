@@ -23,7 +23,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -35,6 +34,7 @@ import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,6 +42,7 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.apimodels.ApiUploadsDocsHolder;
@@ -183,7 +184,9 @@ public class UploadedDocDetailsFragment extends Fragment implements SwipeRefresh
                 getResources().getString(R.string.no_dialog),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        Toast.makeText(mContext, getResources().getString(R.string.cancel_done_msg), Toast.LENGTH_SHORT).show();
+                        Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(android.R.id.content), getResources().getString(R.string.cancel_done_msg), Snackbar.LENGTH_SHORT)
+                                .setBackgroundTint(getResources().getColor(R.color.colorPrimary))
+                                .show();
                         mToolbarControllerCallback.customToolbarBackButtonClicked();
                         dialog.dismiss();
                     }
@@ -211,7 +214,9 @@ public class UploadedDocDetailsFragment extends Fragment implements SwipeRefresh
                 getResources().getString(R.string.no_dialog),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        Toast.makeText(mContext, getResources().getString(R.string.cancel_done_msg), Toast.LENGTH_SHORT).show();
+                        Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(android.R.id.content), getResources().getString(R.string.cancel_done_msg), Snackbar.LENGTH_SHORT)
+                                .setBackgroundTint(getResources().getColor(R.color.colorPrimary))
+                                .show();
                         mToolbarControllerCallback.customToolbarBackButtonClicked();
                         dialog.dismiss();
                     }
@@ -226,44 +231,42 @@ public class UploadedDocDetailsFragment extends Fragment implements SwipeRefresh
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                try {
-                    if (response.getInt(API_RESPONSE_CODE) == 0) {
-                        Log.d("publish", response.getString(API_RESPONSE_MESSAGE));
-                        if (fullUrl.contains("file/unPublish/"))
-                            Toast.makeText(mContext, getResources().getString(R.string.success_unpublish_msg), Toast.LENGTH_SHORT).show();
-                        else
-                            Toast.makeText(mContext, getResources().getString(R.string.success_publish_msg), Toast.LENGTH_SHORT).show();
-                        mToolbarControllerCallback.customToolbarBackButtonClicked();
-                    } else {
+                if (mContext != null && isAdded()) {
+                    try {
+                        if (response.getInt(API_RESPONSE_CODE) == 0) {
+                            if (fullUrl.contains("file/unPublish/"))
+                            Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(android.R.id.content), getResources().getString(R.string.success_unpublish_msg), Snackbar.LENGTH_SHORT).setBackgroundTint(getResources().getColor(R.color.colorPrimary)).show();
+                            else
+                            Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(android.R.id.content), getResources().getString(R.string.success_publish_msg), Snackbar.LENGTH_SHORT).setBackgroundTint(getResources().getColor(R.color.colorPrimary)).show();
+                            mToolbarControllerCallback.customToolbarBackButtonClicked();
+                        } else {
 
-                        mProgressDialog.dismissDialog();
+                            mProgressDialog.dismissDialog();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                } catch (JSONException e) {
-                    Log.d("publish", e.getMessage());
-                    e.printStackTrace();
+
+                    mProgressDialog.dismissDialog();
                 }
-
-                mProgressDialog.dismissDialog();
-
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("publish", error.toString());
-                error.printStackTrace();
-                Toast.makeText(mContext, error.toString(), Toast.LENGTH_SHORT).show();
-                mProgressDialog.dismissDialog();
+                if (mContext != null && isAdded()) {
+                    error.printStackTrace();
+                    Snackbar.make(getActivity().findViewById(android.R.id.content), error.toString(), Snackbar.LENGTH_SHORT)
+                            .setBackgroundTint(getResources().getColor(R.color.colorPrimary))
+                            .show();
+                    mProgressDialog.dismissDialog();
+                }
             }
         }) {
             //
             @Override
             public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
-//                headers.put("Accept", "application/json");
                 headers.put("Content-Type", "application/json");
-                //         headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
-
-
                 return headers;
             }
 
@@ -313,44 +316,46 @@ public class UploadedDocDetailsFragment extends Fragment implements SwipeRefresh
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                try {
-                    if (response.getInt(API_RESPONSE_CODE) == 0) {
-                        String uploadedFile = response.getJSONObject(API_RESPONSE_RESULT).getString(UPLOADED_FILE_KEY);
-                        byte[] decodedString = Base64.decode(uploadedFile.getBytes(), Base64.DEFAULT);
-                        if (response.getJSONObject(API_RESPONSE_RESULT).getString("contentType").contains("pdf")) {
-                            ivFileUploaded.setVisibility(View.GONE);
+                if (mContext != null && isAdded()) {
+                    try {
+                        if (response.getInt(API_RESPONSE_CODE) == 0) {
+                            String uploadedFile = response.getJSONObject(API_RESPONSE_RESULT).getString(UPLOADED_FILE_KEY);
+                            byte[] decodedString = Base64.decode(uploadedFile.getBytes(), Base64.DEFAULT);
+                            if (response.getJSONObject(API_RESPONSE_RESULT).getString("contentType").contains("pdf")) {
+                                ivFileUploaded.setVisibility(View.GONE);
+                            } else {
+                                Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                                Glide.with(mContext).load(decodedByte).into(ivFileUploaded);
+                                //      }
+                            }
                         } else {
-                            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-                            Glide.with(mContext).load(decodedByte).into(ivFileUploaded);
-                            //      }
+                            mProgressDialog.dismissDialog();
+                            displayAlert(getResources().getString(R.string.no_record_found));
+
                         }
-                    } else {
-                        mProgressDialog.dismissDialog();
-                        displayAlert(getResources().getString(R.string.no_record_found));
-
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
 
-                mProgressDialog.dismissDialog();
-                swipeRefreshLayout.setRefreshing(false);
+                    mProgressDialog.dismissDialog();
+                    swipeRefreshLayout.setRefreshing(false);
+                }
             }
 
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("getUploadedFiles", error.toString());
-                error.printStackTrace();
-                mProgressDialog.dismissDialog();
-                swipeRefreshLayout.setRefreshing(false);
+                if (mContext != null && isAdded()) {
+                    error.printStackTrace();
+                    mProgressDialog.dismissDialog();
+                    swipeRefreshLayout.setRefreshing(false);
+                }
             }
         }) {
             //
             @Override
             public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
-//                headers.put("Accept", "application/json");
                 headers.put("Content-Type", "application/json");
                 headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
                 return headers;
@@ -372,38 +377,40 @@ public class UploadedDocDetailsFragment extends Fragment implements SwipeRefresh
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                try {
-                    if (response.getInt(API_RESPONSE_CODE) == 0) {
-                        Toast.makeText(mContext, getResources().getString(R.string.success_delete_msg), Toast.LENGTH_SHORT).show();
-                        mToolbarControllerCallback.customToolbarBackButtonClicked();
-                    } else {
-                        mProgressDialog.dismissDialog();
-                        displayAlert(getResources().getString(R.string.no_record_found));
+                if (mContext != null && isAdded()) {
+                    try {
+                        if (response.getInt(API_RESPONSE_CODE) == 0) {
+                            Snackbar.make(getActivity().findViewById(android.R.id.content), getResources().getString(R.string.success_delete_msg), Snackbar.LENGTH_SHORT)
+                                    .setBackgroundTint(getResources().getColor(R.color.colorPrimary))
+                                    .show();
+                            mToolbarControllerCallback.customToolbarBackButtonClicked();
+                        } else {
+                            mProgressDialog.dismissDialog();
+                            displayAlert(getResources().getString(R.string.no_record_found));
 
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+
+                    mProgressDialog.dismissDialog();
                 }
-
-                mProgressDialog.dismissDialog();
-
             }
 
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("deleteDoc", error.toString());
-                error.printStackTrace();
-                mProgressDialog.dismissDialog();
+                if (mContext != null && isAdded()) {
+                    error.printStackTrace();
+                    mProgressDialog.dismissDialog();
+                }
             }
         }) {
             //
             @Override
             public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
-//                headers.put("Accept", "application/json");
                 headers.put("Content-Type", "application/json");
-                //       headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
                 return headers;
             }
 

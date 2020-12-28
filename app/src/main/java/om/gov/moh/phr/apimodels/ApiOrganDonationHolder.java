@@ -1,5 +1,7 @@
 package om.gov.moh.phr.apimodels;
 
+import android.text.TextUtils;
+
 import com.google.gson.annotations.SerializedName;
 
 public class ApiOrganDonationHolder {
@@ -12,7 +14,7 @@ public class ApiOrganDonationHolder {
 
     public class OrganDonationJson{
         @SerializedName("donorId")
-        private long donorId;
+        private Long donorId;
 
         @SerializedName("mobileNo")
         private String mobileNo;
@@ -50,7 +52,7 @@ public class ApiOrganDonationHolder {
         @SerializedName("relationContactNo")
         private long relationContactNo;
 
-        public long getDonorId() {
+        public Long getDonorId() {
             return donorId;
         }
 
@@ -67,30 +69,51 @@ public class ApiOrganDonationHolder {
         }
 
         public String getKidneysYn() {
+            if(kidneysYn==null|| TextUtils.isEmpty(kidneysYn))
+                return "";
+            else
             return kidneysYn;
         }
 
         public String getLiverYn() {
-            return liverYn;
+            if(liverYn==null|| TextUtils.isEmpty(liverYn))
+                return "";
+            else
+                return liverYn;
         }
 
         public String getHeartYn() {
+            if(heartYn==null|| TextUtils.isEmpty(heartYn))
+                return "";
+            else
             return heartYn;
         }
 
         public String getLungsYn() {
+            if(lungsYn==null|| TextUtils.isEmpty(lungsYn))
+                return "";
+            else
             return lungsYn;
         }
 
         public String getPancreasYn() {
+            if(pancreasYn==null|| TextUtils.isEmpty(pancreasYn))
+                return "";
+            else
             return pancreasYn;
         }
 
         public String getCorneasYn() {
+            if(corneasYn==null|| TextUtils.isEmpty(corneasYn))
+                return "";
+            else
             return corneasYn;
         }
 
         public String getAfterDeathYn() {
+            if(afterDeathYn==null|| TextUtils.isEmpty(afterDeathYn))
+                return "";
+            else
             return afterDeathYn;
         }
 

@@ -38,21 +38,22 @@ public class CameraUtils {
         ExifInterface exif = null;
         try {
             exif = new ExifInterface(filePath);
+            String orientString = exif.getAttribute(ExifInterface.TAG_ORIENTATION);
+            int orientation = orientString != null ? Integer.parseInt(orientString) :  ExifInterface.ORIENTATION_NORMAL;
+
+            int rotationAngle = 0;
+            if (orientation == ExifInterface.ORIENTATION_ROTATE_90) rotationAngle = 90;
+            if (orientation == ExifInterface.ORIENTATION_ROTATE_180) rotationAngle = 180;
+            if (orientation == ExifInterface.ORIENTATION_ROTATE_270) rotationAngle = 270;
+
+            Matrix matrix = new Matrix();
+            matrix.setRotate(rotationAngle, (float) bm.getWidth() / 2, (float) bm.getHeight() / 2);
+            bm = Bitmap.createBitmap(bm, 0, 0, options.outWidth, options.outHeight, matrix, true);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        String orientString = exif.getAttribute(ExifInterface.TAG_ORIENTATION);
-        int orientation = orientString != null ? Integer.parseInt(orientString) :  ExifInterface.ORIENTATION_NORMAL;
 
-        int rotationAngle = 0;
-        if (orientation == ExifInterface.ORIENTATION_ROTATE_90) rotationAngle = 90;
-        if (orientation == ExifInterface.ORIENTATION_ROTATE_180) rotationAngle = 180;
-        if (orientation == ExifInterface.ORIENTATION_ROTATE_270) rotationAngle = 270;
-
-        Matrix matrix = new Matrix();
-        matrix.setRotate(rotationAngle, (float) bm.getWidth() / 2, (float) bm.getHeight() / 2);
-        Bitmap rotatedBitmap = Bitmap.createBitmap(bm, 0, 0, options.outWidth, options.outHeight, matrix, true);
-        return rotatedBitmap;
+        return bm;
     }
 
     /**

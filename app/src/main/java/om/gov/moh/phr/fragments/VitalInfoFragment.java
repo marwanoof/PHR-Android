@@ -15,7 +15,6 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -208,8 +207,7 @@ public class VitalInfoFragment extends Fragment implements  View.OnClickListener
             @Override
             public void onResponse(JSONObject response) {
                 try {
-                    Activity activity = getActivity();
-                    if (activity != null && isAdded()) {
+                    if (mContext != null && isAdded()) {
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
 
                             Gson gson = new Gson();
@@ -262,18 +260,13 @@ public class VitalInfoFragment extends Fragment implements  View.OnClickListener
                 }
 
                 mProgressDialog.dismissDialog();
-                //swipeRefreshLayout.setRefreshing(false);
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Activity activity = getActivity();
-                if (activity != null && isAdded()) {
-                    Log.d("resp-demographic", error.toString());
+                if (mContext != null && isAdded()) {
                     error.printStackTrace();
                     mProgressDialog.dismissDialog();
-                    // showing refresh animation before making http call
-                    //swipeRefreshLayout.setRefreshing(false);
                 }
             }
         }) {
@@ -281,7 +274,6 @@ public class VitalInfoFragment extends Fragment implements  View.OnClickListener
             @Override
             public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
-//                headers.put("Accept", "application/json");
                 headers.put("Content-Type", "application/json");
                 headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
                 return headers;

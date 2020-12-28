@@ -4,8 +4,10 @@ package om.gov.moh.phr.fragments;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,7 +15,6 @@ import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.text.format.DateUtils;
 import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,10 +28,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -55,34 +56,28 @@ import com.google.gson.Gson;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import java.util.Objects;
 
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.activities.MainActivity;
 import om.gov.moh.phr.adapters.ComingAppointmentListAdapter;
-import om.gov.moh.phr.adapters.DependentRecyclerViewAdapter;
 import om.gov.moh.phr.adapters.MessageChatsAdapter;
 import om.gov.moh.phr.adapters.MyVitalListAdapter;
 import om.gov.moh.phr.adapters.NotificationHomeAdapter;
 import om.gov.moh.phr.adapters.NotificationsRecyclerViewAdapter;
 import om.gov.moh.phr.adapters.PaginationRecyclerViewAdapter;
-import om.gov.moh.phr.adapters.UpdatesListAdapter;
-import om.gov.moh.phr.apimodels.ApiDemographicsHolder;
-import om.gov.moh.phr.apimodels.ApiDependentsHolder;
+import om.gov.moh.phr.adapters.RefferalsListRecyclerViewAdapter;
+import om.gov.moh.phr.apimodels.ApiAppointmentsListHolder;
 import om.gov.moh.phr.apimodels.ApiHomeHolder;
 import om.gov.moh.phr.apimodels.Notification;
 import om.gov.moh.phr.interfaces.AdapterToFragmentConnectorInterface;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
+import om.gov.moh.phr.models.AppCurrentUser;
 import om.gov.moh.phr.models.DBHelper;
 import om.gov.moh.phr.models.GlobalMethods;
 import om.gov.moh.phr.models.GlobalMethodsKotlin;
@@ -92,7 +87,6 @@ import om.gov.moh.phr.models.MyProgressDialog;
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
 import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
-import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_MESSAGE;
 import static om.gov.moh.phr.models.MyConstants.IS_SCROLL_LIST;
 import static om.gov.moh.phr.models.MyConstants.LANGUAGE_ARABIC;
 import static om.gov.moh.phr.models.MyConstants.LANGUAGE_PREFS;
@@ -105,7 +99,7 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
     private static final int NUMBER_OF_COLUMNS = 1;
     private Context mContext;
     private RequestQueue mQueue;
-    private TextView tvAlert, tvPatientId, tvFullName, tvAge, tvBloodGroup, tvUserHeight, tvUserWeight, tvNameInfo, tvUserAddress, tvMobile, tvGender, tvNationality, tvDependentsTitle, tvFirstDependent, tvSecondDependent;
+    private TextView tvAlert, tvPatientId, tvFullName, tvAge, tvBloodGroup, tvUserHeight, tvUserWeight, tvNameInfo, tvUserAddress, tvMobile, tvGender, tvNationality, tvDependentsTitle, tvFirstDependent, tvSecondDependent, tvNoOfChatNotification, tvNotAvailableDependents;
     private ImageView ivUserProfile, ivFirstArrow, ivSecondArrow;
     private MyProgressDialog mProgressDialog;
     private RecyclerView rvGrid;
@@ -116,21 +110,24 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
     private ImageView[] dots;
     // private PagerCardMainAdapter pagerCardMainAdapter;
     private ScrollView menuListScrollView;
-    private ImageButton menuButton, myVitalExpandBtn, appointmentExpandBtn, notificationExpandBtn, updatesExpandBtn, chatsExpandBtn;
-    private RecyclerView myVital, appointmentList, notificationList/*, updatesList*/, chatsList;
+    private ImageButton menuButton, myVitalExpandBtn, appointmentExpandBtn, notificationExpandBtn, updatesExpandBtn, chatsExpandBtn, referralsExpandBtn;
+    private RecyclerView myVital, appointmentList, notificationList/*, updatesList*/, chatsList, rvReferrals;
     private ViewFlipper viewFlipper;
     private float lastX;
     private ApiHomeHolder responseHolder;
     private ArrayList<ApiHomeHolder.ApiRecentVitals> recentVitalsArrayList = new ArrayList<>();
     private DBHelper dbHelper;
-    private LinearLayout llMyVitalSigns, llAppointments, llNotification, llUnReadMessages;
+    private LinearLayout llMyVitalSigns, llAppointments, llNotification, llUnReadMessages, llReferrals;
     private View dependentDivider, parentView;
     private boolean isArabic = false;
-    private ConstraintLayout personInfo, recentVitalConstraintLayout,appointmentConstraintLayout, notificationConstraintLayout, chatConstraintLayout, updateConstraintLayout;
+    private ConstraintLayout personInfo, recentVitalConstraintLayout, appointmentConstraintLayout, notificationConstraintLayout, chatConstraintLayout, updateConstraintLayout, referralsLayout;
     private static final String DEPENDENT_CIVILID = "DependentCivilID";
     private SwipeRefreshLayout swipeRefreshLayout;
     private LayoutAnimationController animation;
     private Boolean isVitalShow = false, isAppointmentShow = false, isChatShow = false, isUpdateShow = false, isNotificationShow = false;
+    private DataUpdateReceiver dataUpdateReceiver;
+    private MessageChatsAdapter messageChatsAdapter;
+    private RefferalsListRecyclerViewAdapter mRefferalAdapter;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -152,105 +149,125 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
                              Bundle savedInstanceState) {
         isArabic = getStoredLanguage().equals(LANGUAGE_ARABIC);
         animation = AnimationUtils.loadLayoutAnimation(mContext, R.anim.delay_slide_down);
-        if(parentView==null){
-        // Inflate the layout for this fragment
-             parentView = inflater.inflate(R.layout.fragment_home, container, false);
-        //pageView = pageView.findViewById(R.id.view1);
+        if (parentView == null) {
+            // Inflate the layout for this fragment
+            parentView = inflater.inflate(R.layout.fragment_home, container, false);
+            //pageView = pageView.findViewById(R.id.view1);
 
             mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
             mProgressDialog = new MyProgressDialog(mContext);
             swipeRefreshLayout = parentView.findViewById(R.id.swipeRefreshLayoutHome);
             swipeRefreshLayout.setOnRefreshListener(this);
             setupView(parentView);
-        if (IS_SCROLL_LIST) {
-            menuListScrollView.setVisibility(View.VISIBLE);
-            rvGrid.setVisibility(View.GONE);
-            menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_item));
-        } else {
-            menuListScrollView.setVisibility(View.GONE);
-            rvGrid.setVisibility(View.VISIBLE);
-            menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_list));
-        }
-
-
-        //   if (mMediatorCallback.getAccessToken().getAccessCivilId().equals(mMediatorCallback.getCurrentUser().getCivilId()))
-
-        if (mMediatorCallback.isConnected()) {
-            setRecyclerViewGrid();
-            getDemographicResponse();
-        } else {
-
-            displayAlert(getString(R.string.alert_no_connection));
-        }
-        menuButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (IS_SCROLL_LIST) {
-                    menuButton.animate()
-                            .alpha(0.0f)
-                            .setDuration(100)
-                            .setListener(new AnimatorListenerAdapter() {
-                                @Override
-                                public void onAnimationEnd(Animator animation) {
-                                    super.onAnimationEnd(animation);
-                                    if (isAdded() && mContext != null) {
-                                        menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_list));
-                                        menuButton.animate().alpha(1.0f);
-                                    }
-                                }
-                            });
-                    menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_list));
-                    rvGrid.setVisibility(View.VISIBLE);
-                    rvGrid.setLayoutAnimation(animation);
-                    menuListScrollView.setVisibility(View.GONE);
-                    IS_SCROLL_LIST = false;
-                } else {
-                    menuButton.animate()
-                            .alpha(0.0f)
-                            .setDuration(100)
-                            .setListener(new AnimatorListenerAdapter() {
-                                @Override
-                                public void onAnimationEnd(Animator animation) {
-                                    super.onAnimationEnd(animation);
-                                    if(isAdded()) {
-                                        menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_item));
-                                        menuButton.animate().alpha(1.0f);
-                                    }
-                                }
-                            });
-                    menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_item));
-                    rvGrid.setVisibility(View.GONE);
-                    menuListScrollView.setVisibility(View.VISIBLE);
-                    if (isVitalShow)
-                        myVital.setLayoutAnimation(animation);
-                    if (isAppointmentShow)
-                        appointmentList.setLayoutAnimation(animation);
-                    if (isChatShow)
-                        chatsList.setLayoutAnimation(animation);
-
-                    IS_SCROLL_LIST = true;
-                }
+            if (IS_SCROLL_LIST) {
+                menuListScrollView.setVisibility(View.VISIBLE);
+                rvGrid.setVisibility(View.GONE);
+                menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_item));
+            } else {
+                menuListScrollView.setVisibility(View.GONE);
+                rvGrid.setVisibility(View.VISIBLE);
+                menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_list));
             }
-        });
 
-        myVitalExpandBtn.setOnClickListener(this);
-        appointmentExpandBtn.setOnClickListener(this);
-        notificationExpandBtn.setOnClickListener(this);
-        updatesExpandBtn.setOnClickListener(this);
-        chatsExpandBtn.setOnClickListener(this);
-        llMyVitalSigns.setOnClickListener(this);
-       llAppointments.setOnClickListener(this);
-        llUnReadMessages.setOnClickListener(this);
-        //getNotificationList();
 
-        /* setup updates list */
+            //   if (mMediatorCallback.getAccessToken().getAccessCivilId().equals(mMediatorCallback.getCurrentUser().getCivilId()))
+            setupRefferalsRecyclerView(rvReferrals);
+            if (mMediatorCallback.isConnected()) {
+                setRecyclerViewGrid();
+                getDemographicResponse();
+            } else {
+
+                displayAlert(getString(R.string.alert_no_connection));
+            }
+            menuButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (IS_SCROLL_LIST) {
+                        disableScrollingList();
+              /*          menuButton.animate()
+                                .alpha(0.0f)
+                                .setDuration(100)
+                                .setListener(new AnimatorListenerAdapter() {
+                                    @Override
+                                    public void onAnimationEnd(Animator animation) {
+                                        super.onAnimationEnd(animation);
+                                        if (isAdded() && mContext != null) {
+                                            menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_list));
+                                            menuButton.animate().alpha(1.0f);
+                                        }
+                                    }
+                                });
+                        menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_list));
+                        rvGrid.setVisibility(View.VISIBLE);
+                        rvGrid.setLayoutAnimation(animation);
+                        menuListScrollView.setVisibility(View.GONE);
+                        IS_SCROLL_LIST = false;*/
+                    } else {
+                       /*   if (llMyVitalSigns.getVisibility() == View.GONE && llAppointments.getVisibility() == View.GONE && llReferrals.getVisibility() == View.GONE && llUnReadMessages.getVisibility() == View.GONE) {
+                            disableScrollingList();
+                          GlobalMethodsKotlin.Companion.showAlertDialog(mContext, "", getResources().getString(R.string.no_recent_data_msg), getResources().getString(R.string.ok), R.drawable.ic_error);
+                        }   else*/
+                            enableScrollingList();
+                      /*  menuButton.animate()
+                                .alpha(0.0f)
+                                .setDuration(100)
+                                .setListener(new AnimatorListenerAdapter() {
+                                    @Override
+                                    public void onAnimationEnd(Animator animation) {
+                                        super.onAnimationEnd(animation);
+                                        if (isAdded()) {
+                                            menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_item));
+                                            menuButton.animate().alpha(1.0f);
+                                        }
+                                    }
+                                });
+                        menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_item));
+                        rvGrid.setVisibility(View.GONE);
+                        menuListScrollView.setVisibility(View.VISIBLE);
+                        if (isVitalShow)
+                            myVital.setLayoutAnimation(animation);
+                        if (isAppointmentShow)
+                            appointmentList.setLayoutAnimation(animation);
+                        if (isChatShow)
+                            chatsList.setLayoutAnimation(animation);
+
+                        IS_SCROLL_LIST = true;*/
+                    }
+                }
+            });
+
+            myVitalExpandBtn.setOnClickListener(this);
+            appointmentExpandBtn.setOnClickListener(this);
+            notificationExpandBtn.setOnClickListener(this);
+            updatesExpandBtn.setOnClickListener(this);
+            chatsExpandBtn.setOnClickListener(this);
+            referralsExpandBtn.setOnClickListener(this);
+            llMyVitalSigns.setOnClickListener(this);
+            llAppointments.setOnClickListener(this);
+            llUnReadMessages.setOnClickListener(this);
+            llReferrals.setOnClickListener(this);
+            //getNotificationList();
+
+            /* setup updates list */
       /*  ArrayList<String> updates = new ArrayList<>();
         updates.add("New Lab Result");
         updates.add("New Procedure Report");*/
-        //  setupUpdatesList(updates);
+            //  setupUpdatesList(updates);
         } else {
-            if(parentView.getParent()!=null)
+            if (parentView.getParent() != null)
                 ((ViewGroup) parentView.getParent()).removeView(parentView);
+            checkNotificationsCounter();
+            //  getDemographicResponse();
+        /*    SharedPreferences sharedPref = mContext.getSharedPreferences("CHAT-BODY", Context.MODE_PRIVATE);
+            String messageSender = sharedPref.getString("MESSAGE-SENDER", null);
+            if (messageSender != null) {
+                for (int i = 0; i < responseHolder.getmResult().getmHome().getmChatMessages().size(); i++) {
+                    if (responseHolder.getmResult().getmHome().getmChatMessages().get(i).getCreatedName().trim().equalsIgnoreCase(messageSender.trim()))
+                        responseHolder.getmResult().getmHome().getmChatMessages().get(i).setNew(true);
+                }
+            }
+            if (messageChatsAdapter != null)
+                messageChatsAdapter.notifyDataSetChanged();*/
         }
         return parentView;
     }
@@ -309,7 +326,9 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
         myVital = parentView.findViewById(R.id.recyclerView_myvital);
         myVitalExpandBtn = parentView.findViewById(R.id.btn_myvital_expand);
         appointmentExpandBtn = parentView.findViewById(R.id.btn_appointment_expand);
+        referralsExpandBtn = parentView.findViewById(R.id.btn_referrals_expand);
         appointmentList = parentView.findViewById(R.id.recyclerView_coming_appointment);
+        rvReferrals = parentView.findViewById(R.id.rv_referrals);
         //notificationList = parentView.findViewById(R.id.recyclerView_notification_home);
         notificationExpandBtn = parentView.findViewById(R.id.btn_notification_expand);
         //   updatesList = parentView.findViewById(R.id.recyclerView_updates_home);
@@ -323,12 +342,14 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
         updateConstraintLayout = parentView.findViewById(R.id.updatesLayout);
         chatConstraintLayout = parentView.findViewById(R.id.chatsLayout);
         notificationConstraintLayout = parentView.findViewById(R.id.notificationLayout);
+        referralsLayout = parentView.findViewById(R.id.referralsLayout);
 
-        recentVitalConstraintLayout.setVisibility(View.INVISIBLE);
-        appointmentConstraintLayout.setVisibility(View.INVISIBLE);
-        updateConstraintLayout.setVisibility(View.INVISIBLE);
-        chatConstraintLayout.setVisibility(View.INVISIBLE);
-        notificationConstraintLayout.setVisibility(View.INVISIBLE);
+        recentVitalConstraintLayout.setVisibility(View.GONE);
+        appointmentConstraintLayout.setVisibility(View.GONE);
+        updateConstraintLayout.setVisibility(View.GONE);
+        chatConstraintLayout.setVisibility(View.GONE);
+        notificationConstraintLayout.setVisibility(View.GONE);
+        referralsLayout.setVisibility(View.GONE);
 
         LinearLayout sliderDotspanel = parentView.findViewById(R.id.slider_dots);
         dots = new ImageView[3];
@@ -397,7 +418,7 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
             @Override
             public void onClick(View view) {
                 mToolbarCallback.changeSideMenuToolBarVisibility(View.GONE);
-                mMediatorCallback.changeFragmentTo(DemographicsFragment.newInstance(responseHolder.getmResult().getmHome().getInstitutesArrayList(),getPageTitle(responseHolder.getmResult().getmHome().getmMainMenus(),283)), DemographicsFragment.class.getSimpleName());
+                mMediatorCallback.changeFragmentTo(DemographicsFragment.newInstance(responseHolder.getmResult().getmHome().getInstitutesArrayList(), getPageTitle(responseHolder.getmResult().getmHome().getmMainMenus(), 283)), DemographicsFragment.class.getSimpleName());
             }
         });
         ivFirstArrow = parentView.findViewById(R.id.ivFirstDepArrow);
@@ -405,7 +426,7 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
             @Override
             public void onClick(View view) {
                 mToolbarCallback.changeSideMenuToolBarVisibility(View.GONE);
-                mMediatorCallback.changeFragmentTo(DemographicsFragment.newInstance(responseHolder.getmResult().getmHome().getInstitutesArrayList(),getPageTitle(responseHolder.getmResult().getmHome().getmMainMenus(),283)), DemographicsFragment.class.getSimpleName());
+                mMediatorCallback.changeFragmentTo(DemographicsFragment.newInstance(responseHolder.getmResult().getmHome().getInstitutesArrayList(), getPageTitle(responseHolder.getmResult().getmHome().getmMainMenus(), 283)), DemographicsFragment.class.getSimpleName());
             }
         });
         ivSecondArrow = parentView.findViewById(R.id.ivSecondDepArrow);
@@ -413,19 +434,22 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
             @Override
             public void onClick(View view) {
                 mToolbarCallback.changeSideMenuToolBarVisibility(View.GONE);
-                mMediatorCallback.changeFragmentTo(DemographicsFragment.newInstance(responseHolder.getmResult().getmHome().getInstitutesArrayList(),getPageTitle(responseHolder.getmResult().getmHome().getmMainMenus(),283)), DemographicsFragment.class.getSimpleName());
+                mMediatorCallback.changeFragmentTo(DemographicsFragment.newInstance(responseHolder.getmResult().getmHome().getInstitutesArrayList(), getPageTitle(responseHolder.getmResult().getmHome().getmMainMenus(), 283)), DemographicsFragment.class.getSimpleName());
             }
         });
         llMyVitalSigns = parentView.findViewById(R.id.linearLayout4);
         llAppointments = parentView.findViewById(R.id.linearLayout44);
         llNotification = parentView.findViewById(R.id.linearLayout42);
         llUnReadMessages = parentView.findViewById(R.id.linearLayout335);
+        llReferrals = parentView.findViewById(R.id.llReferrals);
         dependentDivider = parentView.findViewById(R.id.divider);
+        tvNoOfChatNotification = parentView.findViewById(R.id.tvNoOfChatNotification);
+        tvNotAvailableDependents = parentView.findViewById(R.id.tvNotAvailableDependents);
     }
 
     public void setupMyVitalList(ArrayList<ApiHomeHolder.ApiRecentVitals> myVitals) {
         recentVitalConstraintLayout.setVisibility(View.VISIBLE);
-        recentVitalConstraintLayout.setAnimation(GlobalMethodsKotlin.Companion.setAnimation(mContext,R.anim.fade_in));
+        recentVitalConstraintLayout.setAnimation(GlobalMethodsKotlin.Companion.setAnimation(mContext, R.anim.fade_in));
         MyVitalListAdapter myVitalListAdapter = new MyVitalListAdapter(myVitals, mContext);
         LinearLayoutManager layoutManager = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
         //DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(myVital.getContext(),layoutManager.getOrientation());
@@ -440,7 +464,7 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
 
     public void setupAppointmentList(ArrayList<ApiHomeHolder.ApiAppointments> appointments) {
         appointmentConstraintLayout.setVisibility(View.VISIBLE);
-        appointmentConstraintLayout.setAnimation(GlobalMethodsKotlin.Companion.setAnimation(mContext,R.anim.fade_in));
+        appointmentConstraintLayout.setAnimation(GlobalMethodsKotlin.Companion.setAnimation(mContext, R.anim.fade_in));
         ComingAppointmentListAdapter comingAppointmentListAdapter = new ComingAppointmentListAdapter(appointments, mContext);
         LinearLayoutManager layoutManager
                 = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
@@ -454,9 +478,27 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
 
     }
 
+    private void updateRefferalsRecyclerView(ArrayList<ApiHomeHolder.Referrals> items) {
+        mRefferalAdapter.updateHomeReferralsList(items);
+    }
+
+    private void setupRefferalsRecyclerView(RecyclerView recyclerView) {
+        mRefferalAdapter = new RefferalsListRecyclerViewAdapter(HomeFragment.this, mContext, false);
+        LinearLayoutManager layoutManager
+                = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
+        DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
+                layoutManager.getOrientation());
+        LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(mContext, R.anim.delay_slide_down);
+        recyclerView.setLayoutAnimation(animation);
+        recyclerView.addItemDecoration(mDividerItemDecoration);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(mRefferalAdapter);
+    }
+
     public void setupNotificationList(ArrayList<String> notifications) {
         notificationConstraintLayout.setVisibility(View.VISIBLE);
-        notificationConstraintLayout.setAnimation(GlobalMethodsKotlin.Companion.setAnimation(mContext,R.anim.fade_in));
+        notificationConstraintLayout.setAnimation(GlobalMethodsKotlin.Companion.setAnimation(mContext, R.anim.fade_in));
         NotificationHomeAdapter comingAppointmentListAdapter = new NotificationHomeAdapter(notifications, mContext);
         LinearLayoutManager layoutManager
                 = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
@@ -470,7 +512,7 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
 
     public void setupUpdatesList(ArrayList<String> updates) {
         updateConstraintLayout.setVisibility(View.VISIBLE);
-        updateConstraintLayout.setAnimation(GlobalMethodsKotlin.Companion.setAnimation(mContext,R.anim.fade_in));
+        updateConstraintLayout.setAnimation(GlobalMethodsKotlin.Companion.setAnimation(mContext, R.anim.fade_in));
      /*
 
      UpdatesListAdapter comingAppointmentListAdapter = new UpdatesListAdapter(updates, mContext);
@@ -486,8 +528,8 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
 
     public void setupChatsList(ArrayList<ApiHomeHolder.ApiChatMessages> chatsModels) {
         chatConstraintLayout.setVisibility(View.VISIBLE);
-        chatConstraintLayout.setAnimation(GlobalMethodsKotlin.Companion.setAnimation(mContext,R.anim.fade_in));
-        MessageChatsAdapter messageChatsAdapter = new MessageChatsAdapter(mMediatorCallback, chatsModels, mContext);
+        chatConstraintLayout.setAnimation(GlobalMethodsKotlin.Companion.setAnimation(mContext, R.anim.fade_in));
+        messageChatsAdapter = new MessageChatsAdapter(mMediatorCallback, chatsModels, mContext);
         LinearLayoutManager layoutManager
                 = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
         DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(chatsList.getContext(), layoutManager.getOrientation());
@@ -506,46 +548,44 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                try {
-                    if (response.getInt(API_RESPONSE_CODE) == 0) {
-                        Gson gson = new Gson();
-                        responseHolder = gson.fromJson(response.toString(), ApiHomeHolder.class);
+                if (mContext != null && isAdded()) {
+                    try {
+                        if (response.getInt(API_RESPONSE_CODE) == 0) {
+                            Gson gson = new Gson();
+                            responseHolder = gson.fromJson(response.toString(), ApiHomeHolder.class);
+                                mAdapter.updateList(responseHolder.getmResult().getmHome().getmMainMenus());
+                                setupDempgraphicsData(responseHolder.getmResult().getmHome().getmDemographics());
+                                setupRecentVitalsData(responseHolder.getmResult().getmHome().getmRecentVitals());
+                                setupDependentsData(responseHolder.getmResult().getmHome().getmDependents());
+                                setupChatMessages(responseHolder.getmResult().getmHome().getmChatMessages());
+                                setupAppointments(responseHolder.getmResult().getmHome().getmAppointments());
+                                setupReferrals(responseHolder.getmResult().getmHome().getReferralsArrayList());
+                          /*      if (llMyVitalSigns.getVisibility() == View.GONE && llAppointments.getVisibility() == View.GONE && llReferrals.getVisibility() == View.GONE && llUnReadMessages.getVisibility() == View.GONE)
+                                    disableScrollingList();*/
+                                if (responseHolder.getmResult().getmHome().getmRecentVitals().size() > 0)
+                                    isVitalShow = true;
+                                if (responseHolder.getmResult().getmHome().getmAppointments().size() > 0)
+                                    isAppointmentShow = true;
+                                if (responseHolder.getmResult().getmHome().getmChatMessages().size() > 0)
+                                    isChatShow = true;
 
-                        if (mContext != null) {
-                            mAdapter.updateList(responseHolder.getmResult().getmHome().getmMainMenus());
-                            setupDempgraphicsData(responseHolder.getmResult().getmHome().getmDemographics());
-                            setupRecentVitalsData(responseHolder.getmResult().getmHome().getmRecentVitals());
-                            setupDependentsData(responseHolder.getmResult().getmHome().getmDependents());
-                            setupChatMessages(responseHolder.getmResult().getmHome().getmChatMessages());
-                            setupAppointments(responseHolder.getmResult().getmHome().getmAppointments());
+                        } else
+                            GlobalMethodsKotlin.Companion.showAlertErrorDialog(mContext);
 
-                            if (responseHolder.getmResult().getmHome().getmRecentVitals().size() >0)
-                                isVitalShow = true;
-                            if (responseHolder.getmResult().getmHome().getmAppointments().size() >0)
-                                isAppointmentShow = true;
-                            if (responseHolder.getmResult().getmHome().getmChatMessages().size() >0)
-                                isChatShow = true;
-
-                        }
-
-                    } else
+                    } catch (JSONException e) {
                         GlobalMethodsKotlin.Companion.showAlertErrorDialog(mContext);
-                        //Toast.makeText(mContext, response.getString(API_RESPONSE_MESSAGE), Toast.LENGTH_SHORT).show();
+                        //e.printStackTrace();
+                    }
 
-                } catch (JSONException e) {
-                    GlobalMethodsKotlin.Companion.showAlertErrorDialog(mContext);
-                    //e.printStackTrace();
+                    mProgressDialog.dismissDialog();
+                    swipeRefreshLayout.setRefreshing(false);
                 }
-
-                mProgressDialog.dismissDialog();
-                swipeRefreshLayout.setRefreshing(false);
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 if (mContext != null && isAdded()) {
                     mProgressDialog.dismissDialog();
-                    Log.d("resp-home", error.toString());
                     error.printStackTrace();
                     GlobalMethodsKotlin.Companion.showAlertErrorDialog(mContext);
                     swipeRefreshLayout.setRefreshing(false);
@@ -571,7 +611,6 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
     }
 
 
-
     private JSONObject getJSONRequestCivilIDParam() {
         Map<String, Object> params = new HashMap<>();
         params.put("civilId", mMediatorCallback.getCurrentUser().getCivilId());
@@ -582,35 +621,42 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
 
         String nameShort = "";
         String fullName = "";
-        if (getStoredLanguage().equals(LANGUAGE_ARABIC)){
+        if (getStoredLanguage().equals(LANGUAGE_ARABIC)) {
             nameShort = "{ " + apiDemographicItem.getFirstNameNls() + " " + apiDemographicItem.getSecondNameNls() + " " + apiDemographicItem.getSixthNameNls() + " }";
-            fullName = apiDemographicItem.getFirstNameNls() + " " + apiDemographicItem.getSecondNameNls() + " " + apiDemographicItem.getThirdNameNls() + " " + apiDemographicItem.getFourthNameNls() + " " + apiDemographicItem.getFifthNameNls()+ " " + apiDemographicItem.getSixthNameNls();
-        }else {
+            fullName = apiDemographicItem.getFirstNameNls() + " " + apiDemographicItem.getSecondNameNls() + " " + apiDemographicItem.getThirdNameNls() + " " + apiDemographicItem.getFourthNameNls() + " " + apiDemographicItem.getFifthNameNls() + " " + apiDemographicItem.getSixthNameNls();
+        } else {
             nameShort = "{ " + apiDemographicItem.getFirstName() + " " + apiDemographicItem.getSecondName() + " " + apiDemographicItem.getSixthName() + " }";
-            fullName = apiDemographicItem.getFirstName() + " " + apiDemographicItem.getSecondName() + " " + apiDemographicItem.getThirdName() + " " + apiDemographicItem.getFourthName() + " " + apiDemographicItem.getFifthName()+ " " + apiDemographicItem.getSixthName();
+            fullName = apiDemographicItem.getFirstName() + " " + apiDemographicItem.getSecondName() + " " + apiDemographicItem.getThirdName() + " " + apiDemographicItem.getFourthName() + " " + apiDemographicItem.getFifthName() + " " + apiDemographicItem.getSixthName();
         }
         tvFullName.setText(nameShort);
         tvPatientId.setText(String.valueOf(apiDemographicItem.getCivilId()));
         tvAge.setText(apiDemographicItem.getAge());
         tvBloodGroup.setText(apiDemographicItem.getBloodGroup());
-        Glide.with(mContext).load(getPersonPhoto(mContext, apiDemographicItem.getImage())).into(ivUserProfile);
+        Glide.with(mContext).load(getPersonPhoto(mContext, apiDemographicItem.getImage(), apiDemographicItem.getGender())).into(ivUserProfile);
         tvNameInfo.setText(fullName);
         tvMobile.setText(String.valueOf(apiDemographicItem.getMobile()));
         tvGender.setText(apiDemographicItem.getGender());
         tvNationality.setText(apiDemographicItem.getNationality());
         tvUserAddress.setText(apiDemographicItem.getBirthDown());
-        switch (apiDemographicItem.getGender()){
+        switch (apiDemographicItem.getGender()) {
             case "Male":
-                if (isArabic)
+                if (isArabic) {
+                    tvGender.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_male, 0);
                     tvGender.setText("ذكر");
-                else
+                } else {
+                    tvGender.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_male, 0, 0, 0);
                     tvGender.setText("Male");
+                }
                 break;
             case "Female":
-                if (isArabic)
+                if (isArabic) {
+                    tvGender.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_female, 0);
                     tvGender.setText("أنثى");
-                else
+                } else {
+
+                    tvGender.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_female, 0, 0, 0);
                     tvGender.setText("Female");
+                }
                 break;
             default:
                 tvGender.setText("");
@@ -653,19 +699,30 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
             setupAppointmentList(apiAppointments);
     }
 
+    private void setupReferrals(ArrayList<ApiHomeHolder.Referrals> apiReferrals) {
+        if (apiReferrals == null || apiReferrals.size() == 0)
+            llAppointments.setVisibility(View.GONE);
+        else {
+            referralsLayout.setVisibility(View.VISIBLE);
+            referralsLayout.setAnimation(GlobalMethodsKotlin.Companion.setAnimation(mContext, R.anim.fade_in));
+            updateRefferalsRecyclerView(apiReferrals);
+        }
+    }
+
     private void setupDependentsData(final ArrayList<ApiHomeHolder.ApiDependents> apiDependents) {
         if (apiDependents != null && apiDependents.size() != 0) {
-            if (apiDependents.get(0) != null)
-                if (isArabic){
+            if (apiDependents.get(0) != null) {
+                if (isArabic) {
                     tvFirstDependent.setText(apiDependents.get(0).getDependentNameNls() + "\n" + apiDependents.get(0).getRelationType() + " | " + apiDependents.get(0).getDependentCivilId());
-                }else {
+                } else {
                     tvFirstDependent.setText(apiDependents.get(0).getDependentName() + "\n" + apiDependents.get(0).getRelationType() + " | " + apiDependents.get(0).getDependentCivilId());
                 }
+            }
 
             if (apiDependents.size() > 1) {
-                if (isArabic){
+                if (isArabic) {
                     tvSecondDependent.setText(apiDependents.get(1).getDependentNameNls() + "\n" + apiDependents.get(1).getRelationType() + " | " + apiDependents.get(1).getDependentCivilId());
-                }else {
+                } else {
                     tvSecondDependent.setText(apiDependents.get(1).getDependentName() + "\n" + apiDependents.get(1).getRelationType() + " | " + apiDependents.get(1).getDependentCivilId());
                 }
             } else {
@@ -675,7 +732,7 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
             tvFirstDependent.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                   updateCurrentUser(String.valueOf(apiDependents.get(0).getDependentCivilId()));
+                    updateCurrentUser(String.valueOf(apiDependents.get(0).getDependentCivilId()));
                 }
             });
             tvSecondDependent.setOnClickListener(new View.OnClickListener() {
@@ -690,13 +747,20 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
             dependentDivider.setVisibility(View.GONE);
             ivFirstArrow.setVisibility(View.GONE);
             ivSecondArrow.setVisibility(View.GONE);
+            tvDependentsTitle.setVisibility(View.GONE);
+            tvNotAvailableDependents.setVisibility(View.VISIBLE);
         }
     }
 
-    private Bitmap getPersonPhoto(Context context, String image) {
+    private Bitmap getPersonPhoto(Context context, String image, String gender) {
         if (image == null || TextUtils.isEmpty(image)) {
-            return BitmapFactory.decodeResource(context.getResources(),
-                    R.drawable.avatar);
+            if ("Female".equals(gender)) {
+                return BitmapFactory.decodeResource(context.getResources(),
+                        R.drawable.ic_patient_female);
+            } else {
+                return BitmapFactory.decodeResource(context.getResources(),
+                        R.drawable.ic_patient_male);
+            }
         } else {
             //decode base64 string to image
             byte[] imageBytes = Base64.decode(image, Base64.DEFAULT);
@@ -722,18 +786,18 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
         personInfo.setVisibility(View.GONE);
         String title = mContext.getResources().getString(R.string.alert_error_title);
         String body = mContext.getResources().getString(R.string.alert_no_connection_body_1) + "\n" + mContext.getResources().getString(R.string.alert_connection_body2);
-        GlobalMethodsKotlin.Companion.showAlertDialog(mContext,title,body,mContext.getResources().getString(R.string.ok),R.drawable.ic_error);
+        GlobalMethodsKotlin.Companion.showAlertDialog(mContext, title, body, mContext.getResources().getString(R.string.ok), R.drawable.ic_error);
     }
 
     @Override
     public <T> void onMyListItemClicked(T dataToPass, String dataTitle) {
         if (dataToPass instanceof DemographicsFragment) {
-            mMediatorCallback.changeFragmentTo(DemographicsFragment.newInstance(responseHolder.getmResult().getmHome().getInstitutesArrayList(),getPageTitle(responseHolder.getmResult().getmHome().getmMainMenus(),283)), dataTitle);
+            mMediatorCallback.changeFragmentTo(DemographicsFragment.newInstance(responseHolder.getmResult().getmHome().getInstitutesArrayList(), getPageTitle(responseHolder.getmResult().getmHome().getmMainMenus(), 283)), dataTitle);
         } else if (dataToPass instanceof BodyMeasurementsFragment && responseHolder.getmResult().getmHome().getmRecentVitals() != null) {
-            mMediatorCallback.changeFragmentTo(BodyMeasurementsFragment.newInstance(responseHolder.getmResult().getmHome().getmRecentVitals(),getPageTitle(responseHolder.getmResult().getmHome().getmMainMenus(),284)), dataTitle);
-        }else if (dataToPass instanceof AppointmentsListFragment){
+            mMediatorCallback.changeFragmentTo(BodyMeasurementsFragment.newInstance(responseHolder.getmResult().getmHome().getmRecentVitals(), getPageTitle(responseHolder.getmResult().getmHome().getmMainMenus(), 284)), dataTitle);
+        } else if (dataToPass instanceof AppointmentsListFragment) {
             mMediatorCallback.changeFragmentTo(AppointmentsListFragment.newInstance(responseHolder.getmResult().getmHome().getInstitutesArrayList()), dataTitle);
-        }else {
+        } else {
             mMediatorCallback.changeFragmentTo((Fragment) dataToPass, dataTitle);
         }
     }
@@ -742,10 +806,11 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
     public <T> void onMyListItemClicked(T dataToPass, String dataTitle, int position) {
 
     }
-    private String getPageTitle(ArrayList<ApiHomeHolder.ApiMainMenus> mainMenus,int menuId){
+
+    private String getPageTitle(ArrayList<ApiHomeHolder.ApiMainMenus> mainMenus, int menuId) {
         String result = "";
-        for (ApiHomeHolder.ApiMainMenus menus : mainMenus){
-            if (menus.getMenuId() == menuId){
+        for (ApiHomeHolder.ApiMainMenus menus : mainMenus) {
+            if (menus.getMenuId() == menuId) {
                 if (GlobalMethods.getStoredLanguage(mContext).equals(LANGUAGE_ARABIC))
                     result = menus.getMenuNameNls();
                 else
@@ -761,16 +826,16 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
         Bitmap imgArrow = ((BitmapDrawable) getResources().getDrawable(R.drawable.ic_arrow_down)).getBitmap();
         switch (view.getId()) {
             case R.id.btn_myvital_expand:
-            case  R.id.linearLayout4:
+            case R.id.linearLayout4:
 
                 Bitmap imgBtn = ((BitmapDrawable) myVitalExpandBtn.getDrawable()).getBitmap();
 
                 if (imgBtn == imgArrow) {
 
                     myVital.setVisibility(View.GONE);
-                    if (getStoredLanguage().equals(LANGUAGE_ARABIC)){
+                    if (getStoredLanguage().equals(LANGUAGE_ARABIC)) {
                         myVitalExpandBtn.setImageBitmap(flipImage());
-                    }else {
+                    } else {
                         myVitalExpandBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_arrow_right));
                     }
 
@@ -782,15 +847,15 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
                 break;
 
             case R.id.btn_appointment_expand:
-            case  R.id.linearLayout44:
+            case R.id.linearLayout44:
                 Bitmap imgBtnApp = ((BitmapDrawable) appointmentExpandBtn.getDrawable()).getBitmap();
 
                 if (imgBtnApp == imgArrow) {
 
                     appointmentList.setVisibility(View.GONE);
-                    if (getStoredLanguage().equals(LANGUAGE_ARABIC)){
+                    if (getStoredLanguage().equals(LANGUAGE_ARABIC)) {
                         appointmentExpandBtn.setImageBitmap(flipImage());
-                    }else {
+                    } else {
                         appointmentExpandBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_arrow_right));
                     }
                 } else {
@@ -840,9 +905,9 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
                 if (imgBtnChat == imgArrow) {
 
                     chatsList.setVisibility(View.GONE);
-                    if (getStoredLanguage().equals(LANGUAGE_ARABIC)){
+                    if (getStoredLanguage().equals(LANGUAGE_ARABIC)) {
                         chatsExpandBtn.setImageBitmap(flipImage());
-                    }else {
+                    } else {
                         chatsExpandBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_arrow_right));
                     }
                 } else {
@@ -851,11 +916,29 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
                     chatsExpandBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_arrow_down));
                 }
                 break;
+            case R.id.btn_referrals_expand:
+            case R.id.llReferrals:
+                Bitmap imgBtnReferrals = ((BitmapDrawable) referralsExpandBtn.getDrawable()).getBitmap();
 
+                if (imgBtnReferrals == imgArrow) {
+
+                    rvReferrals.setVisibility(View.GONE);
+                    if (getStoredLanguage().equals(LANGUAGE_ARABIC)) {
+                        referralsExpandBtn.setImageBitmap(flipImage());
+                    } else {
+                        referralsExpandBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_arrow_right));
+                    }
+                } else {
+
+                    rvReferrals.setVisibility(View.VISIBLE);
+                    referralsExpandBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_arrow_down));
+                }
+                break;
         }
     }
+
     private Bitmap flipImage() {
-        Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(),R.drawable.ic_arrow_right);
+        Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.ic_arrow_right);
 // create new matrix for transformation
         Matrix matrix = new Matrix();
         matrix.preScale(-1.0f, 1.0f);
@@ -910,6 +993,7 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
                 }
                 break;
             }
+
         }
         viewFlipper.performClick();
         return false;
@@ -938,12 +1022,16 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         viewFlipper.removeOnLayoutChangeListener(onLayoutChangeListener_viewFlipper);
+        super.onDestroy();
     }
+
     private String getStoredLanguage() {
         SharedPreferences sharedPref = mContext.getSharedPreferences(LANGUAGE_PREFS, Context.MODE_PRIVATE);
-        return sharedPref.getString(LANGUAGE_SELECTED, LANGUAGE_ARABIC);
+        return sharedPref.getString(LANGUAGE_SELECTED, getDeviceLanguage());
+    }
+    private String getDeviceLanguage() {
+        return Locale.getDefault().getLanguage();
     }
 
     private void updateCurrentUser(String civilId) {
@@ -956,5 +1044,138 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
     @Override
     public void onRefresh() {
         getDemographicResponse();
+        checkNotificationsCounter();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (dataUpdateReceiver == null) dataUpdateReceiver = new DataUpdateReceiver();
+        IntentFilter intentFilter = new IntentFilter("TEST");
+        mContext.registerReceiver(dataUpdateReceiver, intentFilter);
+        IntentFilter intentFilter1 = new IntentFilter("BODY");
+        mContext.registerReceiver(dataUpdateReceiver, intentFilter1);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (dataUpdateReceiver != null) mContext.unregisterReceiver(dataUpdateReceiver);
+    }
+
+    private class DataUpdateReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (Objects.requireNonNull(intent.getAction()).equals("TEST")) {
+                if (AppCurrentUser.getInstance().getIsParent())
+                    checkNotificationsCounter();
+            }
+            if (Objects.requireNonNull(intent.getAction()).equals("BODY")) {
+                SharedPreferences sharedPref = mContext.getSharedPreferences("CHAT-BODY", Context.MODE_PRIVATE);
+                String messageSender = sharedPref.getString("MESSAGE-SENDER", null);
+                for (int i = 0; i < responseHolder.getmResult().getmHome().getmChatMessages().size(); i++) {
+                    if (messageSender != null && responseHolder.getmResult().getmHome().getmChatMessages().get(i).getCreatedName().trim().equalsIgnoreCase(messageSender.trim()))
+                        responseHolder.getmResult().getmHome().getmChatMessages().get(i).setNew(true);
+                }
+                messageChatsAdapter.notifyDataSetChanged();
+            }
+        }
+    }
+
+    public void checkNotificationsCounter() {
+        SharedPreferences sharedPref = mContext.getSharedPreferences("Counting", Context.MODE_PRIVATE);
+        int NoOfAppointmentsNotifications = sharedPref.getInt("appointmentCount", 0);
+        int NoOfNotifications = sharedPref.getInt("notificationCount", 0);
+        if (mContext.getSharedPreferences("Counting", Context.MODE_PRIVATE).contains("chatCount")) {
+            int NoOfChatNotifications = sharedPref.getInt("chatCount", 0);
+            if (NoOfChatNotifications > 0) {
+                tvNoOfChatNotification.setVisibility(View.VISIBLE);
+                tvNoOfChatNotification.setText(String.valueOf(NoOfChatNotifications));
+            } else
+                tvNoOfChatNotification.setVisibility(View.GONE);
+        } else
+            tvNoOfChatNotification.setVisibility(View.GONE);
+        if (NoOfAppointmentsNotifications > 0) {
+
+        }
+        if (NoOfNotifications > 0) {
+
+        }
+    }
+
+    private void clearNotificationSharedPrefs(int notificationType) {
+        SharedPreferences sharedPref;
+        SharedPreferences.Editor editor;
+
+        sharedPref = mContext.getSharedPreferences("Counting", Context.MODE_PRIVATE);
+        editor = sharedPref.edit();
+        switch (notificationType) {
+
+            case 1:
+                editor.remove("appointmentCount");
+                editor.apply();
+                break;
+            case 2:
+                editor.remove("notificationCount");
+                editor.apply();
+                break;
+            case 3:
+                editor.remove("chatCount");
+                editor.apply();
+                break;
+            default:
+                editor.remove("appointmentCount");
+                editor.remove("notificationCount");
+                editor.remove("chatCount");
+                editor.apply();
+        }
+    }
+
+    private void enableScrollingList() {
+        menuButton.animate()
+                .alpha(0.0f)
+                .setDuration(100)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        if (isAdded()) {
+                            menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_item));
+                            menuButton.animate().alpha(1.0f);
+                        }
+                    }
+                });
+        menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_item));
+        rvGrid.setVisibility(View.GONE);
+        menuListScrollView.setVisibility(View.VISIBLE);
+        if (isVitalShow)
+            myVital.setLayoutAnimation(animation);
+        if (isAppointmentShow)
+            appointmentList.setLayoutAnimation(animation);
+        if (isChatShow)
+            chatsList.setLayoutAnimation(animation);
+
+        IS_SCROLL_LIST = true;
+    }
+
+    private void disableScrollingList() {
+        menuButton.animate()
+                .alpha(0.0f)
+                .setDuration(100)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        if (isAdded() && mContext != null) {
+                            menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_list));
+                            menuButton.animate().alpha(1.0f);
+                        }
+                    }
+                });
+        menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_list));
+        rvGrid.setVisibility(View.VISIBLE);
+        rvGrid.setLayoutAnimation(animation);
+        menuListScrollView.setVisibility(View.GONE);
+        IS_SCROLL_LIST = false;
     }
 }

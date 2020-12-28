@@ -61,8 +61,6 @@ public class ImmunizationFragment extends Fragment implements SearchView.OnQuery
     private static final String API_URL_GET_IMMUNIZATION_INFO = API_NEHR_URL + "immunization/civilId/";
     private static final String API_URL_GET_SCHEDULE_IMMUNIZATION_INFO = API_NEHR_URL + "immunization/scheduled/";
     private static final String ARG_PARAM1 = "ARG_PARAM1";
-    private static final String ARG_PARAM2 = "ARG_PARAM2";
-    private static final String ARG_NOTIFICATION = "ARG_NOTIFICATION";
     private RequestQueue mQueue;
     private MyProgressDialog mProgressDialog;
     private Context mContext;
@@ -72,22 +70,18 @@ public class ImmunizationFragment extends Fragment implements SearchView.OnQuery
     private TextView tvAlert;
     private ImmunizationRecyclerViewAdapter mAdapter;
     private boolean isSchedule = false;
-    private boolean isFromNotifications = false;
     //private SwipeRefreshLayout swipeRefreshLayout;
     private CardView noRecordCardView;
     private SearchView searchView;
-    private String pageTitle;
 
     public ImmunizationFragment() {
         // Required empty public constructor
     }
 
-    public static ImmunizationFragment newInstance(String type, boolean isFromNotifications, String title) {
+    public static ImmunizationFragment newInstance(String type) {
         ImmunizationFragment fragment = new ImmunizationFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, type);
-        args.putBoolean(ARG_NOTIFICATION, isFromNotifications);
-        args.putString(ARG_PARAM2,title);
         fragment.setArguments(args);
         return fragment;
     }
@@ -106,8 +100,6 @@ public class ImmunizationFragment extends Fragment implements SearchView.OnQuery
         if (getArguments() != null) {
             String immunizationType = getArguments().getString(ARG_PARAM1);
             isSchedule = !immunizationType.equals("Given");
-            isFromNotifications = getArguments().getBoolean(ARG_NOTIFICATION);
-            pageTitle = getArguments().getString(ARG_PARAM2);
         }
     }
 
@@ -116,18 +108,6 @@ public class ImmunizationFragment extends Fragment implements SearchView.OnQuery
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_immunization, container, false);
-
-        TextView tvTitle = view.findViewById(R.id.tv_Title);
-        tvTitle.setText(pageTitle);
-//        tvTitle.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if (isFromNotifications)
-//                    mMediatorCallback.changeFragmentTo(NotificationsFragment.newInstance(), NotificationsFragment.class.getSimpleName());
-//                else
-//                    mToolbarControllerCallback.customToolbarBackButtonClicked();
-//            }
-//        });
         mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
         mProgressDialog = new MyProgressDialog(mContext);
         tvAlert = view.findViewById(R.id.tv_alert);
@@ -145,23 +125,6 @@ public class ImmunizationFragment extends Fragment implements SearchView.OnQuery
                 String url = API_URL_GET_SCHEDULE_IMMUNIZATION_INFO + mMediatorCallback.getCurrentUser().getCivilId();
                 getImmunizationList(url);
             }
-            /*swipeRefreshLayout.setOnRefreshListener(this);
-            swipeRefreshLayout.post(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            swipeRefreshLayout.setRefreshing(true);
-                                            rvImmunizationList.setVisibility(View.VISIBLE);
-                                            tvAlert.setVisibility(View.GONE);
-                                            if (!isSchedule) {
-                                                String url = API_URL_GET_IMMUNIZATION_INFO + mMediatorCallback.getCurrentUser().getCivilId();
-                                                getMedicationList(url);
-                                            } else {
-                                                String url = API_URL_GET_SCHEDULE_IMMUNIZATION_INFO + mMediatorCallback.getCurrentUser().getCivilId();
-                                                getMedicationList(url);
-                                            }
-                                        }
-                                    }
-            );*/
         } else {
             displayAlert(getString(R.string.alert_no_connection));
         }
@@ -201,10 +164,8 @@ public class ImmunizationFragment extends Fragment implements SearchView.OnQuery
             @Override
             public void onErrorResponse(VolleyError error) {
                 if (mContext != null && isAdded()) {
-                    Log.d("resp-demographic", error.toString());
                     error.printStackTrace();
                     mProgressDialog.dismissDialog();
-                    //swipeRefreshLayout.setRefreshing(false);
                 }
             }
         }) {
@@ -252,11 +213,7 @@ public class ImmunizationFragment extends Fragment implements SearchView.OnQuery
     @Override
     public void onDetach() {
         super.onDetach();
-        if (isFromNotifications)
-            mMediatorCallback.changeFragmentTo(NotificationsFragment.newInstance(), NotificationsFragment.class.getSimpleName());
-        else {
             mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
-        }
     }
 
     @Override
@@ -270,17 +227,4 @@ public class ImmunizationFragment extends Fragment implements SearchView.OnQuery
             mAdapter.filter(newText);
         return false;
     }
-
-  /*  @Override
-    public void onRefresh() {
-        rvImmunizationList.setVisibility(View.VISIBLE);
-        tvAlert.setVisibility(View.GONE);
-        if (!isSchedule) {
-            String url = API_URL_GET_IMMUNIZATION_INFO + mMediatorCallback.getCurrentUser().getCivilId();
-            getMedicationList(url);
-        } else {
-            String url = API_URL_GET_SCHEDULE_IMMUNIZATION_INFO + mMediatorCallback.getCurrentUser().getCivilId();
-            getMedicationList(url);
-        }
-    }*/
 }

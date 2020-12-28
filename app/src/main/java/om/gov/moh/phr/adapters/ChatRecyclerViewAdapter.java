@@ -22,13 +22,11 @@ public class ChatRecyclerViewAdapter extends RecyclerView.Adapter<ChatRecyclerVi
     private ArrayList<ApiFriendChatListHolder.ApiFriendListInfo> friendChatArrayList;
     private Context context;
     private MediatorInterface mediatorInterface;
-    private boolean isNewRecieved;
 
-    public ChatRecyclerViewAdapter(ArrayList<ApiFriendChatListHolder.ApiFriendListInfo> friendChatArrayList, Context context, MediatorInterface mMediatorCallback, boolean isNewRecieved) {
+    public ChatRecyclerViewAdapter(ArrayList<ApiFriendChatListHolder.ApiFriendListInfo> friendChatArrayList, Context context, MediatorInterface mMediatorCallback) {
         this.friendChatArrayList = friendChatArrayList;
         this.context = context;
         this.mediatorInterface = mMediatorCallback;
-        this.isNewRecieved = isNewRecieved;
     }
 
     @NonNull
@@ -42,10 +40,18 @@ public class ChatRecyclerViewAdapter extends RecyclerView.Adapter<ChatRecyclerVi
     @Override
     public void onBindViewHolder(@NonNull final MyViewHolder holder, int position) {
         final ApiFriendChatListHolder.ApiFriendListInfo messageObj = friendChatArrayList.get(position);
-        if(isNewRecieved) {
+        if(messageObj.isNew()){
+            holder.tvUnreadCount.setVisibility(View.VISIBLE);
+        }else {
+            if (messageObj.getUnreadCount() != 0)
+                holder.tvUnreadCount.setVisibility(View.VISIBLE);
+            else
+                holder.tvUnreadCount.setVisibility(View.INVISIBLE);
+        }
+     /*   if(isNewRecieved) {
             SharedPreferences sharedPref = context.getSharedPreferences("CHAT-BODY", Context.MODE_PRIVATE);
             String messageSender = sharedPref.getString("MESSAGE-SENDER", null);
-            if (messageObj.getCreatedBy().equals(messageSender))
+            if (messageObj.getCreatedBy().trim().equals(messageSender.trim()))
                 holder.tvUnreadCount.setVisibility(View.VISIBLE);
             else
                 holder.tvUnreadCount.setVisibility(View.INVISIBLE);
@@ -54,13 +60,15 @@ public class ChatRecyclerViewAdapter extends RecyclerView.Adapter<ChatRecyclerVi
                 holder.tvUnreadCount.setVisibility(View.VISIBLE);
             else
                 holder.tvUnreadCount.setVisibility(View.INVISIBLE);
-        }
+        }*/
         holder.tvCreatedName.setText(messageObj.getCreatedName());
         holder.tvCreatedDate.setText(messageObj.getCreatedDate());
         holder.clFreindItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 holder.tvUnreadCount.setVisibility(View.INVISIBLE);
+                messageObj.setNew(false);
+                notifyDataSetChanged();
                 mediatorInterface.changeFragmentTo(ChatMessagesFragment.newInstance(messageObj), "");
             }
         });

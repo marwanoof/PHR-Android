@@ -28,19 +28,21 @@
         android:layout_marginTop="5dp"
         android:layout_marginEnd="@dimen/space_32"
         android:background="@drawable/selector_card"
-        app:layout_constraintEnd_toStartOf="@id/addDoc"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@id/ib_toolbar_back_button"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:tabBackground="@drawable/tab_layout_selector"
-        app:tabGravity="center"
+        app:tabMaxWidth="0dp"
+        app:tabGravity="fill"
+        app:tabMode="fixed"
         app:tabIndicatorColor="#00FFFFFF"
         app:tabIndicatorHeight="5dp"
         app:tabRippleColor="@null"
         app:tabSelectedTextColor="#FFFFFF"
         app:tabTextColor="#000000"></com.google.android.material.tabs.TabLayout>
 
-    <TextView
+   <!-- <TextView
         android:id="@+id/addDoc"
         android:layout_width="@dimen/space_24"
         android:layout_height="@dimen/space_24"
@@ -52,7 +54,7 @@
         app:layout_constraintBottom_toBottomOf="@id/ib_toolbar_back_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/tabs"
-        app:layout_constraintTop_toTopOf="@id/ib_toolbar_back_button" />
+        app:layout_constraintTop_toTopOf="@id/ib_toolbar_back_button" />-->
 
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/container"

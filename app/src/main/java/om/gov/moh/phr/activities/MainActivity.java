@@ -181,8 +181,8 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
     private String currentLanguage = getDeviceLanguage();
     private DataUpdateReceiver dataUpdateReceiver;
     private String menus;
-    private HomeFragment homeFragment;
     final int callbackId = 42;
+
     //FCM
     public static boolean checkPlayServices(Activity activity) {
         final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
@@ -221,7 +221,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         setAppLanguage(currentLanguage);
         requestNotificationPermission();
         checkPermission(callbackId, Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR);
-     //   homeFragment = new HomeFragment();
+        //   homeFragment = new HomeFragment();
         toolbar = findViewById(R.id.toolbar);
         appBarLayout = findViewById(R.id.appbar_main);
 
@@ -240,15 +240,8 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
             View decor = getWindow().getDecorView();
             decor.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
         }
-
-        //TODO: delete this to remove the toolbar
-        //*************************************
-
-
-      //  setTitle("");
         ImageView ivLogout = findViewById(R.id.iv_logout);
-        //TODO: delete this to remove the toolbar
-        //*************************************
+
 
         mDrawer = findViewById(R.id.drawer_layout);
         final ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -297,6 +290,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         }
 
     }
+
     private void checkPermission(int callbackId, String... permissionsId) {
         boolean permissions = true;
         for (String p : permissionsId) {
@@ -306,13 +300,13 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         if (!permissions)
             ActivityCompat.requestPermissions(this, permissionsId, callbackId);
     }
+
     private void setUpNavigationView() {
         NavigationView navigationView = findViewById(R.id.nav_view);
         Menu menu = navigationView.getMenu();
 
         SharedPreferences sharedPrefSideMenu = mContext.getSharedPreferences(PREFS_SIDE_MENU, Context.MODE_PRIVATE);
         menus = sharedPrefSideMenu.getString(PARAM_SIDE_MENU, "");
-        Log.d("sideMenu", menus);
         String arabicMenuItem = getResources().getString(R.string.arabic);
         menu.findItem(R.id.nav_arabic).setTitle(applyFontToMenuItem(arabicMenuItem));
 
@@ -718,6 +712,10 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
                         String nav_icon = jsonObject.getString("iconClass");
                         String nav_Url = jsonObject.getString("templateUrl");
                         String nav_Url_ar = jsonObject.getString("templateUrlNls");
+                        if (nav_id == 250) {
+                            nav_Url = "https://docs.google.com/gview?embedded=true&url=" + nav_Url;
+                            nav_Url_ar = "https://docs.google.com/gview?embedded=true&url=" + nav_Url_ar;
+                        }
                         if (id == nav_id) {
                             if (getStoredLanguage().equals(LANGUAGE_ENGLISH))
                                 changeFragmentTo(WebSideMenuFragment.newInstance(nav_Url, nav_name), WebSideMenuFragment.class.getSimpleName());
@@ -810,6 +808,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
                     .commit();
         }
     }
+
     private SpannableString applyFontToMenuItem(String mi) {
         Typeface font = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -819,6 +818,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         mNewTitle.setSpan(new CustomTypefaceSpan("", font), 0, mNewTitle.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
         return mNewTitle;
     }
+
     private void logout() {
         displayLogoutDialog();
     }
@@ -870,8 +870,6 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
 
     private void unRegisterDeviceId() {
         String fullUrl = API_NEHR_URL + "device/unRegister?deviceId=" + getDeviceId() + "&flag=" + API_ANDROID_FLAG + "&appShortCode=" + API_ANDROID_APP_CODE + "&civilId=" + getCurrentUser().getCivilId();
-        Log.d("unRegisterDevice-url", fullUrl);
-
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, fullUrl, null
                 , new Response.Listener<JSONObject>() {
             @Override
@@ -894,7 +892,6 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("unRegisterDevice", error.toString());
                 error.printStackTrace();
                 mProgressDialog.dismissDialog();
             }
@@ -938,11 +935,6 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         editor = sharedPref.edit();
         editor.clear();
         editor.apply();
-
-     /*   SharedPreferences sharedPrefSideMenu = mContext.getSharedPreferences(PREFS_SIDE_MENU, Context.MODE_PRIVATE);
-        editor = sharedPrefSideMenu.edit();
-        editor.clear();
-        editor.apply();*/
     }
 
     private void clearBackStack() {
@@ -990,7 +982,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
     @Override
     protected void onResume() {
         super.onResume();
-
+        changeLanguageTo(getStoredLanguage(), false);
         //  if (getSharedPreferences(PREFS_API_GET_TOKEN, Context.MODE_PRIVATE).contains(API_GET_TOKEN_ACCESS_TOKEN)) {
         if (checkPlayServices(this)) {
             // FCM
@@ -1007,21 +999,21 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         if (getCurrentFragment() != null) {
             //if screen rotated retain Fragment
             if (getCurrentFragment() instanceof HomeFragment) {
-              //  shouldLockDrawer(false);
-              //  changeFragmentContainerVisibility(View.VISIBLE, View.VISIBLE);
+                //  shouldLockDrawer(false);
+                //  changeFragmentContainerVisibility(View.VISIBLE, View.VISIBLE);
                 changeSideMenuToolBarVisibility(View.VISIBLE);
             } else {
-              //  shouldLockDrawer(true);
-            //  changeFragmentContainerVisibility(View.VISIBLE, View.GONE);
+                //  shouldLockDrawer(true);
+                //  changeFragmentContainerVisibility(View.VISIBLE, View.GONE);
                 changeSideMenuToolBarVisibility(View.GONE);
                 changeFragmentTo(getCurrentFragment(), getCurrentFragment().getTag());
             }
 
         } else {
             //set Home/Main/default fragment
-          // changeFragmentContainerVisibility(View.VISIBLE, View.VISIBLE);
+            // changeFragmentContainerVisibility(View.VISIBLE, View.VISIBLE);
             changeSideMenuToolBarVisibility(View.VISIBLE);
-           // shouldLockDrawer(false);
+            // shouldLockDrawer(false);
             changeFragmentTo(HomeFragment.newInstance(), HomeFragment.class.getSimpleName());
         }
         //   } else {
@@ -1056,10 +1048,8 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         // Handle possible data accompanying notification message.
         // [START handle_data_extras]
         if (getIntent().getExtras() != null) {
-            Log.d(TAG + "intent", "NOTIFICATION: " + getIntent().getExtras());
             for (String key : getIntent().getExtras().keySet()) {
                 Object value = getIntent().getExtras().get(key);
-                Log.d(TAG + "-intent", "Key: " + key + " Value: " + value);
           /*      if (key.equals("type")) {
                     changeFragmentContainerVisibility(View.VISIBLE, View.GONE);
                     changeSideMenuToolBarVisibility(View.GONE);
@@ -1096,8 +1086,6 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
                         registerDevice(deviceId);
 
 
-
-
 //                        Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
 
                     }
@@ -1108,7 +1096,6 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
     private void registerDevice(final String deviceId) {
 
         String fullUrl = API_NEHR_URL + "device/register?deviceId=" + deviceId + "&flag=" + API_ANDROID_FLAG + "&appShortCode=" + API_ANDROID_APP_CODE + "&civilId=" + getCurrentUser().getCivilId();
-        Log.d("registerDevice-url", fullUrl);
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, fullUrl, null
                 , new Response.Listener<JSONObject>() {
@@ -1116,17 +1103,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
             public void onResponse(JSONObject response) {
                 try {
                     if (response.getInt(API_RESPONSE_CODE) == 0) {
-
-                        Log.d("registerDevice-result", response.getString(API_RESPONSE_MESSAGE));
-
-                       /* Gson gson = new Gson();
-                        ApiDependentsHolder responseHolder = gson.fromJson(response.toString(), ApiDependentsHolder.class);
-                        Log.d("resp-dependants", response.getJSONArray("result").toString());
-                        prepareDependantsCards(responseHolder, container, inflater, llDependentsContainer);*/
-
                         saveRegisterDeviceDetails(deviceId);
-
-
                     } else {
                         mProgressDialog.dismissDialog();
                     }
@@ -1140,7 +1117,6 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("registerDevice", error.toString());
                 error.printStackTrace();
                 mProgressDialog.dismissDialog();
             }
@@ -1262,6 +1238,9 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         return sharedPref.getString(LANGUAGE_SELECTED, getDeviceLanguage());
     }
 
+    private String getDeviceLanguage() {
+        return Locale.getDefault().getLanguage();
+    }
 
     private class DataUpdateReceiver extends BroadcastReceiver {
         @Override
@@ -1271,14 +1250,6 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
                     checkNotificationsCounter();
             }
         }
-    }
-
-    private String getDeviceLanguage() {
-        return Locale.getDefault().getLanguage();
-    }
-
-    public void expandCollapseBtn(View view) {
-        homeFragment.expandCollapseBtn(view);
     }
 }
 

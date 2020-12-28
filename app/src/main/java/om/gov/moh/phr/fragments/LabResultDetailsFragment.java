@@ -318,9 +318,7 @@ public class LabResultDetailsFragment extends Fragment implements SwipeRefreshLa
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
                             Gson gson = new Gson();
                             ApiTextualDataHolder resultsHolder = gson.fromJson(response.toString(), ApiTextualDataHolder.class);
-                        //    Log.d("resultResponse", resultsHolder.getResult().getConclusion() + ", " + resultsHolder.getResult().getReleasedTime() + ", " + resultsHolder.getResult().getStatus()+ ", " + ", " + resultsHolder.getResult().getTextualData().get(0).getParamName()+", "+ resultsHolder.getResult().getTextualData().get(0).getResult());
-
-                            ApiTextualDataHolder.TextualLabResult obj = resultsHolder.getResult();
+                      ApiTextualDataHolder.TextualLabResult obj = resultsHolder.getResult();
                             tvStatus.setText(getResources().getString(R.string.status_feild) + "  " + obj.getStatus());
                             Date date = new Date(obj.getReleasedTime());
                             SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yyyy");
@@ -348,8 +346,7 @@ public class LabResultDetailsFragment extends Fragment implements SwipeRefreshLa
             @Override
             public void onErrorResponse(VolleyError error) {
                 if (mContext != null && isAdded()) {
-                    Log.d("resp-demographic", error.toString());
-                    error.printStackTrace();
+                   error.printStackTrace();
                     mProgressDialog.dismissDialog();
                     swipeRefreshLayout.setRefreshing(false);
                 }
@@ -359,7 +356,6 @@ public class LabResultDetailsFragment extends Fragment implements SwipeRefreshLa
             @Override
             public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
-//                headers.put("Accept", "application/json");
                 headers.put("Content-Type", "application/json");
                 headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
                 return headers;
@@ -419,8 +415,7 @@ public class LabResultDetailsFragment extends Fragment implements SwipeRefreshLa
             @Override
             public void onErrorResponse(VolleyError error) {
                 if (mContext != null && isAdded()) {
-                    Log.d("resp-demographic", error.toString());
-                    error.printStackTrace();
+                   error.printStackTrace();
                     mProgressDialog.dismissDialog();
                     swipeRefreshLayout.setRefreshing(false);
                 }

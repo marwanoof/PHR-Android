@@ -93,9 +93,9 @@ public class ImmunizationContainerFragment extends Fragment {
         @Override
         public Fragment getItem(int position) {
             if (position == 0)
-                return ImmunizationFragment.newInstance("Given", false,pageTitle);
+                return ImmunizationFragment.newInstance("Given");
             else
-                return ImmunizationFragment.newInstance("Schedule", false,pageTitle);
+                return ImmunizationFragment.newInstance("Schedule");
         }
 
         @Nullable

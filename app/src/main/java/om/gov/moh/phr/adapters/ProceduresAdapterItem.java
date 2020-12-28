@@ -71,57 +71,57 @@ public class ProceduresAdapterItem extends RecyclerView.Adapter<ProceduresAdapte
     public void onBindViewHolder(@NonNull final ProceduresAdapterItem.MyViewHolder holder, int position) {
         final ApiProceduresReportsHolder.Procedures proceduresEncounter = proceduresArrayList.get(position);
 
-            holder.moreDetailArrow.setVisibility(View.VISIBLE);
-            ViewGroup.LayoutParams layoutParams = holder.cardView.getLayoutParams();
-            layoutParams.height = 150;
-            //holder.cardView.setLayoutParams(layoutParams);
-            //final ApiProceduresReportsHolder procedureObj = proceduresReportArrayList.get(position);
-            if (isRad) {
-                holder.tvProcedureName.setText(proceduresEncounter.getProcedure().get(0).getName());
+        holder.moreDetailArrow.setVisibility(View.VISIBLE);
+        ViewGroup.LayoutParams layoutParams = holder.cardView.getLayoutParams();
+        layoutParams.height = 150;
+        //holder.cardView.setLayoutParams(layoutParams);
+        //final ApiProceduresReportsHolder procedureObj = proceduresReportArrayList.get(position);
+        if (isRad) {
+            holder.tvProcedureName.setText(proceduresEncounter.getProcedure().get(0).getName());
+            if (proceduresEncounter.getProcedureDoneDate() != 0) {
                 Date date = new Date(proceduresEncounter.getProcedureDoneDate());
-                SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yyyy",Locale.ENGLISH);
+                SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
                 String dateText = df2.format(date);
                 holder.tvDateWritten.setText(dateText);
-
-
-                holder.tvDate.setVisibility(View.GONE);
-
-                if (getStoredLanguage().equals(LANGUAGE_ARABIC)){
-                    holder.tvEstName.setText(proceduresEncounter.getEstFullnameNls());
-                    holder.moreDetailArrow.setImageBitmap(flipImage());
-                }else {
-                    holder.tvEstName.setText(proceduresEncounter.getEstFullname());
-                    holder.moreDetailArrow.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_arrow_right));
-                }
-
-
-            } else {
-
-                holder.tvProcedureName.setText(proceduresEncounter.getProcedure().get(0).getName());
-
-                Date date = new Date(proceduresEncounter.getStartTime());
-                SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yyyy",Locale.ENGLISH);
-                String dateText = df2.format(date);
-                holder.tvDateWritten.setText(dateText);
-
-                if (getStoredLanguage().equals(LANGUAGE_ARABIC)){
-                    holder.tvEstName.setText(proceduresEncounter.getEstFullnameNls());
-                    holder.moreDetailArrow.setImageBitmap(flipImage());
-                }else {
-                    holder.tvEstName.setText(proceduresEncounter.getEstFullname());
-                    holder.moreDetailArrow.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_arrow_right));
-                }
-
             }
-            holder.cardView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                  //  row_index = position;
-                   // notifyDataSetChanged();
+            holder.tvDate.setVisibility(View.GONE);
 
-                        mediatorInterface.changeFragmentTo(ProceduresReportsDetailsFragment.newInstance(proceduresEncounter), proceduresEncounter.getProcedure().get(0).getName());
-                }
-            });
+            if (getStoredLanguage().equals(LANGUAGE_ARABIC)) {
+                holder.tvEstName.setText(proceduresEncounter.getEstFullnameNls());
+                holder.moreDetailArrow.setImageBitmap(flipImage());
+            } else {
+                holder.tvEstName.setText(proceduresEncounter.getEstFullname());
+                holder.moreDetailArrow.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_arrow_right));
+            }
+
+
+        } else {
+
+            holder.tvProcedureName.setText(proceduresEncounter.getProcedure().get(0).getName());
+            if (proceduresEncounter.getStartTime() != 0) {
+                Date date = new Date(proceduresEncounter.getStartTime());
+                SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
+                String dateText = df2.format(date);
+                holder.tvDateWritten.setText(dateText);
+            }
+            if (getStoredLanguage().equals(LANGUAGE_ARABIC)) {
+                holder.tvEstName.setText(proceduresEncounter.getEstFullnameNls());
+                holder.moreDetailArrow.setImageBitmap(flipImage());
+            } else {
+                holder.tvEstName.setText(proceduresEncounter.getEstFullname());
+                holder.moreDetailArrow.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_arrow_right));
+            }
+
+        }
+        holder.cardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //  row_index = position;
+                // notifyDataSetChanged();
+
+                mediatorInterface.changeFragmentTo(ProceduresReportsDetailsFragment.newInstance(proceduresEncounter), proceduresEncounter.getProcedure().get(0).getName());
+            }
+        });
 //            if (row_index == position) {
 //
 //                holder.clOrderItem.setBackgroundColor(context.getResources().getColor(R.color.colorPeach));
@@ -129,9 +129,6 @@ public class ProceduresAdapterItem extends RecyclerView.Adapter<ProceduresAdapte
 //
 //                holder.clOrderItem.setBackgroundColor(context.getResources().getColor(R.color.colorWhite));
 //            }
-
-
-
 
 
     }
@@ -159,19 +156,22 @@ public class ProceduresAdapterItem extends RecyclerView.Adapter<ProceduresAdapte
             tvDateDetails = view.findViewById(R.id.tv_date_proc_details);
 
             tvDate = view.findViewById(R.id.tvDate);
-            Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(),R.drawable.ic_arrow_right);
+            Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_arrow_right);
             moreDetailArrow.setImageBitmap(bitmap);
         }
     }
 
     private String getStoredLanguage() {
         SharedPreferences sharedPref = context.getSharedPreferences(LANGUAGE_PREFS, Context.MODE_PRIVATE);
-        return sharedPref.getString(LANGUAGE_SELECTED, LANGUAGE_ARABIC);
+        return sharedPref.getString(LANGUAGE_SELECTED, getDeviceLanguage());
+    }
+    private String getDeviceLanguage() {
+        return Locale.getDefault().getLanguage();
     }
 
 
     private Bitmap flipImage() {
-        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(),R.drawable.ic_arrow_right);
+        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_arrow_right);
 // create new matrix for transformation
         Matrix matrix = new Matrix();
         matrix.preScale(-1.0f, 1.0f);

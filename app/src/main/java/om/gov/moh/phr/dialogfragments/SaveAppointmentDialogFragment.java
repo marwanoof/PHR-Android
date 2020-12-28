@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
@@ -39,6 +40,7 @@ import om.gov.moh.phr.models.MyProgressDialog;
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
 import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
+import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_MESSAGE;
 import static om.gov.moh.phr.models.MyConstants.PARAM_EST_CODE;
 
 /**
@@ -127,9 +129,6 @@ public class SaveAppointmentDialogFragment extends DialogFragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View parentView = inflater.inflate(R.layout.fragment_save_appointment_dialog, container, false);
-
-        Log.d("mCaller", mCaller);
-
         mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
         mProgressDialog = new MyProgressDialog(mContext);
 
@@ -163,8 +162,7 @@ public class SaveAppointmentDialogFragment extends DialogFragment {
     private void saveAppointment(String remarks) {
 
 
-        String fullUrl = API_NEHR_URL + "appointment/save?estCode="+mEstCode+"&runId=" + mRunId + "&patientId=" + mPatientId + "&clinicId=530&remarks=" + remarks;
-        Log.d("saveAppointment", "link : " + fullUrl);
+        String fullUrl = API_NEHR_URL + "appointment/save?estCode=" + mEstCode + "&runId=" + mRunId + "&patientId=" + mPatientId + "&clinicId=530&remarks=" + remarks;
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, fullUrl, null
                 , new Response.Listener<JSONObject>() {
             @Override
@@ -174,15 +172,14 @@ public class SaveAppointmentDialogFragment extends DialogFragment {
                     if (response.getInt(API_RESPONSE_CODE) == 0) {
 
                         mDialogListener.onAccept();
-
+                        Toast.makeText(mContext, response.getString(API_RESPONSE_MESSAGE), Toast.LENGTH_SHORT).show();
+                        dismiss();
                     } else {
                         mProgressDialog.dismissDialog();
                         mDialogListener.onDecline();
                     }
                 } catch (JSONException e) {
-                    Log.d("re-runId-res", "Fail " + e);
-
-                    e.printStackTrace();
+                e.printStackTrace();
                 }
 
                 mProgressDialog.dismissDialog();

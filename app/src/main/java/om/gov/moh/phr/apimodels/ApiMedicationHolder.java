@@ -142,7 +142,7 @@ public class ApiMedicationHolder {
         private String patientClass;
 
         @SerializedName("doseQty")
-        private int doseQty;
+        private double doseQty;
 
         @SerializedName("doseDays")
         private int doseDays;
@@ -267,7 +267,7 @@ public class ApiMedicationHolder {
             return patientClass;
         }
 
-        public int getDoseQty() {
+        public double getDoseQty() {
             return doseQty;
         }
 

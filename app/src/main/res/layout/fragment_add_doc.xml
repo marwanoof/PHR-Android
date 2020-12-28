@@ -4,18 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorBackground"
     tools:context=".fragments.AddDocFragment">
-
     <include
         android:id="@+id/include"
-        layout="@layout/toolbar_custom"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
+        layout="@layout/toolbar_simple"
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <ImageView
         android:id="@+id/imageView"
@@ -42,7 +35,7 @@
         app:cardElevation="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/include">
+        app:layout_constraintTop_toBottomOf="@id/include">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -83,6 +76,9 @@
                 android:fontFamily="@font/sky"
                 android:hint="@string/reference"
                 android:paddingStart="5dp"
+                android:digits="abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789أإآذدجحخهعغفقثصضطكمنتالبيسشظزوةىرؤءئ"
+                android:singleLine="true"
+                android:maxLength="20"
                 android:paddingTop="5dp"
                 android:paddingBottom="5dp"
                 android:textSize="14sp"
@@ -102,6 +98,9 @@
                 android:hint="@string/remark"
                 android:padding="5dp"
                 android:textSize="14sp"
+                android:maxLength="30"
+                android:singleLine="true"
+                android:digits="0123456789abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ أإآذدجحخهعغفقثصضطكمنتالبيسشظزوةىرؤءئ"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/et_reference" />

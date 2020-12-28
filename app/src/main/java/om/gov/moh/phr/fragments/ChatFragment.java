@@ -9,6 +9,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -43,6 +44,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.activities.MainActivity;
@@ -60,20 +62,24 @@ import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_RESULT;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener{
-    private static final String API_URL_FRIEND_LIST = API_NEHR_URL+"chat/getMessageByRecipient/";
+public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
+    private static final String API_URL_FRIEND_LIST = API_NEHR_URL + "chat/getMessageByRecipient/";
     private RequestQueue mQueue;
     private MyProgressDialog mProgressDialog;
     private Context mContext;
     private MediatorInterface mMediatorCallback;
     private ToolbarControllerInterface mToolbarControllerCallback;
     private RecyclerView rvChatMessages;
-    private  ApiFriendChatListHolder responseHolder;
+    private ApiFriendChatListHolder responseHolder;
     private DataUpdateReceiver dataUpdateReceiver;
     private SwipeRefreshLayout swipeRefreshLayout;
     private View view;
     private static final String PARAM1 = "PARAM1";
     private String pageTitle;
+    private ChatRecyclerViewAdapter mAdapter;
+    private CardView noRecordCardView;
+    private TextView tvAlert;
+
     public ChatFragment() {
         // Required empty public constructor
     }
@@ -81,7 +87,7 @@ public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     public static ChatFragment newInstance(String title) {
         ChatFragment fragment = new ChatFragment();
         Bundle args = new Bundle();
-        args.putString(PARAM1,title);
+        args.putString(PARAM1, title);
         fragment.setArguments(args);
         return fragment;
     }
@@ -106,38 +112,51 @@ public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        if(view==null){
-         view = inflater.inflate(R.layout.fragment_chat, container, false);
-        TextView tvTitle = view.findViewById(R.id.tv_toolbar_title);
-        tvTitle.setText(pageTitle);
-        tvTitle.setGravity(Gravity.CENTER);
-        ImageButton ibBack = view.findViewById(R.id.ib_toolbar_back_button);
-        //ibBack.setVisibility(View.GONE);
-        ibBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mToolbarControllerCallback.customToolbarBackButtonClicked();
-            }
-        });
-        rvChatMessages = view.findViewById(R.id.rv_chat_messages);
-        mProgressDialog = new MyProgressDialog(mContext);
-        mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
-        swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
-        String url = API_URL_FRIEND_LIST + mMediatorCallback.getCurrentUser().getCivilId();
-        getChatFriendList(url);
-        swipeRefreshLayout.setOnRefreshListener(this);
-        swipeRefreshLayout.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        swipeRefreshLayout.setRefreshing(true);
-                                        String url = API_URL_FRIEND_LIST + mMediatorCallback.getCurrentUser().getCivilId();
-                                        getChatFriendList(url);
+        if (view == null) {
+            view = inflater.inflate(R.layout.fragment_chat, container, false);
+            clearNotificationSharedPrefs(3);
+            TextView tvTitle = view.findViewById(R.id.tv_toolbar_title);
+            tvTitle.setText(pageTitle);
+            ImageButton ibBack = view.findViewById(R.id.ib_toolbar_back_button);
+            ibBack.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mToolbarControllerCallback.customToolbarBackButtonClicked();
+                }
+            });
+            rvChatMessages = view.findViewById(R.id.rv_chat_messages);
+            mProgressDialog = new MyProgressDialog(mContext);
+            mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
+            swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
+            noRecordCardView = view.findViewById(R.id.cardViewNoRecords);
+            tvAlert = view.findViewById(R.id.tv_alert);
+            String url = API_URL_FRIEND_LIST + mMediatorCallback.getCurrentUser().getCivilId();
+            getChatFriendList(url);
+            swipeRefreshLayout.setOnRefreshListener(this);
+            swipeRefreshLayout.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            swipeRefreshLayout.setRefreshing(true);
+                                            String url = API_URL_FRIEND_LIST + mMediatorCallback.getCurrentUser().getCivilId();
+                                            getChatFriendList(url);
+                                        }
                                     }
-                                }
-        );
+            );
         } else {
-            if(view.getParent()!=null)
+            if (view.getParent() != null)
                 ((ViewGroup) view.getParent()).removeView(view);
+            SharedPreferences sharedPref = mContext.getSharedPreferences("CHAT-BODY", Context.MODE_PRIVATE);
+            String messageSender = sharedPref.getString("MESSAGE-SENDER", null);
+            if (messageSender != null) {
+                if (responseHolder != null) {
+                    for (int i = 0; i < responseHolder.getmResult().size(); i++) {
+                        if (responseHolder.getmResult().get(i).getCreatedName().trim().equalsIgnoreCase(messageSender.trim()))
+                            responseHolder.getmResult().get(i).setNew(true);
+                    }
+                }
+            }
+            if (mAdapter != null)
+                mAdapter.notifyDataSetChanged();
         }
         return view;
     }
@@ -149,19 +168,14 @@ public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                if (mContext != null) {
+                if (mContext != null && isAdded()) {
                     try {
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
-                            try {
-                                Gson gson = new Gson();
-                                responseHolder = gson.fromJson(response.toString(), ApiFriendChatListHolder.class);
-                                Log.d("resp-dependants", response.getJSONArray(API_RESPONSE_RESULT).toString());
-                                setupRecyclerView(responseHolder.getmResult(), false);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
+                            Gson gson = new Gson();
+                            responseHolder = gson.fromJson(response.toString(), ApiFriendChatListHolder.class);
+                            setupRecyclerView(responseHolder.getmResult());
                         } else {
-
+                            displayAlert(getResources().getString(R.string.no_chats_msg));
                             mProgressDialog.dismissDialog();
                         }
                     } catch (JSONException e) {
@@ -176,7 +190,6 @@ public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefre
             @Override
             public void onErrorResponse(VolleyError error) {
                 if (mContext != null && isAdded()) {
-                    Log.d("get_friendList", error.toString());
                     error.printStackTrace();
                     mProgressDialog.dismissDialog();
                     swipeRefreshLayout.setRefreshing(false);
@@ -187,7 +200,6 @@ public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefre
             @Override
             public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
-//                headers.put("Accept", "application/json");
                 headers.put("Content-Type", "application/json");
                 headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
                 return headers;
@@ -200,8 +212,9 @@ public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefre
 
         mQueue.add(jsonObjectRequest);
     }
-    private void setupRecyclerView(ArrayList<ApiFriendChatListHolder.ApiFriendListInfo> getmResult, boolean isNewReceived) {
-        ChatRecyclerViewAdapter mAdapter = new ChatRecyclerViewAdapter(getmResult, mContext, mMediatorCallback, isNewReceived);
+
+    private void setupRecyclerView(ArrayList<ApiFriendChatListHolder.ApiFriendListInfo> getmResult) {
+        mAdapter = new ChatRecyclerViewAdapter(getmResult, mContext, mMediatorCallback);
         LinearLayoutManager layoutManager
                 = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
         DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(rvChatMessages.getContext(),
@@ -211,12 +224,14 @@ public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         rvChatMessages.setItemAnimator(new DefaultItemAnimator());
         rvChatMessages.setAdapter(mAdapter);
     }
+
     @Override
     public void onDetach() {
         super.onDetach();
-      //  mMediatorCallback.changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
+        //  mMediatorCallback.changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
         mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
     }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -241,9 +256,53 @@ public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     private class DataUpdateReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals("BODY")) {
+         /*   if (intent.getAction().equals("BODY")) {
                     setupRecyclerView(responseHolder.getmResult(), true);
+            }*/
+            if (Objects.requireNonNull(intent.getAction()).equals("BODY")) {
+                SharedPreferences sharedPref = mContext.getSharedPreferences("CHAT-BODY", Context.MODE_PRIVATE);
+                String messageSender = sharedPref.getString("MESSAGE-SENDER", null);
+                for (int i = 0; i < responseHolder.getmResult().size(); i++) {
+                    if (responseHolder.getmResult().get(i).getCreatedName().trim().equalsIgnoreCase(messageSender.trim()))
+                        responseHolder.getmResult().get(i).setNew(true);
+                }
+                mAdapter.notifyDataSetChanged();
             }
         }
+    }
+
+    private void clearNotificationSharedPrefs(int notificationType) {
+        SharedPreferences sharedPref;
+        SharedPreferences.Editor editor;
+
+        sharedPref = mContext.getSharedPreferences("Counting", Context.MODE_PRIVATE);
+        editor = sharedPref.edit();
+        switch (notificationType) {
+
+            case 1:
+                editor.remove("appointmentCount");
+                editor.apply();
+                break;
+            case 2:
+                editor.remove("notificationCount");
+                editor.apply();
+                break;
+            case 3:
+                editor.remove("chatCount");
+                editor.apply();
+                break;
+            default:
+                editor.remove("appointmentCount");
+                editor.remove("notificationCount");
+                editor.remove("chatCount");
+                editor.apply();
+        }
+    }
+
+    private void displayAlert(String msg) {
+        rvChatMessages.setVisibility(View.GONE);
+        noRecordCardView.setVisibility(View.VISIBLE);
+        tvAlert.setVisibility(View.VISIBLE);
+        tvAlert.setText(msg);
     }
 }

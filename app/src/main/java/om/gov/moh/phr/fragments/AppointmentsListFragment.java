@@ -76,6 +76,7 @@ public class AppointmentsListFragment extends Fragment implements AdapterToFragm
     private RecyclerView rvRefferalls;
     private static final String ARG_PARAM1 = "ARG_PARAM1";
     private ArrayList<ApiHomeHolder.Patients> patientsArrayList;
+
     public AppointmentsListFragment() {
         // Required empty public constructor
     }
@@ -92,7 +93,7 @@ public class AppointmentsListFragment extends Fragment implements AdapterToFragm
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null){
+        if (getArguments() != null) {
             patientsArrayList = (ArrayList<ApiHomeHolder.Patients>) getArguments().getSerializable(ARG_PARAM1);
         }
     }
@@ -123,7 +124,9 @@ public class AppointmentsListFragment extends Fragment implements AdapterToFragm
                 mToolbarControllerCallback.customToolbarBackButtonClicked();
             }
         });
-        //ibToolbarBackButton.setVisibility(View.GONE);
+        TextView tvToolBarTitle = parentView.findViewById(R.id.tv_toolbar_title);
+        tvToolBarTitle.setText(getString(R.string.title_appointments));
+
         tvNoAppointmentAlert = parentView.findViewById(R.id.tv_no_appointment_alert);
         tvNoRefferals = parentView.findViewById(R.id.tv_no_refferals_alert);
         //ImageButton ibRefresh = parentView.findViewById(R.id.ib_refresh);
@@ -146,11 +149,6 @@ public class AppointmentsListFragment extends Fragment implements AdapterToFragm
                 getAppointmentsList();
             }
         });*/
-
-        TextView tvToolBarTitle = parentView.findViewById(R.id.tv_toolbar_title);
-        tvToolBarTitle.setText(getString(R.string.title_appointments));
-        tvToolBarTitle.setGravity(Gravity.CENTER);
-
         ImageButton ibAddAppointment = parentView.findViewById(R.id.ib_add_appointment);
         ibAddAppointment.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -196,7 +194,7 @@ public class AppointmentsListFragment extends Fragment implements AdapterToFragm
     }
 
     private void setupRefferalsRecyclerView(RecyclerView recyclerView) {
-        mRefferalAdapter = new RefferalsListRecyclerViewAdapter(AppointmentsListFragment.this, mContext);
+        mRefferalAdapter = new RefferalsListRecyclerViewAdapter(AppointmentsListFragment.this, mContext, true);
         LinearLayoutManager layoutManager
                 = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
         DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
@@ -225,45 +223,40 @@ public class AppointmentsListFragment extends Fragment implements AdapterToFragm
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                try {
-                    if (response.getInt(API_RESPONSE_CODE) == 0) {
-                        Gson gson = new Gson();
-                        ApiAppointmentsListHolder responseHolder = gson.fromJson(response.toString(), ApiAppointmentsListHolder.class);
-                        Log.d("appointmentList", "-List" + response.getJSONObject("result").toString());
-                        updateRecyclerView(responseHolder.getResult().getAppointmentsArrayList());
-                        updateRefferalsRecyclerView(responseHolder.getResult().getReferralsArrayList());
-                        if (responseHolder.getResult().getAppointmentsArrayList().size() == 0)
-                            tvNoAppointmentAlert.setVisibility(View.VISIBLE);
-                        if (responseHolder.getResult().getReferralsArrayList().size() == 0)
-                            tvNoRefferals.setVisibility(View.VISIBLE);
-                    } else {
-
-                        mProgressDialog.dismissDialog();
-
+                if (mContext != null && isAdded()) {
+                    try {
+                        if (response.getInt(API_RESPONSE_CODE) == 0) {
+                            Gson gson = new Gson();
+                            ApiAppointmentsListHolder responseHolder = gson.fromJson(response.toString(), ApiAppointmentsListHolder.class);
+                            updateRecyclerView(responseHolder.getResult().getAppointmentsArrayList());
+                            updateRefferalsRecyclerView(responseHolder.getResult().getReferralsArrayList());
+                            if (responseHolder.getResult().getAppointmentsArrayList().size() == 0)
+                                tvNoAppointmentAlert.setVisibility(View.VISIBLE);
+                            if (responseHolder.getResult().getReferralsArrayList().size() == 0)
+                                tvNoRefferals.setVisibility(View.VISIBLE);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
 
-                mProgressDialog.dismissDialog();
-                // showing refresh animation before making http call
-                swipeRefreshLayout.setRefreshing(false);
+                    mProgressDialog.dismissDialog();
+                    swipeRefreshLayout.setRefreshing(false);
+                }
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("appointmentList", error.toString());
-                error.printStackTrace();
-                mProgressDialog.dismissDialog();
-                // showing refresh animation before making http call
-                swipeRefreshLayout.setRefreshing(false);
+                if (mContext != null && isAdded()) {
+                    error.printStackTrace();
+                    mProgressDialog.dismissDialog();
+                    swipeRefreshLayout.setRefreshing(false);
+                }
             }
         }) {
             //
             @Override
             public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
-//                headers.put("Accept", "application/json");
                 headers.put("Content-Type", "application/json");
                 headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
                 return headers;
@@ -286,11 +279,11 @@ public class AppointmentsListFragment extends Fragment implements AdapterToFragm
 
     @Override
     public <T> void onMyListItemClicked(T dataToPass, String dataTitle, int position) {
-        if (dataToPass instanceof String) {
+   /*     if (dataToPass instanceof String) {
             String referrals = dataToPass.toString();
             if ("REFFERAL".equals(dataTitle))
                 mMediatorCallback.changeFragmentTo(RefferalsDetailsFragment.newInstance(referrals), RefferalsDetailsFragment.class.getSimpleName());
-        } else {
+     } else {*/
             ApiAppointmentsListHolder.Appointments appointment = (ApiAppointmentsListHolder.Appointments) dataToPass;
             switch (dataTitle) {
                 case ACTION_RESCHEDULE: {
@@ -302,7 +295,7 @@ public class AppointmentsListFragment extends Fragment implements AdapterToFragm
                 }
                 break;
             }
-        }
+      //  }
 
 
     }

@@ -24,7 +24,6 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/constraintLayout_login"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -37,7 +36,16 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
-
+            <TextView
+                android:id="@+id/tv_resetOtp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/space_8"
+                android:text="@string/reset_otp"
+                android:visibility="gone"
+                android:textAlignment="center"
+                app:layout_constraintStart_toStartOf="@id/btn_login"
+                app:layout_constraintTop_toBottomOf="@+id/btn_login" />
             <TextView
                 android:id="@+id/tv_cancel"
                 android:layout_width="wrap_content"
@@ -104,6 +112,8 @@
                     android:fontFamily="@font/sky"
                     android:gravity="center"
                     android:hint="@string/title_enter_otp"
+                    android:maxLength="10"
+                   android:singleLine="true"
                     android:imeOptions="actionDone"
                     android:inputType="numberPassword"
                     android:paddingStart="@dimen/space_24"
@@ -135,6 +145,8 @@
                 android:gravity="center"
                 android:hint="@string/title_enter_your_civil_id"
                 android:imeOptions="actionDone"
+                android:singleLine="true"
+                android:maxLength="30"
                 android:inputType="number"
                 android:paddingStart="@dimen/space_24"
                 android:paddingEnd="@dimen/space_24"

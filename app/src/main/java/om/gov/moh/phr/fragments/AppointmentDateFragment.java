@@ -183,9 +183,7 @@ public class AppointmentDateFragment extends Fragment implements AdapterToFragme
                 customSlot.addTimeBlock(slot.getTimeBlock());
                 customSlot.addRunId(slot.getRunId());
 
-                Log.d("re-runId", " new getCustomSlotsArrayList:" + slot.getTimeBlock() + " / " + slot.getRunId());
-
-            }
+          }
 
         }
         return slots;
@@ -204,7 +202,6 @@ public class AppointmentDateFragment extends Fragment implements AdapterToFragme
     public <T> void onMyListItemClicked(T dataToPass, String dataTitle) {
         CustomSlot customSlot = (CustomSlot) dataToPass;
         showSaveAppointmentDialog(mEstCode, customSlot.getSelectedRunId(), mSlotsHolder.getResult().getPatientId(), mClinicId, customSlot.getAppointmentDate(), customSlot.getSelectedTime());
-        Log.d("saveAppointment", "onMyListItemClicked : " + mEstCode + "/" + customSlot.getSelectedRunId() + "/" + mSlotsHolder.getResult().getPatientId() + "/" + mClinicId);
 
     }
 
@@ -219,20 +216,19 @@ public class AppointmentDateFragment extends Fragment implements AdapterToFragme
 
             @Override
             public void onAccept() {
-              //  onDecline();
-
+                onDecline();
                 mToolbarControllerCallback.customToolbarBackButtonClicked();
-                mListener.onItemsChanged(-1);
+               // mListener.onItemsChanged(-1);
 
 
-                Handler handler = new Handler();
+             /*   Handler handler = new Handler();
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         // Do something after 5s = 5000ms
 
                     }
-                }, 1000);
+                }, 1000);*/
             }
 
             @Override

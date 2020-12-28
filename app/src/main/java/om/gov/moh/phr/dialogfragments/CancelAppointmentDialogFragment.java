@@ -151,7 +151,6 @@ public class CancelAppointmentDialogFragment extends DialogFragment {
     private void cancelAppointment(String reason) {
 
         String fullUrl = API_NEHR_URL+"appointment/cancel?estCode=" + mAppointment.getEstCode() + "&reservationId=" + mAppointment.getReservationId() + "&reason=" + reason + "&civilId=" + mMediatorCallback.getCurrentUser().getCivilId();
-        Log.d("saveAppointment", "link : " + fullUrl);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, fullUrl, null
                 , new Response.Listener<JSONObject>() {
             @Override

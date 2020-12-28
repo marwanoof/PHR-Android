@@ -182,7 +182,7 @@ public class ImpressionFragment extends Fragment implements SwipeRefreshLayout.O
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                if (mContext != null) {
+                if (mContext != null&&isAdded()) {
                     try {
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
 
@@ -221,7 +221,6 @@ public class ImpressionFragment extends Fragment implements SwipeRefreshLayout.O
             @Override
             public void onErrorResponse(VolleyError error) {
                 if (mContext != null && isAdded()) {
-                    Log.d("resp-demographic", error.toString());
                     error.printStackTrace();
                     mProgressDialog.dismissDialog();
                     swipeRefreshLayout.setRefreshing(false);
@@ -232,7 +231,6 @@ public class ImpressionFragment extends Fragment implements SwipeRefreshLayout.O
             @Override
             public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
-//                headers.put("Accept", "application/json");
                 headers.put("Content-Type", "application/json");
                 headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
                 return headers;

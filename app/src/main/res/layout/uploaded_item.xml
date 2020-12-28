@@ -2,7 +2,6 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/cl_uploadedItem"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -43,6 +42,7 @@
                 android:textStyle="bold"
                 app:layout_constraintBottom_toTopOf="@+id/tv_DocInfo"
                 app:layout_constraintStart_toEndOf="@+id/iv_docStatus"
+                app:layout_constraintEnd_toStartOf="@id/tvDate"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageView

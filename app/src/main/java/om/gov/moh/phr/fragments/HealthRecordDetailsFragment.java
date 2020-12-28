@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -221,17 +220,13 @@ public class HealthRecordDetailsFragment extends Fragment {
     }
 
     private void getEncounterResponse(final String encounterId) {
-        //ApiEncountersHolder.Encounter filteredEncounter;
-        mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
-        mProgressDialog = new MyProgressDialog(mContext);// initializes progress dialog
-        mProgressDialog.showDialog();
+     mProgressDialog.showDialog();
         String fullUrl = API_NEHR_URL + "encounter/v2/civilId";
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, fullUrl, getJSONRequestParams(mMediatorCallback.getCurrentUser().getCivilId(),"PHR")
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Activity activity = getActivity();
-                if (activity != null) {
+                if (mContext != null&&isAdded()) {
                     try {
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
                             Gson gson = new Gson();
@@ -256,8 +251,6 @@ public class HealthRecordDetailsFragment extends Fragment {
                             mProgressDialog.dismissDialog();
                         }
                     } catch (JSONException e) {
-//                    Log.d("enc", e.getMessage());
-
                         e.printStackTrace();
                     }
 
@@ -269,13 +262,9 @@ public class HealthRecordDetailsFragment extends Fragment {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-//                Log.d("enc", error.toString());
-                Activity activity = getActivity();
-                if (activity != null && isAdded()) {
+                if (mContext != null && isAdded()) {
                     mProgressDialog.dismissDialog();
-                    // showing refresh animation before making http call
-
-                    error.printStackTrace();
+                  error.printStackTrace();
                 }
             }
         }) {
@@ -283,7 +272,6 @@ public class HealthRecordDetailsFragment extends Fragment {
             @Override
             public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
-//                headers.put("Accept", "application/json");
                 headers.put("Content-Type", "application/json");
                 headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
 

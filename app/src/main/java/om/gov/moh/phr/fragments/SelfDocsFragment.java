@@ -67,12 +67,15 @@ public class SelfDocsFragment extends Fragment implements SearchView.OnQueryText
     private MyProgressDialog mProgressDialog;
     private UploadedDocsRecyclerViewAdapter mUploadedAdapter;
     private RecyclerView rvOtherDocsList;
-    private TextView tvAlert;
+    private TextView tvAlert, tvNoRecords;
     private SwipeRefreshLayout swipeRefreshLayout;
-    private View view;
+    private SearchView searchView;
+    private CardView cvPersonalList;
+
     public SelfDocsFragment() {
         // Required empty public constructor
     }
+
     public static SelfDocsFragment newInstance() {
         SelfDocsFragment fragment = new SelfDocsFragment();
         Bundle args = new Bundle();
@@ -93,38 +96,51 @@ public class SelfDocsFragment extends Fragment implements SearchView.OnQueryText
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-         View view = inflater.inflate(R.layout.fragment_self_docs, container, false);
+        View view = inflater.inflate(R.layout.fragment_self_docs, container, false);
 
-            mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
-            mProgressDialog = new MyProgressDialog(mContext);
-            rvOtherDocsList = view.findViewById(R.id.rv_DocsList);
-            tvAlert = view.findViewById(R.id.tv_alert);
-            SearchView searchView = (SearchView) view.findViewById(R.id.sv_searchView);
-            searchView.setOnQueryTextListener(this);
-
-        swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
-            if (mMediatorCallback.isConnected()) {
-
-                String uploadedListDocsUrl = API_URL_GET_UPLOADS_DOCS + mMediatorCallback.getCurrentUser().getCivilId() + "/" + mMediatorCallback.getCurrentUser().getCivilId();
-                Log.d("Docs-url", uploadedListDocsUrl);
-                getUploadedDocsList(uploadedListDocsUrl);
-                swipeRefreshLayout.setOnRefreshListener(this);
-                swipeRefreshLayout.post(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                swipeRefreshLayout.setRefreshing(true);
-                                                rvOtherDocsList.setVisibility(View.VISIBLE);
-                                                tvAlert.setVisibility(View.GONE);
-                                                String uploadedListDocsUrl = API_URL_GET_UPLOADS_DOCS + mMediatorCallback.getCurrentUser().getCivilId() + "/" + mMediatorCallback.getCurrentUser().getCivilId();
-                                                getUploadedDocsList(uploadedListDocsUrl);
-                                            }
-                                        }
-                );
-            } else {
-                displayAlert(getString(R.string.alert_no_connection));
+        mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
+        mProgressDialog = new MyProgressDialog(mContext);
+        rvOtherDocsList = view.findViewById(R.id.rv_DocsList);
+        tvAlert = view.findViewById(R.id.tv_alert);
+        tvNoRecords = view.findViewById(R.id.tv_no_records_alert);
+        tvNoRecords.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mMediatorCallback.changeFragmentTo(AddDocFragment.newInstance(), getResources().getString(R.string.title_other_document));
             }
+        });
+         searchView = (SearchView) view.findViewById(R.id.sv_searchView);
+        searchView.setOnQueryTextListener(this);
+        cvPersonalList = view.findViewById(R.id.cvPersonalDocs);
+        final TextView tvAddDoc = view.findViewById(R.id.addDoc);
+        tvAddDoc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               mMediatorCallback.changeFragmentTo(AddDocFragment.newInstance(), getResources().getString(R.string.title_other_document));
+            }
+        });
+        swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
+        if (mMediatorCallback.isConnected()) {
+            String uploadedListDocsUrl = API_URL_GET_UPLOADS_DOCS + mMediatorCallback.getCurrentUser().getCivilId() + "/" + mMediatorCallback.getCurrentUser().getCivilId();
+            getUploadedDocsList(uploadedListDocsUrl);
+            swipeRefreshLayout.setOnRefreshListener(this);
+            swipeRefreshLayout.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            swipeRefreshLayout.setRefreshing(true);
+                                            rvOtherDocsList.setVisibility(View.VISIBLE);
+                                            tvAlert.setVisibility(View.GONE);
+                                            String uploadedListDocsUrl = API_URL_GET_UPLOADS_DOCS + mMediatorCallback.getCurrentUser().getCivilId() + "/" + mMediatorCallback.getCurrentUser().getCivilId();
+                                            getUploadedDocsList(uploadedListDocsUrl);
+                                        }
+                                    }
+            );
+        } else {
+            displayAlert(getString(R.string.alert_no_connection));
+        }
         return view;
     }
+
     private void getUploadedDocsList(String UploadedDocsListUrl) {
         mProgressDialog.showDialog();
         swipeRefreshLayout.setRefreshing(true);
@@ -133,40 +149,43 @@ public class SelfDocsFragment extends Fragment implements SearchView.OnQueryText
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                try {
-                    if (response.getInt(API_RESPONSE_CODE) == 0) {
-                        Gson gson = new Gson();
-                        ApiUploadsDocsHolder responseHolder = gson.fromJson(response.toString(), ApiUploadsDocsHolder.class);
-                         Log.d("resp-dependants", response.getJSONArray(API_RESPONSE_RESULT).toString());
-                        setupUploadedRecyclerView(responseHolder.getmResult());
-                    } else {
-                        displayAlert(getResources().getString(R.string.no_record_found));
-                        mProgressDialog.dismissDialog();
+                Log.d("SelfResp", response.toString());
+                if (mContext != null && isAdded()) {
+                    try {
+                        if (response.getInt(API_RESPONSE_CODE) == 0) {
+                            Gson gson = new Gson();
+                            ApiUploadsDocsHolder responseHolder = gson.fromJson(response.toString(), ApiUploadsDocsHolder.class);
+                            setupUploadedRecyclerView(responseHolder.getmResult());
+                        } else {
+                         tvNoRecords.setVisibility(View.VISIBLE);
+                         searchView.setVisibility(View.INVISIBLE);
+                         cvPersonalList.setVisibility(View.GONE);
+                            mProgressDialog.dismissDialog();
 
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                }catch (JSONException e) {
-                    e.printStackTrace();
+
+                    mProgressDialog.dismissDialog();
+                    swipeRefreshLayout.setRefreshing(false);
                 }
 
-                mProgressDialog.dismissDialog();
-                swipeRefreshLayout.setRefreshing(false);
             }
-
-
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("resp-demographic", error.toString());
-                error.printStackTrace();
-                mProgressDialog.dismissDialog();
-                swipeRefreshLayout.setRefreshing(false);
+                if(mContext!=null&&isAdded()) {
+                    error.printStackTrace();
+                    mProgressDialog.dismissDialog();
+                    swipeRefreshLayout.setRefreshing(false);
+                }
             }
         }) {
             //
             @Override
             public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
-//                headers.put("Accept", "application/json");
                 headers.put("Content-Type", "application/json");
                 headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
                 return headers;
@@ -179,6 +198,7 @@ public class SelfDocsFragment extends Fragment implements SearchView.OnQueryText
 
         mQueue.add(jsonObjectRequest);
     }
+
     private void setupUploadedRecyclerView(ArrayList<ApiUploadsDocsHolder.ApiUploadDocInfo> getmResult) {
         mUploadedAdapter =
                 new UploadedDocsRecyclerViewAdapter(mMediatorCallback, getmResult, mContext);
@@ -199,15 +219,17 @@ public class SelfDocsFragment extends Fragment implements SearchView.OnQueryText
 
     @Override
     public boolean onQueryTextChange(String newText) {
-        if ( mUploadedAdapter != null)
+        if (mUploadedAdapter != null)
             mUploadedAdapter.filter(newText);
         return false;
     }
+
     private void displayAlert(String msg) {
         rvOtherDocsList.setVisibility(View.GONE);
         tvAlert.setVisibility(View.VISIBLE);
         tvAlert.setText(msg);
     }
+
     @Override
     public void onDetach() {
         super.onDetach();

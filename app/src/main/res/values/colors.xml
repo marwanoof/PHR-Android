@@ -15,14 +15,10 @@
     <color name="grayColor">#DBDBDB</color>
     <color name="colorLiteGray">#F5F5F5</color>
     <color name="grayColorLight">#90FFFFFF</color>
-    <color name="colorPeach">#ffe5b4</color>
-    <color name="colorDarkPeach">#D38D67</color>
-    <color name="colorBlue">#2196F3</color>
 
     <color name="colorStatusBar">#f9f8f8</color>
     <color name="colorTextViewFontNormal">@color/colorLiteBlack</color>
     <color name="colorTimeItemGray">#B1BCBE</color>
-    <color name="chat_grayColorForOthers">#DBDBDB</color>
 
 
 </resources>

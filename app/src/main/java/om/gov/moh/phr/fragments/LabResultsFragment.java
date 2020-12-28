@@ -164,7 +164,7 @@ public class LabResultsFragment extends Fragment implements SearchView.OnQueryTe
         // Inflate the layout for this fragment
         if (parentView == null) {
         parentView = inflater.inflate(R.layout.fragment_lab_results, container, false);
-        TextView tvTitle = parentView.findViewById(R.id.tv_Title);
+       // TextView tvTitle = parentView.findViewById(R.id.tv_Title);
         mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
         mProgressDialog = new MyProgressDialog(mContext);
         tvAlert = parentView.findViewById(R.id.tv_alert);
@@ -176,14 +176,14 @@ public class LabResultsFragment extends Fragment implements SearchView.OnQueryTe
         if (labResultsType != null) {
 
         } else {
-            tvTitle.setVisibility(View.GONE);
+         //   tvTitle.setVisibility(View.GONE);
             // ibToolbarBackButton.setVisibility(View.GONE);
             searchView.setVisibility(View.GONE);
         }
         //setupRecyclerView(rvLabOrders);
         if (mMediatorCallback.isConnected()) {
             if (labResultsType != null) {
-                tvTitle.setText(pageTitle);
+            //    tvTitle.setText(pageTitle);
                 if (isRecent) {
                     getLabOrdersList(API_URL_GET_LAB_ORDERS_INFO,"recent","PHR","");
                 } else {
@@ -246,6 +246,7 @@ public class LabResultsFragment extends Fragment implements SearchView.OnQueryTe
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
+                Log.d("LabResultResp", response.toString());
                 if (mContext != null && isAdded()) {
                     try {
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
@@ -296,10 +297,8 @@ public class LabResultsFragment extends Fragment implements SearchView.OnQueryTe
             @Override
             public void onErrorResponse(VolleyError error) {
                 if (mContext != null && isAdded()) {
-                    Log.d("resp-demographic", error.toString());
                     error.printStackTrace();
                     mProgressDialog.dismissDialog();
-                    //swipeRefreshLayout.setRefreshing(false);
                 }
             }
         }) {
@@ -307,7 +306,6 @@ public class LabResultsFragment extends Fragment implements SearchView.OnQueryTe
             @Override
             public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
-                //     headers.put("Accept", "application/json");
                 headers.put("Content-Type", "application/json");
                 headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
                 return headers;

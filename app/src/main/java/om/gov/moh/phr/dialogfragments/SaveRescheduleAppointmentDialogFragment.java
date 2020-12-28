@@ -158,7 +158,6 @@ public class SaveRescheduleAppointmentDialogFragment extends DialogFragment {
 
 
         String fullUrl = API_NEHR_URL+"appointment/saveReschedule?estCode="+mEstCode+"&reservationId=" + mReservationId + "&runId=" + mRunId + "&patientId=" + mPatientId + "&remarks=" + remarks;
-        Log.d("re-runId-res", "link : " + fullUrl);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, fullUrl, null
                 , new Response.Listener<JSONObject>() {
             @Override
@@ -168,17 +167,14 @@ public class SaveRescheduleAppointmentDialogFragment extends DialogFragment {
                     if (response.getInt(API_RESPONSE_CODE) == 0) {
 
                         Toast.makeText(mContext, "Success : " + response.getString(API_RESPONSE_MESSAGE), Toast.LENGTH_SHORT).show();
-                        Log.d("re-runId-res", "Success " + response.getString(API_RESPONSE_MESSAGE));
-                        mDialogListener.onAccept();
+                      mDialogListener.onAccept();
                     } else {
                         Toast.makeText(mContext, "Fail : " + response.getString(API_RESPONSE_MESSAGE), Toast.LENGTH_SHORT).show();
-                        Log.d("re-runId-res", "Fail " + response.getString(API_RESPONSE_MESSAGE));
-                        mProgressDialog.dismissDialog();
+                       mProgressDialog.dismissDialog();
                         mDialogListener.onDecline();
                     }
                 } catch (JSONException e) {
-                    Log.d("re-runId-res", "JSONException " + e);
-                    e.printStackTrace();
+                  e.printStackTrace();
                 }
 
                 mProgressDialog.dismissDialog();

@@ -208,7 +208,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 break;
             case "3":
                 builder.setSmallIcon(R.drawable.chat);
-                sendBroadcast(new Intent(getBody(data.get("body"), data.get("senderId"))));
+                sendBroadcast(new Intent(getBody(data.get("body"), data.get("createdName"))));
                 break;
         }
         Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
@@ -283,7 +283,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             if (updatedChatCount != 0)
                 chatCount = updatedChatCount + 1;
             else
-                chatCount = chatCount + 1;
+                chatCount = 1;
 
             editor.putInt("chatCount", chatCount);
             editor.apply();

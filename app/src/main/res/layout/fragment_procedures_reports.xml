@@ -8,7 +8,6 @@
     tools:context=".fragments.ProceduresReportsFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/constraintLayout3"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -18,7 +17,7 @@
         tools:layout_conversion_absoluteHeight="731dp"
         tools:layout_conversion_absoluteWidth="411dp">
 
-        <TextView
+       <!-- <TextView
             android:id="@+id/tv_Title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -31,7 +30,7 @@
             tools:layout_conversion_absoluteHeight="51dp"
             tools:layout_conversion_absoluteWidth="16dp"
             tools:layout_editor_absoluteX="0dp"
-            tools:layout_editor_absoluteY="0dp" />
+            tools:layout_editor_absoluteY="0dp" />-->
 
         <androidx.appcompat.widget.SearchView
             android:id="@+id/sv_searchView"
@@ -41,10 +40,9 @@
             app:iconifiedByDefault="false"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_Title"
+            app:layout_constraintTop_toTopOf="parent"
             app:queryHint="@string/hint_search"
-            tools:layout_conversion_absoluteHeight="48dp"
-            tools:layout_conversion_absoluteWidth="371dp" />
+            android:layout_marginTop="@dimen/space_8" />
 
 
         <androidx.recyclerview.widget.RecyclerView
@@ -71,7 +69,7 @@
             app:cardElevation="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_Title">
+            app:layout_constraintTop_toBottomOf="@+id/sv_searchView">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"

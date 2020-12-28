@@ -90,7 +90,8 @@ public class LoginActivity extends AppCompatActivity {
     private TextInputEditText tietOTP;
     private Button btnGetOTP;
     private Button btnLogin;
-    private TextView tvCancel;
+    private TextView tvCancel,tvResetOtp;
+    private ImageView ivDgitLogo, ivMohLogo;
     private DisclaimerDialogFragment mDisclaimerDialogFragment;
     private String currentLanguage = getDeviceLanguage();
     @Override
@@ -107,9 +108,12 @@ public class LoginActivity extends AppCompatActivity {
         tietCivilId = findViewById(R.id.tiet_civil_id);
         tilOTP = findViewById(R.id.til_otp);
         tietOTP = findViewById(R.id.tiet_otp);
+        tvResetOtp = findViewById(R.id.tv_resetOtp);
         btnGetOTP = findViewById(R.id.btn_get_otp);
         btnLogin = findViewById(R.id.btn_login);
         ImageView ivLogo = findViewById(R.id.imageView);
+        ivDgitLogo = findViewById(R.id.iv_logo_digit);
+        ivMohLogo = findViewById(R.id.iv_logo_moh);
          tvCancel = findViewById(R.id.tv_cancel);
         tvCancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -153,6 +157,19 @@ finish();
                     }
                 }
             });
+            tvResetOtp.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (TextUtils.isEmpty(tietCivilId.getText().toString())) {
+                        tietCivilId.setBackground(getResources().getDrawable(R.drawable.edit_text_round_error));
+                        tietCivilId.setError(getString(R.string.alert_empty_field));
+
+                    } else {
+                        getOTP(tietCivilId.getText().toString());
+
+                    }
+                }
+            });
 
             btnLogin.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -172,7 +189,8 @@ finish();
                     }
 
                     if (shouldLogin) {//NetworkUtility.isConnected(mContext) &
-                        showDisclaimerDialog();
+                        //showDisclaimerDialog();
+                        login(tietCivilId.getText().toString(), tietOTP.getText().toString());
                     }
                 }
             });
@@ -264,14 +282,14 @@ finish();
                     if (response.getInt(API_RESPONSE_CODE) == 0
                             && response.getString(API_RESPONSE_RESULT) != null
                             && response.getString(API_RESPONSE_RESULT).equalsIgnoreCase("true")) {
+                        GlobalMethodsKotlin.Companion.showSimpleAlertDialog(LoginActivity.this, "", getResources().getString(R.string.sent_otp_msg_dialog), getResources().getString(R.string.ok), R.drawable.completed);
                         displayLoginForm();
                     } else {
-                        Toast.makeText(LoginActivity.this, response.getString(API_RESPONSE_MESSAGE), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginActivity.this, getResources().getString(R.string.invalid_otp_msg), Toast.LENGTH_SHORT).show();
                         mProgressDialog.dismissDialog();
                     }
                 } catch (JSONException e) {
                     GlobalMethodsKotlin.Companion.showAlertDialog(LoginActivity.this,getResources().getString(R.string.alert_error_title),getResources().getString(R.string.wrong_msg),getResources().getString(R.string.ok),R.drawable.ic_error);
-
                 }
                 mProgressDialog.dismissDialog();
 
@@ -325,18 +343,21 @@ finish();
             btnLogin.setVisibility(View.VISIBLE);
             btnGetOTP.setVisibility(View.INVISIBLE);
             tvCancel.setVisibility(View.GONE);
-
+            tvResetOtp.setVisibility(View.VISIBLE);
+ivDgitLogo.setVisibility(View.GONE);
+ivMohLogo.setVisibility(View.GONE);
         }
 
     }
 
-    private void showDisclaimerDialog() {
+    private void showDisclaimerDialog(final String accessTokenValue, final String civilId, final String personName, final String image, final String menus) {
         mDisclaimerDialogFragment = DisclaimerDialogFragment.newInstance();
         mDisclaimerDialogFragment.setDialogFragmentListener(new DialogFragmentInterface() {
 
             @Override
             public void onAccept() {
-                    login(tietCivilId.getText().toString(), tietOTP.getText().toString());
+                storeAccessToken(accessTokenValue
+                        , civilId, personName, image, menus);
             }
 
             @Override
@@ -350,6 +371,9 @@ finish();
                 tilOTP.setVisibility(View.GONE);
                 btnGetOTP.setVisibility(View.VISIBLE);
                 btnLogin.setVisibility(View.INVISIBLE);
+                tvResetOtp.setVisibility(View.GONE);
+                ivDgitLogo.setVisibility(View.VISIBLE);
+                ivMohLogo.setVisibility(View.VISIBLE);
                 mDisclaimerDialogFragment.dismiss();
             }
 
@@ -368,9 +392,8 @@ finish();
                     if (response.getInt(API_RESPONSE_CODE) == 0
                             && response.getString(API_RESPONSE_RESULT) != null) {
                         JSONObject jsonObject = response.getJSONObject(API_RESPONSE_RESULT);
-                        storeAccessToken(jsonObject.optString(API_GET_TOKEN_ACCESS_TOKEN)
-                                , civilId, jsonObject.optString("personName"), jsonObject.optString("image"), jsonObject.getJSONArray("menus").toString());
-
+                   showDisclaimerDialog(jsonObject.optString(API_GET_TOKEN_ACCESS_TOKEN)
+                           , civilId, jsonObject.optString("personName"), jsonObject.optString("image"), jsonObject.getJSONArray("menus").toString());
                     } else {
                         Toast.makeText(LoginActivity.this, response.getString(API_RESPONSE_MESSAGE), Toast.LENGTH_SHORT).show();
                         mProgressDialog.dismissDialog();
@@ -441,7 +464,6 @@ finish();
         editor.putString(PARAM_SIDE_MENU, menus);
         editor.apply();
 
-
         mDisclaimerDialogFragment.dismiss();
         moveToMainActivity();
     }
@@ -466,7 +488,7 @@ finish();
         return Locale.getDefault().getLanguage();
     }
     private void changeLanguageTo(String language, boolean recreate) {
-       // currentLanguage = language;
+        currentLanguage = language;
         Locale locale = new Locale(language);
         Locale.setDefault(locale);
         Configuration configuration = new Configuration();
@@ -478,5 +500,11 @@ finish();
             finish();
             startActivity(intent);
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        changeLanguageTo(getStoredLanguage(), false);
     }
 }

@@ -19,7 +19,7 @@ public class ApiMediaProcedureHolder implements Serializable {
         return result;
     }
 
-    public class MediaProcedure implements Serializable{
+    public class MediaProcedure implements Serializable {
         @SerializedName("civilId")
         private String civilId;
 
@@ -87,9 +87,13 @@ public class ApiMediaProcedureHolder implements Serializable {
         }
 
         public String getCreationTime() {
-            Date date = new Date(creationTime);
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm a",Locale.ENGLISH);
-            String dateResult = simpleDateFormat.format(date);
+            String dateResult;
+            if (creationTime != 0) {
+                Date date = new Date(creationTime);
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.ENGLISH);
+                dateResult = simpleDateFormat.format(date);
+            } else
+                dateResult = "";
             return dateResult;
         }
 

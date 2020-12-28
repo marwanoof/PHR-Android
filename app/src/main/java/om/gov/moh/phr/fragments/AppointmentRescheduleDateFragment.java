@@ -70,10 +70,6 @@ public class AppointmentRescheduleDateFragment extends Fragment implements Adapt
         args.putString(PARAM_EST_CODE, estCode);
         args.putString(PARAM_RESERVATION_ID, reservationId);
         fragment.setArguments(args);
-
-        Log.d("re-runId", " AppointmentRescheduleDateFragment newInstance:" + responseHolder.getResult().getSlotsArrayList().get(0).getTimeBlock() + " / " + responseHolder.getResult().getSlotsArrayList().get(0).getRunId());
-
-
         return fragment;
     }
 
@@ -104,7 +100,6 @@ public class AppointmentRescheduleDateFragment extends Fragment implements Adapt
         View parentView = inflater.inflate(R.layout.fragment_appointment_date, container, false);
 
         final GridView gvDates = parentView.findViewById(R.id.gv_grid);
-
         gvDates.setAdapter(new DateItemsGridViewAdapter(getCustomSlotsArrayList(), mContext));
         gvDates.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             View viewPrev;
@@ -192,7 +187,6 @@ public class AppointmentRescheduleDateFragment extends Fragment implements Adapt
                 customSlot.addTimeBlock(slot.getTimeBlock());
                 customSlot.addRunId(slot.getRunId());
 
-                Log.d("re-runId", " getCustomSlotsArrayList:" + slot.getTimeBlock() + " / " + slot.getRunId());
             }
 
         }
@@ -212,7 +206,6 @@ public class AppointmentRescheduleDateFragment extends Fragment implements Adapt
     public <T> void onMyListItemClicked(T dataToPass, String dataTitle) {
         CustomSlot customSlot = (CustomSlot) dataToPass;
         showSaveAppointmentDialog(customSlot.getSelectedRunId(), customSlot.getAppointmentDate(), customSlot.getSelectedTime());
-        Log.d("re-runId", " onMyListItemClicked:" + customSlot.getSelectedTime() + " / " + customSlot.getSelectedRunId());
     }
 
     @Override
