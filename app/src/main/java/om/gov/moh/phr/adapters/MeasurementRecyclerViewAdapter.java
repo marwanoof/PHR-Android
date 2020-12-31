@@ -61,6 +61,7 @@ import om.gov.moh.phr.fragments.BodyMeasurementsFragment;
 import om.gov.moh.phr.interfaces.AdapterToFragmentConnectorInterface;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.models.FiguresMarkerView;
+import om.gov.moh.phr.models.GlobalMethodsKotlin;
 import om.gov.moh.phr.models.MyAxisValueFormatter;
 import om.gov.moh.phr.models.MyFillFormatter;
 
@@ -258,6 +259,7 @@ public class MeasurementRecyclerViewAdapter extends
                             if (mContext != null) {
                                 avLoadingIndicatorView.smoothToHide();
                                 vitalDetails.setVisibility(View.VISIBLE);
+                                vitalDetails.setAnimation(GlobalMethodsKotlin.Companion.setAnimation(mContext,R.anim.fade_in));
                                 results = responseHolder.getResult().getVitalRecord();
                                 setupRecyclerView(results);
                                 lineChartSettings();

@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">عافيتي</string>
     <string name="title_phr">[ الملف الشخصي الصحي ]</string>
-    <string name="title_enter_your_civil_id">الرقم المدني</string>
+    <string name="title_enter_your_civil_id">ادخال الرقم المدني</string>
     <string name="title_get_otp">الحصول على كلمة السر</string>
     <string name="title_enter_otp">ادخل كلمة السر</string>
     <string name="alert_empty_field">هذا الحقل لا يمكن أن يكون فارغًا.</string>
@@ -10,8 +10,8 @@
     <string name="title_accept">موافق</string>
     <string name="title_decline">غير موافق</string>
     <string name="title_procedures_reports">تقارير الإجراءات</string>
-    <string name="title_vital_info">التاريخ المرضي</string>
-    <string name="title_health_records">السجلات الطبية</string>
+    <string name="title_vital_info">التاريخ الطبي</string>
+    <string name="title_health_records">السجلات الصحية</string>
     <string name="title_lab_results">الفحوصات المخبرية</string>
     <string name="title_medication">الأدوية</string>
     <string name="title_allergy">الحساسية</string>
@@ -21,10 +21,10 @@
     <string name="title_logout">تسجيل الخروج</string>
     <string name="alert_no_connection">خطأ: لا يوجد اتصال بالإنترنت.</string>
     <string name="title_pending">قيد الإنتظار</string>
-    <string name="title_select_institute">اختر مؤسسة</string>
+    <string name="title_select_institute">اختر مؤسسة صحية</string>
     <string name="title_institute_search">اسم المؤسسة</string>
     <string name="title_demographic">أفراد العائلة</string>
-    <string name="title_institutes">المؤسسات</string>
+    <string name="title_institutes">المؤسسات الصحية</string>
     <string name="title_other_document">المستندات</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -67,7 +67,7 @@
     <string name="title_media">الوسائط</string>
     <string name="alert_dont_show_again">عدم الظهور مجددًا</string>
     <string name="title_all">الكل</string>
-    <string name="title_chat">الدردشة مع الطبيب</string>
+    <string name="title_chat">المحادثات</string>
     <string name="title_history">التاريخ الطبي</string>
     <string name="title_problem">التشخيص النهائي</string>
     <string name="no_allergy_msg">لا توجد حساسية.</string>
@@ -77,12 +77,12 @@
     <string name="released_by_feild">صدر عن طريق:</string>
     <string name="released_date_feild">تاريخ الإصدار:</string>
     <string name="status_feild">الحالة:</string>
-    <string name="hospital_feild">المستشفى:</string>
+    <string name="hospital_feild">المؤسسة الصحية:</string>
     <string name="ordered_by_feild">طلب عن طريق:</string>
     <string name="ordered_date_feild">تاريخ الطلب:</string>
-    <string name="immunization_given">معطى</string>
-    <string name="immunization_schedule">جدول المواعيد</string>
-    <string name="summary">الملخص</string>
+    <string name="immunization_given">مُعطى</string>
+    <string name="immunization_schedule">مُجَدول</string>
+    <string name="summary">الملخّص</string>
     <string name="doc_provider">المؤسسات الصحية</string>
     <string name="doc_self">الشخصية</string>
     <string name="delete_doc_msg">هل أنت متأكد من حذف المستند؟</string>
@@ -147,7 +147,7 @@
     <string name="select_time_slot">اختر الوقت المناسب</string>
     <string name="no_dependents_record_found">بيانات أفراد العائلة غير متوفرة.</string>
     <string name="department_label">القسم: </string>
-    <string name="no_appointment_msg">لا توجد مواعيد مجدولة.</string>
+    <string name="no_appointment_msg">لا توجد مواعيد مُجدولة.</string>
     <string name="no_refferals">لا يوجد تحويل لمؤسسة أخرى.</string>
     <string name="patients_rights">حقوق المريض</string>
     <string name="publish">نشر</string>
@@ -174,7 +174,7 @@
     <string name="corneas">القرنيات</string>
     <string name="all_organs">جميع الأعضاء</string>
     <string name="kidneys">الكلى</string>
-    <string name="organ_donated">العضو النتبرع به</string>
+    <string name="organ_donated">العضو المتبرع به</string>
     <string name="save">حفظ</string>
     <string name="unread_messages">المحادثات</string>
     <string name="no_medical_history">لا توجد لديك حساسية أو تاريخ طبي أو تشخيص نهائي مسجل</string>
@@ -184,9 +184,9 @@
     <string name="no_visit_details">لم يتم العثور على تفاصيل هذه الزيارة</string>
     <string name="add_new_document">اضافة مستند جديد</string>
     <string name="no_recodrs_dialog">لم يتم العثور على بيانات مسجلة</string>
-    <string name="no_records_lab_all">لا توجد نتائج مخبريّة خاصة بك</string>
-    <string name="no_records_lab_recent">لا توجد نتائج مخبريّة حديثة</string>
-    <string name="no_records_lab_encounter">لا توجد نتائج مخبريّة خاصة بهذه الزيارة</string>
+    <string name="no_records_lab_all">لا توجد فحوصات مخبريّة خاصة بك</string>
+    <string name="no_records_lab_recent">لا توجد فحوصات مخبريّة حديثة</string>
+    <string name="no_records_lab_encounter">لا توجد فحوصات مخبريّة خاصة بهذه الزيارة</string>
     <string name="no_records_med_all">لا توجد وصفات طبية خاصة بك</string>
     <string name="no_records_med_recent">لا توجد وصفات طبية نشطة</string>
     <string name="no_records_med_encounter">لا توجد وصفات طبية خاصة بهذه الزيارة</string>
@@ -196,11 +196,11 @@
     <string name="alert_error_title">خطأ</string>
     <string name="alert_connection_body2">الرجاء التحقق من الإتصال والمحاولة مرة أخرى</string>
     <string name="alert_no_connection_body_1">لا يوجد اتصال بالإنترنت</string>
-    <string name="no_records_imm_given">لا يوجد تحصين معطى لك</string>
+    <string name="no_records_imm_given">لا يوجد تحصين مُعطى لك</string>
     <string name="no_records_imm_schedule">لا يوجد تحصين مُجدول لك</string>
     <string name="wrong_msg">حدث خطأ ما يرجى المحاولة مرة أخرى</string>
     <string name="decide_later">أقرر لاحقاً</string>
-    <string name="i_want_donate">أرغب بالتبرع بعد الوفاة؟</string>
+    <string name="i_want_donate">أرغب بالتبرع بعد الوفاة</string>
     <string name="no_doc_type_found">لم يتم العثور على بيانات أنواع المستندات. الرجاء المحاولة مرة أخرى.</string>
     <string name="saved_successfully">تم حفظ البيانات بنجاح</string>
     <string name="sent_otp_msg_dialog">تم إرسال كلمة السر إلى الرقم المسجل.</string>

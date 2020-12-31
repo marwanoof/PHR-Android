@@ -10,9 +10,9 @@
     <string name="title_decline">Decline</string>
     <string name="title_procedures_reports">Procedures Reports</string>
     <string name="title_vital_info">Medical History</string>
-    <string name="title_health_records">Medical Records</string>
-    <string name="title_lab_results">Lab Tests</string>
-    <string name="title_medication">Medication</string>
+    <string name="title_health_records">Health Records</string>
+    <string name="title_lab_results">Lab Investigations</string>
+    <string name="title_medication">Prescriptions</string>
     <string name="title_allergy">Allergy</string>
     <string name="title_appointments">Appointments</string>
     <string name="title_immunization">Immunization</string>
@@ -76,7 +76,7 @@
     <string name="released_by_feild">Released By:</string>
     <string name="released_date_feild">Released Date:</string>
     <string name="status_feild">Status:</string>
-    <string name="hospital_feild">Hospital:</string>
+    <string name="hospital_feild">Health Institutes:</string>
     <string name="ordered_by_feild">Ordered By:</string>
     <string name="ordered_date_feild">Ordered Date:</string>
     <string name="immunization_given">Given</string>
@@ -184,9 +184,9 @@
     <string name="no_visit_details">There is no visit details</string>
     <string name="add_new_document">Add New Document</string>
     <string name="no_recodrs_dialog">There are no records found</string>
-    <string name="no_records_lab_all">No lab orders are available for you</string>
-    <string name="no_records_lab_recent">No recent lab orders available</string>
-    <string name="no_records_lab_encounter">No Lab orders found for this visit</string>
+    <string name="no_records_lab_all">No lab investigationss are available for you</string>
+    <string name="no_records_lab_recent">No recent lab investigations available</string>
+    <string name="no_records_lab_encounter">No lab investigations found for this visit</string>
     <string name="no_records_med_all">No prescriptions are available for you</string>
     <string name="no_records_med_recent">"No recent prescriptions available"</string>
     <string name="no_records_med_encounter">No prescriptions found for this visit</string>
@@ -200,7 +200,7 @@
     <string name="no_records_imm_schedule">There is no scheduled immunization for you</string>
     <string name="wrong_msg">Something went wrong. Please try again</string>
     <string name="decide_later">Decide Later</string>
-    <string name="i_want_donate">I would like to donate after death?</string>
+    <string name="i_want_donate">I would like to donate after death</string>
     <string name="no_doc_type_found">No documents types found. Please try again.</string>
     <string name="saved_successfully">The data has been saved successfully.</string>
     <string name="sent_otp_msg_dialog">OTP has been sent to the registered number.</string>
