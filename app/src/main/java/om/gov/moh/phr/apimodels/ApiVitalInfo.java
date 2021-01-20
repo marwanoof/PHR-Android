@@ -40,6 +40,9 @@ public class ApiVitalInfo implements Serializable {
     public class ApiAllergy implements Serializable {
 
         public String getNote() {
+            if (note==null)
+                return "";
+            else
             return note;
         }
 
@@ -50,6 +53,9 @@ public class ApiVitalInfo implements Serializable {
     public class ApiHistory implements Serializable {
 
         public String getNote() {
+            if(note==null)
+                return "";
+            else
             return note;
         }
 
@@ -60,6 +66,9 @@ public class ApiVitalInfo implements Serializable {
     public class ApiProblem implements Serializable {
 
         public String getDisease() {
+            if(disease==null)
+                return "";
+            else
             return disease;
         }
 

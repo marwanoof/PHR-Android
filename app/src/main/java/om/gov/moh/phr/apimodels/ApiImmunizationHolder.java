@@ -14,6 +14,7 @@ public class ApiImmunizationHolder {
     public ArrayList<ApiImmunizationHolder.ApiImmunizationInfo> getmResult() {
         return mResult;
     }
+
     public class ApiImmunizationInfo implements Serializable {
         @SerializedName("vaccineName")
         private String vaccineName;
@@ -30,6 +31,12 @@ public class ApiImmunizationHolder {
         @SerializedName("givenOn")
         private Long givenOn;
 
+        @SerializedName("estFullName")
+        private String estFullName;
+
+        @SerializedName("estFullNameNls")
+        private String estFullNameNls;
+
         public Long getScheduledOn() {
             return scheduledOn;
         }
@@ -39,17 +46,31 @@ public class ApiImmunizationHolder {
         }
 
         public String getVaccineName() {
-            if (TextUtils.isEmpty(vaccineName))
+            if (vaccineName == null || TextUtils.isEmpty(vaccineName))
                 return "";
             else
-            return vaccineName;
+                return vaccineName;
+        }
+
+        public String getEstFullName() {
+            if (estFullName == null)
+                return "";
+            else
+                return estFullName;
+        }
+
+        public String getEstFullNameNls() {
+            if (estFullNameNls == null || TextUtils.isEmpty(estFullNameNls))
+                return estFullName;
+            else
+                return estFullNameNls;
         }
 
         public String getStatus() {
-            if (TextUtils.isEmpty(status))
+            if (status == null || TextUtils.isEmpty(status))
                 return "";
             else
-            return status;
+                return status;
         }
 
         public long getImmunizationDate() {

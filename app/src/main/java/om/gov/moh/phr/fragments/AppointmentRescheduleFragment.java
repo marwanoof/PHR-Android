@@ -40,6 +40,7 @@ import om.gov.moh.phr.apimodels.ApiAppointmentsListHolder;
 import om.gov.moh.phr.apimodels.ApiSlotsHolder;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
+import om.gov.moh.phr.models.GlobalMethodsKotlin;
 import om.gov.moh.phr.models.MyProgressDialog;
 import om.gov.moh.phr.models.NonSwipeableViewPager;
 
@@ -178,7 +179,11 @@ public class AppointmentRescheduleFragment extends Fragment {
                     // Notify the selected item text : selectedItemText
                 }*/
                 mAppointmentPeriod = getAppointmentPeriod();
-                getSlots();
+                if (mMediatorCallback.isConnected()) {
+                    getSlots();
+                } else {
+                    GlobalMethodsKotlin.Companion.showAlertDialog(mContext, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
+                }
 
             }
 
@@ -278,7 +283,11 @@ public class AppointmentRescheduleFragment extends Fragment {
         int next = Integer.parseInt(mAppointmentPeriod) + 5;
         mAppointmentPeriod = String.valueOf(next);
 
-        getSlots();
+        if (mMediatorCallback.isConnected()) {
+            getSlots();
+        } else {
+            GlobalMethodsKotlin.Companion.showAlertDialog(mContext, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
+        }
     }
 
     private void viewPagerPrevious() {
@@ -290,7 +299,11 @@ public class AppointmentRescheduleFragment extends Fragment {
         int next = Integer.parseInt(mAppointmentPeriod) - 5;
         if (next >= 10) {
             mAppointmentPeriod = String.valueOf(next);
-            getSlots();
+            if (mMediatorCallback.isConnected()) {
+                getSlots();
+            } else {
+                GlobalMethodsKotlin.Companion.showAlertDialog(mContext, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
+            }
         }
     }
 

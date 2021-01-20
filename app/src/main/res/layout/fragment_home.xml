@@ -14,19 +14,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/tv_alert"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:textAlignment="center"
-            android:textColor="@color/colorTextViewFontNormal"
-            android:textStyle="bold"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/personInfoConstraintLayout"
             android:layout_width="match_parent"
@@ -45,6 +32,7 @@
             android:id="@+id/menuListScrollView"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:layout_margin="@dimen/space_20dp"
             app:layout_constraintBottom_toTopOf="@+id/constraintLayout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

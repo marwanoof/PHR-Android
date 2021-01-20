@@ -17,22 +17,6 @@
         tools:layout_conversion_absoluteHeight="731dp"
         tools:layout_conversion_absoluteWidth="411dp">
 
-
-     <!--   <TextView
-            android:id="@+id/tv_Title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/space_8"
-            android:textColor="@color/colorBlack"
-            android:textSize="@dimen/text_size_20sp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:layout_conversion_absoluteHeight="51dp"
-            tools:layout_conversion_absoluteWidth="16dp"
-            tools:layout_editor_absoluteX="8dp"
-            tools:layout_editor_absoluteY="8dp" />-->
-
         <androidx.appcompat.widget.SearchView
             android:id="@+id/sv_searchView"
             android:layout_width="wrap_content"

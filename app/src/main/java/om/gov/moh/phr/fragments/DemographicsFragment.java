@@ -44,11 +44,11 @@ import java.util.Map;
 
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.activities.MainActivity;
-import om.gov.moh.phr.apimodels.ApiDemographicsHolder;
 import om.gov.moh.phr.apimodels.ApiDependentsHolder;
 import om.gov.moh.phr.apimodels.ApiHomeHolder;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
+import om.gov.moh.phr.models.GlobalMethodsKotlin;
 import om.gov.moh.phr.models.MyProgressDialog;
 
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
@@ -65,7 +65,7 @@ import static om.gov.moh.phr.models.MyConstants.PARAM_API_DEMOGRAPHICS_ITEM;
  * create an instance of this fragment.
  */
 public class DemographicsFragment extends Fragment {
-    private static final String API_URL_DEPENDENT_INFO = API_NEHR_URL + "demographics/dependent/civilId/";
+    private static final String API_URL_DEPENDENT_INFO = API_NEHR_URL + "demographics/v2/dependent";
     private static final String DEPENDENT_CIVILID = "DependentCivilID";
     private static final String PARAM2 = "PARAM2";
     private Context mContext;
@@ -152,7 +152,12 @@ public class DemographicsFragment extends Fragment {
         cvNoInstitutesRecord = parentView.findViewById(R.id.cardViewNoInstitutesRecords);
         //setupPersonalInfo(parentView);
         LinearLayout llDependentsContainer = parentView.findViewById(R.id.ll_dependents_container);
-        getDependents(container, inflater, llDependentsContainer);
+        if (mMediatorCallback.isConnected()) {
+            getDependents(container, inflater, llDependentsContainer);
+        } else {
+            GlobalMethodsKotlin.Companion.showAlertDialog(mContext, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
+        }
+
 
         LinearLayout llInstitutesContainer = parentView.findViewById(R.id.ll_institutes_container);
         prepareInstitutesCards(container, inflater, llInstitutesContainer);
@@ -235,9 +240,8 @@ public class DemographicsFragment extends Fragment {
 
     private void getDependents(final ViewGroup container, final LayoutInflater inflater, final LinearLayout llDependentsContainer) {
         mProgressDialog.showDialog();
-        String fullUrl = API_URL_DEPENDENT_INFO + mMediatorCallback.getCurrentUser().getCivilId();
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, fullUrl, null
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, API_URL_DEPENDENT_INFO, getJSONRequestParams()
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -246,7 +250,8 @@ public class DemographicsFragment extends Fragment {
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
                             Gson gson = new Gson();
                             ApiDependentsHolder responseHolder = gson.fromJson(response.toString(), ApiDependentsHolder.class);
-                            prepareDependantsCards(responseHolder, container, inflater, llDependentsContainer);
+                            if (responseHolder != null)
+                                prepareDependantsCards(responseHolder, container, inflater, llDependentsContainer);
 
 
                         } else {
@@ -288,6 +293,15 @@ public class DemographicsFragment extends Fragment {
         jsonObjectRequest.setRetryPolicy(policy);
 
         mQueue.add(jsonObjectRequest);
+    }
+
+    private JSONObject getJSONRequestParams() {
+        Map<String, String> params = new HashMap<>();
+        params.put("data", "");
+        params.put("source", "");
+        params.put("civilId", mMediatorCallback.getCurrentUser().getCivilId());
+        return new JSONObject(params);
+
     }
 
     private void prepareDependantsCards(ApiDependentsHolder responseHolder, ViewGroup container, LayoutInflater inflater, LinearLayout llDependentsContainer) {
@@ -343,7 +357,6 @@ public class DemographicsFragment extends Fragment {
     }
 
     private void updateCurrentUser(String civilId) {
-
         Intent intent = new Intent(mContext, MainActivity.class);
         intent.putExtra(DEPENDENT_CIVILID, civilId);
         startActivity(intent);
@@ -353,7 +366,7 @@ public class DemographicsFragment extends Fragment {
     private void prepareInstitutesCards(ViewGroup container, LayoutInflater inflater, LinearLayout llDependentsContainer) {
 
         ArrayList<ApiHomeHolder.Patients> institutesArrayList = mApiDemographicItem;
-        if(mApiDemographicItem.size()>0) {
+        if (mApiDemographicItem.size() > 0) {
             int size = institutesArrayList.size();
 
             for (int i = 0; i < size; i++) {
@@ -367,7 +380,7 @@ public class DemographicsFragment extends Fragment {
                     addInstituteCard(container, inflater, llDependentsContainer, R.drawable.shape_rect_round_bottom, institutesArrayList.get(i));
                 }
             }
-        }else {
+        } else {
             tvNoInstitutes.setVisibility(View.VISIBLE);
             cvNoInstitutesRecord.setVisibility(View.VISIBLE);
         }

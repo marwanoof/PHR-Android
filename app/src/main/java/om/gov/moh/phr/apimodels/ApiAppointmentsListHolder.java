@@ -52,28 +52,28 @@ public class ApiAppointmentsListHolder {
         private String estCode;
 
         public String getReservationId() {
-            if (TextUtils.isEmpty(reservationId))
+            if (reservationId == null || TextUtils.isEmpty(reservationId))
                 return "";
             else
                 return reservationId;
         }
 
         public String getDescription() {
-            if (TextUtils.isEmpty(description))
+            if (description == null || TextUtils.isEmpty(description))
                 return "";
             else
                 return description;
         }
 
         public String getEstName() {
-            if (TextUtils.isEmpty(estName))
+            if (estName == null || TextUtils.isEmpty(estName))
                 return "";
             else
                 return " | " + estName;
         }
 
         public String getEstCode() {
-            if (TextUtils.isEmpty(estCode))
+            if (estCode == null || TextUtils.isEmpty(estCode))
                 return "";
             else
                 return estCode;
@@ -91,7 +91,10 @@ public class ApiAppointmentsListHolder {
         private String refInstitute;
 
         public String getReferralBy() {
-            return referralBy;
+            if (referralBy == null || TextUtils.isEmpty(referralBy))
+                return "";
+            else
+                return referralBy;
         }
 
         public long getSendDate() {
@@ -99,11 +102,17 @@ public class ApiAppointmentsListHolder {
         }
 
         public String getRefInstitute() {
-            return refInstitute;
+            if (refInstitute == null || TextUtils.isEmpty(refInstitute))
+                return "";
+            else
+                return refInstitute;
         }
 
         public String getDescription() {
-            return description;
+            if(TextUtils.isEmpty(description))
+                return null;
+            else
+                return description;
         }
 
         @SerializedName("description")

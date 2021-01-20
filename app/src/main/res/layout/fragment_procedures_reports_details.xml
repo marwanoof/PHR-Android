@@ -48,6 +48,7 @@
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
                     android:textColor="@color/colorBlack"
+                    android:textAlignment="viewStart"
                     android:textSize="@dimen/text_size_16sp"
                     android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent"

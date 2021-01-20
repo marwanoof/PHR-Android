@@ -54,7 +54,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import om.gov.moh.phr.R;
-import om.gov.moh.phr.apimodels.ApiDemographicsHolder;
 import om.gov.moh.phr.apimodels.ApiHomeHolder;
 import om.gov.moh.phr.apimodels.ApiVitalPivotV2;
 import om.gov.moh.phr.fragments.BodyMeasurementsFragment;

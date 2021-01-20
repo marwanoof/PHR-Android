@@ -67,11 +67,17 @@ public class ApiMediaProcedureHolder implements Serializable {
         }
 
         public String getMediaSubType() {
-            return mediaSubType;
+            if (mediaSubType == null)
+                return "";
+            else
+                return mediaSubType;
         }
 
         public String getMediaString() {
-            return mediaString;
+            if (mediaString == null)
+                return "";
+            else
+                return mediaString;
         }
 
         public String getMediaReportData() {
@@ -79,11 +85,17 @@ public class ApiMediaProcedureHolder implements Serializable {
         }
 
         public String getEstCode() {
-            return estCode;
+            if (estCode == null)
+                return "";
+            else
+                return estCode;
         }
 
         public String getEstFullname() {
-            return estFullname;
+            if (estFullname == null)
+                return "";
+            else
+                return estFullname;
         }
 
         public String getCreationTime() {

@@ -45,12 +45,12 @@ import om.gov.moh.phr.adapters.DateItemsGridViewAdapter;
 import om.gov.moh.phr.adapters.DatesViewPagerAdapter;
 import om.gov.moh.phr.apimodels.ApiAppointmentClinicsHolder;
 import om.gov.moh.phr.apimodels.ApiAppointmentDepartmentsHolder;
-import om.gov.moh.phr.apimodels.ApiDemographicsHolder;
 import om.gov.moh.phr.apimodels.ApiHomeHolder;
 import om.gov.moh.phr.apimodels.ApiSlotsHolder;
 import om.gov.moh.phr.interfaces.AppointmentsListInterface;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
+import om.gov.moh.phr.models.GlobalMethodsKotlin;
 import om.gov.moh.phr.models.MyProgressDialog;
 import om.gov.moh.phr.models.NonSwipeableViewPager;
 
@@ -64,12 +64,6 @@ import static om.gov.moh.phr.models.MyConstants.LANGUAGE_SELECTED;
 
 
 public class AppointmentNewFragment extends Fragment {
-
-
-    private static final String API_URL_GET_DEMOGRAPHICS_INFO = API_NEHR_URL + "demographics/civilId/";
-    private static final int NUMBER_OF_COLUMNS = 3;
-
-
     private Context mContext;
 
     private DateItemsGridViewAdapter mDateAdapter;
@@ -128,7 +122,7 @@ public class AppointmentNewFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-         parentView = inflater.inflate(R.layout.fragment_appointment, container, false);
+        parentView = inflater.inflate(R.layout.fragment_appointment, container, false);
 
         mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
         mProgressDialog = new MyProgressDialog(mContext);
@@ -216,7 +210,11 @@ public class AppointmentNewFragment extends Fragment {
                     // Notify the selected item text : selectedItemText
                 }*/
                 mAppointmentPeriod = getAppointmentPeriod();
-                getSlots();
+                if (mMediatorCallback.isConnected()) {
+                    getSlots();
+                } else {
+                    GlobalMethodsKotlin.Companion.showAlertDialog(mContext, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
+                }
 
             }
 
@@ -239,7 +237,11 @@ public class AppointmentNewFragment extends Fragment {
         int next = Integer.parseInt(mAppointmentPeriod) - 5;
         if (next >= 10) {
             mAppointmentPeriod = String.valueOf(next);
-            getSlots();
+            if (mMediatorCallback.isConnected()) {
+                getSlots();
+            } else {
+                GlobalMethodsKotlin.Companion.showAlertDialog(mContext, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
+            }
         }
     }
 
@@ -255,65 +257,15 @@ public class AppointmentNewFragment extends Fragment {
         int next = Integer.parseInt(mAppointmentPeriod) + 5;
         mAppointmentPeriod = String.valueOf(next);
 
-        getSlots();
+        if (mMediatorCallback.isConnected()) {
+            getSlots();
+        } else {
+            GlobalMethodsKotlin.Companion.showAlertDialog(mContext, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
+        }
     }
 
     private void getDemographicResponse() {
         setupSelectHospitalSpinner(arrayList);
-        /*mProgressDialog.showDialog();
-
-        String fullUrl = API_URL_GET_DEMOGRAPHICS_INFO + mMediatorCallback.getCurrentUser().getCivilId() + "?source=PHR";
-//        String fullUrl = API_URL_GET_DEMOGRAPHICS_INFO + "62163078" + "?source=PHR";
-        Log.d("fullURL-getDemo", fullUrl);
-
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, fullUrl, null
-                , new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                try {
-                    if (response.getInt(API_RESPONSE_CODE) == 0) {
-                        Gson gson = new Gson();
-                        ApiDemographicsHolder responseHolder = gson.fromJson(response.toString(), ApiDemographicsHolder.class);
-                        Log.d("appointmentFrag", "-Demo" + response.getJSONObject("result").toString());
-
-                        setupSelectHospitalSpinner(responseHolder.getmResult());
-
-
-                    } else {
-
-                        mProgressDialog.dismissDialog();
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-                mProgressDialog.dismissDialog();
-
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d("resp-demographic", error.toString());
-                error.printStackTrace();
-                mProgressDialog.dismissDialog();
-            }
-        }) {
-            //
-            @Override
-            public Map<String, String> getHeaders() {
-                HashMap<String, String> headers = new HashMap<>();
-//                headers.put("Accept", "application/json");
-                headers.put("Content-Type", "application/json");
-                headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
-                return headers;
-            }
-
-        };
-        int socketTimeout = 30000;//30 seconds - change to what you want
-        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
-        jsonObjectRequest.setRetryPolicy(policy);
-
-        mQueue.add(jsonObjectRequest);*/
     }
 
     private void setupSelectHospitalSpinner(final ArrayList<ApiHomeHolder.Patients> demographicItem) {
@@ -373,7 +325,11 @@ public class AppointmentNewFragment extends Fragment {
                         spnrClinic.setAdapter(null);
                     }
                     mEstCode = institutes.get(position - 1).getEstCode();
-                    getDepartments(institutes.get(position - 1).getEstCode());
+                    if (mMediatorCallback.isConnected()) {
+                        getDepartments(institutes.get(position - 1).getEstCode());
+                    } else {
+                        GlobalMethodsKotlin.Companion.showAlertDialog(mContext, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
+                    }
 
                     setAppointmentGroupVisibility(View.GONE);
                 }
@@ -401,6 +357,7 @@ public class AppointmentNewFragment extends Fragment {
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
                             Gson gson = new Gson();
                             ApiAppointmentDepartmentsHolder responseHolder = gson.fromJson(response.toString(), ApiAppointmentDepartmentsHolder.class);
+                            if(responseHolder.getResult()!=null)
                             setupSelectDepartmentSpinner(responseHolder.getResult(), estCode);
 
                         } else {
@@ -493,7 +450,11 @@ public class AppointmentNewFragment extends Fragment {
                             .setBackgroundTint(getResources().getColor(R.color.colorPrimary))
                             .show();
                     setAppointmentGroupVisibility(View.GONE);
-                    getClinics(result.get(position - 1), mEstCode);
+                    if (mMediatorCallback.isConnected()) {
+                        getClinics(result.get(position - 1), mEstCode);
+                    } else {
+                        GlobalMethodsKotlin.Companion.showAlertDialog(mContext, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
+                    }
 
                 }
             }
@@ -518,7 +479,8 @@ public class AppointmentNewFragment extends Fragment {
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
                             Gson gson = new Gson();
                             ApiAppointmentClinicsHolder responseHolder = gson.fromJson(response.toString(), ApiAppointmentClinicsHolder.class);
-                            setupSelectClinicSpinner(responseHolder.getResult());
+                            if (responseHolder.getResult() != null)
+                                setupSelectClinicSpinner(responseHolder.getResult());
 
                         } else {
                             mProgressDialog.dismissDialog();
@@ -619,7 +581,6 @@ public class AppointmentNewFragment extends Fragment {
         mProgressDialog.showDialog();
 
         String fullUrl = API_NEHR_URL + "appointment/getSlots";
-//        String fullUrl = API_URL_GET_DEMOGRAPHICS_INFO + "62163078" + "?source=PHR";
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, fullUrl, getJSONRequestParams()
                 , new Response.Listener<JSONObject>() {
@@ -769,6 +730,7 @@ public class AppointmentNewFragment extends Fragment {
         SharedPreferences sharedPref = mContext.getSharedPreferences(LANGUAGE_PREFS, Context.MODE_PRIVATE);
         return sharedPref.getString(LANGUAGE_SELECTED, getDeviceLanguage());
     }
+
     private String getDeviceLanguage() {
         return Locale.getDefault().getLanguage();
     }

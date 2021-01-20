@@ -26,27 +26,25 @@ public class ApiAppointmentClinicsHolder {
         private String doctdeptnameNl;
 
         public String getDoctdeptnameNl() {
-            if (TextUtils.isEmpty(doctdeptnameNl))
-                return "";
+            if (doctdeptnameNl==null||TextUtils.isEmpty(doctdeptnameNl))
+                return doctDeptName;
             else
             return doctdeptnameNl;
         }
 
         public String getDoctDeptId() {
-            if (TextUtils.isEmpty(doctDeptId))
+            if (doctDeptId==null||TextUtils.isEmpty(doctDeptId))
                 return "";
             else
                 return doctDeptId;
         }
 
         public String getDoctDeptName() {
-            if (TextUtils.isEmpty(doctDeptName))
+            if (doctDeptName==null||TextUtils.isEmpty(doctDeptName))
                 return "";
             else
                 return doctDeptName;
         }
-
-
     }
 
 }

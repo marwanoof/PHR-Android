@@ -147,6 +147,9 @@ public class ApiHomeHolder {
         @SerializedName("nationality")
         private String nationality;
 
+        @SerializedName("nationalityNls")
+        private String nationalityNls;
+
         @SerializedName("bloodGroup")
         private String bloodGroup;
 
@@ -165,28 +168,53 @@ public class ApiHomeHolder {
         @SerializedName("image")
         private String image;
 
+        public String getNationalityNls() {
+            if (nationalityNls == null)
+                return nationality;
+            else
+                return nationalityNls;
+        }
+
         public String getFirstNameNls() {
-            return firstNameNls;
+            if (firstNameNls == null)
+                return firstName;
+            else
+                return firstNameNls;
         }
 
         public String getSecondNameNls() {
-            return secondNameNls;
+            if (secondNameNls == null)
+                return secondName;
+            else
+                return secondNameNls;
         }
 
         public String getThirdNameNls() {
-            return thirdNameNls;
+            if (thirdNameNls == null)
+                return thirdName;
+            else
+                return thirdNameNls;
         }
 
         public String getFourthNameNls() {
-            return fourthNameNls;
+            if (fourthNameNls == null)
+                return fourthName;
+            else
+                return fourthNameNls;
         }
 
         public String getFifthNameNls() {
-            return fifthNameNls;
+            if (fifthNameNls == null)
+                return fifthName;
+            else
+                return fifthNameNls;
         }
 
         public String getSixthNameNls() {
-            return sixthNameNls;
+            if (sixthNameNls == null)
+                return sixthName;
+            else
+                return sixthNameNls;
         }
 
         public long getCivilId() {
@@ -195,42 +223,42 @@ public class ApiHomeHolder {
 
 
         public String getFirstName() {
-            if (TextUtils.isEmpty(firstName) || firstName == null)
+            if (firstName == null)
                 return "";
             else
                 return firstName;
         }
 
         public String getSecondName() {
-            if (TextUtils.isEmpty(secondName) || secondName == null)
+            if (secondName == null)
                 return "";
             else
                 return secondName;
         }
 
         public String getThirdName() {
-            if (TextUtils.isEmpty(thirdName) || thirdName == null)
+            if (thirdName == null)
                 return "";
             else
                 return thirdName;
         }
 
         public String getFourthName() {
-            if (TextUtils.isEmpty(fourthName) || fourthName == null)
+            if (fourthName == null)
                 return "";
             else
                 return fourthName;
         }
 
         public String getFifthName() {
-            if (TextUtils.isEmpty(fifthName) || fifthName == null)
+            if (fifthName == null)
                 return "";
             else
                 return fifthName;
         }
 
         public String getSixthName() {
-            if (TextUtils.isEmpty(sixthName) || sixthName == null)
+            if (sixthName == null)
                 return "";
             else
                 return sixthName;
@@ -257,7 +285,10 @@ public class ApiHomeHolder {
         }
 
         public String getGender() {
-            return gender;
+            if (gender == null || TextUtils.isEmpty(gender))
+                return "";
+            else
+                return gender;
         }
 
         public String getAge() {
@@ -268,7 +299,10 @@ public class ApiHomeHolder {
         }
 
         public String getNationality() {
-            return nationality;
+            if (nationality == null)
+                return "";
+            else
+                return nationality;
         }
 
         public String getBloodGroup() {
@@ -306,7 +340,10 @@ public class ApiHomeHolder {
         private String relationType;
 
         public String getDependentNameNls() {
-            return dependentNameNls;
+            if (dependentNameNls == null)
+                return dependentName;
+            else
+                return dependentNameNls;
         }
 
         public long getRunId() {
@@ -367,7 +404,10 @@ public class ApiHomeHolder {
         }
 
         public String getMenuName() {
-            return menuName;
+            if (menuName == null)
+                return "";
+            else
+                return menuName;
         }
 
         public String getActiveYn() {
@@ -375,26 +415,37 @@ public class ApiHomeHolder {
         }
 
         public String getIconClass() {
-            return iconClass;
+            if (iconClass == null)
+                return "";
+            else
+                return iconClass;
         }
 
         public String getMenuDesc() {
-            return menuDesc;
+            if (menuDesc == null)
+                return "";
+            else
+                return menuDesc;
         }
 
         public String getMenuDescNls() {
-            return menuDescNls;
+            if (menuDescNls == null)
+                return "";
+            else
+                return menuDescNls;
         }
 
         public String getMenuNameNls() {
-            return menuNameNls;
+            if (menuNameNls == null)
+                return menuName;
+            else
+                return menuNameNls;
         }
     }
 
     public class ApiRecentVitals implements Serializable {
         @SerializedName("name")
         private String name;
-
 
 
         @SerializedName("type")
@@ -426,43 +477,43 @@ public class ApiHomeHolder {
         private String showVitalPageYn;
 
         public String getUnitNls() {
-            if (TextUtils.isEmpty(unitNls))
+            if (unitNls == null || TextUtils.isEmpty(unitNls))
                 return "";
             else
-            return unitNls;
+                return unitNls;
         }
 
         public String getLeftColor() {
             if (TextUtils.isEmpty(leftColor))
                 return "";
             else
-            return leftColor;
+                return leftColor;
         }
 
         public String getRightColor() {
             if (TextUtils.isEmpty(rightColor))
                 return "";
             else
-            return rightColor;
+                return rightColor;
         }
 
         public String getShowHomePageYn() {
             if (TextUtils.isEmpty(showHomePageYn))
                 return "";
             else
-            return showHomePageYn;
+                return showHomePageYn;
         }
 
         public String getShowVitalPageYn() {
-            if (TextUtils.isEmpty(showVitalPageYn))
+            if (showVitalPageYn == null || TextUtils.isEmpty(showVitalPageYn))
                 return "";
             else
-            return showVitalPageYn;
+                return showVitalPageYn;
         }
 
         public String getVitalNameNls() {
-            if (TextUtils.isEmpty(vitalNameNls))
-                return "";
+            if (vitalNameNls == null || TextUtils.isEmpty(vitalNameNls))
+                return name;
             else
                 return vitalNameNls;
         }
@@ -471,21 +522,21 @@ public class ApiHomeHolder {
         private String vitalNameNls;
 
         public String getUnit() {
-            if (TextUtils.isEmpty(unit))
+            if (unit == null || TextUtils.isEmpty(unit))
                 return "";
             else
                 return unit;
         }
 
         public String getName() {
-            if (TextUtils.isEmpty(name))
+            if (name == null || TextUtils.isEmpty(name))
                 return "";
             else
                 return name;
         }
 
         public String getValue() {
-            if (TextUtils.isEmpty(value))
+            if (value == null || TextUtils.isEmpty(value))
                 return "--";
             else
                 return value;
@@ -497,48 +548,48 @@ public class ApiHomeHolder {
     }
 
     public class ApiAppointments implements Serializable {
-            @SerializedName("reservationId")
-            private String reservationId;
+        @SerializedName("reservationId")
+        private String reservationId;
 
-            @SerializedName("description")
-            private String description;
+        @SerializedName("description")
+        private String description;
 
-            @SerializedName("estName")
-            private String estName;
+        @SerializedName("estName")
+        private String estName;
 
-            /**
-             * estCode is label as "lastModifiedBy" in the response
-             */
-            @SerializedName("lastModifiedBy")
-            private String estCode;
+        /**
+         * estCode is label as "lastModifiedBy" in the response
+         */
+        @SerializedName("lastModifiedBy")
+        private String estCode;
 
-            public String getReservationId() {
-                if (TextUtils.isEmpty(reservationId))
-                    return "";
-                else
-                    return reservationId;
-            }
+        public String getReservationId() {
+            if (reservationId == null || TextUtils.isEmpty(reservationId))
+                return "";
+            else
+                return reservationId;
+        }
 
-            public String getDescription() {
-                if (TextUtils.isEmpty(description))
-                    return "";
-                else
-                    return description;
-            }
+        public String getDescription() {
+            if (description == null || TextUtils.isEmpty(description))
+                return "";
+            else
+                return description;
+        }
 
-            public String getEstName() {
-                if (TextUtils.isEmpty(estName))
-                    return "";
-                else
-                    return " | " + estName;
-            }
+        public String getEstName() {
+            if (estName == null || TextUtils.isEmpty(estName))
+                return "";
+            else
+                return " | " + estName;
+        }
 
-            public String getEstCode() {
-                if (TextUtils.isEmpty(estCode))
-                    return "";
-                else
-                    return estCode;
-            }
+        public String getEstCode() {
+            if (estCode == null || TextUtils.isEmpty(estCode))
+                return "";
+            else
+                return estCode;
+        }
     }
 
     public class ApiChatMessages implements Serializable {
@@ -573,7 +624,10 @@ public class ApiHomeHolder {
         }
 
         public String getCreatedBy() {
-            return createdBy;
+            if (createdBy == null || TextUtils.isEmpty(createdBy))
+                return "";
+            else
+                return createdBy;
         }
 
         public int getUnreadCount() {
@@ -581,13 +635,20 @@ public class ApiHomeHolder {
         }
 
         public String getCreatedName() {
-            return createdName;
+            if (createdName == null || TextUtils.isEmpty(createdName))
+                return "";
+            else
+                return createdName;
         }
 
         public String getCreatedDate() {
-            return createdDate;
+            if (createdDate == null)
+                return "--";
+            else
+                return createdDate;
         }
     }
+
     public class Patients implements Serializable {
 
         @SerializedName("estPatientId")
@@ -608,14 +669,14 @@ public class ApiHomeHolder {
         private boolean isPending;
 
         public String getEstNameNls() {
-            if (TextUtils.isEmpty(estNameNls))
-                return "";
+            if (estNameNls==null||TextUtils.isEmpty(estNameNls))
+                return estName;
             else
                 return estNameNls;
         }
 
         public String getEstPatientId() {
-            if (TextUtils.isEmpty(estPatientId))
+            if (estPatientId==null||TextUtils.isEmpty(estPatientId))
                 return "";
             else
                 return estPatientId;
@@ -630,14 +691,14 @@ public class ApiHomeHolder {
         }
 
         public String getEstCode() {
-            if (TextUtils.isEmpty(estCode))
+            if (estCode==null||TextUtils.isEmpty(estCode))
                 return "";
             else
                 return estCode;
         }
 
         public String getEstName() {
-            if (TextUtils.isEmpty(estName))
+            if (estName==null||TextUtils.isEmpty(estName))
                 return "";
             else
                 return estName;
@@ -655,6 +716,7 @@ public class ApiHomeHolder {
             isPending = pending;
         }
     }
+
     public class Referrals implements Serializable {
         @SerializedName("referralBy")
         private String referralBy;
@@ -666,6 +728,9 @@ public class ApiHomeHolder {
         private String refInstitute;
 
         public String getReferralBy() {
+            if(referralBy==null)
+                return "";
+            else
             return referralBy;
         }
 
@@ -674,10 +739,16 @@ public class ApiHomeHolder {
         }
 
         public String getRefInstitute() {
+            if(refInstitute==null)
+                return "";
+            else
             return refInstitute;
         }
 
         public String getDescription() {
+            if(TextUtils.isEmpty(description))
+                return null;
+            else
             return description;
         }
 

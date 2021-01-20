@@ -185,6 +185,7 @@ public class VitalInfoFragment extends Fragment implements  View.OnClickListener
             );*/
         } else {
             displayAlert(getString(R.string.alert_no_connection));
+            GlobalMethodsKotlin.Companion.showAlertDialog(mContext, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
         }
 
         linearLayoutAllergy.setOnClickListener(this);

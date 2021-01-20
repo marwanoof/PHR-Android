@@ -13,13 +13,13 @@ class GlobalMethodsKotlin {
 
         fun showAlertDialog(context: Context, title: String, body: String, buttonText: String, iconDrawable: Int) {
             val activity = context as Activity
-            AwesomeDialog.build(context)
-                    .title(title)
-                    .body(body)
-                    .icon(iconDrawable)
-                    .onPositive(buttonText, buttonBackgroundColor = R.drawable.bg_circle) {
+                AwesomeDialog.build(context)
+                        .title(title)
+                        .body(body)
+                        .icon(iconDrawable)
+                        .onPositive(buttonText, buttonBackgroundColor = R.drawable.bg_circle) {
 
-                    }
+                        }
         }
 
         fun showAlertErrorDialog(context: Context) {

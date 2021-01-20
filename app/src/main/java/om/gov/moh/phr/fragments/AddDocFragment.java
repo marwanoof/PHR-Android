@@ -112,7 +112,6 @@ public class AddDocFragment extends Fragment {
     public static AddDocFragment newInstance() {
         AddDocFragment fragment = new AddDocFragment();
         Bundle args = new Bundle();
-        //  args.putString(ARG_PARAM1, param1);
         fragment.setArguments(args);
         return fragment;
     }
@@ -187,16 +186,13 @@ public class AddDocFragment extends Fragment {
             }
         });
         ivImageView = view.findViewById(R.id.imageView);
-        getDocType();
+        if (mMediatorCallback.isConnected()) {
+            getDocType();
+        } else {
+            GlobalMethodsKotlin.Companion.showAlertDialog(mContext, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
+        }
         return view;
     }
-
-    private void enableHomeandRefresh(View view) {
-        ImageButton ibRefresh = view.findViewById(R.id.ib_refresh);
-        ibRefresh.setVisibility(View.GONE);
-    }
-
-
     private void getDocType() {
         mProgressDialog.showDialog();
 
@@ -209,19 +205,21 @@ public class AddDocFragment extends Fragment {
                 try {
                     if (mContext != null && isAdded()) {
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
-                            JSONArray documentsTypesArray = response.getJSONArray(API_RESPONSE_RESULT);
+                            JSONArray documentsTypesArray = response.optJSONArray(API_RESPONSE_RESULT);
                             ArrayList<String> documentsTypes = new ArrayList<>();
                             documentsTypesCodes = new ArrayList<>();
                             String defaultText = getResources().getString(R.string.select_doc_type_msg)+"*";
                             documentsTypes.add(defaultText);
                             documentsTypesCodes.add("None");
-                            for (int i = 0; i < documentsTypesArray.length(); i++) {
-                                JSONObject documentTypeObj = documentsTypesArray.getJSONObject(i);
-                                if (getStoredLanguage().equals(LANGUAGE_ARABIC)&&documentTypeObj.optString("typeNameNls")!=null&&!documentTypeObj.optString("typeNameNls").equals(""))
-                                    documentsTypes.add(documentTypeObj.optString("typeNameNls"));
-                                else
-                                    documentsTypes.add(documentTypeObj.optString("typeName"));
-                                documentsTypesCodes.add(documentTypeObj.optString("typeCode"));
+                            if (documentsTypesArray != null) {
+                                for (int i = 0; i < documentsTypesArray.length(); i++) {
+                                    JSONObject documentTypeObj = documentsTypesArray.optJSONObject(i);
+                                    if (getStoredLanguage().equals(LANGUAGE_ARABIC)&&documentTypeObj.optString("typeNameNls")!=null&&!documentTypeObj.optString("typeNameNls").equals(""))
+                                        documentsTypes.add(documentTypeObj.optString("typeNameNls"));
+                                    else
+                                        documentsTypes.add(documentTypeObj.optString("typeName"));
+                                    documentsTypesCodes.add(documentTypeObj.optString("typeCode"));
+                                }
                             }
                             setupSelectDocTypeSpinner(documentsTypes, documentsTypesCodes);
                         } else {

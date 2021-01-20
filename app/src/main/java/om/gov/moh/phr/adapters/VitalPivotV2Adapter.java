@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 import om.gov.moh.phr.R;
-import om.gov.moh.phr.apimodels.ApiDemographicsHolder;
 import om.gov.moh.phr.apimodels.ApiVitalPivotV2;
 import om.gov.moh.phr.interfaces.AdapterToFragmentConnectorInterface;
 

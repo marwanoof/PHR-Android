@@ -44,6 +44,7 @@ import om.gov.moh.phr.apimodels.ApiOtherDocsHolder;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
 import om.gov.moh.phr.models.DividerItemDecorator;
+import om.gov.moh.phr.models.GlobalMethodsKotlin;
 import om.gov.moh.phr.models.MyProgressDialog;
 
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
@@ -121,6 +122,7 @@ public class ProviderDocumentsFragment extends Fragment implements SearchView.On
                 );
             } else {
                 displayAlert(getString(R.string.alert_no_connection));
+                GlobalMethodsKotlin.Companion.showAlertDialog(mContext, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
             }
 
         } else {

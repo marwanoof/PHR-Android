@@ -55,6 +55,7 @@ import om.gov.moh.phr.apimodels.ApiProceduresReportsHolder;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
 import om.gov.moh.phr.models.DividerItemDecorator;
+import om.gov.moh.phr.models.GlobalMethodsKotlin;
 import om.gov.moh.phr.models.MyProgressDialog;
 
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
@@ -216,8 +217,12 @@ public class ProceduresReportsDetailsFragment extends Fragment {
             }
             isWebView = true;
             String fullUrl = API_PROCEDURES_REPORTS_WEBVIEW + mProcedureReport.getReportId();
-            getReportDetails(fullUrl);
 
+            if (mMediatorCallback.isConnected()) {
+                getReportDetails(fullUrl);
+            } else {
+                GlobalMethodsKotlin.Companion.showAlertDialog(mContext, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
+            }
 
         } else {
             if (mMediaReport != null) {
@@ -249,7 +254,12 @@ public class ProceduresReportsDetailsFragment extends Fragment {
                 if (mProcedureReport.getProfileCode() == 101) {
                     isWebView = true;
                     String fullUrl = API_PROCEDURES_REPORTS_WEBVIEW + mProcedureReport.getReportId();
-                    getReportDetails(fullUrl);
+
+                    if (mMediatorCallback.isConnected()) {
+                        getReportDetails(fullUrl);
+                    } else {
+                        GlobalMethodsKotlin.Companion.showAlertDialog(mContext, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
+                    }
                 } else if (mProcedureReport.getProfileCode() == 113) {
                     if (mProcedureReport.getEstFullname() != null)
                         tvHospital.setText(mProcedureReport.getEstFullname());
@@ -259,7 +269,12 @@ public class ProceduresReportsDetailsFragment extends Fragment {
                     tvSummary.setVisibility(View.GONE);
                     rvRportDetails.setVisibility(View.VISIBLE);
                     String fullUrl = API_PROCEDURES_REPORTS_RECYCLERVIEW + mProcedureReport.getPatientId();
-                    getNurseNoteData(fullUrl);
+
+                    if (mMediatorCallback.isConnected()) {
+                        getNurseNoteData(fullUrl);
+                    } else {
+                        GlobalMethodsKotlin.Companion.showAlertDialog(mContext, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
+                    }
                 } else {
                     isWebView = false;
                     if (mProcedureReport.getEstFullname() != null)
@@ -272,7 +287,12 @@ public class ProceduresReportsDetailsFragment extends Fragment {
                     rvRportDetails.setVisibility(View.VISIBLE);
                     isNotes = true;
                     String url = API_PROCEDURES_REPORTS_TEXT + mProcedureReport.getProcedureId();
-                    getNurseNoteData(url);
+
+                    if (mMediatorCallback.isConnected()) {
+                        getNurseNoteData(url);
+                    } else {
+                        GlobalMethodsKotlin.Companion.showAlertDialog(mContext, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
+                    }
                 }
             }
         }

@@ -65,10 +65,10 @@ public class OtherDocsRecyclerViewAdapter extends RecyclerView.Adapter<OtherDocs
         holder.tvDateWritten.setText(dateText);
 
         if (getStoredLanguage().equals(LANGUAGE_ARABIC)){
-
+            holder.tvDosage.setText(docObj.getEstFullnameNls());
             holder.moreDetails.setImageBitmap(flipImage());
         }else {
-
+            holder.tvDosage.setText(docObj.getEstFullname());
             holder.moreDetails.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_arrow_right));
         }
         long encounterDate = docObj.getEncounterDate();
@@ -89,7 +89,7 @@ public class OtherDocsRecyclerViewAdapter extends RecyclerView.Adapter<OtherDocs
             holder.ivMoreArrow.setVisibility(View.VISIBLE);
             holder.tvDate.setText(context.getResources().getString(R.string.visit_date) + ": " + dateFormatGroupedDate.format(new Date(encounterDate)));
         }*/
-        holder.tvDosage.setText(docObj.getEstFullname());
+
    /*   if (row_index == position) {
             // holder.imageButton.setBackgroundTintList(context.getResources().getColorStateList(R.color.colorPeach));
             holder.clOrderItem.setBackgroundColor(context.getResources().getColor(R.color.colorPeach));
@@ -180,7 +180,7 @@ public class OtherDocsRecyclerViewAdapter extends RecyclerView.Adapter<OtherDocs
             othersDocsArrayList.addAll(arraylist);
         } else {
             for (ApiOtherDocsHolder.ApiDocInfo wp : arraylist) {
-                if (wp.getTypeD().toLowerCase(Locale.getDefault()).contains(charText)) {
+                if (wp.getTitle().toLowerCase(Locale.getDefault()).contains(charText)) {
                     othersDocsArrayList.add(wp);
                 }
             }

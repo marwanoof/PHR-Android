@@ -27,7 +27,7 @@ public class DLabResultsHolder {
         private String conclusion;
 
         public String getConclusion() {
-            if (TextUtils.isEmpty(conclusion))
+            if (conclusion==null||TextUtils.isEmpty(conclusion))
                 return "--";
             else
             return conclusion;
@@ -37,16 +37,19 @@ public class DLabResultsHolder {
         private long releasedTime;
 
         public String getReleasedTime() {
-            Date date = new Date(releasedTime);
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm a",Locale.ENGLISH);
-            String dateResult = simpleDateFormat.format(date);
-            return dateResult;
+            if(releasedTime!=0) {
+                Date date = new Date(releasedTime);
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.ENGLISH);
+                String dateResult = simpleDateFormat.format(date);
+                return dateResult;
+            }else
+                return "--";
         }
         @SerializedName("releasedBy")
         private String releasedBy;
 
         public String getReleasedBy() {
-            if (TextUtils.isEmpty(releasedBy))
+            if (releasedBy==null||TextUtils.isEmpty(releasedBy))
                 return "--";
             else
             return releasedBy;
@@ -56,7 +59,7 @@ public class DLabResultsHolder {
         private String status;
 
         public String getStatus() {
-            if (TextUtils.isEmpty(status))
+            if (status==null||TextUtils.isEmpty(status))
                 return "--";
             else
             return status;
@@ -100,21 +103,21 @@ public class DLabResultsHolder {
         private String orderId;
 
         public String getOrderId() {
-            if (TextUtils.isEmpty(orderId))
+            if (orderId==null||TextUtils.isEmpty(orderId))
                 return "";
             else
                 return orderId;
         }
 
         public String getTestName() {
-            if (TextUtils.isEmpty(testName))
+            if (testName==null||TextUtils.isEmpty(testName))
                 return null;
             else
                 return testName;
         }
 
         public String getResult() {
-            if (TextUtils.isEmpty(result) || result.equals("null"))
+            if (result==null||TextUtils.isEmpty(result) || result.equals("null"))
                 return "-";
             else
                 return result;
@@ -122,26 +125,29 @@ public class DLabResultsHolder {
 
 
         public String getRangeLow() {
-            if (TextUtils.isEmpty(rangeLow) || rangeLow.equals("null"))
+            if (rangeLow==null||TextUtils.isEmpty(rangeLow) || rangeLow.equals("null"))
                 return "-";
             else
                 return rangeLow;
         }
 
         public String getRangeHigh() {
-            if (TextUtils.isEmpty(rangeHigh) || rangeHigh.equals("null"))
+            if (rangeHigh==null||TextUtils.isEmpty(rangeHigh) || rangeHigh.equals("null"))
                 return "-";
             else
                 return rangeHigh;
         }
 
         public String getInterpretation() {
+            if(interpretation==null)
+                return "";
+            else
             return interpretation;
         }
 
 
         public String getUnit() {
-            if (TextUtils.isEmpty(unit) || unit.equals("null"))
+            if (unit==null||TextUtils.isEmpty(unit) || unit.equals("null"))
                 return "-";
             else
                 return unit;
@@ -155,14 +161,14 @@ public class DLabResultsHolder {
         private String result;
 
         public String getParamName() {
-            if (TextUtils.isEmpty(paramName))
+            if (paramName==null||TextUtils.isEmpty(paramName))
                 return "--";
             else
             return paramName;
         }
 
         public String getResult() {
-            if (TextUtils.isEmpty(result))
+            if (result==null||TextUtils.isEmpty(result))
                 return "--";
             else
             return result;

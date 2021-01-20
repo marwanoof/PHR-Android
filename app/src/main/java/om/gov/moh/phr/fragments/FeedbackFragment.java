@@ -64,6 +64,7 @@ import om.gov.moh.phr.apimodels.ApiFeedbackHolder;
 import om.gov.moh.phr.interfaces.AdapterToFragmentConnectorInterface;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
+import om.gov.moh.phr.models.GlobalMethodsKotlin;
 import om.gov.moh.phr.models.MyProgressDialog;
 
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
@@ -151,7 +152,7 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
         if (mMediatorCallback.isConnected())
             getQuestions();
         else
-            displayAlert(getResources().getString(R.string.alert_no_connection));
+            displayAlert();
 
         btnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -442,7 +443,7 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
         } else if (etUserMobileNo.getText().toString().trim().equals("")) {
             etUserMobileNo.setError(getResources().getString(R.string.alert_empty_field));
             etUserMobileNo.requestFocus();
-        } else if (!isMobileNoValid(etUserMobileNo.getText().toString())) {
+        } else if (!isMobileNoValid(etUserMobileNo.getText().toString())||etUserMobileNo.getText().toString().trim().length()<8) {
             etUserMobileNo.setError(getResources().getString(R.string.invalid_phoneNo));
             etUserMobileNo.requestFocus();
         } else {
@@ -451,9 +452,8 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
     }
 
 
-    private void displayAlert(String msg) {
-        tvAlert.setVisibility(View.VISIBLE);
-        tvAlert.setText(msg);
+    private void displayAlert() {
+        GlobalMethodsKotlin.Companion.showAlertDialog(mContext, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
     }
 
     @Override

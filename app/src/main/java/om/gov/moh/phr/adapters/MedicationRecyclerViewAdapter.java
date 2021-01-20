@@ -58,8 +58,6 @@ public class MedicationRecyclerViewAdapter extends RecyclerView.Adapter<Medicati
     private RequestQueue mQueue;
     private MyProgressDialog mProgressDialog;
     private Boolean showVisitDetails;
-
-    public MedicationRecyclerViewAdapter(){}
     public MedicationRecyclerViewAdapter(ArrayList<ApiMedicationHolder.ApiMedicationInfo> medicineArrayList,
                                          Context context,Boolean showVisitDetails) {
         this.medicineArrayList = medicineArrayList;

@@ -35,7 +35,7 @@ ApiSlotsHolder implements Serializable {
 
         public String getPatientId() {
             if (TextUtils.isEmpty(patientId))
-                return "123456";// TODO :  make it return "" in production
+                return "";
             else
                 return patientId;
         }

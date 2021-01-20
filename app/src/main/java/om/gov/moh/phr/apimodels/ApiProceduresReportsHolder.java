@@ -20,7 +20,7 @@ public class ApiProceduresReportsHolder implements Serializable {
         return result;
     }
 
-    public class ProceduresByEncounter implements Serializable{
+    public class ProceduresByEncounter implements Serializable {
         @SerializedName("encounterDate")
         private long encounterDate;
 
@@ -37,10 +37,13 @@ public class ApiProceduresReportsHolder implements Serializable {
         private ArrayList<Procedures> procedures;
 
         public String getEncounterDate() {
-            Date date = new Date(encounterDate);
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yyyy",Locale.ENGLISH);
-            String dateResult = simpleDateFormat.format(date);
-            return dateResult;
+            if (encounterDate != 0) {
+                Date date = new Date(encounterDate);
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.ENGLISH);
+                String dateResult = simpleDateFormat.format(date);
+                return dateResult;
+            } else
+                return "--";
         }
 
         public String getEncounterDateFormat() {
@@ -48,11 +51,17 @@ public class ApiProceduresReportsHolder implements Serializable {
         }
 
         public String getEncounterId() {
-            return encounterId;
+            if (encounterId == null)
+                return "";
+            else
+                return encounterId;
         }
 
         public String getEstFullName() {
-            return estFullName;
+            if (estFullName == null)
+                return "";
+            else
+                return estFullName;
         }
 
         public ArrayList<Procedures> getProcedures() {
@@ -60,7 +69,7 @@ public class ApiProceduresReportsHolder implements Serializable {
         }
     }
 
-    public class Procedures implements Serializable{
+    public class Procedures implements Serializable {
 
         @SerializedName("procedureId")
         private String procedureId;
@@ -126,7 +135,10 @@ public class ApiProceduresReportsHolder implements Serializable {
         private String estFullnameNls;
 
         public String getProcedureId() {
-            return procedureId;
+            if (procedureId == null)
+                return "";
+            else
+                return procedureId;
         }
 
         public long getProcedureDoneDate() {
@@ -146,7 +158,10 @@ public class ApiProceduresReportsHolder implements Serializable {
         }
 
         public String getStatus() {
-            return status;
+            if (status == null)
+                return "";
+            else
+                return status;
         }
 
         public long getStartTime() {
@@ -174,7 +189,10 @@ public class ApiProceduresReportsHolder implements Serializable {
         }
 
         public String getEstName() {
-            return estName;
+            if (estName == null)
+                return "";
+            else
+                return estName;
         }
 
         public String getEncounterId() {
@@ -186,15 +204,24 @@ public class ApiProceduresReportsHolder implements Serializable {
         }
 
         public String getEstFullname() {
-            return estFullname;
+            if (estFullname == null)
+                return "";
+            else
+                return estFullname;
         }
 
         public String getReportId() {
-            return reportId;
+            if (reportId == null)
+                return "";
+            else
+                return reportId;
         }
 
         public String getPatientId() {
-            return patientId;
+            if (patientId == null)
+                return "";
+            else
+                return patientId;
         }
 
         public long getEncounterDate() {
@@ -206,10 +233,14 @@ public class ApiProceduresReportsHolder implements Serializable {
         }
 
         public String getEstFullnameNls() {
-            return estFullnameNls;
+            if (estFullnameNls == null)
+                return estFullname;
+            else
+                return estFullnameNls;
         }
     }
-    public class Procedure implements Serializable{
+
+    public class Procedure implements Serializable {
         @SerializedName("code")
         private String code;
 
@@ -227,6 +258,9 @@ public class ApiProceduresReportsHolder implements Serializable {
         }
 
         public String getName() {
+            if(name==null)
+                return "--";
+            else
             return name;
         }
 
@@ -238,7 +272,8 @@ public class ApiProceduresReportsHolder implements Serializable {
             return typeName;
         }
     }
-    public class Performer implements Serializable{
+
+    public class Performer implements Serializable {
         @SerializedName("id")
         private int id;
 
@@ -275,7 +310,7 @@ public class ApiProceduresReportsHolder implements Serializable {
         }
     }
 
-    public class Notes implements Serializable{
+    public class Notes implements Serializable {
         @SerializedName("id")
         private int id;
 

@@ -21,7 +21,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.adapters.MeasurementRecyclerViewAdapter;
-import om.gov.moh.phr.apimodels.ApiDemographicsHolder;
 import om.gov.moh.phr.apimodels.ApiHomeHolder;
 import om.gov.moh.phr.interfaces.AdapterToFragmentConnectorInterface;
 import om.gov.moh.phr.interfaces.MediatorInterface;

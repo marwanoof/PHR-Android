@@ -57,6 +57,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.EventListener;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -67,8 +68,6 @@ import om.gov.moh.phr.activities.MainActivity;
 import om.gov.moh.phr.adapters.ComingAppointmentListAdapter;
 import om.gov.moh.phr.adapters.MessageChatsAdapter;
 import om.gov.moh.phr.adapters.MyVitalListAdapter;
-import om.gov.moh.phr.adapters.NotificationHomeAdapter;
-import om.gov.moh.phr.adapters.NotificationsRecyclerViewAdapter;
 import om.gov.moh.phr.adapters.PaginationRecyclerViewAdapter;
 import om.gov.moh.phr.adapters.RefferalsListRecyclerViewAdapter;
 import om.gov.moh.phr.apimodels.ApiAppointmentsListHolder;
@@ -99,14 +98,14 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
     private static final int NUMBER_OF_COLUMNS = 1;
     private Context mContext;
     private RequestQueue mQueue;
-    private TextView tvAlert, tvPatientId, tvFullName, tvAge, tvBloodGroup, tvUserHeight, tvUserWeight, tvNameInfo, tvUserAddress, tvMobile, tvGender, tvNationality, tvDependentsTitle, tvFirstDependent, tvSecondDependent, tvNoOfChatNotification, tvNotAvailableDependents;
+    private TextView tvPatientId, tvFullName, tvAge, tvBloodGroup, tvUserHeight, tvUserWeight, tvNameInfo, tvUserAddress, tvMobile, tvGender, tvNationality, tvDependentsTitle, tvFirstDependent, tvSecondDependent, tvNoOfChatNotification, tvNotAvailableDependents;
     private ImageView ivUserProfile, ivFirstArrow, ivSecondArrow;
     private MyProgressDialog mProgressDialog;
     private RecyclerView rvGrid;
     private MediatorInterface mMediatorCallback;
     private ToolbarControllerInterface mToolbarCallback;
     private PaginationRecyclerViewAdapter mAdapter;
-    int dotscount = 3;
+    private int dotscount = 3;
     private ImageView[] dots;
     // private PagerCardMainAdapter pagerCardMainAdapter;
     private ScrollView menuListScrollView;
@@ -153,31 +152,18 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
             // Inflate the layout for this fragment
             parentView = inflater.inflate(R.layout.fragment_home, container, false);
             //pageView = pageView.findViewById(R.id.view1);
-
             mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
             mProgressDialog = new MyProgressDialog(mContext);
             swipeRefreshLayout = parentView.findViewById(R.id.swipeRefreshLayoutHome);
             swipeRefreshLayout.setOnRefreshListener(this);
             setupView(parentView);
-            if (IS_SCROLL_LIST) {
-                menuListScrollView.setVisibility(View.VISIBLE);
-                rvGrid.setVisibility(View.GONE);
-                menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_item));
-            } else {
-                menuListScrollView.setVisibility(View.GONE);
-                rvGrid.setVisibility(View.VISIBLE);
-                menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_list));
-            }
 
-
-            //   if (mMediatorCallback.getAccessToken().getAccessCivilId().equals(mMediatorCallback.getCurrentUser().getCivilId()))
             setupRefferalsRecyclerView(rvReferrals);
             if (mMediatorCallback.isConnected()) {
                 setRecyclerViewGrid();
                 getDemographicResponse();
             } else {
-
-                displayAlert(getString(R.string.alert_no_connection));
+                displayAlert();
             }
             menuButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -207,7 +193,7 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
                             disableScrollingList();
                           GlobalMethodsKotlin.Companion.showAlertDialog(mContext, "", getResources().getString(R.string.no_recent_data_msg), getResources().getString(R.string.ok), R.drawable.ic_error);
                         }   else*/
-                            enableScrollingList();
+                        enableScrollingList();
                       /*  menuButton.animate()
                                 .alpha(0.0f)
                                 .setDuration(100)
@@ -304,8 +290,7 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
     }
 
     private void setNotificationRecyclerView(ArrayList<Notification> notificationsList) {
-        NotificationsRecyclerViewAdapter mAdapter =
-                new NotificationsRecyclerViewAdapter(notificationsList, mContext, mMediatorCallback);
+      //  NotificationsRecyclerViewAdapter mAdapter = new NotificationsRecyclerViewAdapter(notificationsList, mContext, mMediatorCallback);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(mContext);
         DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(notificationList
                 .getContext(),
@@ -313,13 +298,12 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
         notificationList.addItemDecoration(mDividerItemDecoration);
         notificationList.setLayoutManager(mLayoutManager);
         notificationList.setItemAnimator(new DefaultItemAnimator());
-        notificationList.setAdapter(mAdapter);
+       // notificationList.setAdapter(mAdapter);
     }
 
     private void setupView(View parentView) {
         personInfo = parentView.findViewById(R.id.personInfoConstraintLayout);
         personInfo.setVisibility(View.VISIBLE);
-        tvAlert = parentView.findViewById(R.id.tv_alert);
         rvGrid = parentView.findViewById(R.id.vp_container);
         menuListScrollView = parentView.findViewById(R.id.menuListScrollView);
         menuButton = parentView.findViewById(R.id.btnMenu);
@@ -350,37 +334,6 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
         chatConstraintLayout.setVisibility(View.GONE);
         notificationConstraintLayout.setVisibility(View.GONE);
         referralsLayout.setVisibility(View.GONE);
-
-        LinearLayout sliderDotspanel = parentView.findViewById(R.id.slider_dots);
-        dots = new ImageView[3];
-        dots[0] = new ImageView(mContext);
-        dots[0].setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                viewFlipper.setDisplayedChild(0);
-            }
-        });
-        dots[1] = new ImageView(mContext);
-        dots[1].setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                viewFlipper.setDisplayedChild(1);
-            }
-        });
-        dots[2] = new ImageView(mContext);
-        dots[2].setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                viewFlipper.setDisplayedChild(2);
-            }
-        });
-
-        for (int i = 0; i < dotscount; i++) {
-            dots[i].setImageDrawable(mContext.getDrawable(R.drawable.non_active_dot));
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            params.setMargins(8, 0, 8, 0);
-            sliderDotspanel.addView(dots[i], params);
-        }
         viewFlipper = parentView.findViewById(R.id.viewFlipper);
         viewFlipper.setOnTouchListener(new android.view.View.OnTouchListener() {
             @Override
@@ -390,6 +343,41 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
                 return true;
             }
         });
+
+        LinearLayout sliderDotspanel = parentView.findViewById(R.id.slider_dots);
+        dots = new ImageView[3];
+        dots[0] = new ImageView(mContext);
+        dots[0].setPadding(5, 5, 5, 5);
+        dots[0].setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                viewFlipper.setDisplayedChild(0);
+            }
+        });
+        dots[1] = new ImageView(mContext);
+        dots[1].setPadding(5, 5, 5, 5);
+        dots[1].setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                viewFlipper.setDisplayedChild(1);
+            }
+        });
+        dots[2] = new ImageView(mContext);
+        dots[2].setPadding(5, 5, 5, 5);
+        dots[2].setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                viewFlipper.setDisplayedChild(2);
+            }
+        });
+        if (dotscount != 0) {
+            for (int i = 0; i < dotscount; i++) {
+                dots[i].setImageDrawable(mContext.getDrawable(R.drawable.non_active_dot));
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                params.setMargins(0, 0, 0, 0);
+                sliderDotspanel.addView(dots[i], params);
+            }
+        }
         viewFlipper.addOnLayoutChangeListener(onLayoutChangeListener_viewFlipper);
         tvPatientId = parentView.findViewById(R.id.tv_patientid_main);
         tvFullName = parentView.findViewById(R.id.tv_name_main);
@@ -445,6 +433,15 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
         dependentDivider = parentView.findViewById(R.id.divider);
         tvNoOfChatNotification = parentView.findViewById(R.id.tvNoOfChatNotification);
         tvNotAvailableDependents = parentView.findViewById(R.id.tvNotAvailableDependents);
+        if (IS_SCROLL_LIST) {
+            menuListScrollView.setVisibility(View.VISIBLE);
+            rvGrid.setVisibility(View.GONE);
+            menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_item));
+        } else {
+            menuListScrollView.setVisibility(View.GONE);
+            rvGrid.setVisibility(View.VISIBLE);
+            menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_list));
+        }
     }
 
     public void setupMyVitalList(ArrayList<ApiHomeHolder.ApiRecentVitals> myVitals) {
@@ -499,14 +496,14 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
     public void setupNotificationList(ArrayList<String> notifications) {
         notificationConstraintLayout.setVisibility(View.VISIBLE);
         notificationConstraintLayout.setAnimation(GlobalMethodsKotlin.Companion.setAnimation(mContext, R.anim.fade_in));
-        NotificationHomeAdapter comingAppointmentListAdapter = new NotificationHomeAdapter(notifications, mContext);
+       // NotificationHomeAdapter comingAppointmentListAdapter = new NotificationHomeAdapter(notifications, mContext);
         LinearLayoutManager layoutManager
                 = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
         DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(notificationList.getContext(), layoutManager.getOrientation());
         notificationList.addItemDecoration(mDividerItemDecoration);
         notificationList.setLayoutManager(layoutManager);
         notificationList.setItemAnimator(new DefaultItemAnimator());
-        notificationList.setAdapter(comingAppointmentListAdapter);
+      //  notificationList.setAdapter(comingAppointmentListAdapter);
 
     }
 
@@ -548,29 +545,49 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
+                Log.d("dempResp", response.toString());
                 if (mContext != null && isAdded()) {
                     try {
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
                             Gson gson = new Gson();
                             responseHolder = gson.fromJson(response.toString(), ApiHomeHolder.class);
-                                mAdapter.updateList(responseHolder.getmResult().getmHome().getmMainMenus());
-                                setupDempgraphicsData(responseHolder.getmResult().getmHome().getmDemographics());
-                                setupRecentVitalsData(responseHolder.getmResult().getmHome().getmRecentVitals());
-                                setupDependentsData(responseHolder.getmResult().getmHome().getmDependents());
-                                setupChatMessages(responseHolder.getmResult().getmHome().getmChatMessages());
-                                setupAppointments(responseHolder.getmResult().getmHome().getmAppointments());
-                                setupReferrals(responseHolder.getmResult().getmHome().getReferralsArrayList());
+                            if (responseHolder.getmResult() != null) {
+                                if (mAdapter == null) {
+                                    dotscount = 0;
+                                    setupView(parentView);
+                                    setRecyclerViewGrid();
+                                    setupRefferalsRecyclerView(rvReferrals);
+                                }
+                                if (responseHolder.getmResult().getmHome() != null) {
+                                    if (responseHolder.getmResult().getmHome().getmMainMenus() != null)
+                                        mAdapter.updateList(responseHolder.getmResult().getmHome().getmMainMenus());
+                                    if (responseHolder.getmResult().getmHome().getmDemographics() != null)
+                                        setupDempgraphicsData(responseHolder.getmResult().getmHome().getmDemographics());
+                                    if (responseHolder.getmResult().getmHome().getmRecentVitals() != null) {
+                                        setupRecentVitalsData(responseHolder.getmResult().getmHome().getmRecentVitals());
+                                        if (responseHolder.getmResult().getmHome().getmRecentVitals().size() > 0)
+                                            isVitalShow = true;
+                                    } if (responseHolder.getmResult().getmHome().getmDependents() != null)
+                                        setupDependentsData(responseHolder.getmResult().getmHome().getmDependents());
+                                    if (responseHolder.getmResult().getmHome().getmChatMessages() != null) {
+                                        setupChatMessages(responseHolder.getmResult().getmHome().getmChatMessages());
+                                        if (responseHolder.getmResult().getmHome().getmChatMessages().size() > 0)
+                                            isChatShow = true;
+                                    }
+                                    if (responseHolder.getmResult().getmHome().getmAppointments() != null) {
+                                        setupAppointments(responseHolder.getmResult().getmHome().getmAppointments());
+                                        if (responseHolder.getmResult().getmHome().getmAppointments().size() > 0)
+                                            isAppointmentShow = true;
+                                    }
+                                    if (responseHolder.getmResult().getmHome().getReferralsArrayList() != null)
+                                        setupReferrals(responseHolder.getmResult().getmHome().getReferralsArrayList());
                           /*      if (llMyVitalSigns.getVisibility() == View.GONE && llAppointments.getVisibility() == View.GONE && llReferrals.getVisibility() == View.GONE && llUnReadMessages.getVisibility() == View.GONE)
                                     disableScrollingList();*/
-                                if (responseHolder.getmResult().getmHome().getmRecentVitals().size() > 0)
-                                    isVitalShow = true;
-                                if (responseHolder.getmResult().getmHome().getmAppointments().size() > 0)
-                                    isAppointmentShow = true;
-                                if (responseHolder.getmResult().getmHome().getmChatMessages().size() > 0)
-                                    isChatShow = true;
 
-                        } else
-                            GlobalMethodsKotlin.Companion.showAlertErrorDialog(mContext);
+                                } else
+                                    GlobalMethodsKotlin.Companion.showAlertErrorDialog(mContext);
+                            }
+                        }
 
                     } catch (JSONException e) {
                         GlobalMethodsKotlin.Companion.showAlertErrorDialog(mContext);
@@ -614,6 +631,8 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
     private JSONObject getJSONRequestCivilIDParam() {
         Map<String, Object> params = new HashMap<>();
         params.put("civilId", mMediatorCallback.getCurrentUser().getCivilId());
+        params.put("data", "");
+        params.put("source", "");
         return new JSONObject(params);
     }
 
@@ -636,7 +655,10 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
         tvNameInfo.setText(fullName);
         tvMobile.setText(String.valueOf(apiDemographicItem.getMobile()));
         tvGender.setText(apiDemographicItem.getGender());
-        tvNationality.setText(apiDemographicItem.getNationality());
+        if (getStoredLanguage().equals(LANGUAGE_ARABIC))
+            tvNationality.setText(apiDemographicItem.getNationalityNls());
+        else
+            tvNationality.setText(apiDemographicItem.getNationality());
         tvUserAddress.setText(apiDemographicItem.getBirthDown());
         switch (apiDemographicItem.getGender()) {
             case "Male":
@@ -712,8 +734,16 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
     private void setupDependentsData(final ArrayList<ApiHomeHolder.ApiDependents> apiDependents) {
         if (apiDependents != null && apiDependents.size() != 0) {
             if (apiDependents.get(0) != null) {
+
                 if (isArabic) {
-                    tvFirstDependent.setText(apiDependents.get(0).getDependentNameNls() + "\n" + apiDependents.get(0).getRelationType() + " | " + apiDependents.get(0).getDependentCivilId());
+                    String relationType;
+                    if (apiDependents.get(0).getRelationType().trim().equalsIgnoreCase("son"))
+                        relationType = "ابن";
+                    else if (apiDependents.get(0).getRelationType().trim().equalsIgnoreCase("daughter"))
+                        relationType = "ابنة";
+                    else
+                        relationType = apiDependents.get(0).getRelationType();
+                    tvFirstDependent.setText(apiDependents.get(0).getDependentNameNls() + "\n" + relationType + " | " + apiDependents.get(0).getDependentCivilId());
                 } else {
                     tvFirstDependent.setText(apiDependents.get(0).getDependentName() + "\n" + apiDependents.get(0).getRelationType() + " | " + apiDependents.get(0).getDependentCivilId());
                 }
@@ -721,7 +751,14 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
 
             if (apiDependents.size() > 1) {
                 if (isArabic) {
-                    tvSecondDependent.setText(apiDependents.get(1).getDependentNameNls() + "\n" + apiDependents.get(1).getRelationType() + " | " + apiDependents.get(1).getDependentCivilId());
+                    String relationType;
+                    if (apiDependents.get(1).getRelationType().trim().equalsIgnoreCase("son"))
+                        relationType = "ابن";
+                    else if (apiDependents.get(1).getRelationType().trim().equalsIgnoreCase("daughter"))
+                        relationType = "ابنة";
+                    else
+                        relationType = apiDependents.get(1).getRelationType();
+                    tvSecondDependent.setText(apiDependents.get(1).getDependentNameNls() + "\n" + relationType + " | " + apiDependents.get(1).getDependentCivilId());
                 } else {
                     tvSecondDependent.setText(apiDependents.get(1).getDependentName() + "\n" + apiDependents.get(1).getRelationType() + " | " + apiDependents.get(1).getDependentCivilId());
                 }
@@ -780,13 +817,11 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
         rvGrid.setAdapter(mAdapter);
     }
 
-    private void displayAlert(String msg) {
+    private void displayAlert() {
         menuListScrollView.setVisibility(View.GONE);
         rvGrid.setVisibility(View.GONE);
         personInfo.setVisibility(View.GONE);
-        String title = mContext.getResources().getString(R.string.alert_error_title);
-        String body = mContext.getResources().getString(R.string.alert_no_connection_body_1) + "\n" + mContext.getResources().getString(R.string.alert_connection_body2);
-        GlobalMethodsKotlin.Companion.showAlertDialog(mContext, title, body, mContext.getResources().getString(R.string.ok), R.drawable.ic_error);
+        GlobalMethodsKotlin.Companion.showAlertDialog(mContext, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
     }
 
     @Override
@@ -1022,7 +1057,8 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
 
     @Override
     public void onDestroy() {
-        viewFlipper.removeOnLayoutChangeListener(onLayoutChangeListener_viewFlipper);
+        if (viewFlipper != null && onLayoutChangeListener_viewFlipper != null)
+            viewFlipper.removeOnLayoutChangeListener(onLayoutChangeListener_viewFlipper);
         super.onDestroy();
     }
 
@@ -1030,6 +1066,7 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
         SharedPreferences sharedPref = mContext.getSharedPreferences(LANGUAGE_PREFS, Context.MODE_PRIVATE);
         return sharedPref.getString(LANGUAGE_SELECTED, getDeviceLanguage());
     }
+
     private String getDeviceLanguage() {
         return Locale.getDefault().getLanguage();
     }
@@ -1074,7 +1111,7 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
                 SharedPreferences sharedPref = mContext.getSharedPreferences("CHAT-BODY", Context.MODE_PRIVATE);
                 String messageSender = sharedPref.getString("MESSAGE-SENDER", null);
                 for (int i = 0; i < responseHolder.getmResult().getmHome().getmChatMessages().size(); i++) {
-                    if (messageSender != null && responseHolder.getmResult().getmHome().getmChatMessages().get(i).getCreatedName().trim().equalsIgnoreCase(messageSender.trim()))
+                    if (messageSender != null && responseHolder.getmResult().getmHome().getmChatMessages().get(i).getCreatedBy().trim().equalsIgnoreCase(messageSender.trim()))
                         responseHolder.getmResult().getmHome().getmChatMessages().get(i).setNew(true);
                 }
                 messageChatsAdapter.notifyDataSetChanged();

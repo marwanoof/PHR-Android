@@ -86,7 +86,6 @@ public class OrganDonationFragment extends Fragment {
     private ArrayAdapter<String> spinnerArrayAdapter;
     private int mRelationCode;
     private Long mDonerID = null;
-    private boolean isAllChecked = true;
     private RadioButton radioButtonYes, radioButtonNo, radioButtonD;
     private String afterDeath = "D";
     private String pageTitle;
@@ -169,71 +168,64 @@ public class OrganDonationFragment extends Fragment {
 
         allOrgans.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isAllChecked = false)
-                    allOrgans.setChecked(false);
-                else if (isChecked) {
+                if (isChecked) {
                     kidneys.setChecked(true);
                     liver.setChecked(true);
                     heart.setChecked(true);
                     lungs.setChecked(true);
                     pancreas.setChecked(true);
                     corneas.setChecked(true);
-                } else {
-                    kidneys.setChecked(false);
-                    liver.setChecked(false);
-                    heart.setChecked(false);
-                    lungs.setChecked(false);
-                    pancreas.setChecked(false);
-                    corneas.setChecked(false);
-                }
+                } else if (checkIfAllOrgansChecked()) {
+                    allOrgans.setChecked(true);
+                } else if (!checkIfAllOrgansChecked())
+                    allOrgans.setChecked(false);
             }
         });
         kidneys.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (!isChecked) {
-                    isAllChecked = false;
-                    allOrgans.setChecked(false);
-                }
+
+                allOrgans.setChecked(checkIfAllOrgansChecked());
+                if (!isChecked)
+                    kidneys.setChecked(false);
             }
         });
         liver.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (!isChecked) {
-                    isAllChecked = false;
-                    allOrgans.setChecked(false);
-                }
+
+                allOrgans.setChecked(checkIfAllOrgansChecked());
+                if (!isChecked)
+                    liver.setChecked(false);
             }
         });
         heart.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (!isChecked) {
-                    isAllChecked = false;
-                    allOrgans.setChecked(false);
-                }
+
+                allOrgans.setChecked(checkIfAllOrgansChecked());
+                if (!isChecked)
+                    heart.setChecked(false);
             }
         });
         lungs.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (!isChecked) {
-                    isAllChecked = false;
-                    allOrgans.setChecked(false);
-                }
+
+                allOrgans.setChecked(checkIfAllOrgansChecked());
+                if (!isChecked)
+                    lungs.setChecked(false);
             }
         });
         pancreas.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (!isChecked) {
-                    isAllChecked = false;
-                    allOrgans.setChecked(false);
-                }
+
+                allOrgans.setChecked(checkIfAllOrgansChecked());
+                if (!isChecked)
+                    pancreas.setChecked(false);
             }
         });
         corneas.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (!isChecked) {
-                    isAllChecked = false;
-                    allOrgans.setChecked(false);
-                }
+                allOrgans.setChecked(checkIfAllOrgansChecked());
+                if (!isChecked)
+                    corneas.setChecked(false);
             }
         });
 
@@ -275,6 +267,8 @@ public class OrganDonationFragment extends Fragment {
                 if (radioButtonYes.isChecked()) {
                     if (mobileNo.getText().toString().isEmpty())
                         mobileNo.setError(getResources().getString(R.string.alert_empty_field));
+                    else if(mobileNo.getText().toString().trim().length()<8)
+                             mobileNo.setError(getResources().getString(R.string.invalid_phoneNo));
                     else if (email.getText().toString().isEmpty())
                         email.setError(getResources().getString(R.string.alert_empty_field));
                     else if (!isEmailValid(email.getText().toString()))
@@ -283,17 +277,23 @@ public class OrganDonationFragment extends Fragment {
                         familyMember.setError(getResources().getString(R.string.alert_empty_field));
                     else if (etMobileNoOfFamilyMember.getText().toString().isEmpty())
                         etMobileNoOfFamilyMember.setError(getResources().getString(R.string.alert_empty_field));
+                    else if (etMobileNoOfFamilyMember.getText().toString().trim().length() < 8)
+                        etMobileNoOfFamilyMember.setError(getResources().getString(R.string.invalid_phoneNo));
                     else if (mRelationCode == 0) {
                         Snackbar.make(relation, getResources().getString(R.string.select_relation_msg), Snackbar.LENGTH_SHORT)
                                 .setBackgroundTint(getResources().getColor(R.color.colorPrimary))
                                 .show();
-                    }  else
+                    } else
                         saveOrgan();
                 } else
                     saveOrgan();
             }
         });
-        getRelationMast();
+        if (mMediatorCallback.isConnected()) {
+            getRelationMast();
+        } else {
+            GlobalMethodsKotlin.Companion.showAlertDialog(mContext, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
+        }
 
         return parentView;
     }
@@ -429,8 +429,12 @@ public class OrganDonationFragment extends Fragment {
                             }
 
                             setupSelectRelationSpinner(relationMastArrayList);
-                            getOrganDonationData();
 
+                            if (mMediatorCallback.isConnected()) {
+                                getOrganDonationData();
+                            } else {
+                                GlobalMethodsKotlin.Companion.showAlertDialog(mContext, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
+                            }
                         } else
                             GlobalMethodsKotlin.Companion.showAlertErrorDialog(mContext);
                     } catch (JSONException e) {
@@ -650,5 +654,9 @@ public class OrganDonationFragment extends Fragment {
         radioButtonYes.setChecked(false);
         etMobileNoOfFamilyMember.setText("");
         relation.setSelection(0);
+    }
+
+    private boolean checkIfAllOrgansChecked() {
+        return (kidneys.isChecked() && liver.isChecked() && heart.isChecked() && lungs.isChecked() && pancreas.isChecked() && corneas.isChecked());
     }
 }

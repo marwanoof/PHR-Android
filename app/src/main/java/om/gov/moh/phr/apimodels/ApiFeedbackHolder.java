@@ -37,15 +37,15 @@ public class ApiFeedbackHolder {
         private String optionValue;
 
 
-
         @SerializedName("optionMast")
-        ArrayList<OptionsList> optionMast= new ArrayList<>();;
+        ArrayList<OptionsList> optionMast = new ArrayList<>();
+        ;
 
         public ArrayList<OptionsList> getOptionMast() {
             return optionMast;
         }
 
-        public class OptionsList{
+        public class OptionsList {
             @SerializedName("optionId")
             private int optionId;
 
@@ -57,20 +57,23 @@ public class ApiFeedbackHolder {
             }
 
             public String getOptionName() {
-                if(TextUtils.isEmpty(optionName))
+                if (optionName == null || TextUtils.isEmpty(optionName))
                     return "";
+                else
                 return optionName;
             }
 
             public String getOptionNameNls() {
-                if(TextUtils.isEmpty(optionNameNls))
+                if (optionNameNls == null || TextUtils.isEmpty(optionNameNls))
                     return "";
+                else
                 return optionNameNls;
             }
 
             @SerializedName("optionNameNls")
             private String optionNameNls;
         }
+
         private String userFeedback;
 
         public void setUserFeedback(String userFeedback) {
@@ -78,8 +81,9 @@ public class ApiFeedbackHolder {
         }
 
         public String getUserFeedback() {
-            if(TextUtils.isEmpty(userFeedback))
+            if (userFeedback == null || TextUtils.isEmpty(userFeedback))
                 return "";
+            else
             return userFeedback;
         }
 
@@ -88,11 +92,17 @@ public class ApiFeedbackHolder {
         }
 
         public String getParamValue() {
-            return paramValue;
+            if (paramValue == null || TextUtils.isEmpty(paramValue))
+                return "";
+            else
+                return paramValue;
         }
 
         public String getParamValueNls() {
-            return paramValueNls;
+            if (paramValueNls == null || TextUtils.isEmpty(paramValueNls))
+                return "";
+            else
+                return paramValueNls;
         }
 
         public String getPrevId() {
@@ -100,15 +110,24 @@ public class ApiFeedbackHolder {
         }
 
         public String getActiveYn() {
-            return activeYn;
+            if (activeYn == null || TextUtils.isEmpty(activeYn))
+                return "";
+            else
+                return activeYn;
         }
 
         public String getDataType() {
-            return dataType;
+            if (dataType == null || TextUtils.isEmpty(dataType))
+                return "";
+            else
+                return dataType;
         }
 
         public String getOptionValue() {
-            return optionValue;
+            if (optionValue == null || TextUtils.isEmpty(optionValue))
+                return "";
+            else
+                return optionValue;
         }
     }
 }

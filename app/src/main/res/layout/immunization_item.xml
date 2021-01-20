@@ -24,19 +24,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <ImageView
-                android:id="@+id/iv_MidGiven"
-                android:layout_width="@dimen/space_24"
-                android:layout_height="@dimen/space_24"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
-                android:src="@drawable/tick"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
             <TextView
                 android:id="@+id/tv_vaccineName"
                 android:layout_width="@dimen/space_0"
@@ -48,7 +35,7 @@
                 android:textDirection="locale"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toTopOf="@+id/tv_estName"
-                app:layout_constraintStart_toEndOf="@+id/iv_MidGiven"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
@@ -86,7 +73,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/appointments" />
+                app:srcCompat="@drawable/ic_reminder" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 

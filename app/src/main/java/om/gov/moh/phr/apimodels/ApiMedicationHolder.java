@@ -37,10 +37,13 @@ public class ApiMedicationHolder {
         private ArrayList<Medication> medication;
 
         public String getEncounterDate() {
-            Date date = new Date(encounterDate);
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yyyy",Locale.ENGLISH);
-            String dateResult = simpleDateFormat.format(date);
-            return dateResult;
+            if (encounterDate != 0) {
+                Date date = new Date(encounterDate);
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.ENGLISH);
+                String dateResult = simpleDateFormat.format(date);
+                return dateResult;
+            } else
+                return "--";
         }
 
         public String getEncounterDateFormat() {
@@ -59,7 +62,8 @@ public class ApiMedicationHolder {
             return medication;
         }
     }
-    public class Medication implements Serializable{
+
+    public class Medication implements Serializable {
         @SerializedName("dateWrittenFormat")
         private String dateWrittenFormat;
 
@@ -165,7 +169,10 @@ public class ApiMedicationHolder {
         }
 
         public String getMedicineName() {
-            return medicineName;
+            if (medicineName == null)
+                return "--";
+            else
+                return medicineName;
         }
 
         public String getPrescriberName() {
@@ -173,11 +180,17 @@ public class ApiMedicationHolder {
         }
 
         public String getEstName() {
-            return estName;
+            if (estName == null)
+                return "--";
+            else
+                return estName;
         }
 
         public String getStatus() {
-            return status;
+            if (status == null)
+                return "";
+            else
+                return status;
         }
 
         public String getValidityEnd() {
@@ -185,11 +198,17 @@ public class ApiMedicationHolder {
         }
 
         public String getDosage() {
-            return dosage;
+            if (dosage == null)
+                return "";
+            else
+                return dosage;
         }
 
         public String getDosageNls() {
-            return dosageNls;
+            if (dosageNls == null)
+                return dosage;
+            else
+                return dosageNls;
         }
 
         public String getAdditionalInstructions() {
@@ -205,7 +224,10 @@ public class ApiMedicationHolder {
         }
 
         public String getMedicationOrderId() {
-            return medicationOrderId;
+            if (medicationOrderId == null)
+                return "";
+            else
+                return medicationOrderId;
         }
 
         public String getEncounterId() {
@@ -252,11 +274,17 @@ public class ApiMedicationHolder {
         }
 
         public String getDoseValueUnitName() {
-            return doseValueUnitName;
+            if (doseValueUnitName == null)
+                return "";
+            else
+                return doseValueUnitName;
         }
 
         public String getUnitNameNls() {
-            return unitNameNls;
+            if (unitNameNls == null)
+                return "";
+            else
+                return unitNameNls;
         }
 
         public long getEncounterDate() {
@@ -280,10 +308,16 @@ public class ApiMedicationHolder {
         }
 
         public String getDoseDesc() {
-            return doseDesc;
+            if (doseDesc == null)
+                return "";
+            else
+                return doseDesc;
         }
 
         public String getDoseDescNls() {
+            if (doseDescNls == null)
+                return doseDesc;
+            else
             return doseDescNls;
         }
     }

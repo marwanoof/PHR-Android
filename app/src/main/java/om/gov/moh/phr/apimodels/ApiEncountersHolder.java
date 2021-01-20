@@ -79,15 +79,16 @@ public class ApiEncountersHolder {
         public Date getPeriodStartDate() {
 
             Locale locale = new Locale("ar", "sa", "arab");
-                Calendar cal = Calendar.getInstance();
-                cal.setTimeInMillis(periodStartDate);
-                Date date = cal.getTime();
-                //String date2 = DateFormat.format("dd/MM/yyyy hh:mm a", cal).toString();
-                return date;
+            Calendar cal = Calendar.getInstance();
+            cal.setTimeInMillis(periodStartDate);
+            Date date = cal.getTime();
+            //String date2 = DateFormat.format("dd/MM/yyyy hh:mm a", cal).toString();
+            return date;
 
-                //return new java.text.SimpleDateFormat("dd/MMM/yyyy").format(new java.util.Date(Long.parseLong(periodStartDate)));
+            //return new java.text.SimpleDateFormat("dd/MMM/yyyy").format(new java.util.Date(Long.parseLong(periodStartDate)));
 
         }
+
         public String getPeriodStartDateString() {
 
 
@@ -124,7 +125,7 @@ public class ApiEncountersHolder {
         }
 
         public String getEncounterDay() {
-            String day = (String) DateFormat.format("dd",   getPeriodStartDate());
+            String day = (String) DateFormat.format("dd", getPeriodStartDate());
             return day;
             /*if (TextUtils.isEmpty(getPeriodStartDate()))
                 return "";
@@ -134,7 +135,7 @@ public class ApiEncountersHolder {
         }
 
         public String getEncounterMonth() {
-            String month = (String) DateFormat.format("MMM",   getPeriodStartDate());
+            String month = (String) DateFormat.format("MMM", getPeriodStartDate());
             return month;
             /*if (TextUtils.isEmpty(getPeriodStartDate()))
                 return "";
@@ -144,7 +145,7 @@ public class ApiEncountersHolder {
         }
 
         public String getEncounterYear() {
-            String year = (String) DateFormat.format("yyyy",   getPeriodStartDate());
+            String year = (String) DateFormat.format("yyyy", getPeriodStartDate());
             return year;
             /*if (TextUtils.isEmpty(getPeriodStartDate()))
                 return "";
@@ -156,7 +157,7 @@ public class ApiEncountersHolder {
         }
 
         public String getEstShortName() {
-            if (TextUtils.isEmpty(estShortName))
+            if (estShortName == null || TextUtils.isEmpty(estShortName))
                 return "";
             else
                 return estShortName;
@@ -164,7 +165,7 @@ public class ApiEncountersHolder {
 
 
         public String getPatientClass() {
-            if (TextUtils.isEmpty(patientClass))
+            if (patientClass == null || TextUtils.isEmpty(patientClass))
                 return "";
             else
                 return patientClass;
@@ -198,6 +199,7 @@ public class ApiEncountersHolder {
 
             return one.equals(two);
         }
+
         private boolean isEqualArrayListDiag(ArrayList<DiagnosisList> one, ArrayList<DiagnosisList> two) {
 
 
@@ -215,7 +217,8 @@ public class ApiEncountersHolder {
         }
 
     }
-    public class departmentList{
+
+    public class departmentList {
         @SerializedName("value")
         private String value;
 
@@ -223,18 +226,27 @@ public class ApiEncountersHolder {
         private String valueNls;
 
         public String getValueNls() {
-            return valueNls;
+            if (valueNls == null || TextUtils.isEmpty(valueNls))
+                return value;
+            else
+                return valueNls;
         }
 
         public String getValue() {
-            return value;
+            if (value == null || TextUtils.isEmpty(value))
+                return "";
+            else
+                return value;
         }
     }
+
     public class DiagnosisList {
         @SerializedName("value")
         private String value;
 
         public String getValue() {
+            if(value==null||TextUtils.isEmpty(value))
+                return "";
             return value;
         }
     }

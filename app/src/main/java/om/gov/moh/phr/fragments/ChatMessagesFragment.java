@@ -62,6 +62,7 @@ import om.gov.moh.phr.apimodels.ApiFriendChatListHolder;
 import om.gov.moh.phr.apimodels.ApiHomeHolder;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
+import om.gov.moh.phr.models.GlobalMethodsKotlin;
 import om.gov.moh.phr.models.MyProgressDialog;
 
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
@@ -170,7 +171,11 @@ public class ChatMessagesFragment extends Fragment {
                 tvTitle.setText(apiChatMessagesObj.getCreatedName());
                 getMessagesUrl = API_URL_GET_MESSAGES_LIST + apiChatMessagesObj.getMessageId();
             }
-            getChatRoomMessages(getMessagesUrl);
+            if (mMediatorCallback.isConnected()) {
+                getChatRoomMessages(getMessagesUrl);
+            } else {
+                GlobalMethodsKotlin.Companion.showAlertDialog(mContext, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
+            }
         } else {
             if (view.getParent() != null)
                 ((ViewGroup) view.getParent()).removeView(view);
@@ -356,28 +361,30 @@ public class ChatMessagesFragment extends Fragment {
                 SharedPreferences sharedPref = mContext.getSharedPreferences("CHAT-BODY", Context.MODE_PRIVATE);
                 String messageBody = sharedPref.getString("MESSAGE-BODY", null);
                 String messageSender = sharedPref.getString("MESSAGE-SENDER", null);
-             if(messageObj!=null&&messageObj.getCreatedName().trim().equalsIgnoreCase(messageSender.trim())){
-                    DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy hh:mm", Locale.US);
-                    Calendar calobj = Calendar.getInstance();
-                    String ReminderDate = dateFormat.format(calobj.getTime());
-                    ApiFriendChatListHolder.ApiFriendListInfo e = new ApiFriendChatListHolder().new ApiFriendListInfo();
-                    e.setSubject("Subject");
-                    e.setCreatedBy(messageSender);
-                    e.setMessageBody(messageBody);
-                    e.setCreatedDate(ReminderDate);
-                    messagesArrayList.add(e);
-                   setupRecyclerView(messagesArrayList);
-                }else if(apiChatMessagesObj!=null&&apiChatMessagesObj.getCreatedName().trim().equalsIgnoreCase(messageSender.trim())){
-                    DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy hh:mm", Locale.US);
-                    Calendar calobj = Calendar.getInstance();
-                    String ReminderDate = dateFormat.format(calobj.getTime());
-                    ApiFriendChatListHolder.ApiFriendListInfo e = new ApiFriendChatListHolder().new ApiFriendListInfo();
-                    e.setSubject("Subject");
-                    e.setCreatedBy(messageSender);
-                    e.setMessageBody(messageBody);
-                    e.setCreatedDate(ReminderDate);
-                    messagesArrayList.add(e);
-                    setupRecyclerView(messagesArrayList);
+                if(messageSender!=null) {
+                    if (messageObj != null && messageObj.getCreatedBy().trim().equalsIgnoreCase(messageSender.trim())) {
+                        DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy hh:mm", Locale.US);
+                        Calendar calobj = Calendar.getInstance();
+                        String ReminderDate = dateFormat.format(calobj.getTime());
+                        ApiFriendChatListHolder.ApiFriendListInfo e = new ApiFriendChatListHolder().new ApiFriendListInfo();
+                        e.setSubject("Subject");
+                        e.setCreatedBy(messageSender);
+                        e.setMessageBody(messageBody);
+                        e.setCreatedDate(ReminderDate);
+                        messagesArrayList.add(e);
+                        setupRecyclerView(messagesArrayList);
+                    } else if (apiChatMessagesObj != null && apiChatMessagesObj.getCreatedBy().trim().equalsIgnoreCase(messageSender.trim())) {
+                        DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy hh:mm", Locale.US);
+                        Calendar calobj = Calendar.getInstance();
+                        String ReminderDate = dateFormat.format(calobj.getTime());
+                        ApiFriendChatListHolder.ApiFriendListInfo e = new ApiFriendChatListHolder().new ApiFriendListInfo();
+                        e.setSubject("Subject");
+                        e.setCreatedBy(messageSender);
+                        e.setMessageBody(messageBody);
+                        e.setCreatedDate(ReminderDate);
+                        messagesArrayList.add(e);
+                        setupRecyclerView(messagesArrayList);
+                    }
                 }
                clearChatBodySharedPrefs();
             }

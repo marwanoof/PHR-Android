@@ -14,9 +14,11 @@ import java.util.TimeZone;
 
 public class ApiVitalPivotV2 {
     @SerializedName("result")
-    private ApiVitalPivotV2.PivotV2 result ;
+    private ApiVitalPivotV2.PivotV2 result;
 
-    public ApiVitalPivotV2.PivotV2 getResult() { return result; }
+    public ApiVitalPivotV2.PivotV2 getResult() {
+        return result;
+    }
 
     @SerializedName("code")
     int code;
@@ -46,7 +48,10 @@ public class ApiVitalPivotV2 {
         }
 
         public String getVitalSign() {
-            return vitalSign;
+            if (vitalSign == null)
+                return "";
+            else
+                return vitalSign;
         }
 
         public String getRangeFrom() {
@@ -63,7 +68,7 @@ public class ApiVitalPivotV2 {
 
     }
 
-    public class VitalRecord{
+    public class VitalRecord {
         @SerializedName("patientId")
         private String patientId;
 
@@ -121,21 +126,28 @@ public class ApiVitalPivotV2 {
         }
 
         public String getVitalDate() {
-            Calendar cal = Calendar.getInstance();
-            cal.setTimeInMillis(vitalDate);
-            Date serverDate = new Date(vitalDate);
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MMM/yyyy hh:mm a",Locale.ENGLISH);
-           // String date = DateFormat.format("dd/MMM/yyyy hh:mm a", cal).toString();
-            String date = dateFormat.format(serverDate);
-            return date;
+            if (vitalDate != 0) {
+                Calendar cal = Calendar.getInstance();
+                cal.setTimeInMillis(vitalDate);
+                Date serverDate = new Date(vitalDate);
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MMM/yyyy hh:mm a", Locale.ENGLISH);
+                String date = dateFormat.format(serverDate);
+                return date;
+            } else return "";
         }
 
         public String getVitalDateFormat() {
-            return vitalDateFormat;
+            if (vitalDateFormat == null)
+                return "";
+            else
+                return vitalDateFormat;
         }
 
         public String getValue() {
-            return value;
+            if (value == null)
+                return "";
+            else
+                return value;
         }
 
         public int getHigh() {
@@ -147,10 +159,16 @@ public class ApiVitalPivotV2 {
         }
 
         public String getUnit() {
-            return unit;
+            if (unit == null)
+                return "";
+            else
+                return unit;
         }
 
         public String getUnitNls() {
+            if(unitNls==null)
+                return unit;
+            else
             return unitNls;
         }
 

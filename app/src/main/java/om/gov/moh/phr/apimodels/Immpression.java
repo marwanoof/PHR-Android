@@ -4,6 +4,9 @@ public class Immpression {
     private String noteTitle;
 
     public String getNoteTitle() {
+        if(noteTitle==null)
+            return "";
+        else
         return noteTitle;
     }
 
@@ -12,6 +15,9 @@ public class Immpression {
     }
 
     public String getNoteText() {
+        if(noteText==null)
+            return "";
+        else
         return noteText;
     }
 

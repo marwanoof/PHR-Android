@@ -25,31 +25,31 @@ public class ApiAppointmentDepartmentsHolder {
         private String deptnameNl;
 
         public String getDeptnameNl() {
-            if (TextUtils.isEmpty(deptnameNl))
-                return "";
+            if (deptnameNl == null || TextUtils.isEmpty(deptnameNl))
+                return deptName;
             else
-            return deptnameNl;
+                return deptnameNl;
         }
 
         @SerializedName("clinicDept")
         private String clinicDept;
 
         public String getDeptId() {
-            if (TextUtils.isEmpty(deptId))
+            if (deptId == null || TextUtils.isEmpty(deptId))
                 return "";
             else
                 return deptId;
         }
 
         public String getDeptName() {
-            if (TextUtils.isEmpty(deptName))
+            if (deptName == null || TextUtils.isEmpty(deptName))
                 return "";
             else
                 return deptName;
         }
 
         public String getClinicDept() {
-            if (TextUtils.isEmpty(clinicDept))
+            if (clinicDept == null || TextUtils.isEmpty(clinicDept))
                 return "";
             else
                 return clinicDept;

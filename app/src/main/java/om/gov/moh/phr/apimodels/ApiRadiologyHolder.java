@@ -13,7 +13,7 @@ public class ApiRadiologyHolder implements Serializable {
         return result;
     }
 
-    public class Radiology implements Serializable{
+    public class Radiology implements Serializable {
         @SerializedName("orderId")
         private String orderId;
 
@@ -85,7 +85,10 @@ public class ApiRadiologyHolder implements Serializable {
         }
 
         public String getProcName() {
-            return procName;
+            if (procName == null)
+                return "--";
+            else
+                return procName;
         }
 
         public String getSide() {
@@ -101,7 +104,10 @@ public class ApiRadiologyHolder implements Serializable {
         }
 
         public String getEstName() {
-            return estName;
+            if (estName == null)
+                return "--";
+            else
+                return estName;
         }
 
         public long getReportDoneDate() {
@@ -109,7 +115,10 @@ public class ApiRadiologyHolder implements Serializable {
         }
 
         public String getStatus() {
-            return status;
+            if (status == null)
+                return "--";
+            else
+                return status;
         }
 
         public String getReportLink() {
@@ -133,11 +142,17 @@ public class ApiRadiologyHolder implements Serializable {
         }
 
         public String getEstFullname() {
-            return estFullname;
+            if (estFullname == null)
+                return "";
+            else
+                return estFullname;
         }
 
         public String getEstFullnameNls() {
-            return estFullnameNls;
+            if (estFullnameNls == null)
+                return estFullname;
+            else
+                return estFullnameNls;
         }
     }
 }

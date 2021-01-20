@@ -38,10 +38,12 @@ public class ApiLabOrdersListHolder {
         private ArrayList<LabOrder> labOrders;
 
         public String getEncounterDate() {
-            Date date = new Date(encounterDate);
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yyyy",Locale.ENGLISH);
-            String dateResult = simpleDateFormat.format(date);
-            return dateResult;
+            if (encounterDate != 0) {
+                Date date = new Date(encounterDate);
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.ENGLISH);
+                return simpleDateFormat.format(date);
+            } else
+                return "--";
         }
 
         public String getEncounterDateFormat() {
@@ -53,14 +55,18 @@ public class ApiLabOrdersListHolder {
         }
 
         public String getEstFullName() {
-            return estFullName;
+            if (getEstFullName() == null)
+                return "";
+            else
+                return estFullName;
         }
 
         public ArrayList<LabOrder> getLabOrders() {
             return labOrders;
         }
     }
-    public class LabOrder implements Serializable{
+
+    public class LabOrder implements Serializable {
         @SerializedName("orderId")
         private String orderId;
 
@@ -137,11 +143,17 @@ public class ApiLabOrdersListHolder {
         }
 
         public String getProcType() {
-            return procType;
+            if (procType == null)
+                return "";
+            else
+                return procType;
         }
 
         public String getProcName() {
-            return procName;
+            if (procName == null)
+                return "";
+            else
+                return procName;
         }
 
         public String getReason() {
@@ -149,15 +161,24 @@ public class ApiLabOrdersListHolder {
         }
 
         public String getOrderedBy() {
-            return orderedBy;
+            if (orderedBy == null)
+                return "--";
+            else
+                return orderedBy;
         }
 
         public String getEstName() {
-            return estName;
+            if (estName == null)
+                return "";
+            else
+                return estName;
         }
 
         public String getStatus() {
-            return status;
+            if (status == null)
+                return "";
+            else
+                return status;
         }
 
         public String getEncounterId() {
@@ -177,7 +198,10 @@ public class ApiLabOrdersListHolder {
         }
 
         public String getEstFullname() {
-            return estFullname;
+            if (estFullname == null)
+                return "";
+            else
+                return estFullname;
         }
 
         public ArrayList<String> getSpeciman() {
@@ -197,7 +221,10 @@ public class ApiLabOrdersListHolder {
         }
 
         public String getTemplateType() {
-            return templateType;
+            if (templateType == null)
+                return "";
+            else
+                return templateType;
         }
 
         public String getPatientId() {
@@ -213,10 +240,14 @@ public class ApiLabOrdersListHolder {
         }
 
         public String getEstFullnameNls() {
-            return estFullnameNls;
+            if (estFullnameNls == null)
+                return estFullname;
+            else
+                return estFullnameNls;
         }
     }
-    private class SpecimanValue implements Serializable{
+
+    private class SpecimanValue implements Serializable {
         @SerializedName("value")
         private String value;
 
@@ -224,11 +255,17 @@ public class ApiLabOrdersListHolder {
         private String valueNls;
 
         public String getValue() {
-            return value;
+            if (value == null)
+                return "";
+            else
+                return value;
         }
 
         public String getValueNls() {
-            return valueNls;
+            if (valueNls == null)
+                return value;
+            else
+                return valueNls;
         }
     }
 

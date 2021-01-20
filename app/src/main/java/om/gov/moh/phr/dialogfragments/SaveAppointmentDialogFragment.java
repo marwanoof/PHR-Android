@@ -37,6 +37,8 @@ import om.gov.moh.phr.interfaces.DialogFragmentInterface;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.models.MyProgressDialog;
 
+import static om.gov.moh.phr.models.MyConstants.API_ANDROID_APP_CODE;
+import static om.gov.moh.phr.models.MyConstants.API_ANDROID_FLAG;
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
 import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
@@ -161,9 +163,8 @@ public class SaveAppointmentDialogFragment extends DialogFragment {
 
     private void saveAppointment(String remarks) {
 
-
-        String fullUrl = API_NEHR_URL + "appointment/save?estCode=" + mEstCode + "&runId=" + mRunId + "&patientId=" + mPatientId + "&clinicId=530&remarks=" + remarks;
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, fullUrl, null
+        String fullUrl = API_NEHR_URL + "/appointment/v2/save";
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, fullUrl, getJSONRequestParam(remarks)
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -179,7 +180,7 @@ public class SaveAppointmentDialogFragment extends DialogFragment {
                         mDialogListener.onDecline();
                     }
                 } catch (JSONException e) {
-                e.printStackTrace();
+                    e.printStackTrace();
                 }
 
                 mProgressDialog.dismissDialog();
@@ -208,6 +209,17 @@ public class SaveAppointmentDialogFragment extends DialogFragment {
         jsonObjectRequest.setRetryPolicy(policy);
 
         mQueue.add(jsonObjectRequest);
+    }
+
+    private JSONObject getJSONRequestParam(String remarks) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("estCode", mEstCode);
+        params.put("runId", mRunId);
+        params.put("patientId", mPatientId);
+        params.put("clinicId", mClinicId);
+        params.put("remarks", remarks);
+        Log.d("saveAppointmentResp", params.toString());
+        return new JSONObject(params);
     }
 
     public void setDialogFragmentListener(DialogFragmentInterface listener) {

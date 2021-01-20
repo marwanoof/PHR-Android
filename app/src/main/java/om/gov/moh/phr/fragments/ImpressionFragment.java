@@ -49,6 +49,7 @@ import om.gov.moh.phr.apimodels.Immpression;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
 import om.gov.moh.phr.models.GlobalMethods;
+import om.gov.moh.phr.models.GlobalMethodsKotlin;
 import om.gov.moh.phr.models.MyProgressDialog;
 
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
@@ -141,12 +142,20 @@ public class ImpressionFragment extends Fragment implements SwipeRefreshLayout.O
                 tvPatientClass.setText(encounterInfo.getPatientClass());
             }
             String url = API_URL_GET_IMMPRESSION_INFO + encounterInfo.getEncounterId() + "?source=PHR";
-            getImmpressionNotes(url);
+            if (mMediatorCallback.isConnected()) {
+                getImmpressionNotes(url);
+            } else {
+                GlobalMethodsKotlin.Companion.showAlertDialog(mContext, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
+            }
         } else if (docInfo != null) {
             tvPatientClass.setText(docInfo.getPatientClass());
             tvEstName.setText(docInfo.getEstName());
             String url = API_URL_GET_IMMPRESSION_INFO + docInfo.getEncounterId() + "?source=PHR";
-            getImmpressionNotes(url);
+            if (mMediatorCallback.isConnected()) {
+                getImmpressionNotes(url);
+            } else {
+                GlobalMethodsKotlin.Companion.showAlertDialog(mContext, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
+            }
         } /*else {
             tvPatientClass.setText(procedureInfo.getProcedures().get(0).);
             tvEstName.setText(procedureInfo.getEstName());

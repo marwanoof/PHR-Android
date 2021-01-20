@@ -22,6 +22,9 @@ public class ApiUploadsDocsHolder {
         @SerializedName("docTypeName")
         private String docTypeName;
 
+        @SerializedName("docTypeNameNls")
+        private String docTypeNameNls;
+
         @SerializedName("source")
         private String source;
 
@@ -40,22 +43,25 @@ public class ApiUploadsDocsHolder {
         }
 
         public String getDocTypeName() {
-            if (TextUtils.isEmpty(docTypeName))
+            if (docTypeName == null || TextUtils.isEmpty(docTypeName))
                 return "";
             else
-            return docTypeName;
+                return docTypeName;
         }
 
         public String getSource() {
-            if (TextUtils.isEmpty(source))
+            if (source == null || TextUtils.isEmpty(source))
                 return "";
             else
-            return source;
+                return source;
         }
 
 
         public String getCreatedDate() {
-            return createdDate;
+            if (createdDate == null)
+                return "--";
+            else
+                return createdDate;
         }
 
         public String getFileName() {
@@ -66,11 +72,17 @@ public class ApiUploadsDocsHolder {
         }
 
         public String getStatus() {
-            if (TextUtils.isEmpty(status))
+            if (status == null || TextUtils.isEmpty(status))
                 return "";
             else
                 return status;
         }
 
+        public String getDocTypeNameNls() {
+            if (docTypeNameNls == null || TextUtils.isEmpty(docTypeNameNls))
+                return docTypeName;
+            else
+                return docTypeNameNls;
+        }
     }
 }

@@ -54,22 +54,25 @@ public class UploadedDocsRecyclerViewAdapter extends RecyclerView.Adapter<Upload
         if (docObj.getStatus().equals("P"))
             holder.ivDocStatus.setVisibility(View.VISIBLE);
         else holder.ivDocStatus.setVisibility(View.INVISIBLE);
-        holder.tvDocType.setText(docObj.getDocTypeName());
+        if (GlobalMethods.getStoredLanguage(context).equals(LANGUAGE_ARABIC))
+            holder.tvDocType.setText(docObj.getDocTypeNameNls());
+        else
+            holder.tvDocType.setText(docObj.getDocTypeName());
         holder.tvDocInfo.setText(docObj.getSource());
         holder.tvDocDate.setText(docObj.getCreatedDate());
 
-        if (GlobalMethods.getStoredLanguage(context).equals(LANGUAGE_ARABIC)){
+        if (GlobalMethods.getStoredLanguage(context).equals(LANGUAGE_ARABIC)) {
 
             holder.moreDetails.setImageBitmap(GlobalMethods.flipImage(context));
-        }else {
+        } else {
 
             holder.moreDetails.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_arrow_right));
         }
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-              //  row_index = position;
-              //  notifyDataSetChanged();
+                //  row_index = position;
+                //  notifyDataSetChanged();
                 mediatorInterface.changeFragmentTo(UploadedDocDetailsFragment.newInstance(docObj), docObj.getDocTypeName());
             }
         });
@@ -102,7 +105,7 @@ public class UploadedDocsRecyclerViewAdapter extends RecyclerView.Adapter<Upload
             cardView = view.findViewById(R.id.constraintLayout_documents);
             ivDocStatus = view.findViewById(R.id.iv_docStatus);
             moreDetails = view.findViewById(R.id.imgArrowDetailsSelf);
-            Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(),R.drawable.ic_arrow_right);
+            Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_arrow_right);
             moreDetails.setImageBitmap(bitmap);
 
         }

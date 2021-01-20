@@ -19,7 +19,7 @@ public class ApiProceduresNurseNoteHolder implements Serializable {
         return result;
     }
 
-    public class NurseNote implements Serializable{
+    public class NurseNote implements Serializable {
         @SerializedName("id")
         private int id;
 
@@ -44,14 +44,20 @@ public class ApiProceduresNurseNoteHolder implements Serializable {
         }
 
         public String getText() {
-            return text;
+            if (text == null)
+                return "";
+            else
+                return text;
         }
 
         public String getTime() {
-            Date date = new Date(time);
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MMM/yyyy hh:mm a",Locale.ENGLISH);
-            String dateResult = simpleDateFormat.format(date);
-            return dateResult;
+            if(time!=0) {
+                Date date = new Date(time);
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MMM/yyyy hh:mm a", Locale.ENGLISH);
+                String dateResult = simpleDateFormat.format(date);
+                return dateResult;
+            }else
+                return "--";
         }
 
         public String getProcedureId() {

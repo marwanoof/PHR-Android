@@ -25,14 +25,14 @@ public class ApiDependentsHolder {
         private String relationType;
 
         public String getDependentCivilId() {
-            if (TextUtils.isEmpty(dependentCivilId))
+            if (dependentCivilId==null||TextUtils.isEmpty(dependentCivilId))
                 return "";
             else
                 return dependentCivilId;
         }
 
         public String getDependentName() {
-            if (TextUtils.isEmpty(dependentName))
+            if (dependentName==null||TextUtils.isEmpty(dependentName))
                 return "";
             else
                 return dependentName;

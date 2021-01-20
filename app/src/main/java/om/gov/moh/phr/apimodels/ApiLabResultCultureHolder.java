@@ -19,7 +19,7 @@ public class ApiLabResultCultureHolder implements Serializable {
         return result;
     }
 
-    public class CultureResult implements Serializable{
+    public class CultureResult implements Serializable {
         @SerializedName("orderId")
         private String orderId;
 
@@ -101,10 +101,13 @@ public class ApiLabResultCultureHolder implements Serializable {
         }
 
         public String getReleasedTime() {
-            Date date = new Date(releasedTime);
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm a",Locale.ENGLISH);
-            String dateResult = simpleDateFormat.format(date);
-            return dateResult;
+            if (releasedTime != 0) {
+                Date date = new Date(releasedTime);
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.ENGLISH);
+                String dateResult = simpleDateFormat.format(date);
+                return dateResult;
+            } else
+                return "--";
         }
 
         public String getTemplateType() {
@@ -112,7 +115,10 @@ public class ApiLabResultCultureHolder implements Serializable {
         }
 
         public String getConclusion() {
-            return conclusion;
+            if (conclusion == null)
+                return "";
+            else
+                return conclusion;
         }
 
         public String getResultId() {
@@ -132,10 +138,14 @@ public class ApiLabResultCultureHolder implements Serializable {
         }
 
         public String getEstFullname() {
-            return estFullname;
+            if (estFullname == null)
+                return "";
+            else
+                return estFullname;
         }
     }
-    public class Culture implements Serializable{
+
+    public class Culture implements Serializable {
         @SerializedName("runId")
         private String runId;
 
@@ -177,7 +187,10 @@ public class ApiLabResultCultureHolder implements Serializable {
         }
 
         public String getBacteriaName() {
-            return bacteriaName;
+            if (bacteriaName == null)
+                return "";
+            else
+                return bacteriaName;
         }
 
         public String getAntibioticCode() {
@@ -189,7 +202,10 @@ public class ApiLabResultCultureHolder implements Serializable {
         }
 
         public String getResult() {
-            return result;
+            if (result == null)
+                return "";
+            else
+                return result;
         }
     }
 }

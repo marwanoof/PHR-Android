@@ -30,7 +30,7 @@ public class MyConstants {
     public static final String API_TEXTUAL_TEMPLATE = "H";
     public static final String API_CULTURE_TEMPLATE = "C";
     public static final String API_TABULAR_TEMPLATE = "D";
-    public static final String API_ANDROID_FLAG = "0";
+    public static final int API_ANDROID_FLAG = 0;
     public static final String API_ANDROID_APP_CODE = "PHRdroid";
 
     //prefs

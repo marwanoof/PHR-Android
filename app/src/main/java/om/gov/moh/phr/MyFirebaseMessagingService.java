@@ -122,8 +122,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         // Check if message contains a notification payload.
 
-        createChannelToShowNotifications(remoteMessage.getData().get("title"), remoteMessage.getData().get("body"), remoteMessage.getData().get("type"), remoteMessage.getData());
-        Log.d(TAG, "Message Notification Body: " + remoteMessage.getData().get("body"));
+        createChannelToShowNotifications(remoteMessage.getData().get("senderName"), remoteMessage.getData().get("body"), remoteMessage.getData().get("type"), remoteMessage.getData());
+        Log.d(TAG, "MessageBody: " + remoteMessage.getData().toString());
 
 
         // Also if you intend on generating your own notifications as a result of a received FCM
@@ -186,7 +186,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     //FCM
     private void createChannelToShowNotifications(String title, String desc, String type, Map<String, String> data) {
         Intent notifyIntent = new Intent(this, MainActivity.class);
-        notifyIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        notifyIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP & Intent.FLAG_ACTIVITY_NEW_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivities(this, 0,
                 new Intent[]{notifyIntent}, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -208,7 +208,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 break;
             case "3":
                 builder.setSmallIcon(R.drawable.chat);
-                sendBroadcast(new Intent(getBody(data.get("body"), data.get("createdName"))));
+                sendBroadcast(new Intent(getBody(data.get("body"), data.get("senderId"))));
                 break;
         }
         Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
@@ -296,6 +296,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString("MESSAGE-BODY", body);
         editor.putString("MESSAGE-SENDER", senderID);
+
+        Log.d("MessageBody:", sharedPref.getString("MESSAGE-BODY", null)+sharedPref.getString("MESSAGE-SENDER", null) );
         editor.apply();
         return "BODY";
     }

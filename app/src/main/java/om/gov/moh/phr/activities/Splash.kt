@@ -5,12 +5,13 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.os.Handler
+import android.view.WindowManager
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import com.wang.avi.AVLoadingIndicatorView
 import om.gov.moh.phr.R
 import om.gov.moh.phr.models.MyConstants
-import om.gov.moh.phr.models.MyConstants.LANGUAGE_ENGLISH
+import om.gov.moh.phr.models.MyConstants.*
 import java.util.*
 
 class Splash : AppCompatActivity() {
@@ -36,16 +37,20 @@ class Splash : AppCompatActivity() {
 
         indicatorView.smoothToShow()
 
-   /*     if (Locale.getDefault().displayLanguage == "English") {
-            pageBackground.setImageResource(R.drawable.splash_en)
-        } else {
-            pageBackground.setImageResource(R.drawable.splash_ar)
-        }*/
+        /*     if (Locale.getDefault().displayLanguage == "English") {
+                 pageBackground.setImageResource(R.drawable.splash_en)
+             } else {
+                 pageBackground.setImageResource(R.drawable.splash_ar)
+             }*/
         if (getStoredLanguage().equals(LANGUAGE_ENGLISH))
             pageBackground.setImageResource(R.drawable.splash_en)
         else
             pageBackground.setImageResource(R.drawable.splash_ar)
-        val intent = Intent(this, MainActivity::class.java)
+        val intent: Intent
+        if (getSharedPreferences(PREFS_API_GET_TOKEN, Context.MODE_PRIVATE).contains(API_GET_TOKEN_ACCESS_TOKEN))
+            intent = Intent(this, MainActivity::class.java)
+        else
+            intent = Intent(this, DisclaimerActivity::class.java)
         val handler = Handler()
         handler.postDelayed({
             finish()

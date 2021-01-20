@@ -50,6 +50,7 @@ import om.gov.moh.phr.interfaces.AppointmentsListInterface;
 import om.gov.moh.phr.interfaces.DialogFragmentInterface;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
+import om.gov.moh.phr.models.GlobalMethodsKotlin;
 import om.gov.moh.phr.models.MyProgressDialog;
 
 import static om.gov.moh.phr.models.MyConstants.ACTION_CANCEL;
@@ -177,6 +178,8 @@ public class AppointmentsListFragment extends Fragment implements AdapterToFragm
         setupRefferalsRecyclerView(rvRefferalls);
         if (mMediatorCallback.isConnected()) {
             getAppointmentsList();
+        } else {
+            GlobalMethodsKotlin.Companion.showAlertDialog(mContext, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
         }
         return parentView;
     }
@@ -217,9 +220,9 @@ public class AppointmentsListFragment extends Fragment implements AdapterToFragm
         mProgressDialog.showDialog();
 // showing refresh animation before making http call
         swipeRefreshLayout.setRefreshing(true);
-        String fullUrl = API_NEHR_URL + "demographics/appointmentReferral/" + mMediatorCallback.getCurrentUser().getCivilId();
+        String fullUrl = API_NEHR_URL + "demographics/v2/appointmentReferral";
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, fullUrl, null
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, fullUrl, getJSONRequestParams()
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -228,12 +231,20 @@ public class AppointmentsListFragment extends Fragment implements AdapterToFragm
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
                             Gson gson = new Gson();
                             ApiAppointmentsListHolder responseHolder = gson.fromJson(response.toString(), ApiAppointmentsListHolder.class);
-                            updateRecyclerView(responseHolder.getResult().getAppointmentsArrayList());
-                            updateRefferalsRecyclerView(responseHolder.getResult().getReferralsArrayList());
-                            if (responseHolder.getResult().getAppointmentsArrayList().size() == 0)
-                                tvNoAppointmentAlert.setVisibility(View.VISIBLE);
-                            if (responseHolder.getResult().getReferralsArrayList().size() == 0)
-                                tvNoRefferals.setVisibility(View.VISIBLE);
+                            if (responseHolder.getResult() != null) {
+                                if (responseHolder.getResult().getAppointmentsArrayList() != null) {
+                                    updateRecyclerView(responseHolder.getResult().getAppointmentsArrayList());
+                                    if (responseHolder.getResult().getAppointmentsArrayList().size() == 0)
+                                        tvNoAppointmentAlert.setVisibility(View.VISIBLE);
+                                }else
+                                    tvNoAppointmentAlert.setVisibility(View.VISIBLE);
+                                if (responseHolder.getResult().getReferralsArrayList() != null) {
+                                    updateRefferalsRecyclerView(responseHolder.getResult().getReferralsArrayList());
+                                    if (responseHolder.getResult().getReferralsArrayList().size() == 0)
+                                        tvNoRefferals.setVisibility(View.VISIBLE);
+                                }else
+                                    tvNoRefferals.setVisibility(View.VISIBLE);
+                            }
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -270,6 +281,15 @@ public class AppointmentsListFragment extends Fragment implements AdapterToFragm
         mQueue.add(jsonObjectRequest);
     }
 
+    private JSONObject getJSONRequestParams() {
+        Map<String, String> params = new HashMap<>();
+        params.put("source", "");
+        params.put("data", "");
+        params.put("civilId", mMediatorCallback.getCurrentUser().getCivilId());
+        return new JSONObject(params);
+
+    }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -284,18 +304,18 @@ public class AppointmentsListFragment extends Fragment implements AdapterToFragm
             if ("REFFERAL".equals(dataTitle))
                 mMediatorCallback.changeFragmentTo(RefferalsDetailsFragment.newInstance(referrals), RefferalsDetailsFragment.class.getSimpleName());
      } else {*/
-            ApiAppointmentsListHolder.Appointments appointment = (ApiAppointmentsListHolder.Appointments) dataToPass;
-            switch (dataTitle) {
-                case ACTION_RESCHEDULE: {
-                    showRescheduleAppointmentFragment(appointment);
-                }
-                break;
-                case ACTION_CANCEL: {
-                    showCancelDialogFragment(appointment, position);
-                }
-                break;
+        ApiAppointmentsListHolder.Appointments appointment = (ApiAppointmentsListHolder.Appointments) dataToPass;
+        switch (dataTitle) {
+            case ACTION_RESCHEDULE: {
+                showRescheduleAppointmentFragment(appointment);
             }
-      //  }
+            break;
+            case ACTION_CANCEL: {
+                showCancelDialogFragment(appointment, position);
+            }
+            break;
+        }
+        //  }
 
 
     }

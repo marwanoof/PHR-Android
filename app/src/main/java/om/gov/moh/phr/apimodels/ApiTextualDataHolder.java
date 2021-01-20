@@ -94,6 +94,9 @@ public class ApiTextualDataHolder implements Serializable{
         }
 
         public String getStatus() {
+            if(status==null)
+                return "";
+            else
             return status;
         }
 
@@ -102,10 +105,12 @@ public class ApiTextualDataHolder implements Serializable{
         }
 
         public String getReleasedTime() {
-            Date date = new Date(releasedTime);
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm a",Locale.ENGLISH);
-            String dateResult = simpleDateFormat.format(date);
-            return dateResult;
+            if(releasedTime!=0) {
+                Date date = new Date(releasedTime);
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.ENGLISH);
+                String dateResult = simpleDateFormat.format(date);
+                return dateResult;
+            }else return "--";
         }
 
         public String getTemplateType() {
@@ -113,6 +118,9 @@ public class ApiTextualDataHolder implements Serializable{
         }
 
         public String getConclusion() {
+            if(conclusion==null)
+                return "";
+            else
             return conclusion;
         }
 
@@ -125,6 +133,9 @@ public class ApiTextualDataHolder implements Serializable{
         }
 
         public String getReleasedBy() {
+            if(releasedBy==null)
+                return "--";
+            else
             return releasedBy;
         }
 
@@ -133,6 +144,9 @@ public class ApiTextualDataHolder implements Serializable{
         }
 
         public String getEstFullname() {
+            if(estFullname==null)
+                return "";
+            else
             return estFullname;
         }
     }

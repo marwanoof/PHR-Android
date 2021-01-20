@@ -52,6 +52,7 @@ import om.gov.moh.phr.adapters.ChatRecyclerViewAdapter;
 import om.gov.moh.phr.apimodels.ApiFriendChatListHolder;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
+import om.gov.moh.phr.models.GlobalMethodsKotlin;
 import om.gov.moh.phr.models.MyProgressDialog;
 
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
@@ -131,7 +132,11 @@ public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefre
             noRecordCardView = view.findViewById(R.id.cardViewNoRecords);
             tvAlert = view.findViewById(R.id.tv_alert);
             String url = API_URL_FRIEND_LIST + mMediatorCallback.getCurrentUser().getCivilId();
-            getChatFriendList(url);
+            if (mMediatorCallback.isConnected()) {
+                getChatFriendList(url);
+            } else {
+                GlobalMethodsKotlin.Companion.showAlertDialog(mContext, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
+            }
             swipeRefreshLayout.setOnRefreshListener(this);
             swipeRefreshLayout.post(new Runnable() {
                                         @Override
@@ -150,7 +155,7 @@ public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefre
             if (messageSender != null) {
                 if (responseHolder != null) {
                     for (int i = 0; i < responseHolder.getmResult().size(); i++) {
-                        if (responseHolder.getmResult().get(i).getCreatedName().trim().equalsIgnoreCase(messageSender.trim()))
+                        if (responseHolder.getmResult().get(i).getCreatedBy().trim().equalsIgnoreCase(messageSender.trim()))
                             responseHolder.getmResult().get(i).setNew(true);
                     }
                 }
@@ -168,6 +173,7 @@ public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
+                Log.d("ChatList", response.toString());
                 if (mContext != null && isAdded()) {
                     try {
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
@@ -263,7 +269,7 @@ public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                 SharedPreferences sharedPref = mContext.getSharedPreferences("CHAT-BODY", Context.MODE_PRIVATE);
                 String messageSender = sharedPref.getString("MESSAGE-SENDER", null);
                 for (int i = 0; i < responseHolder.getmResult().size(); i++) {
-                    if (responseHolder.getmResult().get(i).getCreatedName().trim().equalsIgnoreCase(messageSender.trim()))
+                    if (responseHolder.getmResult().get(i).getCreatedBy().trim().equalsIgnoreCase(messageSender.trim()))
                         responseHolder.getmResult().get(i).setNew(true);
                 }
                 mAdapter.notifyDataSetChanged();

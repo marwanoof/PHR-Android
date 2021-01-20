@@ -52,6 +52,7 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="5dp"
                 android:text="TextView"
+                android:textAlignment="viewStart"
                 android:textColor="#000000"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toTopOf="@+id/tv_lab_desc"

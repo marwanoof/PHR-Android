@@ -26,6 +26,9 @@ public class ApiOtherDocsHolder {
         @SerializedName("estFullname")
         private String estFullname;
 
+        @SerializedName("estFullNameNls")
+        private String estFullnameNls;
+
         public String getLocationName() {
             return locationName;
         }
@@ -55,29 +58,42 @@ public class ApiOtherDocsHolder {
         private String type;
 
         public String getDocumentRefId() {
-            return documentRefId;
+            if (documentRefId == null)
+                return "";
+            else
+                return documentRefId;
         }
 
         public String getTypeD() {
-            if (TextUtils.isEmpty(typeD))
+            if (typeD == null || TextUtils.isEmpty(typeD))
                 return "";
             else
                 return typeD;
         }
 
         public String getEstName() {
-            if (TextUtils.isEmpty(estName))
+            if (estName == null || TextUtils.isEmpty(estName))
                 return "";
             else
                 return estName;
         }
 
+        public String getEstFullnameNls() {
+            if (estFullnameNls == null)
+                return estFullname;
+            else
+                return estFullnameNls;
+        }
+
         public String getTitle() {
-            return title;
+            if (title == null)
+                return "";
+            else
+                return title;
         }
 
         public String getEstFullname() {
-            if (TextUtils.isEmpty(estFullname))
+            if (estFullname==null||TextUtils.isEmpty(estFullname))
                 return "";
             else
                 return estFullname;
@@ -99,21 +115,21 @@ public class ApiOtherDocsHolder {
         }
 
         public String getEncounterId() {
-            if (TextUtils.isEmpty(encounterId) || encounterId == null)
+            if (encounterId == null||TextUtils.isEmpty(encounterId))
                 return "";
             else
                 return encounterId;
         }
 
         public String getPatientClass() {
-            if (TextUtils.isEmpty(patientClass) || patientClass == null)
+            if (patientClass == null||TextUtils.isEmpty(patientClass))
                 return "";
             else
                 return patientClass;
         }
 
         public String getType() {
-            if (TextUtils.isEmpty(type) || type == null)
+            if (type == null||TextUtils.isEmpty(type))
                 return "--";
             else
                 return type;

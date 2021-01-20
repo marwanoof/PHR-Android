@@ -60,9 +60,14 @@ public class RefferalsListRecyclerViewAdapter extends
     public void onBindViewHolder(@NonNull final MyViewHolder holder, int position) {
         if (isFromAppointment) {
             final ApiAppointmentsListHolder.Referrals result = mItemsArrayList.get(position);
-            Date date = new Date(result.getSendDate());
-            SimpleDateFormat df2 = new SimpleDateFormat("dd-MMM-yyyy", Locale.ENGLISH);
-            String releasedTime = df2.format(date);
+            String releasedTime;
+            if(result.getSendDate()!=0){
+                Date date = new Date(result.getSendDate());
+                SimpleDateFormat df2 = new SimpleDateFormat("dd-MMM-yyyy", Locale.ENGLISH);
+                 releasedTime = df2.format(date);
+            }else
+                releasedTime = "--";
+
             String title = releasedTime + " | " + result.getRefInstitute() /*+ ", " + result.getDescription()*/;
             holder.tvTitle.setText(title);
             if (GlobalMethods.getStoredLanguage(mContext).equals(LANGUAGE_ARABIC))

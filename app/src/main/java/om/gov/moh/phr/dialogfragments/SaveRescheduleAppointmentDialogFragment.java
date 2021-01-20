@@ -156,9 +156,8 @@ public class SaveRescheduleAppointmentDialogFragment extends DialogFragment {
 
     private void saveAppointment(String remarks) {
 
-
-        String fullUrl = API_NEHR_URL+"appointment/saveReschedule?estCode="+mEstCode+"&reservationId=" + mReservationId + "&runId=" + mRunId + "&patientId=" + mPatientId + "&remarks=" + remarks;
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, fullUrl, null
+String fullUrl = API_NEHR_URL + "appointment/v2/saveReschedule";
+       JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, fullUrl, getJSONRequestParam(remarks)
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -203,6 +202,16 @@ public class SaveRescheduleAppointmentDialogFragment extends DialogFragment {
         jsonObjectRequest.setRetryPolicy(policy);
 
         mQueue.add(jsonObjectRequest);
+    }
+    private JSONObject getJSONRequestParam(String remarks) {
+       Map<String, Object> params = new HashMap<>();
+        params.put("estCode", mEstCode);
+        params.put("runId", mRunId);
+        params.put("patientId", mPatientId);
+        params.put("reservationId", mReservationId);
+        params.put("remarks", remarks);
+        Log.d("saveAppointmentResp", params.toString());
+        return new JSONObject(params);
     }
 
     public void setDialogFragmentListener(DialogFragmentInterface listener) {

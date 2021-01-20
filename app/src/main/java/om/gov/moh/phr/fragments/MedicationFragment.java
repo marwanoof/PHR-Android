@@ -52,6 +52,7 @@ import om.gov.moh.phr.apimodels.ApiOtherDocsHolder;
 import om.gov.moh.phr.apimodels.ApiProceduresReportsHolder;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
+import om.gov.moh.phr.models.GlobalMethodsKotlin;
 import om.gov.moh.phr.models.MyProgressDialog;
 
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
@@ -77,7 +78,7 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
     private ToolbarControllerInterface mToolbarControllerCallback;
     private RecyclerView rvMedicationList;
     private TextView tvAlert;
-    private MedicationRecyclerViewAdapter mAdapter = new MedicationRecyclerViewAdapter();
+    private MedicationRecyclerViewAdapter mAdapter;
     private boolean isRecent = false;
     private String medicationType;
     private ApiEncountersHolder.Encounter encounterInfo;
@@ -93,14 +94,15 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
         // Required empty public constructor
     }
 
-    public static MedicationFragment newInstance(String param1,String title) {
+    public static MedicationFragment newInstance(String param1, String title) {
         MedicationFragment fragment = new MedicationFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM5,title);
+        args.putString(ARG_PARAM5, title);
         fragment.setArguments(args);
         return fragment;
     }
+
     public static MedicationFragment newInstance(ApiOtherDocsHolder.ApiDocInfo docInfo) {
         MedicationFragment fragment = new MedicationFragment();
         Bundle args = new Bundle();
@@ -108,6 +110,7 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
         fragment.setArguments(args);
         return fragment;
     }
+
     public static MedicationFragment newInstance(ApiEncountersHolder.Encounter encounterObj) {
         MedicationFragment fragment = new MedicationFragment();
         Bundle args = new Bundle();
@@ -115,6 +118,7 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
         fragment.setArguments(args);
         return fragment;
     }
+
     public static MedicationFragment newInstance(ApiProceduresReportsHolder.ProceduresByEncounter procedureObj) {
         MedicationFragment fragment = new MedicationFragment();
         Bundle args = new Bundle();
@@ -157,8 +161,8 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_medication, container, false);
 
-       // TextView tvTitle = view.findViewById(R.id.tv_Title);
-       // tvTitle.setText(pageTitle);
+        // TextView tvTitle = view.findViewById(R.id.tv_Title);
+        // tvTitle.setText(pageTitle);
 
         mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
         mProgressDialog = new MyProgressDialog(mContext);
@@ -175,28 +179,28 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
         if (medicationType != null) {
 
         } else {
-           // tvTitle.setVisibility(View.GONE);
+            // tvTitle.setVisibility(View.GONE);
             searchView.setVisibility(View.GONE);
         }
         if (mMediatorCallback.isConnected()) {
             if (medicationType != null) {
                 if (isRecent) {
                     //String recentMedicationUrl = API_URL_GET_MEDICATIONS_INFO + mMediatorCallback.getCurrentUser().getCivilId() + "?data=recent";
-                    getMedicationList(API_URL_GET_MEDICATIONS_INFO,"recent","","");
+                    getMedicationList(API_URL_GET_MEDICATIONS_INFO, "recent", "", "");
                 } else {
                     //String allMedicationUrl = API_URL_GET_MEDICATIONS_INFO + mMediatorCallback.getCurrentUser().getCivilId();
-                    getMedicationList(API_URL_GET_MEDICATIONS_INFO,"all","","");
+                    getMedicationList(API_URL_GET_MEDICATIONS_INFO, "all", "", "");
                 }
 
-           }  else if(encounterInfo!=null){
+            } else if (encounterInfo != null) {
                 //String medHRDurl = API_URL_GET_MED_HRD_INFO + encounterInfo.getEncounterId();
-                getMedicationList(API_URL_GET_MEDICATIONS_INFO,"","",encounterInfo.getEncounterId());
-            }else if(docInfo!=null){
+                getMedicationList(API_URL_GET_MEDICATIONS_INFO, "", "", encounterInfo.getEncounterId());
+            } else if (docInfo != null) {
                 //String docUrl = API_URL_GET_MED_HRD_INFO + docInfo.getEncounterId();
-                getMedicationList(API_URL_GET_MEDICATIONS_INFO,"","",docInfo.getEncounterId());
-            }else {
-               // String procedureUrl = API_URL_GET_MED_HRD_INFO + procedureObj.getEncounterId();
-                getMedicationList(API_URL_GET_MEDICATIONS_INFO,"","",procedureObj.getEncounterId());
+                getMedicationList(API_URL_GET_MEDICATIONS_INFO, "", "", docInfo.getEncounterId());
+            } else {
+                // String procedureUrl = API_URL_GET_MED_HRD_INFO + procedureObj.getEncounterId();
+                getMedicationList(API_URL_GET_MEDICATIONS_INFO, "", "", procedureObj.getEncounterId());
             }
 
             //swipeRefreshLayout.setOnRefreshListener(this);
@@ -230,6 +234,7 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
 
         } else {
             displayAlert(getString(R.string.alert_no_connection));
+            GlobalMethodsKotlin.Companion.showAlertDialog(mContext, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
         }
         return view;
     }
@@ -247,12 +252,12 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
     private void getMedicationList(String url, final String data, String source, final String encounterId) {
         mProgressDialog.showDialog();
         //swipeRefreshLayout.setRefreshing(true);
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, getJSONRequestParams(mMediatorCallback.getCurrentUser().getCivilId(),data,source)
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, getJSONRequestParams(mMediatorCallback.getCurrentUser().getCivilId(), data, source)
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 Log.d("MedicationResp", response.toString());
-                if (mContext != null&&isAdded()) {
+                if (mContext != null && isAdded()) {
                     try {
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
 
@@ -260,18 +265,18 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
                             ApiMedicationHolder responseHolder = gson.fromJson(response.toString(), ApiMedicationHolder.class);
                             medicationInfoArrayList = responseHolder.getmResult();
                             ArrayList<ApiMedicationHolder.ApiMedicationInfo> filteredMedicationInfo = new ArrayList<>();
-                            if (!encounterId.isEmpty()){
-                                for (ApiMedicationHolder.ApiMedicationInfo medicationInfo:medicationInfoArrayList){
-                                    if (medicationInfo.getEncounterId().equals(encounterId)){
+                            if (!encounterId.isEmpty()) {
+                                for (ApiMedicationHolder.ApiMedicationInfo medicationInfo : medicationInfoArrayList) {
+                                    if (medicationInfo.getEncounterId().equals(encounterId)) {
                                         filteredMedicationInfo.add(medicationInfo);
                                     }
                                 }
                                 if (filteredMedicationInfo.size() > 0)
-                                    setupRecyclerView(filteredMedicationInfo,false);
+                                    setupRecyclerView(filteredMedicationInfo, false);
                                 else
                                     displayAlert(getResources().getString(R.string.no_records_med_encounter));
-                            }else {
-                                setupRecyclerView(medicationInfoArrayList,true);
+                            } else {
+                                setupRecyclerView(medicationInfoArrayList, true);
                             }
 
 
@@ -287,7 +292,7 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
                     }
 
                     mProgressDialog.dismissDialog();
-                   // swipeRefreshLayout.setRefreshing(false);
+                    // swipeRefreshLayout.setRefreshing(false);
                 }
 
             }
@@ -316,6 +321,7 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
 
         mQueue.add(jsonObjectRequest);
     }
+
     private JSONObject getJSONRequestParams(String civilId, String data, String source) {
         Map<String, Object> params = new HashMap<>();
         params.put("civilId", Long.parseLong(civilId));
@@ -326,7 +332,7 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
 
     private void setupRecyclerView(ArrayList<ApiMedicationHolder.ApiMedicationInfo> getmResult, Boolean showVisitDetails) {
         mAdapter =
-                new MedicationRecyclerViewAdapter(getmResult, mContext,showVisitDetails);
+                new MedicationRecyclerViewAdapter(getmResult, mContext, showVisitDetails);
         LinearLayoutManager layoutManager
                 = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
         DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(rvMedicationList.getContext(),
@@ -337,9 +343,12 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
         rvMedicationList.setAdapter(mAdapter);
 
     }
+
     private void updateRecyclerViewItems(ArrayList<ApiMedicationHolder.ApiMedicationInfo> result) {
-        mAdapter.updateItemsListFiltered(result);
+        if (mAdapter != null && result != null)
+            mAdapter.updateItemsListFiltered(result);
     }
+
     @Override
     public void onDetach() {
         super.onDetach();
@@ -356,19 +365,16 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
 
     @Override
     public boolean onQueryTextChange(String s) {
-        if (s.length() == 0){
+        if (s.length() == 0) {
             updateRecyclerViewItems(medicationInfoArrayList);
-        }else {
+        } else {
             ArrayList<ApiMedicationHolder.ApiMedicationInfo> filteredList = new ArrayList<>();
-            for (int i = 0;i< medicationInfoArrayList.size();i++) {
-                for (int j = 0; j< medicationInfoArrayList.get(i).getMedication().size();j++){
-                    if (medicationInfoArrayList.get(i).getMedication().get(j).getMedicineName().toLowerCase().contains(s))
-                    {
+            for (int i = 0; i < medicationInfoArrayList.size(); i++) {
+                for (int j = 0; j < medicationInfoArrayList.get(i).getMedication().size(); j++) {
+                    if (medicationInfoArrayList.get(i).getMedication().get(j).getMedicineName().toLowerCase().contains(s)) {
                         filteredList.add(medicationInfoArrayList.get(i));
                     }
                 }
-
-
             }
             updateRecyclerViewItems(filteredList);
         }
@@ -380,9 +386,9 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
     public void onResume() {
         super.onResume();
 
-        if (mAdapter != null){
+       /* if (mAdapter != null){
             mAdapter.updateItemsList();
-        }
+        }*/
 
 
     }

@@ -248,12 +248,18 @@ public class MedicineItemAdapter extends RecyclerView.Adapter<MedicineItemAdapte
         int[] CalIds = new int[cursor.getCount()];
         for (int i = 0; i < CalNames.length; i++) {
             CalIds[i] = cursor.getInt(0);
-            if (cursor.getString(2).equals(medId)){
-                if (cursor.getString(1).equals(title)){
-                    return true;
+            if(medId!=null&&cursor!=null) {
+                if(cursor.getString(2)!=null){
+                if (cursor.getString(2).equals(medId)) {
+                    if(cursor.getString(1)!=null) {
+                        if (cursor.getString(1).equals(title)) {
+                            return true;
+                        }
+                    }
                 }
-               // CalNames[i] = "Event"+cursor.getInt(0)+": \nTitle: "+ cursor.getString(1)+"\nDescription: "+cursor.getString(2)+"\nStart Date: "+new Date(cursor.getLong(3))+"\nEnd Date : "+new Date(cursor.getLong(4))+"\nLocation : "+cursor.getString(5);
+                    // CalNames[i] = "Event"+cursor.getInt(0)+": \nTitle: "+ cursor.getString(1)+"\nDescription: "+cursor.getString(2)+"\nStart Date: "+new Date(cursor.getLong(3))+"\nEnd Date : "+new Date(cursor.getLong(4))+"\nLocation : "+cursor.getString(5);
 
+                }
             }
            /* if(add == null)
                 add = CalNames[i];

@@ -10,20 +10,15 @@
     <string name="title_accept">موافق</string>
     <string name="title_decline">غير موافق</string>
     <string name="title_procedures_reports">تقارير الإجراءات</string>
-    <string name="title_vital_info">التاريخ الطبي</string>
-    <string name="title_health_records">السجلات الصحية</string>
     <string name="title_lab_results">الفحوصات المخبرية</string>
-    <string name="title_medication">الأدوية</string>
     <string name="title_allergy">الحساسية</string>
     <string name="title_appointments">المواعيد</string>
-    <string name="title_immunization">التحصينات</string>
     <string name="title_notification">الإشعارات</string>
     <string name="title_logout">تسجيل الخروج</string>
-    <string name="alert_no_connection">خطأ: لا يوجد اتصال بالإنترنت.</string>
+    <string name="alert_no_connection">تأكد من اتصالك بالإنترنت وحاول مجددًا.</string>
     <string name="title_pending">قيد الإنتظار</string>
     <string name="title_select_institute">اختر مؤسسة صحية</string>
     <string name="title_institute_search">اسم المؤسسة</string>
-    <string name="title_demographic">أفراد العائلة</string>
     <string name="title_institutes">المؤسسات الصحية</string>
     <string name="title_other_document">المستندات</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
@@ -67,7 +62,6 @@
     <string name="title_media">الوسائط</string>
     <string name="alert_dont_show_again">عدم الظهور مجددًا</string>
     <string name="title_all">الكل</string>
-    <string name="title_chat">المحادثات</string>
     <string name="title_history">التاريخ الطبي</string>
     <string name="title_problem">التشخيص النهائي</string>
     <string name="no_allergy_msg">لا توجد حساسية.</string>
@@ -154,7 +148,6 @@
     <string name="about_the_app">عن التطبيق</string>
     <string name="about_app_info"> تم تطوير تطبيق عافيتي بواسطة وزارة الصحة - المديرية العامة لتقنية المعلومات.  هذه النسخة التجريبية تسمح للمستخدمين من الإطلاع على ملفاتهم الشخصية الصحية عن طريق إدخال الرقم المدني ورقم الهاتف المسجل.</string>
     <string name="ok">حسناً</string>
-    <string name="title_organ">التبرع بالأعضاء</string>
     <string name="sub_title_phr">محفظة ملفك الصحي</string>
     <string name="language">اللغة</string>
     <string name="time_to_immunization">موعد تحصين لـ</string>
@@ -194,8 +187,6 @@
     <string name="no_records_proc_all">لا توجد تقارير اجراءات خاصة بك</string>
     <string name="no_records_proc_encounter">لا توجد تقارير اجراءات خاصة بهذه الزيارة</string>
     <string name="alert_error_title">خطأ</string>
-    <string name="alert_connection_body2">الرجاء التحقق من الإتصال والمحاولة مرة أخرى</string>
-    <string name="alert_no_connection_body_1">لا يوجد اتصال بالإنترنت</string>
     <string name="no_records_imm_given">لا يوجد تحصين مُعطى لك</string>
     <string name="no_records_imm_schedule">لا يوجد تحصين مُجدول لك</string>
     <string name="wrong_msg">حدث خطأ ما يرجى المحاولة مرة أخرى</string>
@@ -208,10 +199,13 @@
     <string name="msg_no_vital">لا توجد بيانات مسجلة عن هذه العلامة الحيوية</string>
     <string name="add_new_appointment">إضافة موعد جديد</string>
     <string name="invalid_otp_msg">كلمة السر غير صحيحة !</string>
+    <string name="invalid_civilID_msg">الرقم المدني غير صحيح\ غير مسجل !</string>
     <string name="reset_otp">إعادة إرسال كلمة السر</string>
     <string name="no_chats_msg">لا توجد محادثات متوفرة.</string>
     <string name="no_institutes_records_found">بيانات المؤسسات الصحية غير متوفرة. </string>
     <string name="no_health_records_available_for_you">لا توجد سجلات صحية متوفرة لك.</string>
     <string name="no_documents_provided_by_health_institutes">لا توجد مستندات مقدمة من المؤسسات الصحية.</string>
     <string name="you_did_not_upload_any_docs_n_click_on_to_upload">لم تقم بإرفاق أي مستند. \n اضغط على <font color='#be322d'>+ </font> للإرفاق.</string>
+    <string name="no_internet_title">خطأ في الاتصال !</string>
+    <string name="change_civil_id">تغيير الرقم المدني</string>
 </resources>

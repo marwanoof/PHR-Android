@@ -9,20 +9,15 @@
     <string name="title_accept">Accept</string>
     <string name="title_decline">Decline</string>
     <string name="title_procedures_reports">Procedures Reports</string>
-    <string name="title_vital_info">Medical History</string>
-    <string name="title_health_records">Health Records</string>
     <string name="title_lab_results">Lab Investigations</string>
-    <string name="title_medication">Prescriptions</string>
     <string name="title_allergy">Allergy</string>
     <string name="title_appointments">Appointments</string>
-    <string name="title_immunization">Immunization</string>
     <string name="title_notification">Notification</string>
     <string name="title_logout">Logout</string>
-    <string name="alert_no_connection">There is no internet connection</string>
+    <string name="alert_no_connection">Check your internet connection and try again.</string>
     <string name="title_pending">Pending</string>
     <string name="title_select_institute">Select Institute</string>
     <string name="title_institute_search">Institute name</string>
-    <string name="title_demographic">Dependents</string>
     <string name="title_institutes">Institutes</string>
     <string name="title_other_document">Documents</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
@@ -66,7 +61,6 @@
     <string name="title_media">Media</string>
     <string name="alert_dont_show_again">Do not show again</string>
     <string name="title_all">All</string>
-    <string name="title_chat">Chat</string>
     <string name="title_history">Medical History</string>
     <string name="title_problem">Final Diagnosis</string>
     <string name="no_allergy_msg">No Allergy.</string>
@@ -153,7 +147,6 @@
     <string name="about_the_app">About The App</string>
     <string name="about_app_info">Afiyati App is developed by Ministry of Health - DGIT.  This BETA version of the app allows all users with a valid civil ID and registered Oman mobile number, to view their own medical record and information.</string>
     <string name="ok">OK</string>
-    <string name="title_organ">Organ Donation</string>
     <string name="sub_title_phr">Your Health Record Wallet</string>
     <string name="time_to_immunization">Date of vaccination for</string>
     <string name="location">Oman</string>
@@ -193,8 +186,6 @@
     <string name="no_records_rad">No radiology orders found for this visit</string>
     <string name="no_records_proc_all">No procedure reports are available for you</string>
     <string name="no_records_proc_encounter">No procedures report found for this visit</string>
-    <string name="alert_no_connection_body_1">There is no internet connection</string>
-    <string name="alert_connection_body2">Please check connection and try again</string>
     <string name="alert_error_title">Error</string>
     <string name="no_records_imm_given">No Immunization has been given to you</string>
     <string name="no_records_imm_schedule">There is no scheduled immunization for you</string>
@@ -207,10 +198,14 @@
     <string name="description">Description:</string>
     <string name="add_new_appointment">Add New Appointment</string>
     <string name="invalid_otp_msg">You entered invalid OTP !</string>
+    <string name="invalid_civilID_msg">You entered invalid/ unregistered Civil ID !</string>
     <string name="reset_otp">Reset OTP</string>
     <string name="no_chats_msg">No chats available.</string>
     <string name="no_institutes_records_found">No institutes records available.</string>
     <string name="no_health_records_available_for_you">No health records available for you.</string>
     <string name="no_documents_provided_by_health_institutes">No documents provided by health institutes.</string>
     <string name="you_did_not_upload_any_docs_n_click_on_to_upload">You did not upload any docs. \n Click on <font color='#be322d'>+</font>to add.</string>
+    <string name="no_internet_title">Connection Error !</string>
+    <string name="change_civil_id">Change Civil ID</string>
+
 </resources>

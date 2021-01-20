@@ -55,6 +55,7 @@ import om.gov.moh.phr.apimodels.DLabResultsHolder;
 import om.gov.moh.phr.apimodels.Notification;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
+import om.gov.moh.phr.models.GlobalMethodsKotlin;
 import om.gov.moh.phr.models.MyProgressDialog;
 
 import static om.gov.moh.phr.models.MyConstants.API_CULTURE_TEMPLATE;
@@ -219,13 +220,22 @@ public class LabResultDetailsFragment extends Fragment implements SwipeRefreshLa
                 setVisibleItems(false);
                 if (mApiOderItem.getTemplateType().equals(API_CULTURE_TEMPLATE)) {
                     String fullUrl = API_URL_GET_LAB_RESULTS_TAMPLATE_C + mApiOderItem.getOrderId() + "/" + mApiOderItem.getPatientId();
-                    setReportsDetailsForTextual(fullUrl);
+
+                    if (mMediatorCallback.isConnected()) {
+                        setReportsDetailsForTextual(fullUrl);
+                    } else {
+                        GlobalMethodsKotlin.Companion.showAlertDialog(mContext, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
+                    }
                 } else if (mApiOderItem.getTemplateType().equals(API_TEXTUAL_TEMPLATE)) {
                     String fullUrl = API_URL_GET_LAB_RESULTS_TAMPLATE_H + mApiOderItem.getOrderId();
                     rvTextualResults.setVisibility(View.VISIBLE);
                     setupTextualRecyclerView();
                     tvReport.setVisibility(View.GONE);
-                    setReportsDetailsForTextual(fullUrl);
+                    if (mMediatorCallback.isConnected()) {
+                        setReportsDetailsForTextual(fullUrl);
+                    } else {
+                        GlobalMethodsKotlin.Companion.showAlertDialog(mContext, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
+                    }
                 }
             }
         }
@@ -236,12 +246,20 @@ public class LabResultDetailsFragment extends Fragment implements SwipeRefreshLa
                 setVisibleItems(false);
                 if (notificationObj.getLabType().equals(API_CULTURE_TEMPLATE)) {
                     String fullUrl =API_NEHR_URL + "labReport/culture/" + notificationObj.getKeyId();
-                    setReportsDetailsForTextual(fullUrl);
+                    if (mMediatorCallback.isConnected()) {
+                        setReportsDetailsForTextual(fullUrl);
+                    } else {
+                        GlobalMethodsKotlin.Companion.showAlertDialog(mContext, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
+                    }
                 } else if (notificationObj.getLabType().equals(API_TEXTUAL_TEMPLATE)) {
                     String fullUrl = API_NEHR_URL + "labReport/textual/" + notificationObj.getKeyId();
                     rvTextualResults.setVisibility(View.VISIBLE);
                     tvReport.setVisibility(View.GONE);
-                    setReportsDetailsForTextual(fullUrl);
+                    if (mMediatorCallback.isConnected()) {
+                        setReportsDetailsForTextual(fullUrl);
+                    } else {
+                        GlobalMethodsKotlin.Companion.showAlertDialog(mContext, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
+                    }
                 }
             }
         }
@@ -255,7 +273,12 @@ public class LabResultDetailsFragment extends Fragment implements SwipeRefreshLa
             tvReleasedDate.setVisibility(View.VISIBLE);
             //tvReleasedDate.setBackground(null);
             setupTabualrRecyclerView();
-            setReportsDetailsForTabular();
+
+            if (mMediatorCallback.isConnected()) {
+                setReportsDetailsForTabular();
+            } else {
+                GlobalMethodsKotlin.Companion.showAlertDialog(mContext, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
+            }
         } else {
             tvConclusion.setVisibility(View.GONE);
             ll_testColumns.setVisibility(View.GONE);

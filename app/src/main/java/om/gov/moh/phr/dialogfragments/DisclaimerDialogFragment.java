@@ -4,10 +4,13 @@ package om.gov.moh.phr.dialogfragments;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Button;
@@ -19,6 +22,7 @@ import java.util.Locale;
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.interfaces.DialogFragmentInterface;
 
+import static android.content.Context.WINDOW_SERVICE;
 import static om.gov.moh.phr.models.MyConstants.LANGUAGE_ARABIC;
 import static om.gov.moh.phr.models.MyConstants.LANGUAGE_ENGLISH;
 import static om.gov.moh.phr.models.MyConstants.LANGUAGE_PREFS;
@@ -89,11 +93,11 @@ public class DisclaimerDialogFragment extends DialogFragment {
                 mDialogListener.onDecline();
             }
         });
-        setUpWebView(wvTerms);
+        setUpWebView(wvTerms, btnAccept, btnDecline);
         return parentView;
     }
 
-    private void setUpWebView(WebView wvTerms) {
+    private void setUpWebView(WebView wvTerms, Button btnAccept, Button btnDecline) {
 
         WebSettings settings = wvTerms.getSettings();
         settings.setUseWideViewPort(true);
@@ -102,19 +106,26 @@ public class DisclaimerDialogFragment extends DialogFragment {
         settings.setDefaultFontSize((int) fontSize);
 
 //        wvTerms.loadDataWithBaseURL("file:///android_asset/terms.html", "", "text/html", "UTF-8", null);
-        if (getStoredLanguage().equals(LANGUAGE_ARABIC))
+        if (getStoredLanguage().equals(LANGUAGE_ARABIC)) {
+            btnAccept.setText("موافق");
+            btnDecline.setText("غير موافق");
             wvTerms.loadUrl("file:///android_asset/terms-ar.html");
-        else
+        } else {
+            btnAccept.setText("Accept");
+            btnDecline.setText("Decline");
             wvTerms.loadUrl("file:///android_asset/terms.html");
+        }
     }
 
     public void setDialogFragmentListener(DialogFragmentInterface listener) {
         mDialogListener = listener;
     }
+
     private String getStoredLanguage() {
         SharedPreferences sharedPref = mContext.getSharedPreferences(LANGUAGE_PREFS, Context.MODE_PRIVATE);
         return sharedPref.getString(LANGUAGE_SELECTED, getDeviceLanguage());
     }
+
     private String getDeviceLanguage() {
         return Locale.getDefault().getLanguage();
     }

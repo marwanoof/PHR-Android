@@ -36,6 +36,7 @@ import om.gov.moh.phr.interfaces.AdapterToFragmentConnectorInterface;
 import om.gov.moh.phr.models.Pagination;
 
 import static om.gov.moh.phr.models.MyConstants.LANGUAGE_ARABIC;
+import static om.gov.moh.phr.models.MyConstants.LANGUAGE_ENGLISH;
 import static om.gov.moh.phr.models.MyConstants.LANGUAGE_PREFS;
 import static om.gov.moh.phr.models.MyConstants.LANGUAGE_SELECTED;
 
@@ -77,72 +78,60 @@ public class PaginationRecyclerViewAdapter extends
         final Fragment currentFragment;
         switch (result.getIconClass()) {
             case "ic_documents":
-                currentFragment =  DocsContainerFragment.newInstance(pageTitle);
+                currentFragment = DocsContainerFragment.newInstance(pageTitle);
                 holder.ibIcon.setImageResource(R.drawable.ic_documents);
-                pageTitle = mContext.getResources().getString(R.string.title_other_document);
                 break;
             case "ic_procedure":
-               currentFragment = ProceduresReportsContainerFragment.newInstance(pageTitle);
+                currentFragment = ProceduresReportsContainerFragment.newInstance(pageTitle);
                 holder.ibIcon.setImageResource(R.drawable.ic_procedure);
-                pageTitle = mContext.getResources().getString(R.string.title_procedures_reports);
                 break;
             case "ic_medical_history":
                 currentFragment = VitalInfoFragment.newInstance(pageTitle);
                 holder.ibIcon.setImageResource(R.drawable.ic_medical_history);
-                pageTitle = mContext.getResources().getString(R.string.title_vital_info);
                 break;
             case "ic_vital":
-               currentFragment = BodyMeasurementsFragment.newInstance(null,pageTitle);
+                currentFragment = BodyMeasurementsFragment.newInstance(null, pageTitle);
                 holder.ibIcon.setImageResource(R.drawable.ic_vital);
-                pageTitle = mContext.getResources().getString(R.string.title_vital_signs);
                 break;
             case "ic_demographoc":
-                currentFragment =   DemographicsFragment.newInstance(null,pageTitle);
+                currentFragment = DemographicsFragment.newInstance(null, pageTitle);
                 holder.ibIcon.setImageResource(R.drawable.ic_demographoc);
-                pageTitle = mContext.getResources().getString(R.string.title_demographic);
                 break;
             case "ic_health_records":
                 currentFragment = HealthRecordListFragment.newInstance(pageTitle);
                 holder.ibIcon.setImageResource(R.drawable.ic_health_records);
-                pageTitle = mContext.getResources().getString(R.string.title_health_records);
                 break;
             case "ic_medication":
                 currentFragment = MedicationContainerFragment.newInstance(pageTitle);
                 holder.ibIcon.setImageResource(R.drawable.ic_medication);
-                pageTitle = mContext.getResources().getString(R.string.title_medication);
                 break;
             case "ic_organ":
                 currentFragment = OrganDonationFragment.newInstance(pageTitle);
                 holder.ibIcon.setImageResource(R.drawable.ic_organ);
-                pageTitle = mContext.getResources().getString(R.string.title_organ);
                 break;
             case "ic_appointment":
-                currentFragment =  AppointmentsListFragment.newInstance(null);
+                currentFragment = AppointmentsListFragment.newInstance(null);
                 //currentFragment =  AppointmentNewFragment.newInstance(null);
                 holder.ibIcon.setImageResource(R.drawable.ic_appointment);
-                pageTitle = mContext.getResources().getString(R.string.title_appointments);
                 break;
             case "ic_immunization":
-                currentFragment = ImmunizationContainerFragment.newInstance(pageTitle);
+                currentFragment = ImmunizationContainerFragment.newInstance();
                 holder.ibIcon.setImageResource(R.drawable.ic_immunization);
-                pageTitle = mContext.getResources().getString(R.string.title_immunization);
                 break;
             case "ic_lab":
-                currentFragment  =  LabResultsContainerFragment.newInstance(pageTitle);
+                currentFragment = LabResultsContainerFragment.newInstance(pageTitle);
                 holder.ibIcon.setImageResource(R.drawable.ic_lab);
-                pageTitle = mContext.getResources().getString(R.string.title_lab_results);
                 break;
             default:
-                currentFragment =   ChatFragment.newInstance(pageTitle);
+                currentFragment = ChatFragment.newInstance(pageTitle);
                 holder.ibIcon.setImageResource(R.drawable.ic_chat);
-                pageTitle = mContext.getResources().getString(R.string.title_chat);
                 break;
         }
         holder.tvTitle.setText(pageTitle);
         holder.ibIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                 mCallback.onMyListItemClicked(currentFragment, result.getMenuName());
+                mCallback.onMyListItemClicked(currentFragment, result.getMenuName());
             }
         });
 

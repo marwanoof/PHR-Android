@@ -45,6 +45,7 @@ import om.gov.moh.phr.apimodels.ApiProceduresReportsHolder;
 import om.gov.moh.phr.apimodels.Notification;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
+import om.gov.moh.phr.models.GlobalMethodsKotlin;
 import om.gov.moh.phr.models.MyProgressDialog;
 
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
@@ -136,7 +137,11 @@ public class OtherDocsDetailsFragment extends Fragment {
             String dateText = df2.format(date);
             tvTime.setText(dateText);
             final String fullUrl = API_DOC_INFO + mDocInfo.getDocumentRefId();
-            getReportDetails(fullUrl);
+            if (mMediatorCallback.isConnected()) {
+                getReportDetails(fullUrl);
+            } else {
+                GlobalMethodsKotlin.Companion.showAlertDialog(mContext, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
+            }
         }
 
         return view;

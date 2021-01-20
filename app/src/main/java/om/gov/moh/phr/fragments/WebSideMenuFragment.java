@@ -20,6 +20,7 @@ import android.widget.TextView;
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
+import om.gov.moh.phr.models.GlobalMethodsKotlin;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -54,7 +55,6 @@ public class WebSideMenuFragment extends Fragment {
         mContext = context;
         mMediatorCallback = (MediatorInterface) context;
         mToolbarControllerCallback = (ToolbarControllerInterface) context;
-        mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.GONE);
     }
 
     @Override
@@ -104,6 +104,7 @@ public class WebSideMenuFragment extends Fragment {
             checkSideMenuItem();
         } else {
             displayAlert(getString(R.string.alert_no_connection));
+            GlobalMethodsKotlin.Companion.showAlertDialog(mContext, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
         }
 
         return parentView;

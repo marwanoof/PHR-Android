@@ -1,5 +1,7 @@
 package om.gov.moh.phr.apimodels;
 
+import android.text.TextUtils;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
@@ -99,6 +101,9 @@ public class ApiFriendChatListHolder {
         }
 
         public String getMessageBody() {
+            if(messageBody==null||TextUtils.isEmpty(messageBody))
+                return "";
+            else
             return messageBody;
         }
 
@@ -113,7 +118,10 @@ public class ApiFriendChatListHolder {
         }
 
         public String getCreatedBy() {
-            return createdBy;
+            if (createdBy == null || TextUtils.isEmpty(createdBy))
+                return "";
+            else
+                return createdBy;
         }
 
         public int getUnreadCount() {
@@ -121,11 +129,17 @@ public class ApiFriendChatListHolder {
         }
 
         public String getCreatedName() {
-            return createdName;
+            if (createdName == null || TextUtils.isEmpty(createdName))
+                return "";
+            else
+                return createdName;
         }
 
         public String getCreatedDate() {
-            return createdDate;
+            if (createdDate == null || TextUtils.isEmpty(createdDate))
+                return "";
+            else
+                return createdDate;
         }
     }
-    }
+}

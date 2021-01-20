@@ -37,6 +37,7 @@
                     android:textColor="@color/colorBlack"
                     android:textSize="@dimen/text_size_16sp"
                     android:textStyle="bold"
+                    android:textAlignment="viewStart"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/tv_time"
                     app:layout_constraintTop_toTopOf="parent" />

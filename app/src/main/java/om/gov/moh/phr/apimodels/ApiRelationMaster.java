@@ -31,10 +31,16 @@ public class ApiRelationMaster {
         }
 
         public String getRelationName() {
+            if(relationName==null)
+                return "";
+            else
             return relationName;
         }
 
         public String getRelationNameNls() {
+            if(relationNameNls==null)
+                return relationName;
+            else
             return relationNameNls;
         }
 
