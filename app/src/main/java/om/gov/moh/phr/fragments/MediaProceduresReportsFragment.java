@@ -133,7 +133,6 @@ public class MediaProceduresReportsFragment extends Fragment implements SearchVi
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Log.d("MediaResp", response.toString());
                 if (mContext != null&&isAdded()) {
                     try {
                         if (response.getInt(API_RESPONSE_CODE) == 0) {

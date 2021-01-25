@@ -19,9 +19,9 @@ public class MyConstants {
     public static final String PHR_IMAGES_DIRECTORY_NAME = "phr_Images";
     public static final String IMAGE_EXTENSION = "jpg";
     //api
-    public static final String API_NEHR_URL = "https://mshifa.moh.gov.om/nehrapi/";
+    public static final String API_NEHR_URL = "https://mshifa.moh.gov.om/nehrapi/"/*"http://192.168.1.100:2018/nehrapi/"*/;
 
-    public static final String API_PHR = "https://mshifa.moh.gov.om/phrapi/";
+    public static final String API_PHR ="https://mshifa.moh.gov.om/phrapi/"/*"http://192.168.1.100:2018/phrapi/"*/;
     public static final String API_GET_TOKEN_BEARER = "Bearer ";
     public static final String API_GET_TOKEN_ACCESS_TOKEN = "access_token";
     public static final String API_RESPONSE_CODE = "code";

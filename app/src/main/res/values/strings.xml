@@ -204,8 +204,9 @@
     <string name="no_institutes_records_found">No institutes records available.</string>
     <string name="no_health_records_available_for_you">No health records available for you.</string>
     <string name="no_documents_provided_by_health_institutes">No documents provided by health institutes.</string>
-    <string name="you_did_not_upload_any_docs_n_click_on_to_upload">You did not upload any docs. \n Click on <font color='#be322d'>+</font>to add.</string>
+    <string name="you_did_not_upload_any_docs_n_click_on_to_upload">You did not upload any docs. \n Click on <font color='#be322d'>+</font> to add.</string>
     <string name="no_internet_title">Connection Error !</string>
     <string name="change_civil_id">Change Civil ID</string>
+    <string name="select_organ_msg">Please select at least one organ to donate !</string>
 
 </resources>

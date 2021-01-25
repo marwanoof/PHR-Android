@@ -65,7 +65,6 @@ import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_RESULT;
  */
 public class MedicationFragment extends Fragment implements SearchView.OnQueryTextListener {
     private static final String API_URL_GET_MEDICATIONS_INFO = API_NEHR_URL + "medicationOrder/groupByEncounters";
-    private static final String API_URL_GET_MED_HRD_INFO = API_NEHR_URL + "medicationOrder/encounterId/";
     private static final String ARG_PARAM1 = "ARG_PARAM1";
     private static final String ARG_PARAM2 = "ARG_PARAM2";
     private static final String ARG_PARAM3 = "ARG_PARAM3";
@@ -256,7 +255,6 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Log.d("MedicationResp", response.toString());
                 if (mContext != null && isAdded()) {
                     try {
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
@@ -386,9 +384,9 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
     public void onResume() {
         super.onResume();
 
-       /* if (mAdapter != null){
+        if (mAdapter != null) {
             mAdapter.updateItemsList();
-        }*/
+        }
 
 
     }

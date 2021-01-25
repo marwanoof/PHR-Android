@@ -21,7 +21,7 @@ public class RescheduleDatesViewAdapter extends FragmentStatePagerAdapter {
         mResponseHolder = responseHolder;
         mEstCode = estCode;
         mReservationId = reservationId;
-        Log.d("re-runId", " RescheduleDatesViewAdapter:" + responseHolder.getResult().getSlotsArrayList().get(0).getTimeBlock() + " / " + responseHolder.getResult().getSlotsArrayList().get(0).getRunId());
+       // Log.d("re-runId", " RescheduleDatesViewAdapter:" + responseHolder.getResult().getSlotsArrayList().get(0).getTimeBlock() + " / " + responseHolder.getResult().getSlotsArrayList().get(0).getRunId());
 
     }
 

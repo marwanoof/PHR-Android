@@ -311,7 +311,6 @@ public class ProceduresReportsRecyclerView extends RecyclerView.Adapter<Procedur
                         mProgressDialog.dismissDialog();
                     }
                 } catch (JSONException e) {
-//                    Log.d("enc", e.getMessage());
 
                     e.printStackTrace();
                 }

@@ -208,4 +208,5 @@
     <string name="no_internet_title">خطأ في الاتصال !</string>
     <string name="title_enter_your_civil_id">ادخل الرقم المدني</string>
  <string name="change_civil_id">تغيير الرقم المدني</string>
+ <string name="select_organ_msg">الرجاء اختيار عضو واحد على الأقل للتيرع !</string>
 </resources>

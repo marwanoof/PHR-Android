@@ -59,7 +59,6 @@ import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_RESULT;
  */
 public class RadFragment extends Fragment {
     private static final String API_URL_GET_RAD_HRD_INFO = API_NEHR_URL + "diagnosticOrder/encounterId/";
-    private static final String API_URL_GET_RAD_NOTIFICATION_INFO = API_NEHR_URL + "diagnosticOrder/report/";
     private static final String ARG_PARAM1 = "ARG_PARAM1";
     private static final String ARG_PARAM2 = "ARG_PARAM2";
     private static final String ARG_PARAM3 = "ARG_PARAM3";

@@ -472,7 +472,6 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
         appointmentList.setLayoutManager(layoutManager);
         appointmentList.setItemAnimator(new DefaultItemAnimator());
         appointmentList.setAdapter(comingAppointmentListAdapter);
-
     }
 
     private void updateRefferalsRecyclerView(ArrayList<ApiHomeHolder.Referrals> items) {
@@ -545,7 +544,6 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Log.d("dempResp", response.toString());
                 if (mContext != null && isAdded()) {
                     try {
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
@@ -723,7 +721,7 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
 
     private void setupReferrals(ArrayList<ApiHomeHolder.Referrals> apiReferrals) {
         if (apiReferrals == null || apiReferrals.size() == 0)
-            llAppointments.setVisibility(View.GONE);
+            llReferrals.setVisibility(View.GONE);
         else {
             referralsLayout.setVisibility(View.VISIBLE);
             referralsLayout.setAnimation(GlobalMethodsKotlin.Companion.setAnimation(mContext, R.anim.fade_in));

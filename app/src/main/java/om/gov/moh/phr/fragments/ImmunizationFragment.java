@@ -139,4 +139,13 @@ public class ImmunizationFragment extends Fragment implements SearchView.OnQuery
             mAdapter.filter(newText);
         return false;
     }
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mAdapter != null) {
+            mAdapter.updateItemsList();
+        }
+
+
+    }
 }
