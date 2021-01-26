@@ -45,6 +45,13 @@ public class ApiOtherDocsHolder {
         @SerializedName("title")
         private String title;
 
+        public String getTitleNls() {
+            return titleNls;
+        }
+
+        @SerializedName("titleNls")
+        private String titleNls;
+
         @SerializedName("encounterDate")
         private long encounterDate;
 
@@ -56,6 +63,12 @@ public class ApiOtherDocsHolder {
 
         @SerializedName("type")
         private String type;
+        @SerializedName("typeNls")
+        private String typeNls;
+
+        public String getTypeNls() {
+            return typeNls;
+        }
 
         public String getDocumentRefId() {
             if (documentRefId == null)
