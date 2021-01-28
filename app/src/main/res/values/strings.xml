@@ -207,5 +207,7 @@
     <string name="you_did_not_upload_any_docs_n_click_on_to_upload">You did not upload any docs. \n Click on <font color='#be322d'>+</font>to add.</string>
     <string name="no_internet_title">Connection Error !</string>
     <string name="change_civil_id">Change Civil ID</string>
+    <string name="betaTitle">BETA Verion</string>
+    <string name="betaMsg">Thank you for using this BETA version of Afiyati application\nYou have been selected to test the efficiency of the app.\nPlease write the evaluation and comments in the “Feedback” field in the side menu of the application, or communicate via email:\nministryofhealth.playstore@gmail.com\n\nMinistry of Health - Sultanate of Oman</string>
 
 </resources>

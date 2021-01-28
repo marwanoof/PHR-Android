@@ -208,4 +208,6 @@
     <string name="you_did_not_upload_any_docs_n_click_on_to_upload">لم تقم بإرفاق أي مستند. \n اضغط على <font color='#be322d'>+ </font> للإرفاق.</string>
     <string name="no_internet_title">خطأ في الاتصال !</string>
     <string name="change_civil_id">تغيير الرقم المدني</string>
+    <string name="betaTitle">نسخة تجريبية</string>
+    <string name="betaMsg">شكراً على موافقتك لاستخدام هذه النسخة التجريبية من تطبيق عافيتي\nلقد تم اختيارك لتكون من ضمن الفئة المحددة لاختبار مدى فعالية هذا التطبيق\nيرجى تسجيل التقييم والملاحظات في خانة "تقييم التطبيق" الموجودة في القائمة الجانبية للتطبيق، أو التواصل عبر البريد الإلكتروني: ministryofhealth.playstore@gmail.com\n\nمع تحيات وزارة الصحة - سلطنة عُمان</string>
 </resources>

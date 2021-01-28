@@ -57,6 +57,7 @@ import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
 import om.gov.moh.phr.models.DividerItemDecorator;
 import om.gov.moh.phr.models.GlobalMethodsKotlin;
 import om.gov.moh.phr.models.MyProgressDialog;
+import om.gov.moh.phr.models.NameDate;
 
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
 import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
@@ -289,14 +290,17 @@ public class VitalInfoFragment extends Fragment implements  View.OnClickListener
     }
 
     private void getAllergyResponse(ArrayList<ApiVitalInfo.ApiAllergy> response) {
-        ArrayList<String> allergyArrayList = new ArrayList<>();
+        ArrayList<NameDate> allergyArrayList = new ArrayList<>();
+
+        //ArrayList<String> allergyArrayList = new ArrayList<>();
         for (int i = 0; i < response.size(); i++) {
             String obj = response.get(i).getNote();
-            allergyArrayList.add(obj);
+            allergyArrayList.add(new NameDate(obj,""));
+            //allergyArrayList.add(obj);
         }
         if (allergyArrayList.size() == 0)
-            allergyArrayList.add(getString(R.string.no_allergy_msg));
-        VitalInfoRecyclerViewAdapter vitalInfoRecyclerViewAdapter = new VitalInfoRecyclerViewAdapter(allergyArrayList, mContext);
+            allergyArrayList.add(new NameDate(getString(R.string.no_allergy_msg),""));
+        VitalInfoRecyclerViewAdapter vitalInfoRecyclerViewAdapter = new VitalInfoRecyclerViewAdapter(allergyArrayList, mContext,"allergy");
         RecyclerView.ItemDecoration dividerItemDecoration = new DividerItemDecorator(ContextCompat.getDrawable(mContext, R.drawable.divider));
         rvAllergy.addItemDecoration(dividerItemDecoration);
         rvAllergy.setLayoutManager(new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false));
@@ -304,15 +308,16 @@ public class VitalInfoFragment extends Fragment implements  View.OnClickListener
     }
 
     private void getHistoryResponse(ArrayList<ApiVitalInfo.ApiHistory> response) {
-        ArrayList<String> historyArrayList = new ArrayList<>();
+        ArrayList<NameDate> historyArrayList = new ArrayList<>();
         for (int i = 0; i < response.size(); i++) {
-            String obj = response.get(i).getNote();
-            historyArrayList.add(obj);
+            String note = response.get(i).getNote();
+            String date = response.get(i).getEstFullname() + " " + response.get(i).getCreatedDate();
+            historyArrayList.add(new NameDate(note,date));
         }
         if (historyArrayList.size() == 0)
-            historyArrayList.add(getString(R.string.no_history_msg));
+            historyArrayList.add(new NameDate(getString(R.string.no_history_msg),""));
 
-        VitalInfoRecyclerViewAdapter vitalInfoRecyclerViewAdapter = new VitalInfoRecyclerViewAdapter(historyArrayList, mContext);
+        VitalInfoRecyclerViewAdapter vitalInfoRecyclerViewAdapter = new VitalInfoRecyclerViewAdapter(historyArrayList, mContext, "history");
         RecyclerView.ItemDecoration dividerItemDecoration = new DividerItemDecorator(ContextCompat.getDrawable(mContext, R.drawable.divider));
         rvHistory.addItemDecoration(dividerItemDecoration);
         rvHistory.setLayoutManager(new LinearLayoutManager(mContext,
@@ -323,15 +328,16 @@ public class VitalInfoFragment extends Fragment implements  View.OnClickListener
     }
 
     private void getProblemsResponse(ArrayList<ApiVitalInfo.ApiProblem> response) {
-        ArrayList<String> problemsArrayList = new ArrayList<>();
+        ArrayList<NameDate> problemsArrayList = new ArrayList<>();
         for (int i = 0; i < response.size(); i++) {
             String obj = response.get(i).getDisease();
-            problemsArrayList.add(obj);
+            String date = response.get(i).getDateRecorded();
+            problemsArrayList.add(new NameDate(obj,date));
         }
         if (problemsArrayList.size() == 0)
-            problemsArrayList.add(getString(R.string.no_problem_msg));
+            problemsArrayList.add(new NameDate(getString(R.string.no_problem_msg),""));
 
-        VitalInfoRecyclerViewAdapter vitalInfoRecyclerViewAdapter = new VitalInfoRecyclerViewAdapter(problemsArrayList, mContext);
+        VitalInfoRecyclerViewAdapter vitalInfoRecyclerViewAdapter = new VitalInfoRecyclerViewAdapter(problemsArrayList, mContext,"final");
         RecyclerView.ItemDecoration dividerItemDecoration = new DividerItemDecorator(ContextCompat.getDrawable(mContext, R.drawable.divider));
         rvProblems.addItemDecoration(dividerItemDecoration);
         rvProblems.setLayoutManager(new LinearLayoutManager(mContext,

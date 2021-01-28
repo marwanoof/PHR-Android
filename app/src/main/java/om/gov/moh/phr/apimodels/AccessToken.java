@@ -10,6 +10,7 @@ public class AccessToken implements Serializable {
     private String personName;
     private String image;
 
+
     public String getPersonName() {
         return personName;
     }

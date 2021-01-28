@@ -65,7 +65,7 @@ public class OtherDocsRecyclerViewAdapter extends RecyclerView.Adapter<OtherDocs
         holder.tvDateWritten.setText(dateText);
 
         if (getStoredLanguage().equals(LANGUAGE_ARABIC)){
-            if (docObj.getType().equals("Hospital Discharge summary")){
+            if (docObj.getType().contains("Hospital Discharge summary")){
                 holder.tvDocType.setText(docObj.getTypeNls());
             } else{
                 holder.tvDocType.setText(docObj.getTitleNls());
@@ -122,7 +122,7 @@ public class OtherDocsRecyclerViewAdapter extends RecyclerView.Adapter<OtherDocs
         else if (docObj.getType().contains("Patient Consent"))
             holder.ivDoctype.setImageDrawable(context.getResources().getDrawable(R.drawable.consent));
         else if (docObj.getType().contains("Consult note"))
-            holder.ivDoctype.setImageDrawable(context.getResources().getDrawable(R.drawable.consult_note));
+            holder.ivDoctype.setImageDrawable(context.getResources().getDrawable(R.drawable.other_doc));
         else if (docObj.getType().contains("Hospital Discharge"))
             holder.ivDoctype.setImageDrawable(context.getResources().getDrawable(R.drawable.discharge));
         else if (docObj.getType().contains("Letter"))
