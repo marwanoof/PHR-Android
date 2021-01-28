@@ -33,6 +33,7 @@ import android.widget.ViewFlipper;
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -108,7 +109,7 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
     private int dotscount = 3;
     private ImageView[] dots;
     // private PagerCardMainAdapter pagerCardMainAdapter;
-    private ScrollView menuListScrollView;
+    private NestedScrollView menuListScrollView;
     private ImageButton menuButton, myVitalExpandBtn, appointmentExpandBtn, notificationExpandBtn, updatesExpandBtn, chatsExpandBtn, referralsExpandBtn;
     private RecyclerView myVital, appointmentList, notificationList/*, updatesList*/, chatsList, rvReferrals;
     private ViewFlipper viewFlipper;
@@ -290,7 +291,7 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
     }
 
     private void setNotificationRecyclerView(ArrayList<Notification> notificationsList) {
-      //  NotificationsRecyclerViewAdapter mAdapter = new NotificationsRecyclerViewAdapter(notificationsList, mContext, mMediatorCallback);
+        //  NotificationsRecyclerViewAdapter mAdapter = new NotificationsRecyclerViewAdapter(notificationsList, mContext, mMediatorCallback);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(mContext);
         DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(notificationList
                 .getContext(),
@@ -298,7 +299,7 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
         notificationList.addItemDecoration(mDividerItemDecoration);
         notificationList.setLayoutManager(mLayoutManager);
         notificationList.setItemAnimator(new DefaultItemAnimator());
-       // notificationList.setAdapter(mAdapter);
+        // notificationList.setAdapter(mAdapter);
     }
 
     private void setupView(View parentView) {
@@ -312,7 +313,9 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
         appointmentExpandBtn = parentView.findViewById(R.id.btn_appointment_expand);
         referralsExpandBtn = parentView.findViewById(R.id.btn_referrals_expand);
         appointmentList = parentView.findViewById(R.id.recyclerView_coming_appointment);
+
         rvReferrals = parentView.findViewById(R.id.rv_referrals);
+
         //notificationList = parentView.findViewById(R.id.recyclerView_notification_home);
         notificationExpandBtn = parentView.findViewById(R.id.btn_notification_expand);
         //   updatesList = parentView.findViewById(R.id.recyclerView_updates_home);
@@ -448,7 +451,7 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
         recentVitalConstraintLayout.setVisibility(View.VISIBLE);
         recentVitalConstraintLayout.setAnimation(GlobalMethodsKotlin.Companion.setAnimation(mContext, R.anim.fade_in));
         MyVitalListAdapter myVitalListAdapter = new MyVitalListAdapter(myVitals, mContext);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
         //DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(myVital.getContext(),layoutManager.getOrientation());
         // myVital.addItemDecoration(mDividerItemDecoration);
         LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(mContext, R.anim.delay_slide_down);
@@ -456,14 +459,27 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
         myVital.setLayoutManager(layoutManager);
         myVital.setItemAnimator(new DefaultItemAnimator());
         myVital.setAdapter(myVitalListAdapter);
+        myVital.setOnScrollListener(new RecyclerView.OnScrollListener(){
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                int topRowVerticalPosition =
+                        (recyclerView == null || recyclerView.getChildCount() == 0) ? 0 : recyclerView.getChildAt(0).getTop();
+                swipeRefreshLayout.setEnabled(layoutManager.findFirstCompletelyVisibleItemPosition() == 0);
 
+            }
+
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+        });
     }
 
     public void setupAppointmentList(ArrayList<ApiHomeHolder.ApiAppointments> appointments) {
         appointmentConstraintLayout.setVisibility(View.VISIBLE);
         appointmentConstraintLayout.setAnimation(GlobalMethodsKotlin.Companion.setAnimation(mContext, R.anim.fade_in));
         ComingAppointmentListAdapter comingAppointmentListAdapter = new ComingAppointmentListAdapter(appointments, mContext);
-        LinearLayoutManager layoutManager
+        final LinearLayoutManager layoutManager
                 = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
         DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(appointmentList.getContext(), layoutManager.getOrientation());
         appointmentList.addItemDecoration(mDividerItemDecoration);
@@ -472,6 +488,20 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
         appointmentList.setLayoutManager(layoutManager);
         appointmentList.setItemAnimator(new DefaultItemAnimator());
         appointmentList.setAdapter(comingAppointmentListAdapter);
+        appointmentList.setOnScrollListener(new RecyclerView.OnScrollListener(){
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                int topRowVerticalPosition =
+                        (recyclerView == null || recyclerView.getChildCount() == 0) ? 0 : recyclerView.getChildAt(0).getTop();
+                swipeRefreshLayout.setEnabled(layoutManager.findFirstCompletelyVisibleItemPosition() == 0);
+
+            }
+
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+        });
     }
 
     private void updateRefferalsRecyclerView(ArrayList<ApiHomeHolder.Referrals> items) {
@@ -480,7 +510,7 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
 
     private void setupRefferalsRecyclerView(RecyclerView recyclerView) {
         mRefferalAdapter = new RefferalsListRecyclerViewAdapter(HomeFragment.this, mContext, false);
-        LinearLayoutManager layoutManager
+        final LinearLayoutManager layoutManager
                 = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
         DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
                 layoutManager.getOrientation());
@@ -490,19 +520,33 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mRefferalAdapter);
+        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener(){
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                int topRowVerticalPosition =
+                        (recyclerView == null || recyclerView.getChildCount() == 0) ? 0 : recyclerView.getChildAt(0).getTop();
+                swipeRefreshLayout.setEnabled(layoutManager.findFirstCompletelyVisibleItemPosition() == 0);
+
+            }
+
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+        });
     }
 
     public void setupNotificationList(ArrayList<String> notifications) {
         notificationConstraintLayout.setVisibility(View.VISIBLE);
         notificationConstraintLayout.setAnimation(GlobalMethodsKotlin.Companion.setAnimation(mContext, R.anim.fade_in));
-       // NotificationHomeAdapter comingAppointmentListAdapter = new NotificationHomeAdapter(notifications, mContext);
+        // NotificationHomeAdapter comingAppointmentListAdapter = new NotificationHomeAdapter(notifications, mContext);
         LinearLayoutManager layoutManager
                 = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
         DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(notificationList.getContext(), layoutManager.getOrientation());
         notificationList.addItemDecoration(mDividerItemDecoration);
         notificationList.setLayoutManager(layoutManager);
         notificationList.setItemAnimator(new DefaultItemAnimator());
-      //  notificationList.setAdapter(comingAppointmentListAdapter);
+        //  notificationList.setAdapter(comingAppointmentListAdapter);
 
     }
 
@@ -526,7 +570,7 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
         chatConstraintLayout.setVisibility(View.VISIBLE);
         chatConstraintLayout.setAnimation(GlobalMethodsKotlin.Companion.setAnimation(mContext, R.anim.fade_in));
         messageChatsAdapter = new MessageChatsAdapter(mMediatorCallback, chatsModels, mContext);
-        LinearLayoutManager layoutManager
+        final LinearLayoutManager layoutManager
                 = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
         DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(chatsList.getContext(), layoutManager.getOrientation());
         chatsList.addItemDecoration(mDividerItemDecoration);
@@ -535,6 +579,20 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
         chatsList.setLayoutManager(layoutManager);
         chatsList.setItemAnimator(new DefaultItemAnimator());
         chatsList.setAdapter(messageChatsAdapter);
+        chatsList.setOnScrollListener(new RecyclerView.OnScrollListener(){
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                int topRowVerticalPosition =
+                        (recyclerView == null || recyclerView.getChildCount() == 0) ? 0 : recyclerView.getChildAt(0).getTop();
+                swipeRefreshLayout.setEnabled(layoutManager.findFirstCompletelyVisibleItemPosition() == 0);
+
+            }
+
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+        });
 
     }
 
@@ -565,7 +623,8 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
                                         setupRecentVitalsData(responseHolder.getmResult().getmHome().getmRecentVitals());
                                         if (responseHolder.getmResult().getmHome().getmRecentVitals().size() > 0)
                                             isVitalShow = true;
-                                    } if (responseHolder.getmResult().getmHome().getmDependents() != null)
+                                    }
+                                    if (responseHolder.getmResult().getmHome().getmDependents() != null)
                                         setupDependentsData(responseHolder.getmResult().getmHome().getmDependents());
                                     if (responseHolder.getmResult().getmHome().getmChatMessages() != null) {
                                         setupChatMessages(responseHolder.getmResult().getmHome().getmChatMessages());
@@ -695,7 +754,7 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
                     tvUserHeight.setText(vitalSign.getValue() + " " + vitalSign.getUnit());
                 else if (vitalSign.getName().equals("Weight Measured"))
                     tvUserWeight.setText(vitalSign.getValue() + " " + vitalSign.getUnit());
-                else if (!vitalSign.getName().equals("G6PD"))
+                else if (!vitalSign.getName().equals("G6PD") && !vitalSign.getName().equalsIgnoreCase("blood group"))
                     recentVitalsArrayList.add(vitalSign);
             }
             /* setup my vital list */

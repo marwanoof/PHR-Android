@@ -110,7 +110,7 @@ public class MeasurementRecyclerViewAdapter extends
 
         //in order to get color correctly add 0xff at the beginning
         holder.vRoundRect.setBackground(new DrawableGradient(getColorsArray(position)));
-
+Log.d("VitalUnit", result.getUnitNls());
         String value = result.getValue();
         if (getStoredLanguage().equals(LANGUAGE_ARABIC)) {
             holder.tvTitle.setText(result.getVitalNameNls());
@@ -149,7 +149,7 @@ public class MeasurementRecyclerViewAdapter extends
                 break;
             case "Body temperature":
                 holder.imgIcon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_v_temp));
-                holder.tvUnit.setText("\u2103");
+              //  holder.tvUnit.setText("\u2103");
                 break;
             case "Respiratory rate":
                 holder.imgIcon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_v_respiratory));
