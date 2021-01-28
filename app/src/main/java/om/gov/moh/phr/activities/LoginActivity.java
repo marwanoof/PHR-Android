@@ -443,11 +443,18 @@ public class LoginActivity extends AppCompatActivity {
     private void storeAccessToken(String accessTokenValue, String civilId, String personName, String image, String menus) {
         SharedPreferences.Editor editor;
 
+
         AccessToken accessToken = AccessToken.getInstance();
         accessToken.setAccessCivilId(civilId);
         accessToken.setAccessTokenString(accessTokenValue);
         accessToken.setPersonName(personName);
         accessToken.setImage(image);
+
+
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("betaValidation", 0);
+        editor = pref.edit();
+        editor.putBoolean("beta",true);
+        editor.commit();
 
         SharedPreferences sharedPrefAccessToken = getSharedPreferences(PREFS_API_GET_TOKEN, Context.MODE_PRIVATE);
         editor = sharedPrefAccessToken.edit();

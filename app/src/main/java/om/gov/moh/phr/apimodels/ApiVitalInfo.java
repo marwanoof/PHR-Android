@@ -3,7 +3,10 @@ package om.gov.moh.phr.apimodels;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 public class ApiVitalInfo implements Serializable {
     @SerializedName("result")
@@ -62,6 +65,25 @@ public class ApiVitalInfo implements Serializable {
         @SerializedName("note")
         private String note;
 
+        @SerializedName("createdDate")
+        private long createdDate;
+
+        @SerializedName("estFullname")
+        private String estFullname;
+
+        public String getCreatedDate() {
+
+            if (createdDate != 0) {
+                Date date = new Date(createdDate);
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.ENGLISH);
+                return simpleDateFormat.format(date);
+            } else
+                return "--";
+        }
+
+        public String getEstFullname() {
+            return estFullname;
+        }
     }
     public class ApiProblem implements Serializable {
 
@@ -75,5 +97,16 @@ public class ApiVitalInfo implements Serializable {
         @SerializedName("disease")
         private String disease;
 
+        @SerializedName("dateRecorded")
+        private long dateRecorded;
+
+        public String getDateRecorded() {
+            if (dateRecorded != 0) {
+                Date date = new Date(dateRecorded);
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.ENGLISH);
+                return simpleDateFormat.format(date);
+            } else
+                return "--";
+        }
     }
 }

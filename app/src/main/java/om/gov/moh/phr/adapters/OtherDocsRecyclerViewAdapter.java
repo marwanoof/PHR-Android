@@ -58,16 +58,24 @@ public class OtherDocsRecyclerViewAdapter extends RecyclerView.Adapter<OtherDocs
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, final int position) {
         final ApiOtherDocsHolder.ApiDocInfo docObj = othersDocsArrayList.get(position);
-        holder.tvDocType.setText(docObj.getTitle());
+
         Date date = new Date(docObj.getIndexed());
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy  HH:mm", Locale.ENGLISH);
         String dateText = dateFormat.format(date);
         holder.tvDateWritten.setText(dateText);
 
         if (getStoredLanguage().equals(LANGUAGE_ARABIC)){
+            if (docObj.getType().contains("Hospital Discharge summary")){
+                holder.tvDocType.setText(docObj.getTypeNls());
+            } else{
+                holder.tvDocType.setText(docObj.getTitleNls());
+            }
+
+
             holder.tvDosage.setText(docObj.getEstFullnameNls());
             holder.moreDetails.setImageBitmap(flipImage());
         }else {
+            holder.tvDocType.setText(docObj.getTitle());
             holder.tvDosage.setText(docObj.getEstFullname());
             holder.moreDetails.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_arrow_right));
         }
@@ -114,7 +122,7 @@ public class OtherDocsRecyclerViewAdapter extends RecyclerView.Adapter<OtherDocs
         else if (docObj.getType().contains("Patient Consent"))
             holder.ivDoctype.setImageDrawable(context.getResources().getDrawable(R.drawable.consent));
         else if (docObj.getType().contains("Consult note"))
-            holder.ivDoctype.setImageDrawable(context.getResources().getDrawable(R.drawable.consult_note));
+            holder.ivDoctype.setImageDrawable(context.getResources().getDrawable(R.drawable.other_doc));
         else if (docObj.getType().contains("Hospital Discharge"))
             holder.ivDoctype.setImageDrawable(context.getResources().getDrawable(R.drawable.discharge));
         else if (docObj.getType().contains("Letter"))

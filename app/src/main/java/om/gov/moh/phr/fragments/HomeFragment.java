@@ -149,6 +149,7 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
                              Bundle savedInstanceState) {
         isArabic = getStoredLanguage().equals(LANGUAGE_ARABIC);
         animation = AnimationUtils.loadLayoutAnimation(mContext, R.anim.delay_slide_down);
+        showBetaVersionMsg();
         if (parentView == null) {
             // Inflate the layout for this fragment
             parentView = inflater.inflate(R.layout.fragment_home, container, false);
@@ -258,7 +259,22 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
         }
         return parentView;
     }
+private void showBetaVersionMsg(){
+    SharedPreferences pref = mContext.getSharedPreferences("betaValidation", 0);
+    Boolean isBeta = pref.getBoolean("beta",true);
+        if (isBeta){
+            String title = mContext.getResources().getString(R.string.betaTitle);
+            String msg = mContext.getResources().getString(R.string.betaMsg);
+            String btnTitle = mContext.getResources().getString(R.string.ok);
+            GlobalMethodsKotlin.Companion.showAlertDialog(mContext,title,msg,btnTitle,R.drawable.phr_logo);
 
+            SharedPreferences.Editor editor = pref.edit();
+            editor.putBoolean("beta",false);
+            editor.apply();
+
+        }
+
+}
     private void getNotificationList() {
         dbHelper = new DBHelper(mContext);
         ArrayList<Notification> notificationsList = new ArrayList<>();
