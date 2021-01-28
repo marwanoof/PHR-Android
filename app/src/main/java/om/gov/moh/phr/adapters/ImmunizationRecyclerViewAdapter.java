@@ -82,8 +82,7 @@ public class ImmunizationRecyclerViewAdapter extends RecyclerView.Adapter<Immuni
                 final long eventDate = medicineObj.getScheduledOn();
                 final String description = context.getResources().getString(R.string.go_for_vaccination);
                 holder.scheduleBtn.setTag(false);
-                Log.d("isThere", title.trim());
-                if (readeCalender(title.trim())) {
+                if (readeCalender(holder.tvVaccineName.getText().toString())) {
                     holder.scheduleBtn.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_reminder_true));
                     // holder.scheduleBtn.setBackgroundTintList(null);
                     holder.scheduleBtn.setTag(true);
@@ -93,7 +92,7 @@ public class ImmunizationRecyclerViewAdapter extends RecyclerView.Adapter<Immuni
                     @Override
                     public void onClick(View view) {
                         if (holder.scheduleBtn.getTag().equals(true)) {
-                            deleteCalendar(title);
+                            deleteCalendar(title.trim());
                             holder.scheduleBtn.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_reminder));
                             holder.scheduleBtn.setTag(false);
                         } else {
@@ -173,7 +172,7 @@ public class ImmunizationRecyclerViewAdapter extends RecyclerView.Adapter<Immuni
         notifyDataSetChanged();
     }
 
-    private Boolean readeCalender( String medId) {
+    private Boolean readeCalender(String medId) {
         ContentResolver cr = context.getContentResolver();
         Cursor cursor = cr.query(CalendarContract.Events.CONTENT_URI, new String[]{"calendar_id", "title", "description","dtstart", "dtend", "eventLocation"}, null, null, null);
         //Cursor cursor = cr.query(Uri.parse("content://calendar/calendars"), new String[]{ "_id", "name" }, null, null, null);
@@ -183,7 +182,6 @@ public class ImmunizationRecyclerViewAdapter extends RecyclerView.Adapter<Immuni
         int[] CalIds = new int[cursor.getCount()];
         for (int i = 0; i < CalNames.length; i++) {
             CalIds[i] = cursor.getInt(0);
-            if (/*medId != null &&*/ cursor != null) {
               //  if (cursor.getString(2) != null) {
                  //   if (cursor.getString(2).equals(medId)) {
                         if (cursor.getString(cursor.getColumnIndex("title")) != null) {
@@ -191,9 +189,6 @@ public class ImmunizationRecyclerViewAdapter extends RecyclerView.Adapter<Immuni
                                 return true;
                             }
                         }
-
-            }
-
             cursor.moveToNext();
         }
         cursor.close();
@@ -210,5 +205,9 @@ public class ImmunizationRecyclerViewAdapter extends RecyclerView.Adapter<Immuni
             resolver.delete(ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, eventId), null, null);
         }
         cursor.close();*/
+    }
+    public void updateItemsList() {
+        //medicineArrayList = items;
+        notifyDataSetChanged();
     }
 }

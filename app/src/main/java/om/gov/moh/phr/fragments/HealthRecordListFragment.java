@@ -221,7 +221,6 @@ public class HealthRecordListFragment extends Fragment implements AdapterToFragm
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Log.d("EncounterResp", response.toString());
                 if (mContext != null && isAdded()) {
                     try {
                         if (response.getInt(API_RESPONSE_CODE) == 0) {

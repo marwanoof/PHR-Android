@@ -61,7 +61,7 @@ public class TimeItemsRecyclerViewAdapter extends
             @Override
             public void onClick(View v) {
 
-                Log.d("re-runId", " onBindViewHolder:" + result + " / " + mCustomItem.getRunIdArrayList());
+             //   Log.d("re-runId", " onBindViewHolder:" + result + " / " + mCustomItem.getRunIdArrayList());
 
                 mSelectedPosition = position;
                 notifyDataSetChanged();

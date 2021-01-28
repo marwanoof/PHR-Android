@@ -27,6 +27,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -161,7 +162,7 @@ public class OrganDonationFragment extends Fragment {
 
         email.setText(UserEmailFetcher.getEmail(mContext));
 
-        RadioGroup radioGroup = parentView.findViewById(R.id.radioGroup);
+        final RadioGroup radioGroup = parentView.findViewById(R.id.radioGroup);
         radioButtonYes = parentView.findViewById(R.id.radioButtonYes);
         radioButtonNo = parentView.findViewById(R.id.radioButtonNo);
         radioButtonD = parentView.findViewById(R.id.radioButtonD);
@@ -283,7 +284,11 @@ public class OrganDonationFragment extends Fragment {
                         Snackbar.make(relation, getResources().getString(R.string.select_relation_msg), Snackbar.LENGTH_SHORT)
                                 .setBackgroundTint(getResources().getColor(R.color.colorPrimary))
                                 .show();
-                    } else
+                    } else if(!kidneys.isChecked()&&!liver.isChecked()&&!heart.isChecked()&&!lungs.isChecked()&&!pancreas.isChecked()&&!corneas.isChecked()){
+                        Snackbar.make(radioGroup, getResources().getString(R.string.select_organ_msg), Snackbar.LENGTH_SHORT)
+                                .setBackgroundTint(getResources().getColor(R.color.colorPrimary))
+                                .show();
+                    }else
                         saveOrgan();
                 } else
                     saveOrgan();
@@ -504,9 +509,9 @@ public class OrganDonationFragment extends Fragment {
                 if (mContext != null && isAdded()) {
                     try {
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
+
                             Gson gson = new Gson();
                             ApiOrganDonationHolder responseHolder = gson.fromJson(response.toString(), ApiOrganDonationHolder.class);
-
                             setupForm(responseHolder.getResult());
                         }
                     } catch (JSONException e) {
@@ -521,6 +526,7 @@ public class OrganDonationFragment extends Fragment {
             public void onErrorResponse(VolleyError error) {
                 if (mContext != null && isAdded()) {
                     GlobalMethodsKotlin.Companion.showAlertErrorDialog(mContext);
+                    Toast.makeText(mContext, "sth went wrong", Toast.LENGTH_SHORT).show();
                     error.printStackTrace();
                     mProgressDialog.dismissDialog();
                 }

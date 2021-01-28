@@ -62,7 +62,7 @@ public class DateItemsGridViewAdapter extends BaseAdapter {
         tvDay.setText(item.getAppointmentDay());
         tvMonth.setText(item.getAppointmentMonth());
 
-        Log.d("re-runId", " getView:" + item.getTimeBlock() + " / " + item.getRunIdArrayList());
+    //    Log.d("re-runId", " getView:" + item.getTimeBlock() + " / " + item.getRunIdArrayList());
 
 
         return holder;

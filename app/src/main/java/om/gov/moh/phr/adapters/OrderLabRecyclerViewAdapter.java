@@ -226,7 +226,6 @@ public class OrderLabRecyclerViewAdapter extends RecyclerView.Adapter<OrderLabRe
                         mProgressDialog.dismissDialog();
                     }
                 } catch (JSONException e) {
-//                    Log.d("enc", e.getMessage());
 
                     e.printStackTrace();
                 }

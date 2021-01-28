@@ -69,7 +69,6 @@ import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_RESULT;
  */
 public class LabResultsFragment extends Fragment implements SearchView.OnQueryTextListener {
     private static final String API_URL_GET_LAB_ORDERS_INFO = API_NEHR_URL + "labOrder/groupByEncounters";
-    private static final String API_URL_GET_LAB_ENCOUNTER_INFO = API_NEHR_URL + "labOrder/encounterId/";
     private static final String ARG_PARAM1 = "ARG_PARAM1";
     private static final String ARG_PARAM2 = "ARG_PARAM2";
     private static final String ARG_PARAM3 = "ARG_PARAM3";
@@ -192,10 +191,10 @@ public class LabResultsFragment extends Fragment implements SearchView.OnQueryTe
                 }
 
             } else if(encounterInfo!=null) {
-                String fullUrl = API_URL_GET_LAB_ENCOUNTER_INFO + encounterInfo.getEncounterId();
+               // String fullUrl = API_URL_GET_LAB_ENCOUNTER_INFO + encounterInfo.getEncounterId();
                 getLabOrdersList(API_URL_GET_LAB_ORDERS_INFO,"all","PHR",encounterInfo.getEncounterId());
             }else if(docInfo!=null) {
-                String fullUrl = API_URL_GET_LAB_ENCOUNTER_INFO + docInfo.getEncounterId();
+             //   String fullUrl = API_URL_GET_LAB_ENCOUNTER_INFO + docInfo.getEncounterId();
                 getLabOrdersList(API_URL_GET_LAB_ORDERS_INFO,"all","PHR",docInfo.getEncounterId());
             }else {
 
@@ -248,7 +247,6 @@ public class LabResultsFragment extends Fragment implements SearchView.OnQueryTe
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Log.d("LabResultResp", response.toString());
                 if (mContext != null && isAdded()) {
                     try {
                         if (response.getInt(API_RESPONSE_CODE) == 0) {

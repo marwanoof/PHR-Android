@@ -173,7 +173,6 @@ public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Log.d("ChatList", response.toString());
                 if (mContext != null && isAdded()) {
                     try {
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
