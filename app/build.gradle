@@ -2,14 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 android {
-    signingConfigs {
-        release {
-            storeFile file('C:\\Users\\aysha.aloufi\\Documents\\MoHFiles\\upload-keystore-afiyati.jks')
-            storePassword 'oman_moh_play'
-            keyAlias 'upload'
-            keyPassword 'oman-moh-play'
-        }
-    }
+
     compileSdkVersion 29
     defaultConfig {
         applicationId "om.gov.moh.phr"

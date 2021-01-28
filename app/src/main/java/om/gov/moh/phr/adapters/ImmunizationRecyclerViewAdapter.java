@@ -84,7 +84,7 @@ public class ImmunizationRecyclerViewAdapter extends RecyclerView.Adapter<Immuni
                 final long eventDate = medicineObj.getScheduledOn();
                 final String description = context.getResources().getString(R.string.go_for_vaccination);
                 holder.scheduleBtn.setTag(false);
-                if (readeCalender(medicineObj.getVaccineName())) {
+                if (readeCalender2(title.trim(),description.trim())) {
                     holder.scheduleBtn.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_reminder_true));
                     // holder.scheduleBtn.setBackgroundTintList(null);
                     holder.scheduleBtn.setTag(true);
@@ -100,7 +100,7 @@ public class ImmunizationRecyclerViewAdapter extends RecyclerView.Adapter<Immuni
                         } else {
                             Intent insertCalendarIntent = new Intent(Intent.ACTION_INSERT)
                                     .setData(CalendarContract.Events.CONTENT_URI)
-                                    .putExtra(CalendarContract.Events.CALENDAR_ID, position)
+                                    .putExtra(CalendarContract.Events.CALENDAR_ID, 1)
                                     .putExtra(CalendarContract.Events.TITLE, title.trim()) // Simple title
                                     .putExtra(CalendarContract.EXTRA_EVENT_ALL_DAY, true)
                                     .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, eventDate) // Only date part is considered when ALL_DAY is true; Same as DTSTART
@@ -174,7 +174,42 @@ public class ImmunizationRecyclerViewAdapter extends RecyclerView.Adapter<Immuni
         }
         notifyDataSetChanged();
     }
+    private Boolean readeCalender2(String title, String medId){
+        ContentResolver cr = context.getContentResolver();
+        Cursor cursor = cr.query(CalendarContract.Events.CONTENT_URI, new String[]{ "calendar_id", "title", "description", "dtstart", "dtend", "eventLocation" }, null, null, null);
+        //Cursor cursor = cr.query(Uri.parse("content://calendar/calendars"), new String[]{ "_id", "name" }, null, null, null);
+        String add = null;
+        cursor.moveToFirst();
+        String[] CalNames = new String[cursor.getCount()];
+        int[] CalIds = new int[cursor.getCount()];
+        for (int i = 0; i < CalNames.length; i++) {
+            CalIds[i] = cursor.getInt(0);
+            if(medId!=null&&cursor!=null) {
+                if(cursor.getString(2)!=null){
+                    if (cursor.getString(2).equals(medId)) {
+                        if(cursor.getString(1)!=null) {
+                            if (cursor.getString(1).equals(title)) {
+                                return true;
+                            }
+                        }
+                    }
+                    // CalNames[i] = "Event"+cursor.getInt(0)+": \nTitle: "+ cursor.getString(1)+"\nDescription: "+cursor.getString(2)+"\nStart Date: "+new Date(cursor.getLong(3))+"\nEnd Date : "+new Date(cursor.getLong(4))+"\nLocation : "+cursor.getString(5);
 
+                }
+            }
+           /* if(add == null)
+                add = CalNames[i];
+            else{
+                add += CalNames[i];
+            }
+            System.out.println(add);*/
+            //((TextView)findViewById(R.id.calendars)).setText(add);
+
+            cursor.moveToNext();
+        }
+        cursor.close();
+        return false;
+    }
     private Boolean readeCalender(String vaccineName) {
 /*        ContentResolver cr = context.getContentResolver();
         Cursor cursor = cr.query(CalendarContract.Events.CONTENT_URI, new String[]{"calendar_id", "title", "description", "dtstart", "dtend", "eventLocation"}, null, null, null);
