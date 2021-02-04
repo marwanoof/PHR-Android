@@ -96,7 +96,7 @@ public class LoginActivity extends AppCompatActivity {
     private Button btnGetOTP;
     private Button btnLogin;
     private TextView tvCancel, tvResetOtp, tvChangeCivilID;
-    private ImageView ivDgitLogo, ivMohLogo;
+    private ImageView ivMohLogo;
     private DisclaimerDialogFragment mDisclaimerDialogFragment;
     private String currentLanguage = getDeviceLanguage();
 
@@ -119,8 +119,9 @@ public class LoginActivity extends AppCompatActivity {
         btnGetOTP = findViewById(R.id.btn_get_otp);
         btnLogin = findViewById(R.id.btn_login);
         ImageView ivLogo = findViewById(R.id.imageView);
-        ivDgitLogo = findViewById(R.id.iv_logo_digit);
         ivMohLogo = findViewById(R.id.iv_logo_moh);
+        if(getStoredLanguage().equals(LANGUAGE_ARABIC))
+            ivMohLogo.setImageResource(R.drawable.moh_logo_ar);
         tvCancel = findViewById(R.id.tv_cancel);
         tvChangeCivilID = findViewById(R.id.tv_changeCivilID);
         tvCancel.setOnClickListener(new View.OnClickListener() {
@@ -296,7 +297,6 @@ public class LoginActivity extends AppCompatActivity {
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Log.d("otpResp", response.toString());
                 try {
 
                     if (response.getInt(API_RESPONSE_CODE) == 0
@@ -359,7 +359,6 @@ public class LoginActivity extends AppCompatActivity {
             tvCancel.setVisibility(View.GONE);
             tvResetOtp.setVisibility(View.VISIBLE);
             tvChangeCivilID.setVisibility(View.VISIBLE);
-            ivDgitLogo.setVisibility(View.GONE);
             ivMohLogo.setVisibility(View.GONE);
         }
 
@@ -396,7 +395,6 @@ public class LoginActivity extends AppCompatActivity {
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Log.d("loginResp", response.toString());
                 try {
                     if (response.getInt(API_RESPONSE_CODE) == 0) {
                         JSONObject jsonObject = response.optJSONObject(API_RESPONSE_RESULT);
@@ -527,7 +525,6 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin.setVisibility(View.INVISIBLE);
         tvResetOtp.setVisibility(View.GONE);
         tvChangeCivilID.setVisibility(View.GONE);
-        ivDgitLogo.setVisibility(View.VISIBLE);
         ivMohLogo.setVisibility(View.VISIBLE);
     }
 

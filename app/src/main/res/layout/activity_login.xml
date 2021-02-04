@@ -193,34 +193,18 @@
                 app:layout_constraintTop_toBottomOf="@+id/tv_phr_title" />
 
             <ImageView
-                android:id="@+id/iv_logo_digit"
-                android:layout_width="100dp"
-                android:layout_height="50dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginEnd="50dp"
-                android:layout_marginBottom="10dp"
-                android:contentDescription="@string/img_desc_dgit_logo"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/iv_logo_moh"
-                app:layout_constraintTop_toBottomOf="@+id/tv_cancel"
-                app:srcCompat="@drawable/logo_img_dgit" />
-
-            <ImageView
                 android:id="@+id/iv_logo_moh"
                 android:layout_width="100dp"
                 android:layout_height="50dp"
-                android:layout_marginStart="50dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
                 android:contentDescription="@string/img_desc_moh_logo"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/iv_logo_digit"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tv_cancel"
-                app:srcCompat="@drawable/logo_img_moh" />
+                app:srcCompat="@drawable/moh_logo_en" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>

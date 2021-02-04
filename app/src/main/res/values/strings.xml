@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Afiyati</string>
+    <string name="app_name">Shifa</string>
     <string name="title_phr">[ Personal Health Record ]</string>
     <string name="title_enter_your_civil_id">Enter Civil ID</string>
     <string name="title_get_otp">Get OTP</string>
@@ -145,9 +145,9 @@
     <string name="patients_rights">Patients Rights</string>
     <string name="publish">Publish</string>
     <string name="about_the_app">About The App</string>
-    <string name="about_app_info">Afiyati App is developed by Ministry of Health - DGIT.  This BETA version of the app allows all users with a valid civil ID and registered Oman mobile number, to view their own medical record and information.</string>
+    <string name="about_app_info">Shifa App is developed by Ministry of Health - DGIT.  This BETA version of the app allows all users with a valid civil ID and registered Oman mobile number, to view their own medical record and information.</string>
     <string name="ok">OK</string>
-    <string name="sub_title_phr">Your Health Record Wallet</string>
+    <string name="sub_title_phr">Your Personal Health Record Wallet</string>
     <string name="time_to_immunization">Date of vaccination for</string>
     <string name="location">Oman</string>
     <string name="go_for_vaccination">You must go to nearest health center to take this vaccination.</string>
@@ -191,7 +191,7 @@
     <string name="no_records_imm_schedule">There is no scheduled immunization for you</string>
     <string name="wrong_msg">Something went wrong. Please try again</string>
     <string name="decide_later">Decide Later</string>
-    <string name="i_want_donate">I would like to donate after death</string>
+    <string name="i_want_donate">I wish to donate my organ(s) after death</string>
     <string name="no_doc_type_found">No documents types found. Please try again.</string>
     <string name="saved_successfully">The data has been saved successfully.</string>
     <string name="sent_otp_msg_dialog">OTP has been sent to the registered number.</string>
@@ -204,11 +204,11 @@
     <string name="no_institutes_records_found">No institutes records available.</string>
     <string name="no_health_records_available_for_you">No health records available for you.</string>
     <string name="no_documents_provided_by_health_institutes">No documents provided by health institutes.</string>
-    <string name="you_did_not_upload_any_docs_n_click_on_to_upload">You did not upload any docs. \n Click on <font color='#be322d'>+</font>to add.</string>
+    <string name="you_did_not_upload_any_docs_n_click_on_to_upload">You did not upload any docs. \n Click on <font color='#be322d'>+</font> to add.</string>
     <string name="no_internet_title">Connection Error !</string>
     <string name="change_civil_id">Change Civil ID</string>
     <string name="select_organ_msg">Please select at least one organ to donate !</string>
     <string name="betaTitle">BETA Verion</string>
-    <string name="betaMsg">Thank you for using this BETA version of Afiyati application\nYou have been selected to test the efficiency of the app.\nPlease write the evaluation and comments in the “Feedback” field in the side menu of the application, or communicate via email:\nministryofhealth.playstore@gmail.com\n\nMinistry of Health - Sultanate of Oman</string>
+    <string name="betaMsg">Thank you for using this BETA version of Shifa application\nYou have been selected to test the efficiency of the app.\nPlease write the evaluation and comments in the “Feedback” field in the side menu of the application, or communicate via email:\nministryofhealth.playstore@gmail.com\n\nMinistry of Health - Sultanate of Oman</string>
 
 </resources>

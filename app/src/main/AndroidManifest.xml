@@ -43,7 +43,7 @@
         tools:targetApi="n">
         <activity android:name=".activities.DisclaimerActivity"
             android:configChanges="locale"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".activities.Splash"
             android:configChanges="locale"
@@ -98,7 +98,7 @@
             android:name=".activities.MainActivity"
             android:configChanges="locale"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="adjustPan"></activity>
+            android:windowSoftInputMode="adjustPan"/>
     </application>
 
 </manifest>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">عافيتي</string>
+    <string name="app_name">شفاء</string>
     <string name="title_phr">[ الملف الشخصي الصحي ]</string>
     <string name="title_enter_your_civil_id">ادخال الرقم المدني</string>
     <string name="title_get_otp">الحصول على كلمة السر</string>
@@ -146,9 +146,9 @@
     <string name="patients_rights">حقوق المريض</string>
     <string name="publish">نشر</string>
     <string name="about_the_app">عن التطبيق</string>
-    <string name="about_app_info"> تم تطوير تطبيق عافيتي بواسطة وزارة الصحة - المديرية العامة لتقنية المعلومات.  هذه النسخة التجريبية تسمح للمستخدمين من الإطلاع على ملفاتهم الشخصية الصحية عن طريق إدخال الرقم المدني ورقم الهاتف المسجل.</string>
+    <string name="about_app_info"> تم تطوير تطبيق شفاء بواسطة وزارة الصحة - المديرية العامة لتقنية المعلومات.  هذه النسخة التجريبية تسمح للمستخدمين من الإطلاع على ملفاتهم الشخصية الصحية عن طريق إدخال الرقم المدني ورقم الهاتف المسجل.</string>
     <string name="ok">حسناً</string>
-    <string name="sub_title_phr">محفظة ملفك الصحي</string>
+    <string name="sub_title_phr">محفظة ملفك الصحي الشخصي</string>
     <string name="language">اللغة</string>
     <string name="time_to_immunization">موعد تحصين لـ</string>
     <string name="location">عُمان</string>
@@ -191,7 +191,7 @@
     <string name="no_records_imm_schedule">لا يوجد تحصين مُجدول لك</string>
     <string name="wrong_msg">حدث خطأ ما يرجى المحاولة مرة أخرى</string>
     <string name="decide_later">أقرر لاحقاً</string>
-    <string name="i_want_donate">أرغب بالتبرع بعد الوفاة</string>
+    <string name="i_want_donate">أرغب بالتبرع بأعضائي بعد الوفاة</string>
     <string name="no_doc_type_found">لم يتم العثور على بيانات أنواع المستندات. الرجاء المحاولة مرة أخرى.</string>
     <string name="saved_successfully">تم حفظ البيانات بنجاح</string>
     <string name="sent_otp_msg_dialog">تم إرسال كلمة السر إلى الرقم المسجل.</string>
@@ -210,5 +210,5 @@
     <string name="change_civil_id">تغيير الرقم المدني</string>
     <string name="select_organ_msg">الرجاء اختيار عضو واحد على الأقل للتيرع !</string>
     <string name="betaTitle">نسخة تجريبية</string>
-    <string name="betaMsg">شكراً على موافقتك لاستخدام هذه النسخة التجريبية من تطبيق عافيتي\nلقد تم اختيارك لتكون من ضمن الفئة المحددة لاختبار مدى فعالية هذا التطبيق\nيرجى تسجيل التقييم والملاحظات في خانة "تقييم التطبيق" الموجودة في القائمة الجانبية للتطبيق، أو التواصل عبر البريد الإلكتروني: ministryofhealth.playstore@gmail.com\n\nمع تحيات وزارة الصحة - سلطنة عُمان</string>
+    <string name="betaMsg">شكراً على موافقتك لاستخدام هذه النسخة التجريبية من تطبيق شفاء\nلقد تم اختيارك لتكون من ضمن الفئة المحددة لاختبار مدى فعالية هذا التطبيق\nيرجى تسجيل التقييم والملاحظات في خانة "تقييم التطبيق" الموجودة في القائمة الجانبية للتطبيق، أو التواصل عبر البريد الإلكتروني: ministryofhealth.playstore@gmail.com\n\nمع تحيات وزارة الصحة - سلطنة عُمان</string>
 </resources>

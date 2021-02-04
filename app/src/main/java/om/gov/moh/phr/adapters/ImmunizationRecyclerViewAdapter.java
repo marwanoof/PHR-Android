@@ -84,7 +84,7 @@ public class ImmunizationRecyclerViewAdapter extends RecyclerView.Adapter<Immuni
                 final long eventDate = medicineObj.getScheduledOn();
                 final String description = context.getResources().getString(R.string.go_for_vaccination);
                 holder.scheduleBtn.setTag(false);
-                if (readeCalender2(title.trim(),description.trim())) {
+                if (readeCalender2(title.trim())) {
                     holder.scheduleBtn.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_reminder_true));
                     // holder.scheduleBtn.setBackgroundTintList(null);
                     holder.scheduleBtn.setTag(true);
@@ -174,9 +174,10 @@ public class ImmunizationRecyclerViewAdapter extends RecyclerView.Adapter<Immuni
         }
         notifyDataSetChanged();
     }
-    private Boolean readeCalender2(String title, String medId){
+
+    private Boolean readeCalender2(String title) {
         ContentResolver cr = context.getContentResolver();
-        Cursor cursor = cr.query(CalendarContract.Events.CONTENT_URI, new String[]{ "calendar_id", "title", "description", "dtstart", "dtend", "eventLocation" }, null, null, null);
+        Cursor cursor = cr.query(CalendarContract.Events.CONTENT_URI, new String[]{"calendar_id", "title", "description", "dtstart", "dtend", "eventLocation"}, null, null, null);
         //Cursor cursor = cr.query(Uri.parse("content://calendar/calendars"), new String[]{ "_id", "name" }, null, null, null);
         String add = null;
         cursor.moveToFirst();
@@ -184,76 +185,12 @@ public class ImmunizationRecyclerViewAdapter extends RecyclerView.Adapter<Immuni
         int[] CalIds = new int[cursor.getCount()];
         for (int i = 0; i < CalNames.length; i++) {
             CalIds[i] = cursor.getInt(0);
-            if(medId!=null&&cursor!=null) {
-                if(cursor.getString(2)!=null){
-                    if (cursor.getString(2).equals(medId)) {
-                        if(cursor.getString(1)!=null) {
-                            if (cursor.getString(1).equals(title)) {
-                                return true;
-                            }
-                        }
-                    }
-                    // CalNames[i] = "Event"+cursor.getInt(0)+": \nTitle: "+ cursor.getString(1)+"\nDescription: "+cursor.getString(2)+"\nStart Date: "+new Date(cursor.getLong(3))+"\nEnd Date : "+new Date(cursor.getLong(4))+"\nLocation : "+cursor.getString(5);
-
+            if (cursor.getString(1) != null) {
+                if (cursor.getString(1).equals(title)) {
+                    return true;
                 }
             }
-           /* if(add == null)
-                add = CalNames[i];
-            else{
-                add += CalNames[i];
-            }
-            System.out.println(add);*/
-            //((TextView)findViewById(R.id.calendars)).setText(add);
 
-            cursor.moveToNext();
-        }
-        cursor.close();
-        return false;
-    }
-    private Boolean readeCalender(String vaccineName) {
-/*        ContentResolver cr = context.getContentResolver();
-        Cursor cursor = cr.query(CalendarContract.Events.CONTENT_URI, new String[]{"calendar_id", "title", "description", "dtstart", "dtend", "eventLocation"}, null, null, null);
-        cursor.moveToFirst();
-        String[] CalNames = new String[cursor.getCount()];
-        int[] CalIds = new int[cursor.getCount()];
-        for (int i = 0; i < CalNames.length; i++) {
-            CalIds[i] = cursor.getInt(0);
-            if (medId != null && cursor != null) {
-                if (cursor.getString(cursor.getColumnIndex("title")) != null) {
-                    if (cursor.getString(cursor.getColumnIndex("title")).equals(vaccineName)) {
-                        Log.d("vaccineName", cursor.getString(cursor.getColumnIndex("title")));
-                        return true;
-                    }
-                }
-            }
-            cursor.moveToNext();
-        }
-        cursor.close();
-        return false;*/
-    /*    ContentResolver cr = context.getContentResolver();
-        Cursor cursor = cr.query(CalendarContract.Events.CONTENT_URI, new String[]{"calendar_id", "title", "description", "dtstart", "dtend", "eventLocation"}, null, null, null);
-        cursor.moveToFirst();
-        String vName = cursor.getString(cursor.getColumnIndex("title"));
-        int calendarId = cursor.getInt(cursor.getColumnIndex("calendar_id"));
-        Log.d("isThere", "fromCalender: "+vName+"  "+ calendarId + " "+"From Api"+ vaccineName+"  "+ 2);
-        return vName.contains(vaccineName)&&calendarId==(2);*/
-        ContentResolver cr = context.getContentResolver();
-        Cursor cursor = cr.query(Uri.parse("content://com.android.calendar/events"), new String[]{"calendar_id", "title", "description", "dtstart", "dtend", "eventLocation"}, null, null, null);
-        //Cursor cursor = cr.query(Uri.parse("content://calendar/calendars"), new String[]{ "_id", "name" }, null, null, null);
-        String add = null;
-        cursor.moveToFirst();
-        String[] CalNames = new String[cursor.getCount()];
-        int[] CalIds = new int[cursor.getCount()];
-        for (int i = 0; i < CalNames.length; i++) {
-            CalIds[i] = cursor.getInt(0);
-            CalNames[i] = "Event" + cursor.getInt(0) + ": \nTitle: " + cursor.getString(1) + "\nDescription: " + cursor.getString(2) + "\nStart Date: " + new Date(cursor.getLong(3)) + "\nEnd Date : " + new Date(cursor.getLong(4)) + "\nLocation : " + cursor.getString(5);
-            if (add == null)
-                add = CalNames[i];
-            else {
-                add += CalNames[i];
-            }
-            // ((TextView)findViewById(R.id.calendars)).setText(add);
-            Log.d("addLog", add);
             cursor.moveToNext();
         }
         cursor.close();

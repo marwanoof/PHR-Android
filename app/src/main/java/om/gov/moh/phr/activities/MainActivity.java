@@ -743,7 +743,6 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
             public void onResponse(JSONObject response) {
                 try {
                     if (response.getInt(API_RESPONSE_CODE) == 0) {
-                        Log.d("unRegisterDevice-result", response.getString(API_RESPONSE_MESSAGE));
                     } else {
                         mProgressDialog.dismissDialog();
                     }
@@ -918,7 +917,6 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Log.d("registerDeviceId", response.toString());
                 try {
                     if (response.getInt(API_RESPONSE_CODE) == 0) {
                         saveRegisterDeviceDetails(deviceId);
@@ -964,7 +962,6 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         params.put("appShortCode", API_ANDROID_APP_CODE);
         params.put("civilId", Long.parseLong(getCurrentUser().getCivilId()));
         params.put("loginId", "");
-        Log.d("registerDeviceIdjson", params.toString());
         return new JSONObject(params);
     }
 

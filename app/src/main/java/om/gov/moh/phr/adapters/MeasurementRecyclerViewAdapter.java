@@ -110,7 +110,7 @@ public class MeasurementRecyclerViewAdapter extends
 
         //in order to get color correctly add 0xff at the beginning
         holder.vRoundRect.setBackground(new DrawableGradient(getColorsArray(position)));
-Log.d("VitalUnit", result.getUnitNls());
+
         String value = result.getValue();
         if (getStoredLanguage().equals(LANGUAGE_ARABIC)) {
             holder.tvTitle.setText(result.getVitalNameNls());
