@@ -373,7 +373,8 @@ public class AddDocFragment extends Fragment {
                     public Map<String, String> getHeaders() {
                         HashMap<String, String> headers = new HashMap<>();
                         headers.put("Content-Type", "application/json");
-                      return headers;
+                        headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
+                        return headers;
                     }
 
                 };

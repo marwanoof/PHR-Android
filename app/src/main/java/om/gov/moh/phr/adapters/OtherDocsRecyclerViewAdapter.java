@@ -188,7 +188,12 @@ public class OtherDocsRecyclerViewAdapter extends RecyclerView.Adapter<OtherDocs
             othersDocsArrayList.addAll(arraylist);
         } else {
             for (ApiOtherDocsHolder.ApiDocInfo wp : arraylist) {
-                if (wp.getTitle().toLowerCase(Locale.getDefault()).contains(charText)) {
+                if (wp.getTitle().toLowerCase(Locale.getDefault()).contains(charText)
+                || wp.getTypeNls().contains(charText)
+                || wp.getTitleNls().contains(charText)
+                || wp.getType().toLowerCase(Locale.getDefault()).contains(charText)
+                || wp.getEstFullname().toLowerCase(Locale.getDefault()).contains(charText)
+                || wp.getEstFullnameNls().contains(charText)) {
                     othersDocsArrayList.add(wp);
                 }
             }

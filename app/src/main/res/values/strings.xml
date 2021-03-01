@@ -82,8 +82,8 @@
     <string name="yes_dialog">Yes</string>
     <string name="no_dialog">No</string>
     <string name="uploaded_docs">Uploaded Documents</string>
-    <string name="publish_doc_msg">Are you sure you want to Publish with doctor ?</string>
-    <string name="unpublish_doc_msg">Are you sure you want to Un Publish ?</string>
+    <string name="publish_doc_msg">Are you sure you want to publish to doctor?</string>
+    <string name="unpublish_doc_msg">Are you sure you want to unpublish?</string>
     <string name="select_doc_type_msg">Please Select the Document Type.</string>
     <string name="enter_reference_msg">Please Enter the Reference</string>
     <string name="enter_remark_msg">Please Enter the Remarks</string>

@@ -9,7 +9,11 @@ import android.util.Base64;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 import om.gov.moh.phr.R;
 
@@ -475,6 +479,19 @@ public class ApiHomeHolder {
 
         @SerializedName("showVitalPageYn")
         private String showVitalPageYn;
+
+
+        @SerializedName("vitalDate")
+        private long vitalDate;
+
+        public String getVitalDate() {
+            Calendar cal = Calendar.getInstance();
+            cal.setTimeInMillis(vitalDate);
+            Date serverDate = new Date(vitalDate);
+            SimpleDateFormat dateFormat = new SimpleDateFormat("E, MMM dd yyyy hh:mm a", Locale.ENGLISH);
+            String date = dateFormat.format(serverDate);
+            return date;
+        }
 
         public String getUnitNls() {
             if (unitNls == null || TextUtils.isEmpty(unitNls))

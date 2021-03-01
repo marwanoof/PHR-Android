@@ -120,6 +120,7 @@ public class MeasurementRecyclerViewAdapter extends
             holder.tvUnit.setText(result.getUnit());
         }
         holder.tvValue.setText(value);
+        holder.tvDate.setText(result.getVitalDate());
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -220,7 +221,7 @@ public class MeasurementRecyclerViewAdapter extends
     public class MyViewHolder extends RecyclerView.ViewHolder {
         private final CardView vRoundRect;
         private final CardView vitalDetails;
-        private final TextView tvTitle;
+        private final TextView tvTitle, tvDate;
         private final TextView tvValue;
         private final TextView tvUnit;
         private final ImageView imgIcon;
@@ -233,6 +234,7 @@ public class MeasurementRecyclerViewAdapter extends
             tvTitle = itemView.findViewById(R.id.tv_title);
             tvValue = itemView.findViewById(R.id.tv_value);
             tvUnit = itemView.findViewById(R.id.tv_unit);
+            tvDate = itemView.findViewById(R.id.tv_date);
             vRoundRect = itemView.findViewById(R.id.bodyM_cardView);
             imgIcon = itemView.findViewById(R.id.img_vitel);
             vitalDetails = itemView.findViewById(R.id.vitelDetails_cardView);

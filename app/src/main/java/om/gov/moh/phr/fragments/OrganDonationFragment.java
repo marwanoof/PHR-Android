@@ -320,6 +320,7 @@ public class OrganDonationFragment extends Fragment {
                             showSuccessfulAlert();
                             mToolbarControllerCallback.customToolbarBackButtonClicked();
                         } else
+                            System.out.println(response.getString(API_RESPONSE_MESSAGE));
                             GlobalMethodsKotlin.Companion.showAlertErrorDialog(mContext);
 
                     } catch (JSONException e) {
