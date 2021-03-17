@@ -63,13 +63,11 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.bottomnavigation.BottomNavigationItemView;
-import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
+import com.huawei.agconnect.config.AGConnectServicesConfig;
+import com.huawei.hms.aaid.HmsInstanceId;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -127,6 +125,7 @@ import static om.gov.moh.phr.models.MyConstants.API_ANDROID_APP_CODE;
 import static om.gov.moh.phr.models.MyConstants.API_ANDROID_FLAG;
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_ACCESS_TOKEN;
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
+import static om.gov.moh.phr.models.MyConstants.API_HUAWEI_APP_CODE;
 import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_MESSAGE;
@@ -566,7 +565,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         String title = item.getTitle().toString();
-        if (menus != null) {
+        if (menus != null && menus.length() > 0) {
             try {
                 JSONArray array = new JSONArray(menus);
                 for (int i = 0; i < array.length(); i++) {
@@ -626,30 +625,30 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
             }
 
 
-        } else {
-            if (id == R.id.nav_english) {
-                storeLanguage(LANGUAGE_ENGLISH);
-                changeLanguageTo(LANGUAGE_ENGLISH, true);
-            } else if (id == R.id.nav_arabic) {
-                storeLanguage(LANGUAGE_ARABIC);
-                changeLanguageTo(LANGUAGE_ARABIC, true);
-            } else if (id == R.id.nav_about) {
+        }// else {
+        if (id == R.id.nav_english) {
+            storeLanguage(LANGUAGE_ENGLISH);
+            changeLanguageTo(LANGUAGE_ENGLISH, true);
+        } else if (id == R.id.nav_arabic) {
+            storeLanguage(LANGUAGE_ARABIC);
+            changeLanguageTo(LANGUAGE_ARABIC, true);
+        } else if (id == R.id.nav_about) {
 
-                displayAboutAppDialog();
-            } else if (id == R.id.nav_feedback) {
-                changeFragmentTo(FeedbackFragment.newInstance(), FeedbackFragment.class.getSimpleName());
-            }/* else if (title.equals(getResources().getString(R.string.patients_rights))) {
+            displayAboutAppDialog();
+        } else if (id == R.id.nav_feedback) {
+            changeFragmentTo(FeedbackFragment.newInstance(), FeedbackFragment.class.getSimpleName());
+        }/* else if (title.equals(getResources().getString(R.string.patients_rights))) {
         //   changeFragmentTo(WebSideMenuFragment.newInstance(8), WebSideMenuFragment.class.getSimpleName());
     }*/ else if (id == R.id.nav_logout) {
-                changeSideMenuToolBarVisibility(View.VISIBLE);
-                if (AppCurrentUser.getInstance().getIsParent())
-                    logout();
-                else {
-                    finish();
-                    Intent ParentHome = new Intent(MainActivity.this, MainActivity.class);
-                    startActivity(ParentHome);
-                }
+            changeSideMenuToolBarVisibility(View.VISIBLE);
+            if (AppCurrentUser.getInstance().getIsParent())
+                logout();
+            else {
+                finish();
+                Intent ParentHome = new Intent(MainActivity.this, MainActivity.class);
+                startActivity(ParentHome);
             }
+            //     }
         }
 
         mDrawer.closeDrawer(GravityCompat.START);
@@ -662,6 +661,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         if (getSupportFragmentManager().findFragmentByTag(fragmentTag) == null) {
             getSupportFragmentManager()
                     .beginTransaction()
+                    .setCustomAnimations(R.anim.enter_right_to_left, R.anim.exist_right_to_left, R.anim.enter_left_to_right, R.anim.exit_left_to_right)
                     .setTransitionStyle(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                     .replace(R.id.fl_main_container, fragmentToLoad, fragmentTag)
                     .addToBackStack(fragmentTag)
@@ -670,6 +670,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         } else {
             getSupportFragmentManager()
                     .beginTransaction()
+                    .setCustomAnimations(R.anim.enter_right_to_left, R.anim.exist_right_to_left, R.anim.enter_left_to_right, R.anim.exit_left_to_right)
                     .setTransitionStyle(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                     .replace(R.id.fl_main_container, fragmentToLoad, fragmentTag)
                     .commit();
@@ -888,26 +889,49 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
     private void getNotificationCurrentToken() {
         // Get token
         // [START retrieve_current_token]
-        FirebaseInstanceId.getInstance().getInstanceId()
-                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
-                        if (!task.isSuccessful()) {
-                            Log.w(TAG, "getInstanceId failed", task.getException());
-                            return;
+        if (checkPlayServices(this)) {
+            FirebaseInstanceId.getInstance().getInstanceId()
+                    .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                            if (!task.isSuccessful()) {
+                                Log.w(TAG, "getInstanceId failed", task.getException());
+                                return;
+                            }
+                            // Get new Instance ID token
+                            String deviceId = task.getResult().getToken();
+                            if (!getDeviceId().equals(deviceId)) {
+                                registerDevice(deviceId);
+                                Log.d(TAG + "isNew", "YES");
+                            } else
+                                Log.d(TAG + "isNew", "No");
+                            Log.d(TAG + "deviceID", deviceId);
+
+
                         }
-                        // Get new Instance ID token
-                        String deviceId = task.getResult().getToken();
-                        if (!getDeviceId().equals(deviceId)) {
-                            registerDevice(deviceId);
-                            Log.d(TAG + "isNew", "YES");
-                        } else
-                            Log.d(TAG + "isNew", "No");
-                        Log.d(TAG + "deviceID", deviceId);
-
-
+                    });
+        } else {
+            new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        // read from agconnect-services.json
+                        String appId = AGConnectServicesConfig.fromContext(mContext).getString("client/app_id");
+                        String token = HmsInstanceId.getInstance(mContext).getToken(appId, "HCM");
+                        Log.i(TAG, "get token:" + token);
+                        if (!TextUtils.isEmpty(token)) {
+                            if (!getDeviceId().equals(token)) {
+                                registerDevice(token);
+                                Log.d(TAG + "isNew", "YES");
+                            } else
+                                Log.d(TAG + "isNew", "No");
+                        }
+                    } catch (com.huawei.hms.common.ApiException e) {
+                        e.printStackTrace();
                     }
-                });
+                }
+            }.start();
+        }
 // [END retrieve_current_token]
     }
 
@@ -941,7 +965,6 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
             @Override
             public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
-//                headers.put("Accept", "application/json");
                 headers.put("Content-Type", "application/json");
                 headers.put("Authorization", API_GET_TOKEN_BEARER + getAccessToken().getAccessTokenString());
                 return headers;
@@ -959,7 +982,10 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         Map<String, Object> params = new HashMap<>();
         params.put("deviceId", deviceId);
         params.put("flag", API_ANDROID_FLAG);
-        params.put("appShortCode", API_ANDROID_APP_CODE);
+        if (checkPlayServices(this))
+            params.put("appShortCode", API_ANDROID_APP_CODE);
+        else
+            params.put("appShortCode", API_HUAWEI_APP_CODE);
         params.put("civilId", Long.parseLong(getCurrentUser().getCivilId()));
         params.put("loginId", "");
         return new JSONObject(params);

@@ -32,6 +32,7 @@ public class MyConstants {
     public static final String API_TABULAR_TEMPLATE = "D";
     public static final int API_ANDROID_FLAG = 0;
     public static final String API_ANDROID_APP_CODE = "PHRdroid";
+    public static final String API_HUAWEI_APP_CODE = "PHRhuawei";
 
     //prefs
     public static final String PREFS_API_GET_TOKEN = "api_auth_token";
