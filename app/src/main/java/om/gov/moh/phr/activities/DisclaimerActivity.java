@@ -57,7 +57,7 @@ public class DisclaimerActivity extends AppCompatActivity {
         float fontSize = getResources().getDimension(R.dimen.text_size_16sp);
         settings.setDefaultFontSize((int) fontSize);
 
-//        wvTerms.loadDataWithBaseURL("file:///android_asset/terms.html", "", "text/html", "UTF-8", null);
+
         if (getStoredLanguage().equals(LANGUAGE_ARABIC)) {
             btnAccept.setText("موافق");
             btnDecline.setText("غير موافق");

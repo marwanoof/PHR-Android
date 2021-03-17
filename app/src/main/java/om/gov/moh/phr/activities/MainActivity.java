@@ -145,23 +145,7 @@ import static om.gov.moh.phr.models.MyConstants.PREFS_IS_PARENT;
 import static om.gov.moh.phr.models.MyConstants.PREFS_SIDE_MENU;
 
 
-/**
- * PHR-DOC : MainActivity | JIRA board : http://10.99.2.38:8080/browse/PHR-41
- * <p>
- * MainActivity : is the second Activity of PHR. this Activity handel many transactions.
- * <p>
- * #Requirements :
- * 1. the status bar should be white with dark icons.
- * 2. MainActivity should have side menu and button navigation view.
- * 3. Button navigation view should be linked with view pager
- * 4. Side menu  and its icon should be visible and accessible only if home screen is active.
- * 5. MainActivity should have 2 containers. 1# container that contains view pager. #2 container contains sub fragments.
- * 6. 1# container Visibility should be View.VISIBLE and 2# container Visibility should be View.GONE
- * <p>
- * ##Structure :
- * <p>
- * 1. initialize {mHomePagerAdapter} that is variable of type {@link HomePagerAdapter}. HomePagerAdapter class would handel loading fragments into the view pager
- */
+
 public class MainActivity extends AppCompatActivity implements MediatorInterface, ToolbarControllerInterface, NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = "MainActivity";
@@ -183,8 +167,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         int resultCode = apiAvailability.isGooglePlayServicesAvailable(activity);
         if (resultCode != ConnectionResult.SUCCESS) {
             if (apiAvailability.isUserResolvableError(resultCode)) {
-                apiAvailability.getErrorDialog(activity, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST)
-                        .show();
+                //apiAvailability.getErrorDialog(activity, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST).show();
             } else {
                 Log.d(TAG, "This device is not supported.");
             }
@@ -375,7 +358,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
                     dontShowAgain.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                         @Override
                         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                            Log.println(Log.ASSERT, "ERROR HERE: ", "3");
+
                             editor.putBoolean("skipProtectedAppCheck", isChecked);
                             editor.apply();
                         }

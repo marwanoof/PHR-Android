@@ -3,8 +3,8 @@
  <string name="app_name">شفاء</string>
  <string name="title_phr">[ الملف الشخصي الصحي ]</string>
  <string name="title_enter_your_civil_id">ادخال الرقم المدني</string>
- <string name="title_get_otp">الحصول على كلمة السر</string>
- <string name="title_enter_otp">ادخل كلمة السر</string>
+ <string name="title_get_otp">الحصول على رمز التحقق</string>
+ <string name="title_enter_otp">ادخل رمز التحقق</string>
  <string name="alert_empty_field">هذا الحقل لا يمكن أن يكون فارغًا.</string>
  <string name="title_login">تسجيل الدخول</string>
  <string name="title_accept">موافق</string>
@@ -194,13 +194,13 @@
  <string name="i_want_donate">أرغب بالتبرع بأعضائي بعد الوفاة</string>
  <string name="no_doc_type_found">لم يتم العثور على بيانات أنواع المستندات. الرجاء المحاولة مرة أخرى.</string>
  <string name="saved_successfully">تم حفظ البيانات بنجاح</string>
- <string name="sent_otp_msg_dialog">تم إرسال كلمة السر إلى الرقم المسجل.</string>
+ <string name="sent_otp_msg_dialog">تم إرسال رمز التحقق إلى الرقم المسجل.</string>
  <string name="description">التفاصيل: </string>
  <string name="msg_no_vital">لا توجد بيانات مسجلة عن هذه العلامة الحيوية</string>
  <string name="add_new_appointment">إضافة موعد جديد</string>
- <string name="invalid_otp_msg">كلمة السر غير صحيحة !</string>
+ <string name="invalid_otp_msg">رمز التحقق غير صحيحة !</string>
  <string name="invalid_civilID_msg">الرقم المدني غير صحيح\ غير مسجل !</string>
- <string name="reset_otp">إعادة إرسال كلمة السر</string>
+ <string name="reset_otp">إعادة إرسال رمز التحقق</string>
  <string name="no_chats_msg">لا توجد محادثات متوفرة.</string>
  <string name="no_institutes_records_found">بيانات المؤسسات الصحية غير متوفرة. </string>
  <string name="no_health_records_available_for_you">لا توجد سجلات صحية متوفرة لك.</string>
@@ -210,5 +210,5 @@
  <string name="change_civil_id">تغيير الرقم المدني</string>
  <string name="select_organ_msg">الرجاء اختيار عضو واحد على الأقل للتيرع !</string>
  <string name="betaTitle">نسخة تجريبية</string>
- <string name="betaMsg">شكراً على موافقتك لاستخدام هذه النسخة التجريبية من تطبيق شفاء\nلقد تم اختيارك لتكون من ضمن الفئة المحددة لاختبار مدى فعالية هذا التطبيق\nيرجى تسجيل التقييم والملاحظات في خانة "تقييم التطبيق" الموجودة في القائمة الجانبية للتطبيق، أو التواصل عبر البريد الإلكتروني: ministryofhealth.playstore@gmail.com\n\nمع تحيات وزارة الصحة - سلطنة عُمان</string>
+ <string name="betaMsg">شكراً على موافقتك لاستخدام هذه النسخة التجريبية من تطبيق شفاء\nلقد تم اختيارك لتكون من ضمن الفئة المحددة لاختبار مدى فعالية هذا التطبيق\nيرجى تسجيل التقييم والملاحظات في خانة "تقييم التطبيق" الموجودة في القائمة الجانبية للتطبيق، أو التواصل عبر البريد الإلكتروني: app.support@moh.gov.om\n\nمع تحيات وزارة الصحة - سلطنة عُمان</string>
 </resources>

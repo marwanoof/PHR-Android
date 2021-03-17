@@ -400,7 +400,7 @@ public class LoginActivity extends AppCompatActivity {
                     if (response.getInt(API_RESPONSE_CODE) == 0) {
                         JSONObject jsonObject = response.optJSONObject(API_RESPONSE_RESULT);
                         if (jsonObject != null) {
-                          //  showDisclaimerDialog(jsonObject.optString(API_GET_TOKEN_ACCESS_TOKEN), civilId, jsonObject.optString("personName"), jsonObject.optString("image"), Objects.requireNonNull(jsonObject.optJSONArray("menus")).toString());
+                            //  showDisclaimerDialog(jsonObject.optString(API_GET_TOKEN_ACCESS_TOKEN), civilId, jsonObject.optString("personName"), jsonObject.optString("image"), Objects.requireNonNull(jsonObject.optJSONArray("menus")).toString());
                             storeAccessToken(jsonObject.optString(API_GET_TOKEN_ACCESS_TOKEN)
                                     , civilId, jsonObject.optString("personName"), jsonObject.optString("image"), jsonObject.optJSONArray("menus").toString());
                         }
