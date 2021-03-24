@@ -50,7 +50,7 @@ class Splash : AppCompatActivity() {
         if (getSharedPreferences(PREFS_API_GET_TOKEN, Context.MODE_PRIVATE).contains(API_GET_TOKEN_ACCESS_TOKEN))
             intent = Intent(this, MainActivity::class.java)
         else
-            intent = Intent(this, DisclaimerActivity::class.java)
+            intent = Intent(this, LoginActivity::class.java)
         val handler = Handler()
         handler.postDelayed({
             finish()

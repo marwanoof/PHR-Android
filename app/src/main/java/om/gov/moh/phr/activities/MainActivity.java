@@ -864,7 +864,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
 
     private void setupLoginFragment() {
         finish();
-        Intent intent = new Intent(MainActivity.this, DisclaimerActivity.class);
+        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
         startActivity(intent);
     }
 

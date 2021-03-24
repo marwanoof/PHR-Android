@@ -29,6 +29,7 @@ import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.RequestManager;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.gson.Gson;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -61,6 +62,8 @@ import javax.net.ssl.TrustManagerFactory;
 
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.apimodels.AccessToken;
+import om.gov.moh.phr.apimodels.ApiDependentsHolder;
+import om.gov.moh.phr.apimodels.ApiDisclaimerHolder;
 import om.gov.moh.phr.dialogfragments.CancelAppointmentDialogFragment;
 import om.gov.moh.phr.dialogfragments.DisclaimerDialogFragment;
 import om.gov.moh.phr.interfaces.DialogFragmentInterface;
@@ -120,7 +123,7 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin = findViewById(R.id.btn_login);
         ImageView ivLogo = findViewById(R.id.imageView);
         ivMohLogo = findViewById(R.id.iv_logo_moh);
-        if(getStoredLanguage().equals(LANGUAGE_ARABIC))
+        if (getStoredLanguage().equals(LANGUAGE_ARABIC))
             ivMohLogo.setImageResource(R.drawable.moh_logo_ar);
         tvCancel = findViewById(R.id.tv_cancel);
         tvChangeCivilID = findViewById(R.id.tv_changeCivilID);
@@ -227,7 +230,7 @@ public class LoginActivity extends AppCompatActivity {
         appLanguage.setSelectedLanguage(language);
     }
 
-    public SSLSocketFactory getSocketFactory() {
+    private SSLSocketFactory getSocketFactory() {
         CertificateFactory cf = null;
         try {
             cf = CertificateFactory.getInstance("X.509");
@@ -297,6 +300,7 @@ public class LoginActivity extends AppCompatActivity {
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
+                Log.d("getOtp", response.toString());
                 try {
 
                     if (response.getInt(API_RESPONSE_CODE) == 0
@@ -318,7 +322,7 @@ public class LoginActivity extends AppCompatActivity {
                 GlobalMethodsKotlin.Companion.showAlertDialog(LoginActivity.this, getResources().getString(R.string.alert_error_title), getResources().getString(R.string.wrong_msg), getResources().getString(R.string.ok), R.drawable.ic_error);
                 mProgressDialog.dismissDialog();
             }
-        } ) {
+        }) {
             //
             @Override
             public Map<String, String> getHeaders() {
@@ -390,6 +394,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void login(final String civilId, String otp) {
+        mProgressDialog.showDialog();
         String fullUrl = API_PHR + "v2/validateOtp";
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, fullUrl, getValidateJSONRequestParams(civilId, otp)
                 , new Response.Listener<JSONObject>() {
@@ -452,7 +457,7 @@ public class LoginActivity extends AppCompatActivity {
 
         SharedPreferences pref = getApplicationContext().getSharedPreferences("betaValidation", 0);
         editor = pref.edit();
-        editor.putBoolean("beta",true);
+        editor.putBoolean("beta", true);
         editor.commit();
 
         SharedPreferences sharedPrefAccessToken = getSharedPreferences(PREFS_API_GET_TOKEN, Context.MODE_PRIVATE);
@@ -480,12 +485,18 @@ public class LoginActivity extends AppCompatActivity {
         editor.apply();
 
 //        mDisclaimerDialogFragment.dismiss();
-        moveToMainActivity();
+        getDisclaimerByCivilId(civilId);
     }
 
     private void moveToMainActivity() {
         finish();
         Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+    }
+
+    private void moveToDisclaimerActivity() {
+        finish();
+        Intent intent = new Intent(this, DisclaimerActivity.class);
         startActivity(intent);
     }
 
@@ -538,5 +549,48 @@ public class LoginActivity extends AppCompatActivity {
         metrics.scaledDensity = configuration.fontScale * metrics.density;
         getBaseContext().getResources().updateConfiguration(configuration, metrics);
 
+    }
+
+    private void getDisclaimerByCivilId(String civilId) {
+        mProgressDialog.showDialog();
+        String fullUrl = API_PHR + "/getDisclaimerByCivilId?civilId=" + civilId;
+
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, fullUrl, null
+                , new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                Log.d("getDisclaimerByCivilId", response.toString());
+                try {
+
+                    if (response.getInt(API_RESPONSE_CODE) == 0) {
+                        Gson json = new Gson();
+                        ApiDisclaimerHolder disclaimerHolder = json.fromJson(response.toString(), ApiDisclaimerHolder.class);
+                        if (disclaimerHolder.getmResult() != null) {
+                            if (disclaimerHolder.getmResult().getAcceptYN() != null && disclaimerHolder.getmResult().getAcceptYN().equalsIgnoreCase("y"))
+                                moveToMainActivity();
+                            else
+                                moveToDisclaimerActivity();
+                        }
+
+                    } else {
+                        moveToDisclaimerActivity();
+                    }
+                } catch (JSONException e) {
+                    GlobalMethodsKotlin.Companion.showAlertDialog(LoginActivity.this, getResources().getString(R.string.alert_error_title), getResources().getString(R.string.wrong_msg), getResources().getString(R.string.ok), R.drawable.ic_error);
+                }
+                mProgressDialog.dismissDialog();
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                GlobalMethodsKotlin.Companion.showAlertDialog(LoginActivity.this, getResources().getString(R.string.alert_error_title), getResources().getString(R.string.wrong_msg), getResources().getString(R.string.ok), R.drawable.ic_error);
+                mProgressDialog.dismissDialog();
+            }
+        });
+        int socketTimeout = 30000;//30 seconds - change to what you want
+        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        jsonObjectRequest.setRetryPolicy(policy);
+        mQueue.add(jsonObjectRequest);
     }
 }

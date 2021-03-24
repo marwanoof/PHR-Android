@@ -95,7 +95,10 @@
         </service>
         <service
             android:name=".HmsMessageService"
-            android:exported="false">
+            android:enabled="true"
+            android:exported="true"
+            android:permission="103998261.permission.PROCESS_PUSH_MSG"
+            android:process=":HmsMessageService">
             <intent-filter>
                 <action android:name="com.huawei.push.action.MESSAGING_EVENT" />
             </intent-filter>

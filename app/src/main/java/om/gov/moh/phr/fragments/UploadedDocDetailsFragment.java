@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -70,7 +71,7 @@ public class UploadedDocDetailsFragment extends Fragment implements SwipeRefresh
     private Context mContext;
     private MediatorInterface mMediatorCallback;
     private ToolbarControllerInterface mToolbarControllerCallback;
-    private Switch switchPublish;
+    private SwitchCompat switchPublish;
     private ImageButton ibDelete;
     private ApiUploadsDocsHolder.ApiUploadDocInfo mUploadedDocInfo;
     private ImageView ivFileUploaded;
