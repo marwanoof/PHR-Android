@@ -145,7 +145,7 @@
     <string name="patients_rights">Patients Rights</string>
     <string name="publish">Publish</string>
     <string name="about_the_app">About The App</string>
-    <string name="about_app_info">Shifa App is developed by Ministry of Health - DGIT.  This BETA version of the app allows all users with a valid civil ID and registered Oman mobile number, to view their own medical record and information.</string>
+    <string name="about_app_info">Shifa App is developed by Ministry of Health - DGIT.  This BETA version of the app allows all users with a valid civil ID and registered Oman mobile number with Directorate General of Civil Status, to view their own medical record and information.</string>
     <string name="ok">OK</string>
     <string name="sub_title_phr">Your Personal Health Record Wallet</string>
     <string name="time_to_immunization">Date of vaccination for</string>
@@ -194,7 +194,7 @@
     <string name="i_want_donate">I wish to donate my organ(s) after death</string>
     <string name="no_doc_type_found">No documents types found. Please try again.</string>
     <string name="saved_successfully">The data has been saved successfully.</string>
-    <string name="sent_otp_msg_dialog">OTP has been sent to the registered number.</string>
+    <string name="sent_otp_msg_dialog">OTP has been sent to the registered number with Directorate General of Civil Status.</string>
     <string name="description">Description:</string>
     <string name="add_new_appointment">Add New Appointment</string>
     <string name="invalid_otp_msg">You entered invalid OTP !</string>
@@ -210,5 +210,8 @@
     <string name="select_organ_msg">Please select at least one organ to donate !</string>
     <string name="betaTitle">BETA Verion</string>
     <string name="betaMsg">Thank you for using this BETA version of Shifa application\nYou have been selected to test the efficiency of the app.\nPlease write the evaluation and comments in the “Feedback” field in the side menu of the application, or communicate via email:\napp.support@moh.gov.om\n\nMinistry of Health - Sultanate of Oman</string>
+    <string name="grant_gallery_permission">Please grant required permissions to upload file from your gallery!</string>
+    <string name="grant_camera_permission">Please grant required permissions to capture an image of your document!</string>
+    <string name="contact_us_txt">If you are facing any technical difficulties, please contact us via:</string>
 
 </resources>

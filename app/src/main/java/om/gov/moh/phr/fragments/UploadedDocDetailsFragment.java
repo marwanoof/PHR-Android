@@ -33,6 +33,7 @@ import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
 import com.google.android.material.snackbar.Snackbar;
@@ -237,6 +238,7 @@ public class UploadedDocDetailsFragment extends Fragment implements SwipeRefresh
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
+                Log.d("FileUploaded", response.toString());
                 if (mContext != null && isAdded()) {
                     try {
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
@@ -273,6 +275,7 @@ public class UploadedDocDetailsFragment extends Fragment implements SwipeRefresh
             public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
                 headers.put("Content-Type", "application/json");
+                headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
                 return headers;
             }
 
@@ -383,6 +386,7 @@ public class UploadedDocDetailsFragment extends Fragment implements SwipeRefresh
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
+                Log.d("FileUploaded", response.toString());
                 if (mContext != null && isAdded()) {
                     try {
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
@@ -406,6 +410,7 @@ public class UploadedDocDetailsFragment extends Fragment implements SwipeRefresh
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                Log.d("FileUploaded", error.toString());
                 if (mContext != null && isAdded()) {
                     error.printStackTrace();
                     mProgressDialog.dismissDialog();
@@ -417,6 +422,7 @@ public class UploadedDocDetailsFragment extends Fragment implements SwipeRefresh
             public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
                 headers.put("Content-Type", "application/json");
+                headers.put("Authorization", API_GET_TOKEN_BEARER + mMediatorCallback.getAccessToken().getAccessTokenString());
                 return headers;
             }
 

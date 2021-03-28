@@ -71,6 +71,7 @@
                         android:layout_marginEnd="8dp"
                         android:background="@drawable/edit_text_round"
                         android:ems="10"
+                        android:textAlignment="viewStart"
                         android:fontFamily="@font/sky"
                         android:hint="@string/enter_your_mobile_no"
                         android:inputType="phone"
