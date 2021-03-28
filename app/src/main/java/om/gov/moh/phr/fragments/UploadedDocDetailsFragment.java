@@ -238,7 +238,6 @@ public class UploadedDocDetailsFragment extends Fragment implements SwipeRefresh
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Log.d("FileUploaded", response.toString());
                 if (mContext != null && isAdded()) {
                     try {
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
@@ -386,7 +385,6 @@ public class UploadedDocDetailsFragment extends Fragment implements SwipeRefresh
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Log.d("FileUploaded", response.toString());
                 if (mContext != null && isAdded()) {
                     try {
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
@@ -410,7 +408,6 @@ public class UploadedDocDetailsFragment extends Fragment implements SwipeRefresh
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("FileUploaded", error.toString());
                 if (mContext != null && isAdded()) {
                     error.printStackTrace();
                     mProgressDialog.dismissDialog();

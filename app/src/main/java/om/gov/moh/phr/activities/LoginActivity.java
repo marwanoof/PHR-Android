@@ -303,7 +303,6 @@ public class LoginActivity extends AppCompatActivity {
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Log.d("getOtp", response.toString());
                 try {
 
                     if (response.getInt(API_RESPONSE_CODE) == 0) {
@@ -403,7 +402,6 @@ public class LoginActivity extends AppCompatActivity {
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Log.d("loginMenu", response.toString());
                 try {
                     if (response.getInt(API_RESPONSE_CODE) == 0) {
                         JSONObject jsonObject = response.optJSONObject(API_RESPONSE_RESULT);
@@ -557,7 +555,6 @@ public class LoginActivity extends AppCompatActivity {
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Log.d("getDisclaimerByCivilId", response.toString());
                 try {
 
                     if (response.getInt(API_RESPONSE_CODE) == 0) {

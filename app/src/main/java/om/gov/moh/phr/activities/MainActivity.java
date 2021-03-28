@@ -16,6 +16,8 @@ import android.content.res.Configuration;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -259,7 +261,6 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
             appCurrentUser.setCivilId(getAccessToken().getAccessCivilId());
         }
         setupMainActivity();
-
     /*    if (getSharedPreferences(PREFS_API_GET_TOKEN, Context.MODE_PRIVATE).contains(API_GET_TOKEN_ACCESS_TOKEN)) {
             setupMainActivity();
         } else {
@@ -885,10 +886,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
                             String deviceId = task.getResult().getToken();
                             if (!getDeviceId().equals(deviceId)) {
                                 registerDevice(deviceId);
-                                Log.d(TAG + "isNew", "YES");
-                            } else
-                                Log.d(TAG + "isNew", "No");
-                            Log.d(TAG + "deviceID", deviceId);
+                            }
 
 
                         }
@@ -905,9 +903,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
                         if (!TextUtils.isEmpty(token)) {
                             if (!getDeviceId().equals(token)) {
                                 registerDevice(token);
-                                Log.d(TAG + "isNew", "YES");
-                            } else
-                                Log.d(TAG + "isNew", "No");
+                            }
                         }
                     } catch (com.huawei.hms.common.ApiException e) {
                         e.printStackTrace();
