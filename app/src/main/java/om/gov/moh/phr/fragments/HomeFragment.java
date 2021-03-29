@@ -87,10 +87,13 @@ import om.gov.moh.phr.models.MyProgressDialog;
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
 import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
+import static om.gov.moh.phr.models.MyConstants.Chat_Enable;
+import static om.gov.moh.phr.models.MyConstants.Clinical_Notes;
 import static om.gov.moh.phr.models.MyConstants.IS_SCROLL_LIST;
 import static om.gov.moh.phr.models.MyConstants.LANGUAGE_ARABIC;
 import static om.gov.moh.phr.models.MyConstants.LANGUAGE_PREFS;
 import static om.gov.moh.phr.models.MyConstants.LANGUAGE_SELECTED;
+import static om.gov.moh.phr.models.MyConstants.appointment_Enable;
 
 public class HomeFragment extends Fragment implements AdapterToFragmentConnectorInterface, View.OnClickListener, SwipeRefreshLayout.OnRefreshListener {
 
@@ -631,6 +634,12 @@ private void showBetaVersionMsg(){
                                     setupRefferalsRecyclerView(rvReferrals);
                                 }
                                 if (responseHolder.getmResult().getmHome() != null) {
+                                    if(responseHolder.getmResult().getmHome().getClinicalNotesEnableYN() != null)
+                                        Clinical_Notes = responseHolder.getmResult().getmHome().getClinicalNotesEnableYN();
+                                    if(responseHolder.getmResult().getmHome().getChatEnableYN() != null)
+                                        Chat_Enable = responseHolder.getmResult().getmHome().getChatEnableYN();
+                                    if(responseHolder.getmResult().getmHome().getAppointmentEnableYN() != null)
+                                        appointment_Enable = responseHolder.getmResult().getmHome().getAppointmentEnableYN();
                                     if (responseHolder.getmResult().getmHome().getmMainMenus() != null)
                                         mAdapter.updateList(responseHolder.getmResult().getmHome().getmMainMenus());
                                     if (responseHolder.getmResult().getmHome().getmDemographics() != null)

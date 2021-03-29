@@ -53,4 +53,13 @@ public class MyConstants {
     //activate userpreferences home style
     public static boolean IS_SCROLL_LIST = true;
 
+    //activate ClinicalNotes
+    public static String Clinical_Notes = "";
+
+    //activate Chat
+    public static String Chat_Enable = "";
+
+    //activate appointment
+    public static String appointment_Enable = "";
+
 }

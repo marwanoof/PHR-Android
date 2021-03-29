@@ -15,7 +15,8 @@ import om.gov.moh.phr.R;
 import om.gov.moh.phr.interfaces.AdapterToFragmentConnectorInterface;
 import om.gov.moh.phr.models.CustomSlot;
 
-public class TimeItemsRecyclerViewAdapter extends
+public class
+TimeItemsRecyclerViewAdapter extends
         RecyclerView.Adapter<TimeItemsRecyclerViewAdapter.MyViewHolder> {
 
 
