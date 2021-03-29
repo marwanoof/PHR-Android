@@ -84,7 +84,7 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
     private Context mContext;
     private MediatorInterface mMediatorCallback;
     private ToolbarControllerInterface mToolbarControllerCallback;
-    private TextView tvEmail, tvPhone;
+    private TextView tvEmail, tvFirstPhone, tvSecondPhone, tvThirdPhone;
     private RequestQueue mQueue;
     private MyProgressDialog mProgressDialog;
     private EditText /*etUserEmail, etUserMobileNo,*/ editText, etOtherComments;
@@ -150,12 +150,30 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
         mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
         mProgressDialog = new MyProgressDialog(mContext);
         tvEmail = view.findViewById(R.id.tvEmail);
-        tvPhone = view.findViewById(R.id.tvPhone);
-        tvPhone.setOnClickListener(new View.OnClickListener() {
+        tvFirstPhone = view.findViewById(R.id.tvFirstPhone);
+        tvSecondPhone = view.findViewById(R.id.tvSecondPhone);
+        tvThirdPhone = view.findViewById(R.id.tvThirdPhone);
+        tvFirstPhone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(Intent.ACTION_DIAL);
-                intent.setData(Uri.parse("tel:24444444"));
+                intent.setData(Uri.parse("tel:22357426"));
+                startActivity(intent);
+            }
+        });
+        tvThirdPhone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_DIAL);
+                intent.setData(Uri.parse("tel:98994998"));
+                startActivity(intent);
+            }
+        });
+        tvSecondPhone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_DIAL);
+                intent.setData(Uri.parse("tel:93244095"));
                 startActivity(intent);
             }
         });

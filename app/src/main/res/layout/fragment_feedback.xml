@@ -15,33 +15,37 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-<ScrollView
-    android:layout_width="match_parent"
-    android:layout_height="@dimen/space_0"
-    app:layout_constraintBottom_toTopOf="@id/tvContactTxt"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    android:layout_margin="@dimen/space_24"
-    app:layout_constraintTop_toBottomOf="@id/include">
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cardView5"
+
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardCornerRadius="10dp"
-        app:cardElevation="10dp">
-    <LinearLayout
-        android:id="@+id/main_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/space_10"
-        android:layout_marginEnd="@dimen/space_10"
-        android:layout_marginBottom="@dimen/space_10"
-        android:orientation="vertical">
+        android:layout_height="@dimen/space_0"
+        android:layout_margin="@dimen/space_24"
+        app:layout_constraintBottom_toTopOf="@id/tvContactTxt"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/include">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardView5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="10dp">
+
+            <LinearLayout
+                android:id="@+id/main_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_10"
+                android:layout_marginEnd="@dimen/space_10"
+                android:layout_marginBottom="@dimen/space_10"
+                android:orientation="vertical">
 
 
-    </LinearLayout>
-    </androidx.cardview.widget.CardView>
-</ScrollView>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+    </ScrollView>
+
     <TextView
         android:id="@+id/tvContactTxt"
         android:layout_width="match_parent"
@@ -49,7 +53,8 @@
         android:layout_marginStart="@dimen/space_20dp"
         android:layout_marginEnd="@dimen/space_20dp"
         android:text="@string/contact_us_txt"
-        app:layout_constraintBottom_toTopOf="@id/tvEmail"/>
+        app:layout_constraintBottom_toTopOf="@id/tvEmail" />
+
     <TextView
         android:id="@+id/tvEmail"
         android:layout_width="match_parent"
@@ -57,33 +62,63 @@
         android:layout_marginStart="@dimen/space_20dp"
         android:layout_marginEnd="@dimen/space_20dp"
         android:padding="@dimen/space_4"
+        android:text="app.support@moh.gov.om"
+        android:textAlignment="center"
         android:textColor="@color/colorPrimary"
         android:textStyle="bold"
-        android:textAlignment="center"
-        android:text="app.support@moh.gov.om"
-        app:layout_constraintBottom_toTopOf="@id/tvPhone"/>
+        app:layout_constraintBottom_toTopOf="@id/tvFirstPhone" />
+
     <TextView
-        android:id="@+id/tvPhone"
-        android:layout_width="match_parent"
+        android:id="@+id/tvFirstPhone"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/space_20dp"
-        android:layout_marginEnd="@dimen/space_20dp"
-        android:padding="@dimen/space_4"
-        android:textColor="@color/colorPrimary"
-        android:textAlignment="center"
-        android:text="24444444"
-        android:textStyle="bold"
         android:layout_marginBottom="@dimen/space_10"
-        app:layout_constraintBottom_toTopOf="@id/btn_submit"/>
+        android:padding="@dimen/space_4"
+        android:text="22357426 | "
+        android:textAlignment="center"
+        android:textColor="@color/colorPrimary"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@id/tvSecondPhone"
+        app:layout_constraintBottom_toTopOf="@id/btn_submit" />
+
+    <TextView
+        android:id="@+id/tvSecondPhone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/space_10"
+        android:padding="@dimen/space_4"
+        android:text="93244095 | "
+        android:textAlignment="center"
+        android:textColor="@color/colorPrimary"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@id/btn_submit"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/tvThirdPhone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/space_20dp"
+        android:layout_marginBottom="@dimen/space_10"
+        android:padding="@dimen/space_4"
+        android:text="98994998"
+        android:textAlignment="center"
+        android:textColor="@color/colorPrimary"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@id/tvSecondPhone"
+        app:layout_constraintBottom_toTopOf="@id/btn_submit" />
+
     <Button
         android:id="@+id/btn_submit"
         android:layout_width="@dimen/space_0"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/space_16"
+        android:background="@drawable/upload_btn"
         android:fontFamily="@font/roboto_regular"
         android:text="@string/submit"
         android:textColor="@android:color/white"
-        android:background="@drawable/upload_btn"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/btn_cancel"
         app:layout_constraintHorizontal_bias="0.5"
@@ -94,10 +129,10 @@
         android:layout_width="@dimen/space_0"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/space_16"
+        android:background="@drawable/cancel_btn"
         android:fontFamily="@font/roboto_regular"
         android:text="@string/title_cancel"
         android:textColor="@color/colorPrimary"
-        android:background="@drawable/cancel_btn"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
