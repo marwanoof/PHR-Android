@@ -3,7 +3,9 @@ package om.gov.moh.phr.fragments;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -13,6 +15,7 @@ import android.text.InputFilter;
 import android.text.InputType;
 import android.text.Spanned;
 import android.text.method.DigitsKeyListener;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -81,10 +84,10 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
     private Context mContext;
     private MediatorInterface mMediatorCallback;
     private ToolbarControllerInterface mToolbarControllerCallback;
-    private TextView tvAlert;
+    private TextView tvEmail, tvPhone;
     private RequestQueue mQueue;
     private MyProgressDialog mProgressDialog;
-    private EditText etUserEmail, etUserMobileNo, editText, etOtherComments;
+    private EditText /*etUserEmail, etUserMobileNo,*/ editText, etOtherComments;
     private ApiFeedbackHolder responseHolder;
     private ArrayList<RadioGroup> radioGroupArray;
     private LinearLayout linearLayout;
@@ -144,9 +147,28 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
             }
         });
         linearLayout = view.findViewById(R.id.main_layout);
-        tvAlert = view.findViewById(R.id.tv_alert);
         mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
         mProgressDialog = new MyProgressDialog(mContext);
+        tvEmail = view.findViewById(R.id.tvEmail);
+        tvPhone = view.findViewById(R.id.tvPhone);
+        tvPhone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_DIAL);
+                intent.setData(Uri.parse("tel:24444444"));
+                startActivity(intent);
+            }
+        });
+        tvEmail.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_SENDTO);
+                intent.setData(Uri.parse("mailto:")); // only email apps should handle this
+                intent.putExtra(Intent.EXTRA_EMAIL, new String[] { "app.support@moh.gov.om" });
+                intent.putExtra(Intent.EXTRA_SUBJECT, "PHR Feedback");
+                startActivity(Intent.createChooser(intent, ""));
+            }
+        });
         Button btnSubmit = view.findViewById(R.id.btn_submit);
         Button btnCancel = view.findViewById(R.id.btn_cancel);
         if (mMediatorCallback.isConnected())
@@ -263,7 +285,7 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
                             etOtherComments.setFilters(new InputFilter[]{filter, new InputFilter.LengthFilter(100)});
                            // etOtherComments.setFilters(new InputFilter[] { new InputFilter.LengthFilter(100) });
                             linearLayout.addView(etOtherComments);
-                            etUserEmail = new EditText(mContext);
+                           /* etUserEmail = new EditText(mContext);
                             etUserEmail.setLayoutParams(layoutParams);
                             etUserEmail.setHint(getResources().getString(R.string.enter_your_email));
                             etUserEmail.setTextSize(14);
@@ -276,7 +298,7 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
                             etUserMobileNo.setSingleLine(true);
                             etUserMobileNo.setFilters(new InputFilter[] { new InputFilter.LengthFilter(8) });
                             etUserMobileNo.setInputType(InputType.TYPE_CLASS_PHONE);
-                            linearLayout.addView(etUserMobileNo);
+                            linearLayout.addView(etUserMobileNo);*/
                         } else {
                             mProgressDialog.dismissDialog();
                         }
@@ -367,8 +389,8 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
         params.put("appType", "phrApp");
         params.put("feedbackType", 1);
         params.put("otherComments", etOtherComments.getText().toString());
-        params.put("userEmail", etUserEmail.getText().toString());
-        params.put("userMobile", etUserMobileNo.getText().toString());
+      //  params.put("userEmail", etUserEmail.getText().toString());
+     //   params.put("userMobile", etUserMobileNo.getText().toString());
         JSONArray jsonArray = new JSONArray();
         for (int i = 0; i < responseHolder.getResult().size(); i++) {
             try {
@@ -431,7 +453,7 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
             Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(android.R.id.content), "Please try to answer all questions!", Snackbar.LENGTH_SHORT)
                     .setBackgroundTint(getResources().getColor(R.color.colorPrimary))
                     .show();
-        }  else if (etUserEmail.getText().toString().trim().equals("")) {
+        }  /*else if (etUserEmail.getText().toString().trim().equals("")) {
             etUserEmail.setError(getResources().getString(R.string.alert_empty_field));
             etUserEmail.requestFocus();
             Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(android.R.id.content), getResources().getString(R.string.alert_empty_field), Snackbar.LENGTH_SHORT)
@@ -446,9 +468,9 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
         } else if (!isMobileNoValid(etUserMobileNo.getText().toString())||etUserMobileNo.getText().toString().trim().length()<8) {
             etUserMobileNo.setError(getResources().getString(R.string.invalid_phoneNo));
             etUserMobileNo.requestFocus();
-        } else {
+        } else {*/
              saveFeedback();
-        }
+        //}
     }
 
 

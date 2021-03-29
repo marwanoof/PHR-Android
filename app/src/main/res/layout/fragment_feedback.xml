@@ -18,7 +18,7 @@
 <ScrollView
     android:layout_width="match_parent"
     android:layout_height="@dimen/space_0"
-    app:layout_constraintBottom_toTopOf="@id/btn_submit"
+    app:layout_constraintBottom_toTopOf="@id/tvContactTxt"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
     android:layout_margin="@dimen/space_24"
@@ -42,6 +42,39 @@
     </LinearLayout>
     </androidx.cardview.widget.CardView>
 </ScrollView>
+    <TextView
+        android:id="@+id/tvContactTxt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_20dp"
+        android:layout_marginEnd="@dimen/space_20dp"
+        android:text="@string/contact_us_txt"
+        app:layout_constraintBottom_toTopOf="@id/tvEmail"/>
+    <TextView
+        android:id="@+id/tvEmail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_20dp"
+        android:layout_marginEnd="@dimen/space_20dp"
+        android:padding="@dimen/space_4"
+        android:textColor="@color/colorPrimary"
+        android:textStyle="bold"
+        android:textAlignment="center"
+        android:text="app.support@moh.gov.om"
+        app:layout_constraintBottom_toTopOf="@id/tvPhone"/>
+    <TextView
+        android:id="@+id/tvPhone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_20dp"
+        android:layout_marginEnd="@dimen/space_20dp"
+        android:padding="@dimen/space_4"
+        android:textColor="@color/colorPrimary"
+        android:textAlignment="center"
+        android:text="24444444"
+        android:textStyle="bold"
+        android:layout_marginBottom="@dimen/space_10"
+        app:layout_constraintBottom_toTopOf="@id/btn_submit"/>
     <Button
         android:id="@+id/btn_submit"
         android:layout_width="@dimen/space_0"

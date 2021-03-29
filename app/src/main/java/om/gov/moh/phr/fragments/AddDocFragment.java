@@ -155,14 +155,28 @@ public class AddDocFragment extends Fragment {
         ibGalleryFile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                choosePhotoFromGallery();
+                if (ContextCompat.checkSelfPermission(mContext, android.Manifest.permission.CAMERA) ==
+                        PackageManager.PERMISSION_GRANTED) {
+                    choosePhotoFromGallery();
+                }else {
+                    Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(android.R.id.content), getResources().getString(R.string.grant_gallery_permission), Snackbar.LENGTH_SHORT)
+                            .setBackgroundTint(getResources().getColor(R.color.colorPrimary))
+                            .show();
+                }
             }
         });
         ibCameraFile = view.findViewById(R.id.ib_cameraFile);
         ibCameraFile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                captureImageFromCamera();
+                if (ContextCompat.checkSelfPermission(mContext, android.Manifest.permission.CAMERA) ==
+                        PackageManager.PERMISSION_GRANTED) {
+                    captureImageFromCamera();
+                }else {
+                    Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(android.R.id.content), getResources().getString(R.string.grant_camera_permission), Snackbar.LENGTH_SHORT)
+                            .setBackgroundTint(getResources().getColor(R.color.colorPrimary))
+                            .show();
+                }
             }
         });
         Button btnUpload = view.findViewById(R.id.btn_upload);
@@ -421,11 +435,11 @@ public class AddDocFragment extends Fragment {
         File file = CameraUtils.getOutputMediaFile(MEDIA_TYPE_IMAGE);
         if (file != null) {
             imageStoragePath = file.getAbsolutePath();
+            Uri fileUri = CameraUtils.getOutputMediaFileUri(mContext, file);
+            cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+            // start the image capture Intent
+            startActivityForResult(cameraIntent, CAMERA);
         }
-        Uri fileUri = CameraUtils.getOutputMediaFileUri(mContext, file);
-        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
-        // start the image capture Intent
-        startActivityForResult(cameraIntent, CAMERA);
     }
 
     @Override

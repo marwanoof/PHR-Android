@@ -146,7 +146,7 @@
     <string name="patients_rights">حقوق المريض</string>
     <string name="publish">نشر</string>
     <string name="about_the_app">عن التطبيق</string>
-    <string name="about_app_info"> تم تطوير تطبيق شفاء بواسطة وزارة الصحة - المديرية العامة لتقنية المعلومات.  هذه النسخة التجريبية تسمح للمستخدمين من الإطلاع على ملفاتهم الشخصية الصحية عن طريق إدخال الرقم المدني ورقم الهاتف المسجل.</string>
+    <string name="about_app_info"> تم تطوير تطبيق شفاء بواسطة وزارة الصحة - المديرية العامة لتقنية المعلومات.  هذه النسخة التجريبية تسمح للمستخدمين من الإطلاع على ملفاتهم الشخصية الصحية عن طريق إدخال الرقم المدني ورقم الهاتف المسجل في الأحوال المدنية.</string>
     <string name="ok">حسناً</string>
     <string name="sub_title_phr">محفظة ملفك الصحي الشخصي</string>
     <string name="language">اللغة</string>
@@ -194,7 +194,7 @@
     <string name="i_want_donate">أرغب بالتبرع بأعضائي بعد الوفاة</string>
     <string name="no_doc_type_found">لم يتم العثور على بيانات أنواع المستندات. الرجاء المحاولة مرة أخرى.</string>
     <string name="saved_successfully">تم حفظ البيانات بنجاح</string>
-    <string name="sent_otp_msg_dialog">تم إرسال رمز التحقق إلى الرقم المسجل.</string>
+    <string name="sent_otp_msg_dialog">تم إرسال رمز التحقق إلى الرقم المسجل في الأحوال المدنية.</string>
     <string name="description">التفاصيل: </string>
     <string name="msg_no_vital">لا توجد بيانات مسجلة عن هذه العلامة الحيوية</string>
     <string name="add_new_appointment">إضافة موعد جديد</string>
@@ -211,4 +211,8 @@
     <string name="select_organ_msg">الرجاء اختيار عضو واحد على الأقل للتيرع !</string>
     <string name="betaTitle">نسخة تجريبية</string>
     <string name="betaMsg">شكراً على موافقتك لاستخدام هذه النسخة التجريبية من تطبيق شفاء\nلقد تم اختيارك لتكون من ضمن الفئة المحددة لاختبار مدى فعالية هذا التطبيق\nيرجى تسجيل التقييم والملاحظات في خانة "تقييم التطبيق" الموجودة في القائمة الجانبية للتطبيق، أو التواصل عبر البريد الإلكتروني: app.support@moh.gov.om\n\nمع تحيات وزارة الصحة - سلطنة عُمان</string>
+    <string name="grant_gallery_permission">الرجاء منح الأذونات المطلوبة لتحميل الملف من المعرض الخاص بك!</string>
+    <string name="grant_camera_permission">الرجاء منح الأذونات المطلوبة لالتقاط صورة للمستند.</string>
+    <string name="contact_us_txt">في حالة واجهتك أي صعوبات فنية الرجاء التواصل عبر: </string>
+
 </resources>

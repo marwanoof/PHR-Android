@@ -25,6 +25,7 @@ import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.JsonRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.RequestManager;
 import com.google.android.material.textfield.TextInputEditText;
@@ -155,7 +156,8 @@ public class LoginActivity extends AppCompatActivity {
 
                     } else {
                         if (NetworkUtility.isConnected(LoginActivity.this)) {
-                            getOTP(tietCivilId.getText().toString());
+                          //  getOTP(tietCivilId.getText().toString());
+                            getDisclaimerByCivilId(tietCivilId.getText().toString());
                         } else {
                             GlobalMethodsKotlin.Companion.showAlertDialog(LoginActivity.this, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
                         }
@@ -173,7 +175,8 @@ public class LoginActivity extends AppCompatActivity {
 
                     } else {
                         if (NetworkUtility.isConnected(LoginActivity.this)) {
-                            getOTP(tietCivilId.getText().toString());
+                          //  getOTP(tietCivilId.getText().toString());
+                            getDisclaimerByCivilId(tietCivilId.getText().toString());
                         } else {
                             GlobalMethodsKotlin.Companion.showAlertDialog(LoginActivity.this, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
                         }
@@ -300,11 +303,9 @@ public class LoginActivity extends AppCompatActivity {
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Log.d("getOtp", response.toString());
                 try {
 
-                    if (response.getInt(API_RESPONSE_CODE) == 0
-                            && response.getString(API_RESPONSE_RESULT).equalsIgnoreCase("true")) {
+                    if (response.getInt(API_RESPONSE_CODE) == 0) {
                         GlobalMethodsKotlin.Companion.showSimpleAlertDialog(LoginActivity.this, "", getResources().getString(R.string.sent_otp_msg_dialog), getResources().getString(R.string.ok), R.drawable.completed);
                         displayLoginForm();
                     } else {
@@ -345,9 +346,10 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private JSONObject getValidateJSONRequestParams(String civilId, String otp) {
-        Map<String, Long> params = new HashMap<>();
+        Map<String, Object> params = new HashMap<>();
         params.put("civilId", Long.parseLong(civilId));
         params.put("otp", Long.parseLong(otp));
+        params.put("disclaimerValue", "Y");
         return new JSONObject(params);
     }
 
@@ -368,14 +370,14 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-    private void showDisclaimerDialog(final String accessTokenValue, final String civilId, final String personName, final String image, final String menus) {
+    private void showDisclaimerDialog(final String civilId) {
         mDisclaimerDialogFragment = DisclaimerDialogFragment.newInstance();
         mDisclaimerDialogFragment.setDialogFragmentListener(new DialogFragmentInterface() {
 
             @Override
             public void onAccept() {
-                storeAccessToken(accessTokenValue
-                        , civilId, personName, image, menus);
+                getOTP(civilId);
+                mDisclaimerDialogFragment.dismiss();
             }
 
             @Override
@@ -400,7 +402,6 @@ public class LoginActivity extends AppCompatActivity {
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Log.d("loginMenu", response.toString());
                 try {
                     if (response.getInt(API_RESPONSE_CODE) == 0) {
                         JSONObject jsonObject = response.optJSONObject(API_RESPONSE_RESULT);
@@ -458,7 +459,7 @@ public class LoginActivity extends AppCompatActivity {
         SharedPreferences pref = getApplicationContext().getSharedPreferences("betaValidation", 0);
         editor = pref.edit();
         editor.putBoolean("beta", true);
-        editor.commit();
+        editor.apply();
 
         SharedPreferences sharedPrefAccessToken = getSharedPreferences(PREFS_API_GET_TOKEN, Context.MODE_PRIVATE);
         editor = sharedPrefAccessToken.edit();
@@ -485,18 +486,12 @@ public class LoginActivity extends AppCompatActivity {
         editor.apply();
 
 //        mDisclaimerDialogFragment.dismiss();
-        getDisclaimerByCivilId(civilId);
+        moveToMainActivity();
     }
 
     private void moveToMainActivity() {
         finish();
         Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
-    }
-
-    private void moveToDisclaimerActivity() {
-        finish();
-        Intent intent = new Intent(this, DisclaimerActivity.class);
         startActivity(intent);
     }
 
@@ -551,7 +546,7 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-    private void getDisclaimerByCivilId(String civilId) {
+    private void getDisclaimerByCivilId(final String civilId) {
         mProgressDialog.showDialog();
         String fullUrl = API_PHR + "/getDisclaimerByCivilId?civilId=" + civilId;
 
@@ -560,7 +555,6 @@ public class LoginActivity extends AppCompatActivity {
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Log.d("getDisclaimerByCivilId", response.toString());
                 try {
 
                     if (response.getInt(API_RESPONSE_CODE) == 0) {
@@ -568,13 +562,13 @@ public class LoginActivity extends AppCompatActivity {
                         ApiDisclaimerHolder disclaimerHolder = json.fromJson(response.toString(), ApiDisclaimerHolder.class);
                         if (disclaimerHolder.getmResult() != null) {
                             if (disclaimerHolder.getmResult().getAcceptYN() != null && disclaimerHolder.getmResult().getAcceptYN().equalsIgnoreCase("y"))
-                                moveToMainActivity();
+                                getOTP(civilId);
                             else
-                                moveToDisclaimerActivity();
+                                showDisclaimerDialog(civilId);
                         }
 
                     } else {
-                        moveToDisclaimerActivity();
+                        showDisclaimerDialog(civilId);
                     }
                 } catch (JSONException e) {
                     GlobalMethodsKotlin.Companion.showAlertDialog(LoginActivity.this, getResources().getString(R.string.alert_error_title), getResources().getString(R.string.wrong_msg), getResources().getString(R.string.ok), R.drawable.ic_error);
