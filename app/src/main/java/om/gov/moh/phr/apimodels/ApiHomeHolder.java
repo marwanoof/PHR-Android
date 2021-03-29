@@ -97,6 +97,27 @@ public class ApiHomeHolder {
         public ArrayList<Referrals> getReferralsArrayList() {
             return referralsArrayList;
         }
+
+        @SerializedName("clinicalNotesEnableYN")
+        private String clinicalNotesEnableYN;
+
+        public String getClinicalNotesEnableYN() {
+            return clinicalNotesEnableYN;
+        }
+
+        @SerializedName("chatEnableYN")
+        private String chatEnableYN;
+
+        public String getChatEnableYN() {
+            return chatEnableYN;
+        }
+
+        @SerializedName("appointmentEnableYN")
+        private String appointmentEnableYN;
+
+        public String getAppointmentEnableYN() {
+            return appointmentEnableYN;
+        }
     }
 
     public class ApiDemographics implements Serializable {

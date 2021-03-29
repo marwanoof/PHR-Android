@@ -50,6 +50,7 @@ import om.gov.moh.phr.models.MyProgressDialog;
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
 import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
+import static om.gov.moh.phr.models.MyConstants.Clinical_Notes;
 
 
 public class HealthRecordDetailsFragment extends Fragment {
@@ -65,6 +66,8 @@ public class HealthRecordDetailsFragment extends Fragment {
    private ApiEncountersHolder.Encounter encounterInfo;
    private ApiOtherDocsHolder.ApiDocInfo docInfo;
    private ApiProceduresReportsHolder.ProceduresByEncounter procedureObj;
+
+    public String test = "N";
 
     public HealthRecordDetailsFragment() {
         // Required empty public constructor
@@ -161,7 +164,10 @@ public class HealthRecordDetailsFragment extends Fragment {
 
         private HRDSectionsPagerAdapter(FragmentManager fm, Context context) {
             super(fm);
-            mFragmentTitles.add(context.getResources().getString(R.string.hrd_imp));//val : 1
+
+            if(Clinical_Notes.equals(""))
+                mFragmentTitles.add(context.getResources().getString(R.string.hrd_imp));//val : 1
+
             mFragmentTitles.add(context.getResources().getString(R.string.hrd_med));//val : 2
             mFragmentTitles.add(context.getResources().getString(R.string.hrd_lab));//val : 3
             mFragmentTitles.add(context.getResources().getString(R.string.hrd_rad));//val : 4
@@ -170,11 +176,15 @@ public class HealthRecordDetailsFragment extends Fragment {
 
         @NonNull
         @Override
-        public Fragment getItem(int position) {
+        public Fragment getItem(int position ) {
+
+            if(Clinical_Notes.equals("N"))
+                position = position + 1;
+
             if(encounterInfo!=null) {
                 if (position == 0)
                     return ImpressionFragment.newInstance(encounterInfo);
-                else if (position == 1)
+                else if (position == 1 )
                     return MedicationFragment.newInstance(encounterInfo);
                 else if (position == 2)
                     return LabResultsFragment.newInstance(encounterInfo);
