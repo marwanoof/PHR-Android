@@ -8,8 +8,8 @@ android {
         applicationId "om.gov.moh.phr"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 10
-        versionName "24-Jan-2021"
+        versionCode 11
+        versionName "Beta-30-March-2021"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         resConfigs "en","zh-rCN" ,"ar", "ar-rOM"
     }
@@ -48,12 +48,12 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.2.0'
-    testImplementation 'junit:junit:4.13.1'
-    androidTestImplementation 'androidx.test:runner:1.4.0-alpha04'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0-alpha04'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test:runner:1.4.0-alpha05'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0-alpha05'
     //added libs
     implementation 'com.android.volley:volley:1.2.0'
-    implementation 'androidx.recyclerview:recyclerview:1.2.0-beta02'
+    implementation 'androidx.recyclerview:recyclerview:1.2.0-rc01'
     implementation 'com.github.bumptech.glide:glide:4.9.0'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'com.google.code.gson:gson:2.8.6'

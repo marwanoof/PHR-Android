@@ -895,7 +895,6 @@ private void showBetaVersionMsg(){
         rvGrid.setItemAnimator(new DefaultItemAnimator());
         LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(mContext, R.anim.delay_slide_down);
         rvGrid.setLayoutAnimation(animation);
-        rvGrid.setHasFixedSize(true);
         rvGrid.setAdapter(mAdapter);
     }
 
