@@ -11,6 +11,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import android.telephony.TelephonyManager;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.Spanned;
@@ -156,25 +157,31 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
         tvFirstPhone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_DIAL);
-                intent.setData(Uri.parse("tel:22357426"));
-                startActivity(intent);
+                if(TelephonyChecker(mContext)) {
+                    Intent intent = new Intent(Intent.ACTION_DIAL);
+                    intent.setData(Uri.parse("tel:22357426"));
+                    startActivity(intent);
+                }
             }
         });
         tvThirdPhone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_DIAL);
-                intent.setData(Uri.parse("tel:98994998"));
-                startActivity(intent);
+                if(TelephonyChecker(mContext)) {
+                    Intent intent = new Intent(Intent.ACTION_DIAL);
+                    intent.setData(Uri.parse("tel:98994998"));
+                    startActivity(intent);
+                }
             }
         });
         tvSecondPhone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_DIAL);
-                intent.setData(Uri.parse("tel:93244095"));
-                startActivity(intent);
+                if(TelephonyChecker(mContext)) {
+                    Intent intent = new Intent(Intent.ACTION_DIAL);
+                    intent.setData(Uri.parse("tel:93244095"));
+                    startActivity(intent);
+                }
             }
         });
         tvEmail.setOnClickListener(new View.OnClickListener() {
@@ -293,7 +300,7 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
 
 
                             }
-                            etOtherComments = new EditText(mContext);
+                       /*     etOtherComments = new EditText(mContext);
                             etOtherComments.setLayoutParams(layoutParams);
                             etOtherComments.setTextSize(14);
                             etOtherComments.setHint(getResources().getString(R.string.other_commets));
@@ -303,7 +310,7 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
                             etOtherComments.setFilters(new InputFilter[]{filter, new InputFilter.LengthFilter(100)});
                            // etOtherComments.setFilters(new InputFilter[] { new InputFilter.LengthFilter(100) });
                             linearLayout.addView(etOtherComments);
-                           /* etUserEmail = new EditText(mContext);
+                            etUserEmail = new EditText(mContext);
                             etUserEmail.setLayoutParams(layoutParams);
                             etUserEmail.setHint(getResources().getString(R.string.enter_your_email));
                             etUserEmail.setTextSize(14);
@@ -406,7 +413,7 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
         params.put("civilId", Long.parseLong(mMediatorCallback.getCurrentUser().getCivilId()));
         params.put("appType", "phrApp");
         params.put("feedbackType", 1);
-        params.put("otherComments", etOtherComments.getText().toString());
+       // params.put("otherComments", etOtherComments.getText().toString());
       //  params.put("userEmail", etUserEmail.getText().toString());
      //   params.put("userMobile", etUserMobileNo.getText().toString());
         JSONArray jsonArray = new JSONArray();
@@ -527,5 +534,9 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
     }
     private String getDeviceLanguage() {
         return Locale.getDefault().getLanguage();
+    }
+    private boolean TelephonyChecker (Context context) {
+        TelephonyManager manager = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
+        return manager.getPhoneType() != TelephonyManager.PHONE_TYPE_NONE;
     }
 }
