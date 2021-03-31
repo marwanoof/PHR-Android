@@ -14,24 +14,24 @@ android {
         resConfigs "en","zh-rCN" ,"ar", "ar-rOM"
     }
     signingConfigs {
-        config {
+        /*config {
             storeFile file('C:\\Users\\aysha.aloufi\\Documents\\MoHFiles\\upload-keystore-afiyati.jks')
             storePassword 'oman_moh_play'
             keyPassword 'oman-moh-play'
             keyAlias 'upload'
             v1SigningEnabled true
             v2SigningEnabled true
-        }
+        }*/
         buildTypes {
             release {
-                signingConfig signingConfigs.config
+//                signingConfig signingConfigs.config
                 minifyEnabled true
                 shrinkResources true
                 debuggable false
                 proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             }
             debug {
-                signingConfig signingConfigs.config
+                //signingConfig signingConfigs.config
                 debuggable true
             }
         }

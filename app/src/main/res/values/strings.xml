@@ -191,7 +191,7 @@
     <string name="no_records_imm_schedule">There is no scheduled immunization for you</string>
     <string name="wrong_msg">Something went wrong. Please try again</string>
     <string name="decide_later">Decide Later</string>
-    <string name="i_want_donate">I wish to donate my organ(s) after death</string>
+    <string name="i_want_donate">Do you wish to donate your organs after death?</string>
     <string name="no_doc_type_found">No documents types found. Please try again.</string>
     <string name="saved_successfully">The data has been saved successfully.</string>
     <string name="sent_otp_msg_dialog">OTP has been sent to the registered number with Directorate General of Civil Status.</string>

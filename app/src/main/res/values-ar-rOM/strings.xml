@@ -191,7 +191,7 @@
  <string name="no_records_imm_schedule">لا يوجد تحصين مُجدول لك</string>
  <string name="wrong_msg">حدث خطأ ما يرجى المحاولة مرة أخرى</string>
  <string name="decide_later">أقرر لاحقاً</string>
- <string name="i_want_donate">أرغب بالتبرع بأعضائي بعد الوفاة</string>
+ <string name="i_want_donate">هل لديك الرغبة بالتبرع بالأعضاء بعد الوفاة؟</string>
  <string name="no_doc_type_found">لم يتم العثور على بيانات أنواع المستندات. الرجاء المحاولة مرة أخرى.</string>
  <string name="saved_successfully">تم حفظ البيانات بنجاح</string>
  <string name="sent_otp_msg_dialog">تم إرسال رمز التحقق إلى الرقم المسجل في الأحوال المدنية.</string>
