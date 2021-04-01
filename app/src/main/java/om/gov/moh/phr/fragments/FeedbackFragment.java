@@ -74,6 +74,7 @@ import om.gov.moh.phr.models.MyProgressDialog;
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
 import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
+import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_MESSAGE;
 import static om.gov.moh.phr.models.MyConstants.LANGUAGE_ARABIC;
 import static om.gov.moh.phr.models.MyConstants.LANGUAGE_PREFS;
 import static om.gov.moh.phr.models.MyConstants.LANGUAGE_SELECTED;
@@ -230,8 +231,11 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
                             Gson gson = new Gson();
                             responseHolder = gson.fromJson(response.toString(), ApiFeedbackHolder.class);
                             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                            radioGroupArray = new ArrayList<>();
                             for (int i = 0; i < responseHolder.getResult().size(); i++) {
                                 TextView textView = new TextView(mContext);
+
+
                                 if (responseHolder.getResult().get(i).getDataType().equals("select")) {
                                     if (getStoredLanguage().equals(LANGUAGE_ARABIC))
                                         textView.setText(responseHolder.getResult().get(i).getParamValueNls());
@@ -240,7 +244,6 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
                                     linearLayout.addView(textView);
                                     // add radio buttons
                                     rb = new RadioButton[responseHolder.getResult().get(i).getOptionMast().size()];
-                                    radioGroupArray = new ArrayList<>();
                                     RadioGroup radioGroup = new RadioGroup(mContext);//create the RadioGroup
                                     radioGroup.setId(responseHolder.getResult().get(i).getParamId());
                                     for (int y = 0; y < responseHolder.getResult().get(i).getOptionMast().size(); y++) {
@@ -369,12 +372,26 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
             @Override
             public void onResponse(JSONObject response) {
                 if (mContext != null && isAdded()) {
-                    Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(android.R.id.content), getResources().getString(R.string.feedback_saved_msg), Snackbar.LENGTH_SHORT)
-                            .setBackgroundTint(getResources().getColor(R.color.colorPrimary))
-                            .show();
-                    mProgressDialog.dismissDialog();
-                    mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
-                    mToolbarControllerCallback.customToolbarBackButtonClicked();
+                    try {
+                        if (response.getInt(API_RESPONSE_CODE) == 0) {
+                            Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(android.R.id.content), getResources().getString(R.string.feedback_saved_msg), Snackbar.LENGTH_SHORT)
+                                    .setBackgroundTint(getResources().getColor(R.color.colorPrimary))
+                                    .show();
+                            mProgressDialog.dismissDialog();
+                            mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
+                            mToolbarControllerCallback.customToolbarBackButtonClicked();
+                        }else {
+                            Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(android.R.id.content), response.getString(API_RESPONSE_MESSAGE), Snackbar.LENGTH_SHORT)
+                                    .setBackgroundTint(getResources().getColor(R.color.colorPrimary))
+                                    .show();
+                            mProgressDialog.dismissDialog();
+                        }
+                    } catch (JSONException e) {
+                        Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(android.R.id.content), getResources().getString(R.string.wrong_msg), Snackbar.LENGTH_SHORT)
+                                .setBackgroundTint(getResources().getColor(R.color.colorPrimary))
+                                .show();
+                        mProgressDialog.dismissDialog();
+                    }
                 }
             }
         }, new Response.ErrorListener() {
@@ -423,12 +440,19 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
                 if (responseHolder.getResult().get(i).getDataType().equals("select")) {
                     jsonObject.put("paramId", responseHolder.getResult().get(i).getParamId());
                     for (int u = 0; u < radioGroupArray.size(); u++) {
-                        if (radioGroupArray.get(u).getId() == responseHolder.getResult().get(i).getParamId()) {
-                            for (RadioButton radioButton : rb) {
-                                if (radioButton.getId() == responseHolder.getResult().get(i).getOptionMast().get(u).getOptionId() && radioButton.isChecked())
-                                    jsonObject.put("value", radioButton.getId());
+                        Object object = radioGroupArray.get(u).findViewById(responseHolder.getResult().get(i).getParamId());
+                       if (object instanceof RadioGroup) {
+                            RadioGroup radioGroup = (RadioGroup) object;
+                            final int childCount = radioGroup.getChildCount();
+                            for (int obj = 0; obj < childCount; obj++) {
+                                View v = radioGroup.getChildAt(obj);
+                                if (v instanceof RadioButton) {
+                                    RadioButton radioButton = (RadioButton) v;
+                                    if(radioButton.isChecked()) {
+                                        jsonObject.put("value", String.valueOf(radioButton.getId()));
+                                    }
+                                }
                             }
-
                         }
                     }
                 } else if (responseHolder.getResult().get(i).getDataType().equals("multiselect")) {

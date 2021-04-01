@@ -4,6 +4,7 @@ package om.gov.moh.phr.fragments;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -65,6 +66,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import om.gov.moh.phr.R;
+import om.gov.moh.phr.activities.LoginActivity;
 import om.gov.moh.phr.activities.MainActivity;
 import om.gov.moh.phr.adapters.ComingAppointmentListAdapter;
 import om.gov.moh.phr.adapters.MessageChatsAdapter;
@@ -93,6 +95,9 @@ import static om.gov.moh.phr.models.MyConstants.IS_SCROLL_LIST;
 import static om.gov.moh.phr.models.MyConstants.LANGUAGE_ARABIC;
 import static om.gov.moh.phr.models.MyConstants.LANGUAGE_PREFS;
 import static om.gov.moh.phr.models.MyConstants.LANGUAGE_SELECTED;
+import static om.gov.moh.phr.models.MyConstants.PREFS_API_GET_TOKEN;
+import static om.gov.moh.phr.models.MyConstants.PREFS_API_REGISTER_DEVICE;
+import static om.gov.moh.phr.models.MyConstants.PREFS_CURRENT_USER;
 import static om.gov.moh.phr.models.MyConstants.appointment_Enable;
 
 public class HomeFragment extends Fragment implements AdapterToFragmentConnectorInterface, View.OnClickListener, SwipeRefreshLayout.OnRefreshListener {
@@ -634,8 +639,9 @@ private void showBetaVersionMsg(){
                                     setupRefferalsRecyclerView(rvReferrals);
                                 }
                                 if (responseHolder.getmResult().getmHome() != null) {
-                                    if(responseHolder.getmResult().getmHome().getClinicalNotesEnableYN() != null)
-                                        Clinical_Notes = responseHolder.getmResult().getmHome().getClinicalNotesEnableYN();
+                                    if(responseHolder.getmResult().getmHome().getClinicalNotesEnableYN() != null){
+                                        Clinical_Notes = responseHolder.getmResult().getmHome().getClinicalNotesEnableYN().equalsIgnoreCase("y");
+                                    }
                                     if(responseHolder.getmResult().getmHome().getChatEnableYN() != null)
                                         Chat_Enable = responseHolder.getmResult().getmHome().getChatEnableYN();
                                     if(responseHolder.getmResult().getmHome().getAppointmentEnableYN() != null)
@@ -669,6 +675,12 @@ private void showBetaVersionMsg(){
                                 } else
                                     GlobalMethodsKotlin.Companion.showAlertErrorDialog(mContext);
                             }
+                        }else if(response.getInt(API_RESPONSE_CODE) == 99){
+                            clearSharedPrefs();
+                            Activity thisActivity = getActivity();
+                            Intent loginIntent = new Intent(thisActivity, LoginActivity.class);
+                            startActivity(loginIntent);
+                            thisActivity.finish();
                         }
 
                     } catch (JSONException e) {
@@ -1295,5 +1307,25 @@ private void showBetaVersionMsg(){
         rvGrid.setLayoutAnimation(animation);
         menuListScrollView.setVisibility(View.GONE);
         IS_SCROLL_LIST = false;
+    }
+    private void clearSharedPrefs() {
+        SharedPreferences sharedPref;
+        SharedPreferences.Editor editor;
+
+        sharedPref = mContext.getSharedPreferences(PREFS_API_GET_TOKEN, Context.MODE_PRIVATE);
+        editor = sharedPref.edit();
+        editor.clear();
+        editor.apply();
+
+        sharedPref = mContext.getSharedPreferences(PREFS_CURRENT_USER, Context.MODE_PRIVATE);
+        editor = sharedPref.edit();
+        editor.clear();
+        editor.apply();
+
+
+        sharedPref = mContext.getSharedPreferences(PREFS_API_REGISTER_DEVICE, Context.MODE_PRIVATE);
+        editor = sharedPref.edit();
+        editor.clear();
+        editor.apply();
     }
 }

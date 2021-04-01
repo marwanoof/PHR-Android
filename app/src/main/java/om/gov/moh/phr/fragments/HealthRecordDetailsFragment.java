@@ -63,23 +63,21 @@ public class HealthRecordDetailsFragment extends Fragment {
     private static final String ARG_PARAM2 = "ARG_PARAM2";
     private static final String ARG_PARAM3 = "ARG_PARAM3";
     private static final String ARG_PARAM4 = "ARG_PARAM4";
-   private ApiEncountersHolder.Encounter encounterInfo;
-   private ApiOtherDocsHolder.ApiDocInfo docInfo;
-   private ApiProceduresReportsHolder.ProceduresByEncounter procedureObj;
-
-    public String test = "N";
+    private ApiEncountersHolder.Encounter encounterInfo;
+    private ApiOtherDocsHolder.ApiDocInfo docInfo;
+    private ApiProceduresReportsHolder.ProceduresByEncounter procedureObj;
 
     public HealthRecordDetailsFragment() {
         // Required empty public constructor
     }
 
-  /*  public static HealthRecordDetailsFragment newInstance(String encounterId) {
-        HealthRecordDetailsFragment fragment = new HealthRecordDetailsFragment();
-        Bundle args = new Bundle();
-        args.putSerializable(ARG_PARAM4, encounterId);
-        fragment.setArguments(args);
-        return fragment;
-    }*/
+    /*  public static HealthRecordDetailsFragment newInstance(String encounterId) {
+          HealthRecordDetailsFragment fragment = new HealthRecordDetailsFragment();
+          Bundle args = new Bundle();
+          args.putSerializable(ARG_PARAM4, encounterId);
+          fragment.setArguments(args);
+          return fragment;
+      }*/
     public static HealthRecordDetailsFragment newInstance(ApiEncountersHolder.Encounter encounterObj) {
         HealthRecordDetailsFragment fragment = new HealthRecordDetailsFragment();
         Bundle args = new Bundle();
@@ -87,6 +85,7 @@ public class HealthRecordDetailsFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
+
     public static HealthRecordDetailsFragment newInstance(ApiOtherDocsHolder.ApiDocInfo docObj) {
         HealthRecordDetailsFragment fragment = new HealthRecordDetailsFragment();
         Bundle args = new Bundle();
@@ -94,6 +93,7 @@ public class HealthRecordDetailsFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
+
     public static HealthRecordDetailsFragment newInstance(ApiProceduresReportsHolder.ProceduresByEncounter procedureObj) {
         HealthRecordDetailsFragment fragment = new HealthRecordDetailsFragment();
         Bundle args = new Bundle();
@@ -101,6 +101,7 @@ public class HealthRecordDetailsFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
+
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -112,7 +113,7 @@ public class HealthRecordDetailsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(getArguments()!=null) {
+        if (getArguments() != null) {
             if (getArguments().getSerializable(ARG_PARAM1) != null)
                 encounterInfo = (ApiEncountersHolder.Encounter) getArguments().getSerializable(ARG_PARAM1);
             if (getArguments().getSerializable(ARG_PARAM2) != null)
@@ -136,14 +137,14 @@ public class HealthRecordDetailsFragment extends Fragment {
         ibToolbarBackButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                    mToolbarControllerCallback.customToolbarBackButtonClicked();
+                mToolbarControllerCallback.customToolbarBackButtonClicked();
             }
         });
         TextView tvTitle = parentView.findViewById(R.id.tv_title);
 
-        if(encounterInfo!=null)
-        tvTitle.setText(encounterInfo.getDepartmentArrayList().get(0).getValue() + ", " + encounterInfo.getEstShortName());
-        else if(docInfo!=null)
+        if (encounterInfo != null)
+            tvTitle.setText(encounterInfo.getDepartmentArrayList().get(0).getValue() + ", " + encounterInfo.getEstShortName());
+        else if (docInfo != null)
             tvTitle.setText(docInfo.getLocationName() + ", " + docInfo.getEstName());
         else
             tvTitle.setText("department name" + ", " + procedureObj.getEstFullName());
@@ -165,7 +166,7 @@ public class HealthRecordDetailsFragment extends Fragment {
         private HRDSectionsPagerAdapter(FragmentManager fm, Context context) {
             super(fm);
 
-            if(Clinical_Notes.equals(""))
+            if (Clinical_Notes)
                 mFragmentTitles.add(context.getResources().getString(R.string.hrd_imp));//val : 1
 
             mFragmentTitles.add(context.getResources().getString(R.string.hrd_med));//val : 2
@@ -176,41 +177,40 @@ public class HealthRecordDetailsFragment extends Fragment {
 
         @NonNull
         @Override
-        public Fragment getItem(int position ) {
-
-            if(Clinical_Notes.equals("N"))
-                position = position + 1;
-
-            if(encounterInfo!=null) {
-                if (position == 0)
+        public Fragment getItem(int position) {
+            int updatedPosition = position;
+            if (!Clinical_Notes)
+                updatedPosition = position + 1;
+            if (encounterInfo != null) {
+                if (updatedPosition == 0)
                     return ImpressionFragment.newInstance(encounterInfo);
-                else if (position == 1 )
+                else if (updatedPosition == 1)
                     return MedicationFragment.newInstance(encounterInfo);
-                else if (position == 2)
+                else if (updatedPosition == 2)
                     return LabResultsFragment.newInstance(encounterInfo);
-                else if (position == 3)
+                else if (updatedPosition == 3)
                     return RadFragment.newInstance(encounterInfo);
                 else
                     return ProceduresReportsFragment.newInstance(encounterInfo);
-            }else if(docInfo!=null){
-                if (position == 0)
+            } else if (docInfo != null) {
+                if (updatedPosition == 0)
                     return ImpressionFragment.newInstance(docInfo);
-                else if (position == 1)
+                else if (updatedPosition == 1)
                     return MedicationFragment.newInstance(docInfo);
-                else if (position == 2)
+                else if (updatedPosition == 2)
                     return LabResultsFragment.newInstance(docInfo);
-                else if (position == 3)
+                else if (updatedPosition == 3)
                     return RadFragment.newInstance(docInfo);
                 else
                     return ProceduresReportsFragment.newInstance(docInfo);
-            }else {
+            } else {
                 if (position == 0)
                     return ImpressionFragment.newInstance(procedureObj);
-                else if (position == 1)
+                else if (updatedPosition == 1)
                     return MedicationFragment.newInstance(procedureObj);
-                else if (position == 2)
+                else if (updatedPosition == 2)
                     return LabResultsFragment.newInstance(procedureObj);
-                else if (position == 3)
+                else if (updatedPosition == 3)
                     return RadFragment.newInstance(procedureObj);
                 else
                     return ProceduresReportsFragment.newInstance(procedureObj);

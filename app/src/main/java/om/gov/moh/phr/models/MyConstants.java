@@ -52,7 +52,7 @@ public class MyConstants {
     public static boolean IS_SCROLL_LIST = true;
 
     //activate ClinicalNotes
-    public static String Clinical_Notes = "";
+    public static boolean Clinical_Notes = false;
 
     //activate Chat
     public static String Chat_Enable = "";
