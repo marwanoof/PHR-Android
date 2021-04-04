@@ -8,8 +8,8 @@ android {
         applicationId "om.gov.moh.phr"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 11
-        versionName "Beta-30-March-2021"
+        versionCode 12
+        versionName "Beta-01-April-2021"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         resConfigs "en","zh-rCN" ,"ar", "ar-rOM"
     }
@@ -27,7 +27,7 @@ android {
                 signingConfig signingConfigs.config
                 minifyEnabled true
                 shrinkResources true
-                debuggable true
+                debuggable false
                 proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             }
             debug {

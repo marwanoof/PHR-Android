@@ -983,6 +983,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         else {
             finish();
             Intent ParentHome = new Intent(MainActivity.this, MainActivity.class);
+            ParentHome.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(ParentHome);
         }
     }

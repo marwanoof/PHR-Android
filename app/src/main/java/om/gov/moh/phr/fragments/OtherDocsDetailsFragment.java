@@ -33,6 +33,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -169,7 +170,9 @@ public class OtherDocsDetailsFragment extends Fragment {
                             byte[] data1 = Base64.decode(obj.getString(DATA_KEY), Base64.DEFAULT);
                             String text = new String(data1, "UTF-8");
                             //data == html data which you want to load
-                            wvDocView.loadData(text, "text/html", "utf-8");
+                          //  wvDocView.loadData(text, "text/html", "utf-8");
+                            wvDocView.getSettings().setDefaultFontSize(10);
+                            wvDocView.loadData(URLEncoder.encode(text, "utf-8").replaceAll("\\+"," "), "text/html", "utf-8");
                         } catch (UnsupportedEncodingException e) {
                             e.printStackTrace();
                         }
