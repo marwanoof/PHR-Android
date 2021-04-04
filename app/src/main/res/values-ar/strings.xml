@@ -216,5 +216,6 @@
     <string name="grant_gallery_permission">الرجاء منح الأذونات المطلوبة لتحميل الملف من المعرض الخاص بك!</string>
     <string name="grant_camera_permission">الرجاء منح الأذونات المطلوبة لالتقاط صورة للمستند.</string>
     <string name="contact_us_txt">في حالة واجهتك أي صعوبات فنية الرجاء التواصل عبر: </string>
+    <string name="grant_calender_permission_msg">الرجاء منح أذونات الوصول للتقويم لإضافة الدواء للتقويم الخاص بك!</string>
 
 </resources>

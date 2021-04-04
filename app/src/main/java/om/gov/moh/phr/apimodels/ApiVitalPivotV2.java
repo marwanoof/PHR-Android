@@ -4,6 +4,7 @@ import android.text.format.DateFormat;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -12,7 +13,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
-public class ApiVitalPivotV2 {
+public class ApiVitalPivotV2 implements Serializable {
     @SerializedName("result")
     private ApiVitalPivotV2.PivotV2 result;
 

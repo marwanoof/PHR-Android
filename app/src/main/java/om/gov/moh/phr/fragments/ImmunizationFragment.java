@@ -1,12 +1,15 @@
 package om.gov.moh.phr.fragments;
 
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SearchView;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -100,7 +103,7 @@ public class ImmunizationFragment extends Fragment implements SearchView.OnQuery
 
     private void setupRecyclerView(ArrayList<ApiImmunizationHolder.ApiImmunizationInfo> getmResult) {
         mAdapter =
-                new ImmunizationRecyclerViewAdapter(getmResult, mContext, isSchedule);
+                new ImmunizationRecyclerViewAdapter(getmResult, mContext, isSchedule, checkCalendarPermission());
         LinearLayoutManager layoutManager
                 = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
         DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(rvImmunizationList.getContext(),
@@ -110,7 +113,12 @@ public class ImmunizationFragment extends Fragment implements SearchView.OnQuery
         rvImmunizationList.setItemAnimator(new DefaultItemAnimator());
         rvImmunizationList.setAdapter(mAdapter);
     }
-
+    private boolean checkCalendarPermission() {
+        // check permission
+        return ContextCompat.checkSelfPermission(mContext,
+                Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(mContext,
+                Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED;
+    }
     private void displayAlert(String msg) {
         searchView.clearFocus();
         searchView.setEnabled(false);

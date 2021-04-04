@@ -13,7 +13,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-public class ApiLabOrdersListHolder {
+public class ApiLabOrdersListHolder implements Serializable{
     @SerializedName("result")
     private ArrayList<ApiOredresList> mResult;
 

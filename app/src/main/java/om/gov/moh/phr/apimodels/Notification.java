@@ -2,7 +2,7 @@ package om.gov.moh.phr.apimodels;
 
 import java.io.Serializable;
 
-public class Notification implements Serializable {
+public class Notification {
     private String keyId;
     private String createdDate;
     private String title;

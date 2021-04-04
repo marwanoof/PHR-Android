@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class ApiOtherDocsHolder {
+public class ApiOtherDocsHolder implements Serializable{
     @SerializedName("result")
     private ArrayList<ApiDocInfo> mResult;
 

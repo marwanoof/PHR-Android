@@ -1,7 +1,9 @@
 package om.gov.moh.phr.fragments;
 
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -14,14 +16,10 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.android.volley.DefaultRetryPolicy;
@@ -43,9 +41,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import om.gov.moh.phr.R;
-import om.gov.moh.phr.adapters.MeasurementRecyclerViewAdapter;
 import om.gov.moh.phr.adapters.MedicationRecyclerViewAdapter;
-import om.gov.moh.phr.adapters.OrderLabRecyclerViewAdapter;
 import om.gov.moh.phr.apimodels.ApiEncountersHolder;
 import om.gov.moh.phr.apimodels.ApiMedicationHolder;
 import om.gov.moh.phr.apimodels.ApiOtherDocsHolder;
@@ -58,7 +54,6 @@ import om.gov.moh.phr.models.MyProgressDialog;
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
 import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
-import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_RESULT;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -330,7 +325,7 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
 
     private void setupRecyclerView(ArrayList<ApiMedicationHolder.ApiMedicationInfo> getmResult, Boolean showVisitDetails) {
         mAdapter =
-                new MedicationRecyclerViewAdapter(getmResult, mContext, showVisitDetails);
+                new MedicationRecyclerViewAdapter(getmResult, mContext, showVisitDetails, checkCalendarPermission());
         LinearLayoutManager layoutManager
                 = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
         DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(rvMedicationList.getContext(),
@@ -341,7 +336,12 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
         rvMedicationList.setAdapter(mAdapter);
 
     }
-
+    private boolean checkCalendarPermission() {
+        // check permission
+        return ContextCompat.checkSelfPermission(mContext,
+                Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(mContext,
+                Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED;
+    }
     private void updateRecyclerViewItems(ArrayList<ApiMedicationHolder.ApiMedicationInfo> result) {
         if (mAdapter != null && result != null)
             mAdapter.updateItemsListFiltered(result);

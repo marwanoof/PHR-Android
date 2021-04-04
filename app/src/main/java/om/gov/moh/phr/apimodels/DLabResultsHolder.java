@@ -14,7 +14,7 @@ import java.util.Locale;
 
 import om.gov.moh.phr.fragments.LabResultDetailsFragment;
 
-public class DLabResultsHolder {
+public class DLabResultsHolder implements Serializable{
     @SerializedName("result")
     private LabResultDetails result;
 

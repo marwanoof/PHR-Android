@@ -17,7 +17,7 @@ import java.util.Locale;
 
 import om.gov.moh.phr.R;
 
-public class ApiHomeHolder {
+public class ApiHomeHolder implements Serializable{
     @SerializedName("result")
     private ApiHomeHolder.ApiHome mResult;
 

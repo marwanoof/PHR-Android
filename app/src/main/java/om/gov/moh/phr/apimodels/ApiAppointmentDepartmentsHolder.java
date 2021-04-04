@@ -4,9 +4,10 @@ import android.text.TextUtils;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class ApiAppointmentDepartmentsHolder {
+public class ApiAppointmentDepartmentsHolder implements Serializable {
     private ArrayList<Department> result = new ArrayList<>();
 
     public ArrayList<Department> getResult() {

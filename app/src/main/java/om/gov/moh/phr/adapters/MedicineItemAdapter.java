@@ -24,6 +24,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -48,13 +49,15 @@ public class MedicineItemAdapter extends RecyclerView.Adapter<MedicineItemAdapte
     private Context context;
     private ArrayList<ApiMedicationHolder.Medication> arraylist;
     private String visitDate = "";
+    private boolean isGrantedPermission;
 
 
-    public MedicineItemAdapter(ArrayList<ApiMedicationHolder.Medication> medicineArrayList, Context context) {
+    public MedicineItemAdapter(ArrayList<ApiMedicationHolder.Medication> medicineArrayList, Context context, boolean isGrantedCalenderPermission) {
         this.medicineArrayList = medicineArrayList;
         this.context = context;
         this.arraylist = new ArrayList<ApiMedicationHolder.Medication>();
         this.arraylist.addAll(medicineArrayList);
+        this.isGrantedPermission=isGrantedCalenderPermission;
     }
 
     @NonNull
@@ -104,34 +107,34 @@ public class MedicineItemAdapter extends RecyclerView.Adapter<MedicineItemAdapte
         final int dosageDays = (int) (timingDur-daysDiff);
 
         holder.reminderBtn.setTag(false);
-        if (readeCalender(eventTitle,medicineEncounter.getMedicationOrderId())){
-            holder.reminderBtn.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_reminder_true));
-            holder.reminderBtn.setTag(true);
-        }
+if(isGrantedPermission) {
+    if (readeCalender(eventTitle, medicineEncounter.getMedicationOrderId())) {
+        holder.reminderBtn.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_reminder_true));
+        holder.reminderBtn.setTag(true);
+    }
+}
 
         holder.reminderBtn.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
-
-                 if (holder.reminderBtn.getTag().equals(true)){
-                     deleteCalendar(medicineEncounter.getMedicationOrderId());
-                     holder.reminderBtn.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_reminder));
-                     holder.reminderBtn.setTag(false);
-                 }else {
-                     SimpleDateFormat yyyymmdd = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH);
-                     Calendar dt = Calendar.getInstance();
-                     dt.setTime(new Date());
-                     dt.add(Calendar.DAY_OF_MONTH, dosageDays);
-                     String dtUntill = yyyymmdd.format(dt.getTime());
-                     Date endDate = dt.getTime();
-
-                     insertIntoCalender(eventTitle,medicineEncounter.getMedicationOrderId(),dtUntill,currentDate,endDate);
-                     //holder.reminderBtn.setTag(true);
-                 }
-
-
-                //readeCalender();
+                if (isGrantedPermission) {
+                    if (holder.reminderBtn.getTag().equals(true)) {
+                        deleteCalendar(medicineEncounter.getMedicationOrderId());
+                        holder.reminderBtn.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_reminder));
+                        holder.reminderBtn.setTag(false);
+                    } else {
+                        SimpleDateFormat yyyymmdd = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH);
+                        Calendar dt = Calendar.getInstance();
+                        dt.setTime(new Date());
+                        dt.add(Calendar.DAY_OF_MONTH, dosageDays);
+                        String dtUntill = yyyymmdd.format(dt.getTime());
+                        Date endDate = dt.getTime();
+                        insertIntoCalender(eventTitle, medicineEncounter.getMedicationOrderId(), dtUntill, currentDate, endDate);
+                    }
+                }else {
+                    Toast.makeText(context, context.getResources().getString(R.string.grant_calender_permission_msg), Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -217,15 +220,11 @@ public class MedicineItemAdapter extends RecyclerView.Adapter<MedicineItemAdapte
         Intent insertCalendarIntent = new Intent(Intent.ACTION_INSERT)
                 .setData(CalendarContract.Events.CONTENT_URI)
                 .putExtra(CalendarContract.Events.DTSTART,currentDate)
-                // .putExtra(CalendarContract.Events.DTEND,dt)
                 .putExtra(CalendarContract.Events.TITLE, title) // Simple title
                 .putExtra(CalendarContract.EXTRA_EVENT_ALL_DAY, true)
                 .putExtra(CalendarContract.Events.CALENDAR_ID, 1)
-                //.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME,endDate.getTime()) // Only date part is considered when ALL_DAY is true; Same as DTSTART
                 .putExtra(CalendarContract.EXTRA_EVENT_END_TIME,endDate) // Only date part is considered when ALL_DAY is true
-
                 .putExtra(CalendarContract.Events.DESCRIPTION, desc) // Description
-                //.putExtra(CalendarContract.Events.EVENT_LOCATION,"@23.6061459,58.4076075")
                 .putExtra(CalendarContract.Events.RRULE, "FREQ=DAILY;UNTIL=" + untilDate) // Recurrence rule
                 .putExtra(CalendarContract.Events.DURATION, "+P1H")
                 .putExtra(CalendarContract.Events.HAS_ALARM, 1)
@@ -241,14 +240,13 @@ public class MedicineItemAdapter extends RecyclerView.Adapter<MedicineItemAdapte
     private Boolean readeCalender(String title, String medId){
         ContentResolver cr = context.getContentResolver();
         Cursor cursor = cr.query(CalendarContract.Events.CONTENT_URI, new String[]{ "calendar_id", "title", "description", "dtstart", "dtend", "eventLocation" }, null, null, null);
-        //Cursor cursor = cr.query(Uri.parse("content://calendar/calendars"), new String[]{ "_id", "name" }, null, null, null);
         String add = null;
         cursor.moveToFirst();
         String[] CalNames = new String[cursor.getCount()];
         int[] CalIds = new int[cursor.getCount()];
         for (int i = 0; i < CalNames.length; i++) {
             CalIds[i] = cursor.getInt(0);
-            if(medId!=null&&cursor!=null) {
+            if(medId!=null) {
                 if(cursor.getString(2)!=null){
                 if (cursor.getString(2).equals(medId)) {
                     if(cursor.getString(1)!=null) {
@@ -257,18 +255,8 @@ public class MedicineItemAdapter extends RecyclerView.Adapter<MedicineItemAdapte
                         }
                     }
                 }
-                    // CalNames[i] = "Event"+cursor.getInt(0)+": \nTitle: "+ cursor.getString(1)+"\nDescription: "+cursor.getString(2)+"\nStart Date: "+new Date(cursor.getLong(3))+"\nEnd Date : "+new Date(cursor.getLong(4))+"\nLocation : "+cursor.getString(5);
-
                 }
             }
-           /* if(add == null)
-                add = CalNames[i];
-            else{
-                add += CalNames[i];
-            }
-            System.out.println(add);*/
-            //((TextView)findViewById(R.id.calendars)).setText(add);
-
             cursor.moveToNext();
         }
         cursor.close();
@@ -276,54 +264,6 @@ public class MedicineItemAdapter extends RecyclerView.Adapter<MedicineItemAdapte
     }
     private void deleteCalendar(String desc) {
         ContentResolver resolver = context.getContentResolver();
-        //Cursor cursor = resolver.query(CalendarContract.Events.CONTENT_URI, new String[]{"description"}, "description='" + desc+"'", null, null);
         resolver.delete(CalendarContract.Events.CONTENT_URI,"description=?",new String[]{desc});
-        /*while (cursor.moveToNext()) {
-            long eventId = cursor.getLong(cursor.getColumnIndex("calendar_id"));
-
-            resolver.delete(ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, eventId), null, null);
-        }
-        cursor.close();*/
     }
-
-
-
- /*   private String getCalendarUriBase(MedicineItemAdapter act) {
-
-        String calendarUriBase = null;
-        Uri calendars = Uri.parse("content://calendar/calendars");
-        Cursor managedCursor = null;
-        try {
-            managedCursor = context.getApplicationContext().managedQuery(calendars, null, null, null, null);
-        } catch (Exception e) {
-        }
-        if (managedCursor != null) {
-            calendarUriBase = "content://calendar/";
-        } else {
-            calendars = Uri.parse("content://com.android.calendar/calendars");
-            try {
-                managedCursor = act.managedQuery(calendars, null, null, null, null);
-            } catch (Exception e) {
-            }
-            if (managedCursor != null) {
-                calendarUriBase = "content://com.android.calendar/";
-            }
-        }
-        return calendarUriBase;
-    }*/
-    // Filter Class
-    /*public void filter(String charText) {
-        charText = charText.toLowerCase(Locale.getDefault());
-        medicineArrayList.clear();
-        if (charText.length() == 0) {
-            medicineArrayList.addAll(arraylist);
-        } else {
-            for (ApiMedicationHolder.ApiMedicationInfo wp : arraylist) {
-                if (wp.getMedicineName().toLowerCase(Locale.getDefault()).contains(charText)) {
-                    medicineArrayList.add(wp);
-                }
-            }
-        }
-        notifyDataSetChanged();
-    }*/
 }

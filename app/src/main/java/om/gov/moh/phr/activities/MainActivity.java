@@ -920,6 +920,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
+                Log.d("registerDevice", response.toString());
                 try {
                     if (response.getInt(API_RESPONSE_CODE) == 0) {
                         saveRegisterDeviceDetails(deviceId);
@@ -965,7 +966,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
             params.put("appShortCode", API_ANDROID_APP_CODE);
         else
             params.put("appShortCode", API_HUAWEI_APP_CODE);
-        params.put("civilId", Long.parseLong(getCurrentUser().getCivilId()));
+        params.put("civilId", Long.parseLong(getCurrentUser().getCivilId().trim()));
         params.put("loginId", "");
         return new JSONObject(params);
     }

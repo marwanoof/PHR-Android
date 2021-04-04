@@ -12,7 +12,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-public class ApiMedicationHolder {
+public class ApiMedicationHolder implements Serializable{
     @SerializedName("result")
     private ArrayList<ApiMedicationInfo> mResult;
 

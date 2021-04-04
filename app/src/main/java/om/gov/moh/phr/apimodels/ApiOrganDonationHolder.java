@@ -4,7 +4,9 @@ import android.text.TextUtils;
 
 import com.google.gson.annotations.SerializedName;
 
-public class ApiOrganDonationHolder {
+import java.io.Serializable;
+
+public class ApiOrganDonationHolder implements Serializable {
     @SerializedName("result")
     private OrganDonationJson result;
 

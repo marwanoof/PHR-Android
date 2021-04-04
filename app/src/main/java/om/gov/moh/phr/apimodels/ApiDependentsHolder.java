@@ -4,9 +4,10 @@ import android.text.TextUtils;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class ApiDependentsHolder {
+public class ApiDependentsHolder implements Serializable {
     @SerializedName("result")
     private ArrayList<Dependent> result = new ArrayList<>();
 

@@ -21,7 +21,7 @@ import static om.gov.moh.phr.models.MyConstants.LANGUAGE_ARABIC;
 import static om.gov.moh.phr.models.MyConstants.LANGUAGE_PREFS;
 import static om.gov.moh.phr.models.MyConstants.LANGUAGE_SELECTED;
 
-public class ApiEncountersHolder {
+public class ApiEncountersHolder implements Serializable{
 
     @SerializedName("result")
     private ArrayList<Encounter> result = new ArrayList<>();

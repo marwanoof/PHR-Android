@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -44,13 +45,15 @@ public class ImmunizationRecyclerViewAdapter extends RecyclerView.Adapter<Immuni
     private Context context;
     private ArrayList<ApiImmunizationHolder.ApiImmunizationInfo> arraylist;
     private boolean isSchedule;
+    private boolean isGrantedPermission;
 
-    public ImmunizationRecyclerViewAdapter(ArrayList<ApiImmunizationHolder.ApiImmunizationInfo> immunizationArrayList, Context context, boolean isSchedule) {
+    public ImmunizationRecyclerViewAdapter(ArrayList<ApiImmunizationHolder.ApiImmunizationInfo> immunizationArrayList, Context context, boolean isSchedule, boolean isGrantedpermission) {
         this.immunizationArrayList = immunizationArrayList;
         this.context = context;
         this.arraylist = new ArrayList<ApiImmunizationHolder.ApiImmunizationInfo>();
         this.arraylist.addAll(immunizationArrayList);
         this.isSchedule = isSchedule;
+        this.isGrantedPermission=isGrantedpermission;
     }
 
     @NonNull
@@ -84,36 +87,41 @@ public class ImmunizationRecyclerViewAdapter extends RecyclerView.Adapter<Immuni
                 final long eventDate = medicineObj.getScheduledOn();
                 final String description = context.getResources().getString(R.string.go_for_vaccination);
                 holder.scheduleBtn.setTag(false);
-                if (readeCalender2(title.trim())) {
-                    holder.scheduleBtn.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_reminder_true));
-                    // holder.scheduleBtn.setBackgroundTintList(null);
-                    holder.scheduleBtn.setTag(true);
+                if(isGrantedPermission) {
+                    if (readeCalender2(title.trim())) {
+                        holder.scheduleBtn.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_reminder_true));
+                        // holder.scheduleBtn.setBackgroundTintList(null);
+                        holder.scheduleBtn.setTag(true);
+                    }
                 }
 
                 holder.scheduleBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if (holder.scheduleBtn.getTag().equals(true)) {
-                            deleteCalendar(title.trim());
-                            holder.scheduleBtn.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_reminder));
-                            holder.scheduleBtn.setTag(false);
-                        } else {
-                            Intent insertCalendarIntent = new Intent(Intent.ACTION_INSERT)
-                                    .setData(CalendarContract.Events.CONTENT_URI)
-                                    .putExtra(CalendarContract.Events.CALENDAR_ID, 1)
-                                    .putExtra(CalendarContract.Events.TITLE, title.trim()) // Simple title
-                                    .putExtra(CalendarContract.EXTRA_EVENT_ALL_DAY, true)
-                                    .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, eventDate) // Only date part is considered when ALL_DAY is true; Same as DTSTART
-                                    //.putExtra(CalendarContract.EXTRA_EVENT_END_TIME,endTimeInMillis) // Only date part is considered when ALL_DAY is true
-                                    .putExtra(CalendarContract.Events.EVENT_LOCATION, location)
-                                    .putExtra(CalendarContract.Events.DESCRIPTION, description.trim()) // Description
-                                    // .putExtra(CalendarContract.Events.STATUS, position+"")
-                                    .putExtra(Intent.EXTRA_EMAIL, userEmail)
-                                    // .putExtra(CalendarContract.Events.RRULE, getRRule()) // Recurrence rule
-                                    .putExtra(CalendarContract.Events.ACCESS_LEVEL, CalendarContract.Events.ACCESS_PRIVATE)
-                                    .putExtra(CalendarContract.Events.AVAILABILITY, CalendarContract.Events.AVAILABILITY_FREE);
-                            context.startActivity(insertCalendarIntent);
-                        }
+                        if (isGrantedPermission) {
+                            if (holder.scheduleBtn.getTag().equals(true)) {
+                                deleteCalendar(title.trim());
+                                holder.scheduleBtn.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_reminder));
+                                holder.scheduleBtn.setTag(false);
+                            } else {
+                                Intent insertCalendarIntent = new Intent(Intent.ACTION_INSERT)
+                                        .setData(CalendarContract.Events.CONTENT_URI)
+                                        .putExtra(CalendarContract.Events.CALENDAR_ID, 1)
+                                        .putExtra(CalendarContract.Events.TITLE, title.trim()) // Simple title
+                                        .putExtra(CalendarContract.EXTRA_EVENT_ALL_DAY, true)
+                                        .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, eventDate) // Only date part is considered when ALL_DAY is true; Same as DTSTART
+                                        //.putExtra(CalendarContract.EXTRA_EVENT_END_TIME,endTimeInMillis) // Only date part is considered when ALL_DAY is true
+                                        .putExtra(CalendarContract.Events.EVENT_LOCATION, location)
+                                        .putExtra(CalendarContract.Events.DESCRIPTION, description.trim()) // Description
+                                        // .putExtra(CalendarContract.Events.STATUS, position+"")
+                                        .putExtra(Intent.EXTRA_EMAIL, userEmail)
+                                        // .putExtra(CalendarContract.Events.RRULE, getRRule()) // Recurrence rule
+                                        .putExtra(CalendarContract.Events.ACCESS_LEVEL, CalendarContract.Events.ACCESS_PRIVATE)
+                                        .putExtra(CalendarContract.Events.AVAILABILITY, CalendarContract.Events.AVAILABILITY_FREE);
+                                context.startActivity(insertCalendarIntent);
+                            }
+                        }else
+                            Toast.makeText(context, context.getResources().getString(R.string.grant_calender_permission_msg), Toast.LENGTH_SHORT).show();
                     }
                 });
             }

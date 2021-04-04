@@ -152,9 +152,6 @@ public class HealthRecordListFragment extends Fragment implements AdapterToFragm
         tvResultsFound.setVisibility(View.GONE);
 
         searchView = parentView.findViewById(R.id.searchViewHealthRecord);
-        /*TextView searchTextView = (TextView) parentView.findViewById(androidx.appcompat.R.id.search_src_text);
-        Typeface typeface = Typeface.createFromAsset(mContext.getAssets(),"sky.ttf");
-        searchTextView.setTypeface(typeface);*/
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
@@ -163,21 +160,23 @@ public class HealthRecordListFragment extends Fragment implements AdapterToFragm
 
             @Override
             public boolean onQueryTextChange(String s) {
-                if (s.length() == 0) {
-                    updateRecyclerViewItems(mEncountersList);
-                } else {
-                    ArrayList<ApiEncountersHolder.Encounter> filteredList = new ArrayList<>();
-                    for (ApiEncountersHolder.Encounter encounter : mEncountersList) {
-                        if (encounter.getDepartmentArrayList().get(0).getValue().toLowerCase().contains(s) ||
-                                encounter.getEstShortName().toLowerCase().contains(s) ||
-                                encounter.getEstFullname().toLowerCase().contains(s) ||
-                                encounter.getPatientClass().toLowerCase().contains(s) ||
-                                encounter.getEstFullnameNls().toLowerCase().contains(s)) {
-                            filteredList.add(encounter);
+                if(mEncountersList!=null) {
+                    if (s.length() == 0) {
+                        updateRecyclerViewItems(mEncountersList);
+                    } else {
+                        ArrayList<ApiEncountersHolder.Encounter> filteredList = new ArrayList<>();
+                        for (ApiEncountersHolder.Encounter encounter : mEncountersList) {
+                            if (encounter.getDepartmentArrayList().get(0).getValue().toLowerCase().contains(s) ||
+                                    encounter.getEstShortName().toLowerCase().contains(s) ||
+                                    encounter.getEstFullname().toLowerCase().contains(s) ||
+                                    encounter.getPatientClass().toLowerCase().contains(s) ||
+                                    encounter.getEstFullnameNls().toLowerCase().contains(s)) {
+                                filteredList.add(encounter);
+                            }
                         }
+                        updateRecyclerViewItems(null);
+                        updateRecyclerViewItems(filteredList);
                     }
-                    updateRecyclerViewItems(null);
-                    updateRecyclerViewItems(filteredList);
                 }
 
                 return false;

@@ -102,14 +102,6 @@ public class LabResultDetailsFragment extends Fragment implements SwipeRefreshLa
         return fragment;
     }
 
-    public static LabResultDetailsFragment newInstance(Notification notification) {
-        LabResultDetailsFragment fragment = new LabResultDetailsFragment();
-        Bundle args = new Bundle();
-        args.putSerializable(PARAM_API_NOTIFICATION_ITEM, notification);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
