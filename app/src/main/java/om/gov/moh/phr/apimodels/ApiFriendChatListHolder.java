@@ -7,7 +7,7 @@ import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class ApiFriendChatListHolder {
+public class ApiFriendChatListHolder implements Serializable{
     public ArrayList<ApiFriendListInfo> getmResult() {
         return mResult;
     }

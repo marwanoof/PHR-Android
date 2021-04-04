@@ -4,9 +4,10 @@ import android.content.Intent;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class ApiRelationMaster {
+public class ApiRelationMaster implements Serializable {
     @SerializedName("result")
     ArrayList<RelationMast> result = new ArrayList<>();
 

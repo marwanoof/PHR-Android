@@ -2,7 +2,9 @@ package om.gov.moh.phr.apimodels;
 
 import com.google.gson.annotations.SerializedName;
 
-public class ApiDisclaimerHolder {
+import java.io.Serializable;
+
+public class ApiDisclaimerHolder implements Serializable {
     @SerializedName("result")
     private DisclaimerByCivilId mResult;
 

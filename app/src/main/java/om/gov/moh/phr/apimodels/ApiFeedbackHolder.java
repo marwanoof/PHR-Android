@@ -4,9 +4,10 @@ import android.text.TextUtils;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class ApiFeedbackHolder {
+public class ApiFeedbackHolder implements Serializable {
     @SerializedName("result")
     ArrayList<ApiFeedbackHolder.Questions> result = new ArrayList<>();
 

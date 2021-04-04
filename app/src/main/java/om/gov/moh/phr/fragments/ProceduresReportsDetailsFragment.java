@@ -182,28 +182,10 @@ public class ProceduresReportsDetailsFragment extends Fragment {
         wvReportPic = view.findViewById(R.id.wv_report);
         tvSummary = view.findViewById(R.id.tv_mediaSummary);
         tvReport = view.findViewById(R.id.tv_report);
-       /* swipeRefreshLayout.setOnRefreshListener(this);
-        swipeRefreshLayout.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        swipeRefreshLayout.setRefreshing(true);
-                                        setupPage();
-                                    }
-                                }
-        );*/
-        setupPage();
-       /* ibRefresh.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                setupPage();
-            }
-        });*/
-        return view;
-    }
 
-    private void enableHomeandRefresh(View view) {
-        ibRefresh = view.findViewById(R.id.ib_refresh);
-        ibRefresh.setVisibility(View.VISIBLE);
+        setupPage();
+
+        return view;
     }
 
     private void setupPage() {
@@ -245,7 +227,10 @@ public class ProceduresReportsDetailsFragment extends Fragment {
 
 
             } else {
-                tvProcedureName.setText(mProcedureReport.getProcedure().get(0).getName());
+                if(mProcedureReport.getProcedure()!=null) {
+                    if(mProcedureReport.getProcedure().size()>0)
+                        tvProcedureName.setText(mProcedureReport.getProcedure().get(0).getName());
+                }
                 tvHospital.setText(mProcedureReport.getEstFullname());
                 if (mProcedureReport.getProcedureDoneDate() != 0) {
                     Date date = new Date(mProcedureReport.getProcedureDoneDate());
