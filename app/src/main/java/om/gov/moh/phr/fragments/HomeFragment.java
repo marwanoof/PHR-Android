@@ -81,6 +81,7 @@ import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
 import om.gov.moh.phr.models.AppCurrentUser;
 import om.gov.moh.phr.models.DBHelper;
+import om.gov.moh.phr.models.DummyVitalSigns;
 import om.gov.moh.phr.models.GlobalMethods;
 import om.gov.moh.phr.models.GlobalMethodsKotlin;
 import om.gov.moh.phr.models.MyProgressDialog;
@@ -474,7 +475,32 @@ private void showBetaVersionMsg(){
     public void setupMyVitalList(ArrayList<ApiHomeHolder.ApiRecentVitals> myVitals) {
         recentVitalConstraintLayout.setVisibility(View.VISIBLE);
         recentVitalConstraintLayout.setAnimation(GlobalMethodsKotlin.Companion.setAnimation(mContext, R.anim.fade_in));
-        MyVitalListAdapter myVitalListAdapter = new MyVitalListAdapter(myVitals, mContext);
+        MyVitalListAdapter myVitalListAdapter;
+
+        if (myVitals.size() > 0) {
+            recentVitalsArrayList.clear();
+            for (int i = 0; i < myVitals.size(); i++) {
+                ApiHomeHolder.ApiRecentVitals vitalSign = myVitals.get(i);
+                if (vitalSign.getName().equals("Body height"))
+                    tvUserHeight.setText(vitalSign.getValue() + " " + vitalSign.getUnit());
+                else if (vitalSign.getName().equals("Weight Measured"))
+                    tvUserWeight.setText(vitalSign.getValue() + " " + vitalSign.getUnit());
+                else if (!vitalSign.getName().equals("G6PD") && !vitalSign.getName().equalsIgnoreCase("blood group"))
+                    recentVitalsArrayList.add(vitalSign);
+            }
+            myVitalListAdapter = new MyVitalListAdapter(recentVitalsArrayList, mContext);
+
+        }else {
+
+            ArrayList<DummyVitalSigns> dummyVitals = new ArrayList<>();
+            dummyVitals.add(new DummyVitalSigns("Body temperature", "درجة حرارة الجسم", "---"));
+            dummyVitals.add(new DummyVitalSigns("Respiratory rate", "معدل التنفس", "---"));
+            dummyVitals.add(new DummyVitalSigns("Oxygen saturation", "تركيز الأكسجين", "---"));
+            dummyVitals.add(new DummyVitalSigns("Heart rate", "معدل نبضات القلب", "---"));
+            dummyVitals.add(new DummyVitalSigns("Blood pressure", "ضغط الدم", "---"));
+            myVitalListAdapter = new MyVitalListAdapter(mContext, dummyVitals,true);
+        }
+
         final LinearLayoutManager layoutManager = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
         //DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(myVital.getContext(),layoutManager.getOrientation());
         // myVital.addItemDecoration(mDividerItemDecoration);
@@ -650,11 +676,15 @@ private void showBetaVersionMsg(){
                                         mAdapter.updateList(responseHolder.getmResult().getmHome().getmMainMenus());
                                     if (responseHolder.getmResult().getmHome().getmDemographics() != null)
                                         setupDempgraphicsData(responseHolder.getmResult().getmHome().getmDemographics());
-                                    if (responseHolder.getmResult().getmHome().getmRecentVitals() != null) {
+
+                                    setupMyVitalList(responseHolder.getmResult().getmHome().getmRecentVitals());
+                                    //setupRecentVitalsData(responseHolder.getmResult().getmHome().getmRecentVitals());
+                                    isVitalShow = true;
+                                    /*if (responseHolder.getmResult().getmHome().getmRecentVitals() != null) {
                                         setupRecentVitalsData(responseHolder.getmResult().getmHome().getmRecentVitals());
                                         if (responseHolder.getmResult().getmHome().getmRecentVitals().size() > 0)
                                             isVitalShow = true;
-                                    }
+                                    }*/
                                     if (responseHolder.getmResult().getmHome().getmDependents() != null)
                                         setupDependentsData(responseHolder.getmResult().getmHome().getmDependents());
                                     if (responseHolder.getmResult().getmHome().getmChatMessages() != null) {
@@ -747,7 +777,13 @@ private void showBetaVersionMsg(){
         tvBloodGroup.setText(apiDemographicItem.getBloodGroup());
         Glide.with(mContext).load(getPersonPhoto(mContext, apiDemographicItem.getImage(), apiDemographicItem.getGender())).into(ivUserProfile);
         tvNameInfo.setText(fullName);
-        tvMobile.setText(String.valueOf(apiDemographicItem.getMobile()));
+
+        tvMobile.setText(apiDemographicItem.getMobile());
+        SharedPreferences pref = mContext.getApplicationContext().getSharedPreferences("UserMobileNo", 0);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putString("mobileNo", apiDemographicItem.getMobile());
+        editor.apply();
+
         tvGender.setText(apiDemographicItem.getGender());
         if (getStoredLanguage().equals(LANGUAGE_ARABIC))
             tvNationality.setText(apiDemographicItem.getNationalityNls());
@@ -757,20 +793,20 @@ private void showBetaVersionMsg(){
         switch (apiDemographicItem.getGender()) {
             case "Male":
                 if (isArabic) {
-                    tvGender.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_male, 0);
+                    //tvGender.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_male, 0);
                     tvGender.setText("ذكر");
                 } else {
-                    tvGender.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_male, 0, 0, 0);
+                    //tvGender.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_male, 0, 0, 0);
                     tvGender.setText("Male");
                 }
                 break;
             case "Female":
                 if (isArabic) {
-                    tvGender.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_female, 0);
+                    //tvGender.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_female, 0);
                     tvGender.setText("أنثى");
                 } else {
 
-                    tvGender.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_female, 0, 0, 0);
+                    //tvGender.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_female, 0, 0, 0);
                     tvGender.setText("Female");
                 }
                 break;
@@ -781,22 +817,22 @@ private void showBetaVersionMsg(){
     }
 
     private void setupRecentVitalsData(ArrayList<ApiHomeHolder.ApiRecentVitals> apiRecentVitals) {
-        if (apiRecentVitals == null || apiRecentVitals.size() == 0)
+        /*if (apiRecentVitals == null || apiRecentVitals.size() == 0)
             llMyVitalSigns.setVisibility(View.GONE);
-        else {
-            recentVitalsArrayList.clear();
-            for (int i = 0; i < apiRecentVitals.size(); i++) {
+        else {*/
+            //recentVitalsArrayList.clear();
+            /*for (int i = 0; i < apiRecentVitals.size(); i++) {
                 ApiHomeHolder.ApiRecentVitals vitalSign = apiRecentVitals.get(i);
                 if (vitalSign.getName().equals("Body height"))
                     tvUserHeight.setText(vitalSign.getValue() + " " + vitalSign.getUnit());
                 else if (vitalSign.getName().equals("Weight Measured"))
                     tvUserWeight.setText(vitalSign.getValue() + " " + vitalSign.getUnit());
                 else if (!vitalSign.getName().equals("G6PD") && !vitalSign.getName().equalsIgnoreCase("blood group"))
-                    recentVitalsArrayList.add(vitalSign);
-            }
+                    recentVitalsArrayList.add(vitalSign);*/
+            //}
             /* setup my vital list */
-            setupMyVitalList(recentVitalsArrayList);
-        }
+            setupMyVitalList(apiRecentVitals);
+        //}
     }
 
     private void setupChatMessages(ArrayList<ApiHomeHolder.ApiChatMessages> apiChatMessages) {

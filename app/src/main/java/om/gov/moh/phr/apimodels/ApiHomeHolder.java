@@ -182,7 +182,7 @@ public class ApiHomeHolder implements Serializable{
         private int dependentCount;
 
         @SerializedName("mobile")
-        private long mobile;
+        private String mobile;
 
         @SerializedName("cardExpiryDate")
         private long cardExpiryDate;
@@ -289,7 +289,7 @@ public class ApiHomeHolder implements Serializable{
                 return sixthName;
         }
 
-        public long getMobile() {
+        public String getMobile() {
             return mobile;
         }
 
@@ -469,6 +469,16 @@ public class ApiHomeHolder implements Serializable{
     }
 
     public class ApiRecentVitals implements Serializable {
+        public ApiRecentVitals(String name, String type, String unit, String value, String unitNls, String showHomePageYn, String vitalNameNls) {
+            this.name = name;
+            this.type = type;
+            this.unit = unit;
+            this.value = value;
+            this.unitNls = unitNls;
+            this.showHomePageYn = showHomePageYn;
+            this.vitalNameNls = vitalNameNls;
+        }
+
         @SerializedName("name")
         private String name;
 
@@ -578,6 +588,50 @@ public class ApiHomeHolder implements Serializable{
                 return "--";
             else
                 return value;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public void setType(String type) {
+            this.type = type;
+        }
+
+        public void setUnit(String unit) {
+            this.unit = unit;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
+        }
+
+        public void setUnitNls(String unitNls) {
+            this.unitNls = unitNls;
+        }
+
+        public void setLeftColor(String leftColor) {
+            this.leftColor = leftColor;
+        }
+
+        public void setRightColor(String rightColor) {
+            this.rightColor = rightColor;
+        }
+
+        public void setShowHomePageYn(String showHomePageYn) {
+            this.showHomePageYn = showHomePageYn;
+        }
+
+        public void setShowVitalPageYn(String showVitalPageYn) {
+            this.showVitalPageYn = showVitalPageYn;
+        }
+
+        public void setVitalDate(long vitalDate) {
+            this.vitalDate = vitalDate;
+        }
+
+        public void setVitalNameNls(String vitalNameNls) {
+            this.vitalNameNls = vitalNameNls;
         }
     }
 

@@ -155,17 +155,17 @@ public class MeasurementRecyclerViewAdapter extends
             case "Respiratory rate":
                 holder.imgIcon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_v_respiratory));
                 break;
-            case "Diastolic blood pressure":
+          /*  case "Diastolic blood pressure":
                 holder.imgIcon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_v_blood_low));
-                break;
-            case "Systolic blood pressure":
+                break;*/
+       /*     case "Systolic blood pressure":
                 holder.imgIcon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_v_blood_up));
-                break;
+                break;*/
             case "Weight Measured":
                 holder.imgIcon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_v_weight));
                 break;
             case "Blood pressure":
-                holder.imgIcon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_v_blood_pressure));
+                holder.imgIcon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_v_pressure));
                 break;
         }
     }

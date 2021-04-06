@@ -89,7 +89,7 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
     private TextView tvEmail, tvFirstPhone, tvSecondPhone, tvThirdPhone;
     private RequestQueue mQueue;
     private MyProgressDialog mProgressDialog;
-    private EditText /*etUserEmail, etUserMobileNo,*/ editText, etOtherComments;
+    private EditText etUserEmail, /*etUserMobileNo,*/ editText, etOtherComments;
     private ApiFeedbackHolder responseHolder;
     private ArrayList<RadioGroup> radioGroupArray;
     private LinearLayout linearLayout;
@@ -215,6 +215,9 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
           mToolbarControllerCallback.customToolbarBackButtonClicked();
             }
         });
+
+
+
         return view;
     }
 
@@ -303,6 +306,14 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
 
 
                             }
+                            etUserEmail = new EditText(mContext);
+                            etUserEmail.setLayoutParams(layoutParams);
+                            etUserEmail.setHint(getResources().getString(R.string.enter_your_email));
+                            etUserEmail.setTextSize(14);
+                            etUserEmail.setSingleLine(true);
+
+
+                            linearLayout.addView(etUserEmail);
                        /*     etOtherComments = new EditText(mContext);
                             etOtherComments.setLayoutParams(layoutParams);
                             etOtherComments.setTextSize(14);
@@ -313,12 +324,7 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
                             etOtherComments.setFilters(new InputFilter[]{filter, new InputFilter.LengthFilter(100)});
                            // etOtherComments.setFilters(new InputFilter[] { new InputFilter.LengthFilter(100) });
                             linearLayout.addView(etOtherComments);
-                            etUserEmail = new EditText(mContext);
-                            etUserEmail.setLayoutParams(layoutParams);
-                            etUserEmail.setHint(getResources().getString(R.string.enter_your_email));
-                            etUserEmail.setTextSize(14);
-                            etUserEmail.setSingleLine(true);
-                            linearLayout.addView(etUserEmail);
+
                             etUserMobileNo = new EditText(mContext);
                             etUserMobileNo.setLayoutParams(layoutParams);
                             etUserMobileNo.setHint(getResources().getString(R.string.enter_your_mobile_no));
@@ -430,9 +436,21 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
         params.put("civilId", Long.parseLong(mMediatorCallback.getCurrentUser().getCivilId()));
         params.put("appType", "phrApp");
         params.put("feedbackType", 1);
+        if (getStoredLanguage().equals(LANGUAGE_ARABIC)){
+            params.put("feedbackLang", "ar");
+        }else{
+            params.put("feedbackLang", "en");
+        }
+
        // params.put("otherComments", etOtherComments.getText().toString());
-      //  params.put("userEmail", etUserEmail.getText().toString());
-     //   params.put("userMobile", etUserMobileNo.getText().toString());
+        String userEmail = etUserEmail.getText().toString();
+        if (!userEmail.equals("")){
+              params.put("userEmail", userEmail);
+        }
+
+        SharedPreferences pref = mContext.getSharedPreferences("UserMobileNo", 0);
+        String userMobileNo = pref.getString("mobileNo","");
+        params.put("userMobile", userMobileNo);
         JSONArray jsonArray = new JSONArray();
         for (int i = 0; i < responseHolder.getResult().size(); i++) {
             try {

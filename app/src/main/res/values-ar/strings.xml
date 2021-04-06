@@ -129,7 +129,7 @@
     <string name="bmi_calculator">حساب مؤشر كتلة الجسم</string>
     <string name="edd_calculator">تاريخ الولادة المتوقع(للإناث)</string>
     <string name="submit">إرسال</string>
-    <string name="enter_your_email">* أدخل بريدك الإلكتروني.</string>
+    <string name="enter_your_email">أدخل بريدك الإلكتروني (اختياري)</string>
     <string name="enter_your_mobile_no">* أدخل رقم هاتفك.</string>
     <string name="feedback_saved_msg">شكرًا على مشاركتك في تقييم التطبيق.</string>
     <string name="at">في</string>

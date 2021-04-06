@@ -128,7 +128,7 @@
     <string name="bmi_calculator">BMI Calculator</string>
     <string name="edd_calculator">EDD Calculator</string>
     <string name="submit">Submit</string>
-    <string name="enter_your_email">Enter Your Email *</string>
+    <string name="enter_your_email">Enter Your Email (Optional)</string>
     <string name="enter_your_mobile_no">Enter Your Mobile No *</string>
     <string name="feedback_saved_msg">Thank you for your Feedback.</string>
     <string name="at">at</string>

@@ -19,6 +19,7 @@ import java.util.Locale;
 
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.apimodels.ApiHomeHolder;
+import om.gov.moh.phr.models.DummyVitalSigns;
 import om.gov.moh.phr.models.GlobalMethods;
 import om.gov.moh.phr.models.GlobalMethodsKotlin;
 
@@ -30,6 +31,14 @@ public class MyVitalListAdapter extends RecyclerView.Adapter<MyVitalListAdapter.
 
     private ArrayList<ApiHomeHolder.ApiRecentVitals> models;
     private Context context;
+    private ArrayList<DummyVitalSigns> dummyVitalSigns;
+    private boolean isDefault = false;
+
+    public MyVitalListAdapter(Context context, ArrayList<DummyVitalSigns> dummyVitalSigns, boolean isDefault) {
+        this.context = context;
+        this.dummyVitalSigns = dummyVitalSigns;
+        this.isDefault = isDefault;
+    }
 
     public MyVitalListAdapter(ArrayList<ApiHomeHolder.ApiRecentVitals> models, Context context) {
         this.models = models;
@@ -48,40 +57,60 @@ public class MyVitalListAdapter extends RecyclerView.Adapter<MyVitalListAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull final MyVitalListAdapter.MyViewHolder holder, int position) {
-        final ApiHomeHolder.ApiRecentVitals apiRecentVitals = models.get(position);
-        String title = "";
-        String unit = "";
-        if (getStoredLanguage().equals(LANGUAGE_ARABIC)){
-            if (apiRecentVitals.getVitalNameNls() == null)
-                title = apiRecentVitals.getName();
-            else
-                title = apiRecentVitals.getVitalNameNls();
-
-            if (apiRecentVitals.getUnitNls() == null)
-                unit = apiRecentVitals.getUnit();
-            else
-                unit = apiRecentVitals.getUnitNls();
-
+        if (isDefault){
+            final DummyVitalSigns dummyVital = dummyVitalSigns.get(position);
+            String title = "";
+            String unit = "";
+            if (getStoredLanguage().equals(LANGUAGE_ARABIC)){
+                title = dummyVital.getNameNls();
+            }else{
+                title = dummyVital.getName();
+            }
+            holder.title.setText(title);
+            holder.value.setText(dummyVital.getValue());
+            holder.sign.setText(unit);
         }else{
-            title = apiRecentVitals.getName();
-            if (apiRecentVitals.getUnit().equals("degrees C")){
-                unit = "\u2103";
-            }else {
-                unit = apiRecentVitals.getUnit();
+            final ApiHomeHolder.ApiRecentVitals apiRecentVitals = models.get(position);
+            String title = "";
+            String unit = "";
+            if (getStoredLanguage().equals(LANGUAGE_ARABIC)){
+                if (apiRecentVitals.getVitalNameNls() == null)
+                    title = apiRecentVitals.getName();
+                else
+                    title = apiRecentVitals.getVitalNameNls();
+
+                if (apiRecentVitals.getUnitNls() == null)
+                    unit = apiRecentVitals.getUnit();
+                else
+                    unit = apiRecentVitals.getUnitNls();
+
+            }else{
+                title = apiRecentVitals.getName();
+                if (apiRecentVitals.getUnit().equals("degrees C")){
+                    unit = "\u2103";
+                }else {
+                    unit = apiRecentVitals.getUnit();
+                }
+
             }
 
+            holder.title.setText(title);
+            holder.value.setText(models.get(position).getValue());
+            holder.sign.setText(unit);
         }
 
-        holder.title.setText(title);
-        holder.value.setText(models.get(position).getValue());
-        holder.sign.setText(unit);
 
 
     }
 
     @Override
     public int getItemCount() {
-        return models.size();
+        if (isDefault){
+            return dummyVitalSigns.size();
+        }else {
+            return models.size();
+        }
+
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
