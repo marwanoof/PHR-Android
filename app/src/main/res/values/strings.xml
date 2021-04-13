@@ -145,7 +145,7 @@
     <string name="patients_rights">Patients Rights</string>
     <string name="publish">Publish</string>
     <string name="about_the_app">About The App</string>
-    <string name="about_app_info">Shifa App is developed by Ministry of Health - DGIT.  This BETA version of the app allows all users with a valid civil ID and registered Oman mobile number with Directorate General of Civil Status, to view their own medical record and information.</string>
+    <string name="about_app_info">Shifa App is developed by Ministry of Health - DGIT.  This BETA version of the app allows all users with a valid civil ID and registered Oman mobile number with health institutions, to view their own medical record and information.</string>
     <string name="ok">OK</string>
     <string name="sub_title_phr">Your Personal Health Record Wallet</string>
     <string name="time_to_immunization">Date of vaccination for</string>
@@ -194,7 +194,7 @@
     <string name="i_want_donate">Do you wish to donate your organs after death?</string>
     <string name="no_doc_type_found">No documents types found. Please try again.</string>
     <string name="saved_successfully">The data has been saved successfully.</string>
-    <string name="sent_otp_msg_dialog">OTP has been sent to the registered number with Directorate General of Civil Status.</string>
+    <string name="sent_otp_msg_dialog">OTP has been sent to the registered number with health institutions.</string>
     <string name="description">Description:</string>
     <string name="add_new_appointment">Add New Appointment</string>
     <string name="invalid_otp_msg">You entered invalid OTP !</string>
