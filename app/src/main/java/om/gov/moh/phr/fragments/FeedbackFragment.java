@@ -300,7 +300,7 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
 
                                     //editText.setHint("write here your comments.");
                                     editText.setId(responseHolder.getResult().get(i).getParamId());
-                                    editText.setFilters(new InputFilter[]{filter, new InputFilter.LengthFilter(100)});
+                                    //editText.setFilters(new InputFilter[]{filter, new InputFilter.LengthFilter(100)});
                                     linearLayout.addView(editText);
                                 }
 
