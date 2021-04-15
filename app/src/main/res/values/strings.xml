@@ -156,7 +156,7 @@
     <string name="title_update">Update</string>
     <string name="other_commets">Other Comments..</string>
     <string name="name_of_the_family_member_aware_of_your_wish"><font size="10">Name of the family member aware of your wish*</font></string>
-    <string name="oragen_statment">I with below details express my wish to donate my organs to be implanted for a patient in need</string>
+    <string name="oragen_statment">I with below details express my wish to donate my organs after death to be implanted for a patient in need</string>
     <string name="mobile_no_of_the_family_member">Mobile No. of the family member*</string>
     <string name="select_relation_msg">Please select the relation !</string>
     <string name="liver">Liver</string>

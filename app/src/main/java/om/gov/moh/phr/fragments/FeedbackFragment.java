@@ -373,10 +373,11 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
     private void saveFeedback() {
         String saveFeedbackUrl = API_NEHR_URL + "feedback/save";
         mProgressDialog.showDialog();
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, saveFeedbackUrl, getJSONRequestParams()
+        final JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, saveFeedbackUrl, getJSONRequestParams()
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
+
                 if (mContext != null && isAdded()) {
                     try {
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
@@ -490,7 +491,14 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
                         }
                     }
                     jsonObject.put("paramId", responseHolder.getResult().get(i).getParamId());
-                    jsonObject.put("value", getCheckBoxesId.toString());
+                    StringBuilder valueM = new StringBuilder();
+                    for (String x : getCheckBoxesId){
+                        valueM.append(x).append(",");
+                    }
+                    if (valueM.length() > 0){
+                        valueM.deleteCharAt(valueM.length()-1);
+                    }
+                    jsonObject.put("value", valueM);
                 } else {
                     jsonObject.put("paramId", responseHolder.getResult().get(i).getParamId());
                     jsonObject.put("value", editText.getText().toString());
@@ -503,6 +511,7 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
 
         }
         params.put("values", jsonArray);
+        System.out.println(new JSONObject(params));
         return new JSONObject(params);
     }
 
