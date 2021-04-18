@@ -246,5 +246,10 @@ public class RadFragment extends Fragment {
         tvAlert.setVisibility(View.VISIBLE);
         tvAlert.setText(msg);
     }
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.clear();
+    }
 }
 

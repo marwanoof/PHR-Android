@@ -412,4 +412,9 @@ public class LabResultsFragment extends Fragment implements SearchView.OnQueryTe
             getLabOrdersList(API_URL_GET_LAB_ORDERS_INFO,"all","PHR",docInfo.getEncounterId());
         }
     }*/
+  @Override
+  public void onSaveInstanceState(@NonNull Bundle outState) {
+      super.onSaveInstanceState(outState);
+      outState.clear();
+  }
 }

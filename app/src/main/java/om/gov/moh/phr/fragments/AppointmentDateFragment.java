@@ -263,5 +263,9 @@ public class AppointmentDateFragment extends Fragment implements AdapterToFragme
         mListener = listener;
 
     }
-
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.clear();
+    }
 }

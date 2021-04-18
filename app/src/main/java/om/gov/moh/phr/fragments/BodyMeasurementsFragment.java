@@ -3,6 +3,7 @@ package om.gov.moh.phr.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -37,6 +39,7 @@ public class BodyMeasurementsFragment extends Fragment implements AdapterToFragm
     private TextView tvAlert;
     private RecyclerView recyclerView;
     private String pageTitle;
+    private CardView noRecordsVitalSigns;
     public BodyMeasurementsFragment() {
         // Required empty public constructor
     }
@@ -93,6 +96,7 @@ public class BodyMeasurementsFragment extends Fragment implements AdapterToFragm
         });
         recyclerView = parentView.findViewById(R.id.recycler_view);
         tvAlert = parentView.findViewById(R.id.tv_alert);
+        noRecordsVitalSigns = parentView.findViewById(R.id.noRecordCardView);
         setupRecyclerView(recyclerView);
         return parentView;
     }
@@ -100,10 +104,8 @@ public class BodyMeasurementsFragment extends Fragment implements AdapterToFragm
     private void setupRecyclerView(RecyclerView recyclerView) {
         MeasurementRecyclerViewAdapter mAdapter =
                 new MeasurementRecyclerViewAdapter(BodyMeasurementsFragment.this, mContext, getMeasurementArrayList());
-        recyclerView.setHasFixedSize(true);// not required
         LinearLayoutManager layoutManager
                 = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
-
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(mContext, R.anim.delay_slide_down);
@@ -123,7 +125,7 @@ public class BodyMeasurementsFragment extends Fragment implements AdapterToFragm
 
     private ArrayList<ApiHomeHolder.ApiRecentVitals> getMeasurementArrayList() {
         ArrayList<ApiHomeHolder.ApiRecentVitals> measurementArrayList = new ArrayList<>();
-        if (mRecentVitalsArrayList != null) {
+        if (mRecentVitalsArrayList != null&&mRecentVitalsArrayList.size()>0) {
             for (int i = 0; i < mRecentVitalsArrayList.size(); i++) {
                 if (mRecentVitalsArrayList.get(i).getShowVitalPageYn().equals("Y")){
                     measurementArrayList.add(mRecentVitalsArrayList.get(i));
@@ -134,7 +136,7 @@ public class BodyMeasurementsFragment extends Fragment implements AdapterToFragm
                 }*/
             }
         } else
-            displayAlert(getResources().getString(R.string.no_record_found));
+            displayAlert(getResources().getString(R.string.no_recent_vital_sign_msg));
      /*   measurementArrayList.add(new ApiDemographicsHolder().new ApiDemographicItem().new RecentVitals(getString(R.string.title_height_cm),
                 mRecentVitalsArrayList.get(1).getValue()));
         measurementArrayList.add(new ApiDemographicsHolder().new ApiDemographicItem().new RecentVitals(getString(R.string.title_bmi),
@@ -153,6 +155,7 @@ public class BodyMeasurementsFragment extends Fragment implements AdapterToFragm
     private void displayAlert(String msg) {
         recyclerView.setVisibility(View.GONE);
         tvAlert.setVisibility(View.VISIBLE);
+        noRecordsVitalSigns.setVisibility(View.VISIBLE);
         tvAlert.setText(msg);
     }
 
@@ -160,5 +163,10 @@ public class BodyMeasurementsFragment extends Fragment implements AdapterToFragm
     public void onDetach() {
         super.onDetach();
         mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
+    }
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.clear();
     }
 }

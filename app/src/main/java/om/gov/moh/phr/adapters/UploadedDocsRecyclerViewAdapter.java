@@ -119,7 +119,7 @@ public class UploadedDocsRecyclerViewAdapter extends RecyclerView.Adapter<Upload
             uploadedDocsArrayList.addAll(arraylist);
         } else {
             for (ApiUploadsDocsHolder.ApiUploadDocInfo wp : arraylist) {
-                if (wp.getDocTypeName().toLowerCase(Locale.getDefault()).contains(charText)) {
+                if (wp.getDocTypeName().toLowerCase(Locale.getDefault()).contains(charText)||wp.getDocTypeNameNls().toLowerCase(Locale.getDefault()).contains(charText)||wp.getSource().toLowerCase().toLowerCase(Locale.getDefault()).contains(charText)) {
                     uploadedDocsArrayList.add(wp);
                 }
             }

@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.os.Handler
-import android.view.WindowManager
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import com.wang.avi.AVLoadingIndicatorView
@@ -85,5 +84,10 @@ class Splash : AppCompatActivity() {
     private fun getStoredLanguage(): String {
         val sharedPref = getSharedPreferences(MyConstants.LANGUAGE_PREFS, MODE_PRIVATE)
         return sharedPref.getString(MyConstants.LANGUAGE_SELECTED, getDeviceLanguage()).toString()
+    }
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        //Clear the Activity's bundle of the subsidiary fragments' bundles.
+        outState.clear()
     }
 }

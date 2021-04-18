@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.apimodels.ApiRadiologyHolder;
@@ -50,19 +51,19 @@ public class RadiologyRecyclerViewAdapter extends RecyclerView.Adapter<Radiology
         final ApiRadiologyHolder.Radiology radiology = radiologyArrayList.get(position);
 
         holder.tvProcedureName.setText(radiology.getProcName());
+        if (radiology.getReportDoneDate() != 0) {
+            Date date = new Date(radiology.getReportDoneDate());
+            SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
+            String dateText = df2.format(date);
+            holder.tvDateWritten.setText(dateText);
+        } else
+            holder.tvDateWritten.setVisibility(View.GONE);
 
-        Date date = new Date(radiology.getReportDoneDate());
-        SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yyyy");
-        String dateText = df2.format(date);
-        holder.tvDateWritten.setText(dateText);
 
-
-
-
-        if (GlobalMethods.getStoredLanguage(context).equals(LANGUAGE_ARABIC)){
+        if (GlobalMethods.getStoredLanguage(context).equals(LANGUAGE_ARABIC)) {
             holder.tvEstName.setText(radiology.getEstFullnameNls());
             holder.moreDetailArrow.setImageBitmap(GlobalMethods.flipImage(context));
-        }else {
+        } else {
             holder.tvEstName.setText(radiology.getEstFullname());
             holder.moreDetailArrow.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_arrow_right));
         }
@@ -71,9 +72,9 @@ public class RadiologyRecyclerViewAdapter extends RecyclerView.Adapter<Radiology
             public void onClick(View view) {
                 //  row_index = position;
                 // notifyDataSetChanged();
-                if (radiology.getReportId() == null){
-                    GlobalMethods.displayDialog(context.getResources().getString(R.string.no_recodrs_dialog),context);
-                }else
+                if (radiology.getReportId() == null) {
+                    GlobalMethods.displayDialog(context.getResources().getString(R.string.no_recodrs_dialog), context);
+                } else
                     mediatorInterface.changeFragmentTo(ProceduresReportsDetailsFragment.newInstance(radiology, "RAD"), radiology.getProcName());
 
             }
@@ -90,7 +91,7 @@ public class RadiologyRecyclerViewAdapter extends RecyclerView.Adapter<Radiology
         notifyDataSetChanged();
     }
 
-    public void clear(){
+    public void clear() {
         int size = radiologyArrayList.size();
         radiologyArrayList.clear();
         notifyItemRangeRemoved(0, size);
@@ -114,7 +115,7 @@ public class RadiologyRecyclerViewAdapter extends RecyclerView.Adapter<Radiology
             tvDateDetails = view.findViewById(R.id.tv_date_proc_details);
 
             tvDate = view.findViewById(R.id.tvDate);
-            Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(),R.drawable.ic_arrow_right);
+            Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_arrow_right);
             moreDetailArrow.setImageBitmap(bitmap);
         }
     }

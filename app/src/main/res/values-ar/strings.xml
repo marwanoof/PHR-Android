@@ -129,7 +129,7 @@
     <string name="bmi_calculator">حساب مؤشر كتلة الجسم</string>
     <string name="edd_calculator">تاريخ الولادة المتوقع(للإناث)</string>
     <string name="submit">إرسال</string>
-    <string name="enter_your_email">أدخل بريدك الإلكتروني (اختياري)</string>
+    <string name="enter_your_email">أدخل بريدك الإلكتروني </string>
     <string name="enter_your_mobile_no">* أدخل رقم هاتفك.</string>
     <string name="feedback_saved_msg">شكرًا على مشاركتك في تقييم التطبيق.</string>
     <string name="at">في</string>
@@ -217,5 +217,15 @@
     <string name="grant_camera_permission">الرجاء منح الأذونات المطلوبة لالتقاط صورة للمستند.</string>
     <string name="contact_us_txt">في حالة واجهتك أي صعوبات فنية الرجاء التواصل عبر: </string>
     <string name="grant_calender_permission_msg">الرجاء منح أذونات الوصول للتقويم لإضافة الدواء للتقويم الخاص بك!</string>
-
+    <string name="no_recent_vital_sign_msg">لا توجد علامات حيوية متاحة.</string>
+    <string name="default_appointment_msg">لا يوجد موعد في المؤسسات الصحية المرتبطة بنظام شفاء.</string>
+    <string name="spouse">زوج</string>
+    <string name="father">أب</string>
+    <string name="mother">أم</string>
+    <string name="brother">أخ</string>
+    <string name="sister">أخت</string>
+    <string name="son">ابن</string>
+    <string name="daughter">ابنه</string>
+    <string name="other">آخر (حدد لطفًا)</string>
+    <string name="allowed_age_msg">عمرك أقل من العمر المسموح له بالتبرع.</string>
 </resources>

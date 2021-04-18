@@ -363,5 +363,9 @@ public class HealthRecordListFragment extends Fragment implements AdapterToFragm
         getEncounterResponse();
     }
 
-
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.clear();
+    }
 }

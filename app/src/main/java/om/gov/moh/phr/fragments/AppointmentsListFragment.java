@@ -365,5 +365,10 @@ public class AppointmentsListFragment extends Fragment implements AdapterToFragm
     public void onRefresh() {
         getAppointmentsList();
     }
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.clear();
+    }
 
 }

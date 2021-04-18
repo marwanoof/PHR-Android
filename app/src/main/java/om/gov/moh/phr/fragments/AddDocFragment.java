@@ -362,13 +362,19 @@ public class AddDocFragment extends Fragment {
                         , new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        if (mContext != null && isAdded()) {
-                            Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(android.R.id.content), getResources().getString(R.string.success_upload_msg), Snackbar.LENGTH_SHORT)
-                                    .setBackgroundTint(getResources().getColor(R.color.colorPrimary))
-                                    .show();
-                            mToolbarControllerCallback.customToolbarBackButtonClicked();
-                            mProgressDialog.dismissDialog();
+                        try {
+                            if(response.getInt(API_RESPONSE_CODE)==0){
+                            if (mContext != null && isAdded()) {
+                                Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(android.R.id.content), getResources().getString(R.string.success_upload_msg), Snackbar.LENGTH_SHORT)
+                                        .setBackgroundTint(getResources().getColor(R.color.colorPrimary))
+                                        .show();
+                                mToolbarControllerCallback.customToolbarBackButtonClicked();
+                            }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
+                        mProgressDialog.dismissDialog();
                     }
                 }, new Response.ErrorListener() {
                     @Override
@@ -524,5 +530,10 @@ public class AddDocFragment extends Fragment {
 
     private String getDeviceLanguage() {
         return Locale.getDefault().getLanguage();
+    }
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.clear();
     }
 }

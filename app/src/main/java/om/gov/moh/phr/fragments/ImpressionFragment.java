@@ -278,4 +278,9 @@ public class ImpressionFragment extends Fragment implements SwipeRefreshLayout.O
             getImmpressionNotes(url);
         }
     }
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.clear();
+    }
 }

@@ -3,6 +3,7 @@ package om.gov.moh.phr.adapters;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +15,9 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Locale;
 
 import om.gov.moh.phr.R;
@@ -57,23 +60,24 @@ public class MyVitalListAdapter extends RecyclerView.Adapter<MyVitalListAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull final MyVitalListAdapter.MyViewHolder holder, int position) {
-        if (isDefault){
+        if (isDefault) {
             final DummyVitalSigns dummyVital = dummyVitalSigns.get(position);
             String title = "";
             String unit = "";
-            if (getStoredLanguage().equals(LANGUAGE_ARABIC)){
+            if (getStoredLanguage().equals(LANGUAGE_ARABIC)) {
                 title = dummyVital.getNameNls();
-            }else{
+            } else {
                 title = dummyVital.getName();
             }
             holder.title.setText(title);
             holder.value.setText(dummyVital.getValue());
             holder.sign.setText(unit);
-        }else{
+            holder.tvDate.setVisibility(View.GONE);
+        } else {
             final ApiHomeHolder.ApiRecentVitals apiRecentVitals = models.get(position);
             String title = "";
             String unit = "";
-            if (getStoredLanguage().equals(LANGUAGE_ARABIC)){
+            if (getStoredLanguage().equals(LANGUAGE_ARABIC)) {
                 if (apiRecentVitals.getVitalNameNls() == null)
                     title = apiRecentVitals.getName();
                 else
@@ -84,11 +88,11 @@ public class MyVitalListAdapter extends RecyclerView.Adapter<MyVitalListAdapter.
                 else
                     unit = apiRecentVitals.getUnitNls();
 
-            }else{
+            } else {
                 title = apiRecentVitals.getName();
-                if (apiRecentVitals.getUnit().equals("degrees C")){
+                if (apiRecentVitals.getUnit().equals("degrees C")) {
                     unit = "\u2103";
-                }else {
+                } else {
                     unit = apiRecentVitals.getUnit();
                 }
 
@@ -97,24 +101,26 @@ public class MyVitalListAdapter extends RecyclerView.Adapter<MyVitalListAdapter.
             holder.title.setText(title);
             holder.value.setText(models.get(position).getValue());
             holder.sign.setText(unit);
+       /*     Date date=new Date(models.get(position).getVitalDate());
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.ENGLISH);*/
+            holder.tvDate.setText(models.get(position).getVitalDate());
         }
-
 
 
     }
 
     @Override
     public int getItemCount() {
-        if (isDefault){
+        if (isDefault) {
             return dummyVitalSigns.size();
-        }else {
+        } else {
             return models.size();
         }
 
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
-        TextView title, value, sign;
+        TextView title, value, sign, tvDate;
         CardView cardView;
 
 
@@ -124,7 +130,7 @@ public class MyVitalListAdapter extends RecyclerView.Adapter<MyVitalListAdapter.
             value = itemView.findViewById(R.id.tv_myvital_value);
             sign = itemView.findViewById(R.id.tv_myvital_sign);
             cardView = itemView.findViewById(R.id.recentVitalCard);
-
+            tvDate = itemView.findViewById(R.id.tvDate);
 
         }
 

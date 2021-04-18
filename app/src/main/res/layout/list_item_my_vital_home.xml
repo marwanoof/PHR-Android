@@ -8,7 +8,7 @@
     <androidx.cardview.widget.CardView
         android:id="@+id/recentVitalCard"
         android:layout_width="0dp"
-        android:layout_height="30dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
         android:layout_marginTop="5dp"
         android:layout_marginEnd="20dp"
@@ -31,9 +31,19 @@
                 android:layout_marginStart="8dp"
                 android:text="Title:"
                 android:textColor="#000000"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+            <TextView
+                android:id="@+id/tvDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_myvital_title"
+                app:layout_constraintStart_toStartOf="parent"
+                android:textAlignment="viewStart"
+                android:text="14-april-2020"
+                android:layout_marginStart="8dp"
+                android:textSize="@dimen/text_size_12sp"/>
 
             <TextView
                 android:id="@+id/tv_myvital_value"
@@ -42,6 +52,7 @@
                 android:layout_marginEnd="1dp"
                 android:text="37"
                 android:textColor="#000000"
+                android:textAlignment="viewEnd"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/tv_myvital_sign"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -53,6 +64,7 @@
                 android:layout_marginEnd="8dp"
                 android:textColor="#000000"
                 android:textSize="10sp"
+                android:textAlignment="viewEnd"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />

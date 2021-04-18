@@ -641,7 +641,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
     //BottomNavigationView
 
     @Override
-    public void changeFragmentTo(Fragment fragmentToLoad, String fragmentTag) {
+    public synchronized void changeFragmentTo(Fragment fragmentToLoad, String fragmentTag) {
         if (getSupportFragmentManager().findFragmentByTag(fragmentTag) == null) {
             getSupportFragmentManager()
                     .beginTransaction()
@@ -1093,6 +1093,12 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         metrics.scaledDensity = configuration.fontScale * metrics.density;
         getBaseContext().getResources().updateConfiguration(configuration, metrics);
 
+    }
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        //Clear the Activity's bundle of the subsidiary fragments' bundles.
+        outState.clear();
     }
 }
 

@@ -244,4 +244,9 @@ public class SelfDocsFragment extends Fragment implements SearchView.OnQueryText
         String uploadedListDocsUrl = API_URL_GET_UPLOADS_DOCS + mMediatorCallback.getCurrentUser().getCivilId() + "/" + mMediatorCallback.getCurrentUser().getCivilId();
         getUploadedDocsList(uploadedListDocsUrl);
     }
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.clear();
+    }
 }

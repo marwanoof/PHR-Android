@@ -156,4 +156,9 @@ public class ImmunizationFragment extends Fragment implements SearchView.OnQuery
 
 
     }
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.clear();
+    }
 }

@@ -386,4 +386,9 @@ public class ProceduresReportsFragment extends Fragment implements SearchView.On
             getProceduresReportsList(recentProceduresReportsUrl);
         }
     }*/
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.clear();
+    }
 }

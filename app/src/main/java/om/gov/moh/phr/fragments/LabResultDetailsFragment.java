@@ -471,4 +471,9 @@ public class LabResultDetailsFragment extends Fragment implements SwipeRefreshLa
     public void onRefresh() {
         setupPage();
     }
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.clear();
+    }
 }

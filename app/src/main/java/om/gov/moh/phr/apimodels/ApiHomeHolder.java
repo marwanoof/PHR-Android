@@ -516,11 +516,15 @@ public class ApiHomeHolder implements Serializable{
         private long vitalDate;
 
         public String getVitalDate() {
-            Calendar cal = Calendar.getInstance();
-            cal.setTimeInMillis(vitalDate);
-            Date serverDate = new Date(vitalDate);
-            SimpleDateFormat dateFormat = new SimpleDateFormat("E, MMM dd yyyy hh:mm a", Locale.ENGLISH);
-            String date = dateFormat.format(serverDate);
+            String date ;
+            if(vitalDate!=0) {
+                Calendar cal = Calendar.getInstance();
+                cal.setTimeInMillis(vitalDate);
+                Date serverDate = new Date(vitalDate);
+                SimpleDateFormat dateFormat = new SimpleDateFormat("E, MMM dd yyyy hh:mm a", Locale.ENGLISH);
+                 date = dateFormat.format(serverDate);
+            }else
+                date = "";
             return date;
         }
 
@@ -681,6 +685,10 @@ public class ApiHomeHolder implements Serializable{
                 return "";
             else
                 return estCode;
+        }
+
+        public void setDescription(String description) {
+            this.description = description;
         }
     }
 

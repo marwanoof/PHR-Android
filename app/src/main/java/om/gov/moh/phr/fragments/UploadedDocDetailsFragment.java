@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
@@ -443,5 +444,10 @@ public class UploadedDocDetailsFragment extends Fragment implements SwipeRefresh
     public void onRefresh() {
         String fileUrl = API_DOC_INFO + mUploadedDocInfo.getDocId();
         getFileUploaded(fileUrl);
+    }
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.clear();
     }
 }

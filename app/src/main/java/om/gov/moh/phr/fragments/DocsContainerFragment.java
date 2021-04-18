@@ -150,4 +150,9 @@ public class DocsContainerFragment extends Fragment {
         super.onDetach();
         mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.VISIBLE);
     }
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.clear();
+    }
 }

@@ -14,6 +14,7 @@ import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.android.volley.DefaultRetryPolicy;
@@ -372,5 +373,10 @@ public class AppointmentRescheduleFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
+    }
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.clear();
     }
 }

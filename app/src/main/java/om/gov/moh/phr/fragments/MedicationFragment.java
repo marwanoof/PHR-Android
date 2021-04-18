@@ -413,4 +413,9 @@ public class MedicationFragment extends Fragment implements SearchView.OnQueryTe
             getMedicationList(procedureUrl);
         }*//*
     }*/
+@Override
+public void onSaveInstanceState(@NonNull Bundle outState) {
+    super.onSaveInstanceState(outState);
+    outState.clear();
+}
 }

@@ -79,32 +79,6 @@ public class OtherDocsRecyclerViewAdapter extends RecyclerView.Adapter<OtherDocs
             holder.tvDosage.setText(docObj.getEstFullname());
             holder.moreDetails.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_arrow_right));
         }
-        long encounterDate = docObj.getEncounterDate();
-
-        /*if (position != 0) {
-            int prev = position - 1;
-            long prevEncounterDate = othersDocsArrayList.get(prev).getEncounterDate();
-            if (dateFormatGroupedDate.format(new Date(encounterDate)).equals(dateFormatGroupedDate.format(new Date(prevEncounterDate)))) {
-                holder.tvDate.setVisibility(View.GONE);
-                holder.ivMoreArrow.setVisibility(View.GONE);
-            } else {
-                holder.tvDate.setVisibility(View.VISIBLE);
-                holder.ivMoreArrow.setVisibility(View.VISIBLE);
-                holder.tvDate.setText(context.getResources().getString(R.string.visit_date) + ": " + dateFormatGroupedDate.format(new Date(encounterDate)));
-            }
-        } else {
-            holder.tvDate.setVisibility(View.VISIBLE);
-            holder.ivMoreArrow.setVisibility(View.VISIBLE);
-            holder.tvDate.setText(context.getResources().getString(R.string.visit_date) + ": " + dateFormatGroupedDate.format(new Date(encounterDate)));
-        }*/
-
-   /*   if (row_index == position) {
-            // holder.imageButton.setBackgroundTintList(context.getResources().getColorStateList(R.color.colorPeach));
-            holder.clOrderItem.setBackgroundColor(context.getResources().getColor(R.color.colorPeach));
-        } else {
-            //holder.imageButton.setBackgroundTintList(context.getResources().getColorStateList(R.color.colorWhite));
-            holder.clOrderItem.setBackgroundColor(context.getResources().getColor(android.R.color.white));
-        }*/
         if (docObj.getType().contains("Pregnancy visit summary"))
             holder.ivDoctype.setImageDrawable(context.getResources().getDrawable(R.drawable.pregnancy_note));
         else if (docObj.getType().contains("Medical Report"))
@@ -189,11 +163,11 @@ public class OtherDocsRecyclerViewAdapter extends RecyclerView.Adapter<OtherDocs
         } else {
             for (ApiOtherDocsHolder.ApiDocInfo wp : arraylist) {
                 if (wp.getTitle().toLowerCase(Locale.getDefault()).contains(charText)
-                || wp.getTypeNls().contains(charText)
-                || wp.getTitleNls().contains(charText)
+                || wp.getTypeNls().toLowerCase().contains(charText)
+                || wp.getTitleNls().toLowerCase().contains(charText)
                 || wp.getType().toLowerCase(Locale.getDefault()).contains(charText)
                 || wp.getEstFullname().toLowerCase(Locale.getDefault()).contains(charText)
-                || wp.getEstFullnameNls().contains(charText)) {
+                || wp.getEstFullnameNls().toLowerCase().contains(charText)) {
                     othersDocsArrayList.add(wp);
                 }
             }

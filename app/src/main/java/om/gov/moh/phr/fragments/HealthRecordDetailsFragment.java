@@ -228,4 +228,9 @@ public class HealthRecordDetailsFragment extends Fragment {
             return mFragmentTitles.size();
         }
     }
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.clear();
+    }
 }

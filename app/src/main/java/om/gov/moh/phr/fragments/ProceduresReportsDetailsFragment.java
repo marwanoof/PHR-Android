@@ -4,6 +4,7 @@ package om.gov.moh.phr.fragments;
 import android.content.Context;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -560,5 +561,10 @@ public class ProceduresReportsDetailsFragment extends Fragment {
         private void setReportTime(Long reportTime) {
             this.reportTime = reportTime;
         }
+    }
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.clear();
     }
 }

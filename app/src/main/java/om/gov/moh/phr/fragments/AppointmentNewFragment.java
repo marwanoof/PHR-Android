@@ -734,5 +734,10 @@ public class AppointmentNewFragment extends Fragment {
     private String getDeviceLanguage() {
         return Locale.getDefault().getLanguage();
     }
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.clear();
+    }
 }
 

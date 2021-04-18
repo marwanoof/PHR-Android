@@ -310,4 +310,9 @@ public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         tvAlert.setVisibility(View.VISIBLE);
         tvAlert.setText(msg);
     }
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.clear();
+    }
 }

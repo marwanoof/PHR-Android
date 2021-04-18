@@ -437,4 +437,9 @@ public class VitalInfoFragment extends Fragment implements  View.OnClickListener
 
         expandCollapseBtn(view);
     }
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.clear();
+    }
 }

@@ -4,6 +4,7 @@ package om.gov.moh.phr.fragments;
 import android.content.Context;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -233,5 +234,10 @@ public class OtherDocsDetailsFragment extends Fragment {
     public void onResume() {
         super.onResume();
         mToolbarControllerCallback.changeSideMenuToolBarVisibility(View.GONE);
+    }
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.clear();
     }
 }

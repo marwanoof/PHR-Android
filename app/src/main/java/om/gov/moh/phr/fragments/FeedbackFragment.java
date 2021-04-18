@@ -590,4 +590,9 @@ public class FeedbackFragment extends Fragment implements AdapterToFragmentConne
         TelephonyManager manager = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
         return manager.getPhoneType() != TelephonyManager.PHONE_TYPE_NONE;
     }
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.clear();
+    }
 }

@@ -212,4 +212,9 @@ public class ImmunizationContainerFragment extends Fragment {
         return new JSONObject(params);
 
     }
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.clear();
+    }
 }

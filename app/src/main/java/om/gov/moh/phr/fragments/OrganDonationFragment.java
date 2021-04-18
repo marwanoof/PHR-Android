@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
@@ -254,8 +255,6 @@ public class OrganDonationFragment extends Fragment {
                         cvPersonalInfo.setVisibility(View.GONE);
                         cvSelectionOrganDonated.setVisibility(View.GONE);
                         break;
-                    default:
-                        break;
                 }
                 System.out.println("isAgreeToDonate" + afterDeath);
             }
@@ -314,15 +313,15 @@ public class OrganDonationFragment extends Fragment {
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Log.d("saveDonation", response.toString());
                 if (mContext != null && isAdded()) {
                     try {
                         if (response.getInt(API_RESPONSE_CODE) == 0) {
                             showSuccessfulAlert();
                             mToolbarControllerCallback.customToolbarBackButtonClicked();
-                        } else
+                        } else {
                             System.out.println(response.getString(API_RESPONSE_MESSAGE));
                             GlobalMethodsKotlin.Companion.showAlertErrorDialog(mContext);
+                        }
 
                     } catch (JSONException e) {
 
@@ -369,7 +368,7 @@ public class OrganDonationFragment extends Fragment {
         params.put("civilId", mMediatorCallback.getCurrentUser().getCivilId());
         if (radioButtonYes.isChecked()) {
             params.put("mobileNo", mobileNo.getText().toString());
-            params.put("email", email.getText().toString());
+            params.put("email", email.getText().toString().trim());
             params.put("familyMemberName", familyMember.getText().toString());
             if (kidneys.isChecked())
                 params.put("kidneysYn", "Y");
@@ -411,14 +410,26 @@ public class OrganDonationFragment extends Fragment {
             params.put("relationCode", 0);
             params.put("relationContactNo", null);
         }
-        if (mDonerID != null)
+        if (mDonerID != null) {
             params.put("donorId", mDonerID);
+        }
         params.put("afterDeathYn", afterDeath);
         return new JSONObject(params);
     }
 
     public void getRelationMast() {
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, API_URL_GET_RELATION_MAST, null
+        relationMastArrayList.clear();
+        relationMastArrayList.add(getResources().getString(R.string.title_select_relation));
+        relationMastArrayList.add(getString(R.string.spouse));
+        relationMastArrayList.add(getString(R.string.father));
+        relationMastArrayList.add(getString(R.string.mother));
+        relationMastArrayList.add(getString(R.string.brother));
+        relationMastArrayList.add(getString(R.string.sister));
+        relationMastArrayList.add(getString(R.string.son));
+        relationMastArrayList.add(getString(R.string.daughter));
+        relationMastArrayList.add(getString(R.string.other));
+        setupSelectRelationSpinner(relationMastArrayList);
+       /* JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, API_URL_GET_RELATION_MAST, null
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -473,7 +484,7 @@ public class OrganDonationFragment extends Fragment {
         RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
         jsonObjectRequest.setRetryPolicy(policy);
 
-        mQueue.add(jsonObjectRequest);
+        mQueue.add(jsonObjectRequest);*/
     }
 
     private void setupSelectRelationSpinner(final ArrayList<String> relationMaster) {
@@ -528,7 +539,6 @@ public class OrganDonationFragment extends Fragment {
             public void onErrorResponse(VolleyError error) {
                 if (mContext != null && isAdded()) {
                     GlobalMethodsKotlin.Companion.showAlertErrorDialog(mContext);
-                    Toast.makeText(mContext, "sth went wrong", Toast.LENGTH_SHORT).show();
                     error.printStackTrace();
                     mProgressDialog.dismissDialog();
                 }
@@ -599,12 +609,12 @@ public class OrganDonationFragment extends Fragment {
                     radioButtonD.setChecked(true);
                     resetAllInfo();
                     break;
-                default:
+              /*  default:
                     radioButtonYes.setChecked(false);
                     radioButtonNo.setChecked(false);
                     radioButtonD.setChecked(true);
                     resetAllInfo();
-                    break;
+                    break;*/
             }
             if (result.getRelationContactNo() != 0)
                 etMobileNoOfFamilyMember.setText(String.valueOf(result.getRelationContactNo()));
@@ -666,5 +676,10 @@ public class OrganDonationFragment extends Fragment {
 
     private boolean checkIfAllOrgansChecked() {
         return (kidneys.isChecked() && liver.isChecked() && heart.isChecked() && lungs.isChecked() && pancreas.isChecked() && corneas.isChecked());
+    }
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.clear();
     }
 }

@@ -251,6 +251,10 @@ public class AppointmentRescheduleDateFragment extends Fragment implements Adapt
       /*  mMediatorCallback.changeFragmentContainerVisibility(View.GONE, View.VISIBLE);
         mMediatorCallback.slideTo(0);*/
     }
-
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.clear();
+    }
 
 }

@@ -240,4 +240,9 @@ public class ProviderDocumentsFragment extends Fragment implements SearchView.On
         tvAlert.setVisibility(View.GONE);
         getProviderDocsList(API_URL_GET_OTHER_DOCS);
     }
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.clear();
+    }
 }
