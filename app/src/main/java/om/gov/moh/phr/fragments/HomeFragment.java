@@ -29,6 +29,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import androidx.annotation.NonNull;
@@ -53,6 +54,7 @@ import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 
 import org.json.JSONException;
@@ -100,6 +102,7 @@ import static om.gov.moh.phr.models.MyConstants.PREFS_API_GET_TOKEN;
 import static om.gov.moh.phr.models.MyConstants.PREFS_API_REGISTER_DEVICE;
 import static om.gov.moh.phr.models.MyConstants.PREFS_CURRENT_USER;
 import static om.gov.moh.phr.models.MyConstants.appointment_Enable;
+import static om.gov.moh.phr.models.MyConstants.user_age;
 
 public class HomeFragment extends Fragment implements AdapterToFragmentConnectorInterface, View.OnClickListener, SwipeRefreshLayout.OnRefreshListener {
 
@@ -181,54 +184,8 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
                 public void onClick(View view) {
                     if (IS_SCROLL_LIST) {
                         disableScrollingList();
-              /*          menuButton.animate()
-                                .alpha(0.0f)
-                                .setDuration(100)
-                                .setListener(new AnimatorListenerAdapter() {
-                                    @Override
-                                    public void onAnimationEnd(Animator animation) {
-                                        super.onAnimationEnd(animation);
-                                        if (isAdded() && mContext != null) {
-                                            menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_list));
-                                            menuButton.animate().alpha(1.0f);
-                                        }
-                                    }
-                                });
-                        menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_list));
-                        rvGrid.setVisibility(View.VISIBLE);
-                        rvGrid.setLayoutAnimation(animation);
-                        menuListScrollView.setVisibility(View.GONE);
-                        IS_SCROLL_LIST = false;*/
                     } else {
-                       /*   if (llMyVitalSigns.getVisibility() == View.GONE && llAppointments.getVisibility() == View.GONE && llReferrals.getVisibility() == View.GONE && llUnReadMessages.getVisibility() == View.GONE) {
-                            disableScrollingList();
-                          GlobalMethodsKotlin.Companion.showAlertDialog(mContext, "", getResources().getString(R.string.no_recent_data_msg), getResources().getString(R.string.ok), R.drawable.ic_error);
-                        }   else*/
                         enableScrollingList();
-                      /*  menuButton.animate()
-                                .alpha(0.0f)
-                                .setDuration(100)
-                                .setListener(new AnimatorListenerAdapter() {
-                                    @Override
-                                    public void onAnimationEnd(Animator animation) {
-                                        super.onAnimationEnd(animation);
-                                        if (isAdded()) {
-                                            menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_item));
-                                            menuButton.animate().alpha(1.0f);
-                                        }
-                                    }
-                                });
-                        menuButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_item));
-                        rvGrid.setVisibility(View.GONE);
-                        menuListScrollView.setVisibility(View.VISIBLE);
-                        if (isVitalShow)
-                            myVital.setLayoutAnimation(animation);
-                        if (isAppointmentShow)
-                            appointmentList.setLayoutAnimation(animation);
-                        if (isChatShow)
-                            chatsList.setLayoutAnimation(animation);
-
-                        IS_SCROLL_LIST = true;*/
                     }
                 }
             });
@@ -243,47 +200,31 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
             llAppointments.setOnClickListener(this);
             llUnReadMessages.setOnClickListener(this);
             llReferrals.setOnClickListener(this);
-            //getNotificationList();
-
-            /* setup updates list */
-      /*  ArrayList<String> updates = new ArrayList<>();
-        updates.add("New Lab Result");
-        updates.add("New Procedure Report");*/
-            //  setupUpdatesList(updates);
         } else {
             if (parentView.getParent() != null)
                 ((ViewGroup) parentView.getParent()).removeView(parentView);
             checkNotificationsCounter();
-            //  getDemographicResponse();
-        /*    SharedPreferences sharedPref = mContext.getSharedPreferences("CHAT-BODY", Context.MODE_PRIVATE);
-            String messageSender = sharedPref.getString("MESSAGE-SENDER", null);
-            if (messageSender != null) {
-                for (int i = 0; i < responseHolder.getmResult().getmHome().getmChatMessages().size(); i++) {
-                    if (responseHolder.getmResult().getmHome().getmChatMessages().get(i).getCreatedName().trim().equalsIgnoreCase(messageSender.trim()))
-                        responseHolder.getmResult().getmHome().getmChatMessages().get(i).setNew(true);
-                }
-            }
-            if (messageChatsAdapter != null)
-                messageChatsAdapter.notifyDataSetChanged();*/
         }
         return parentView;
     }
-private void showBetaVersionMsg(){
-    SharedPreferences pref = mContext.getSharedPreferences("betaValidation", 0);
-    Boolean isBeta = pref.getBoolean("beta",true);
-        if (isBeta){
+
+    private void showBetaVersionMsg() {
+        SharedPreferences pref = mContext.getSharedPreferences("betaValidation", 0);
+        Boolean isBeta = pref.getBoolean("beta", true);
+        if (isBeta) {
             String title = mContext.getResources().getString(R.string.betaTitle);
             String msg = mContext.getResources().getString(R.string.betaMsg);
             String btnTitle = mContext.getResources().getString(R.string.ok);
-            GlobalMethodsKotlin.Companion.showAlertDialog(mContext,title,msg,btnTitle,R.drawable.phr_logo);
+            GlobalMethodsKotlin.Companion.showAlertDialog(mContext, title, msg, btnTitle, R.drawable.phr_logo);
 
             SharedPreferences.Editor editor = pref.edit();
-            editor.putBoolean("beta",false);
+            editor.putBoolean("beta", false);
             editor.apply();
 
         }
 
-}
+    }
+
     private void getNotificationList() {
         dbHelper = new DBHelper(mContext);
         ArrayList<Notification> notificationsList = new ArrayList<>();
@@ -422,13 +363,13 @@ private void showBetaVersionMsg(){
         tvDependentsTitle = parentView.findViewById(R.id.tvDependents);
         tvDependentsTitle.setText(getResources().getString(R.string.title_dependents) + ": ");
         tvFirstDependent = parentView.findViewById(R.id.tvFirstDependent);
-        /*tvFirstDependent.setOnClickListener(new View.OnClickListener() {
+        tvFirstDependent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mToolbarCallback.changeSideMenuToolBarVisibility(View.GONE);
-                mMediatorCallback.changeFragmentTo(DemographicsFragment.newInstance(responseHolder.getmResult().getmHome().getInstitutesArrayList()), DemographicsFragment.class.getSimpleName());
+                mMediatorCallback.changeFragmentTo(DemographicsFragment.newInstance(responseHolder.getmResult().getmHome().getInstitutesArrayList(), getPageTitle(responseHolder.getmResult().getmHome().getmMainMenus(), 283)), DemographicsFragment.class.getSimpleName());
             }
-        });*/
+        });
         tvSecondDependent = parentView.findViewById(R.id.tvSecondDependent);
         tvSecondDependent.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -481,16 +422,17 @@ private void showBetaVersionMsg(){
             recentVitalsArrayList.clear();
             for (int i = 0; i < myVitals.size(); i++) {
                 ApiHomeHolder.ApiRecentVitals vitalSign = myVitals.get(i);
-                if (vitalSign.getName().equals("Body height"))
+
+                if (vitalSign.getName().equals("Body height")) {
                     tvUserHeight.setText(vitalSign.getValue() + " " + vitalSign.getUnit());
-                else if (vitalSign.getName().equals("Weight Measured"))
+                } else if (vitalSign.getName().equals("Weight Measured")) {
                     tvUserWeight.setText(vitalSign.getValue() + " " + vitalSign.getUnit());
-                else if (!vitalSign.getName().equals("G6PD") && !vitalSign.getName().equalsIgnoreCase("blood group"))
+                } else if (!vitalSign.getName().equals("G6PD") && !vitalSign.getName().equalsIgnoreCase("blood group"))
                     recentVitalsArrayList.add(vitalSign);
             }
             myVitalListAdapter = new MyVitalListAdapter(recentVitalsArrayList, mContext);
 
-        }else {
+        } else {
 
             ArrayList<DummyVitalSigns> dummyVitals = new ArrayList<>();
             dummyVitals.add(new DummyVitalSigns("Body temperature", "درجة حرارة الجسم", "---"));
@@ -498,7 +440,7 @@ private void showBetaVersionMsg(){
             dummyVitals.add(new DummyVitalSigns("Oxygen saturation", "تركيز الأكسجين", "---"));
             dummyVitals.add(new DummyVitalSigns("Heart rate", "معدل نبضات القلب", "---"));
             dummyVitals.add(new DummyVitalSigns("Blood pressure", "ضغط الدم", "---"));
-            myVitalListAdapter = new MyVitalListAdapter(mContext, dummyVitals,true);
+            myVitalListAdapter = new MyVitalListAdapter(mContext, dummyVitals, true);
         }
 
         final LinearLayoutManager layoutManager = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
@@ -509,7 +451,7 @@ private void showBetaVersionMsg(){
         myVital.setLayoutManager(layoutManager);
         myVital.setItemAnimator(new DefaultItemAnimator());
         myVital.setAdapter(myVitalListAdapter);
-        myVital.setOnScrollListener(new RecyclerView.OnScrollListener(){
+        myVital.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 int topRowVerticalPosition =
@@ -523,6 +465,10 @@ private void showBetaVersionMsg(){
                 super.onScrollStateChanged(recyclerView, newState);
             }
         });
+        if (tvUserHeight.getText().toString().equals(""))
+            tvUserHeight.setText("--");
+        if (tvUserWeight.getText().toString().equals(""))
+            tvUserWeight.setText("--");
     }
 
     public void setupAppointmentList(ArrayList<ApiHomeHolder.ApiAppointments> appointments) {
@@ -538,7 +484,7 @@ private void showBetaVersionMsg(){
         appointmentList.setLayoutManager(layoutManager);
         appointmentList.setItemAnimator(new DefaultItemAnimator());
         appointmentList.setAdapter(comingAppointmentListAdapter);
-        appointmentList.setOnScrollListener(new RecyclerView.OnScrollListener(){
+        appointmentList.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 int topRowVerticalPosition =
@@ -570,7 +516,7 @@ private void showBetaVersionMsg(){
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mRefferalAdapter);
-        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener(){
+        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 int topRowVerticalPosition =
@@ -629,7 +575,7 @@ private void showBetaVersionMsg(){
         chatsList.setLayoutManager(layoutManager);
         chatsList.setItemAnimator(new DefaultItemAnimator());
         chatsList.setAdapter(messageChatsAdapter);
-        chatsList.setOnScrollListener(new RecyclerView.OnScrollListener(){
+        chatsList.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 int topRowVerticalPosition =
@@ -665,12 +611,12 @@ private void showBetaVersionMsg(){
                                     setupRefferalsRecyclerView(rvReferrals);
                                 }
                                 if (responseHolder.getmResult().getmHome() != null) {
-                                    if(responseHolder.getmResult().getmHome().getClinicalNotesEnableYN() != null){
+                                    if (responseHolder.getmResult().getmHome().getClinicalNotesEnableYN() != null) {
                                         Clinical_Notes = responseHolder.getmResult().getmHome().getClinicalNotesEnableYN().equalsIgnoreCase("y");
                                     }
-                                    if(responseHolder.getmResult().getmHome().getChatEnableYN() != null)
+                                    if (responseHolder.getmResult().getmHome().getChatEnableYN() != null)
                                         Chat_Enable = responseHolder.getmResult().getmHome().getChatEnableYN();
-                                    if(responseHolder.getmResult().getmHome().getAppointmentEnableYN() != null)
+                                    if (responseHolder.getmResult().getmHome().getAppointmentEnableYN() != null)
                                         appointment_Enable = responseHolder.getmResult().getmHome().getAppointmentEnableYN();
                                     if (responseHolder.getmResult().getmHome().getmMainMenus() != null)
                                         mAdapter.updateList(responseHolder.getmResult().getmHome().getmMainMenus());
@@ -678,6 +624,7 @@ private void showBetaVersionMsg(){
                                         setupDempgraphicsData(responseHolder.getmResult().getmHome().getmDemographics());
 
                                     setupMyVitalList(responseHolder.getmResult().getmHome().getmRecentVitals());
+
                                     //setupRecentVitalsData(responseHolder.getmResult().getmHome().getmRecentVitals());
                                     isVitalShow = true;
                                     /*if (responseHolder.getmResult().getmHome().getmRecentVitals() != null) {
@@ -692,11 +639,11 @@ private void showBetaVersionMsg(){
                                         if (responseHolder.getmResult().getmHome().getmChatMessages().size() > 0)
                                             isChatShow = true;
                                     }
-                                    if (responseHolder.getmResult().getmHome().getmAppointments() != null) {
-                                        setupAppointments(responseHolder.getmResult().getmHome().getmAppointments());
-                                        if (responseHolder.getmResult().getmHome().getmAppointments().size() > 0)
-                                            isAppointmentShow = true;
-                                    }
+                                    //  if (responseHolder.getmResult().getmHome().getmAppointments() != null) {
+                                    setupAppointments(responseHolder.getmResult().getmHome().getmAppointments());
+                                    // if (responseHolder.getmResult().getmHome().getmAppointments().size() > 0)
+                                    isAppointmentShow = true;
+                                    //  }
                                     if (responseHolder.getmResult().getmHome().getReferralsArrayList() != null)
                                         setupReferrals(responseHolder.getmResult().getmHome().getReferralsArrayList());
                           /*      if (llMyVitalSigns.getVisibility() == View.GONE && llAppointments.getVisibility() == View.GONE && llReferrals.getVisibility() == View.GONE && llUnReadMessages.getVisibility() == View.GONE)
@@ -705,7 +652,7 @@ private void showBetaVersionMsg(){
                                 } else
                                     GlobalMethodsKotlin.Companion.showAlertErrorDialog(mContext);
                             }
-                        }else if(response.getInt(API_RESPONSE_CODE) == 99){
+                        } else if (response.getInt(API_RESPONSE_CODE) == 99) {
                             clearSharedPrefs();
                             Activity thisActivity = getActivity();
                             Intent loginIntent = new Intent(thisActivity, LoginActivity.class);
@@ -773,6 +720,7 @@ private void showBetaVersionMsg(){
         }
         tvFullName.setText(nameShort);
         tvPatientId.setText(String.valueOf(apiDemographicItem.getCivilId()));
+        user_age = saveAge(apiDemographicItem.getAge());
         tvAge.setText(apiDemographicItem.getAge());
         tvBloodGroup.setText(apiDemographicItem.getBloodGroup());
         Glide.with(mContext).load(getPersonPhoto(mContext, apiDemographicItem.getImage(), apiDemographicItem.getGender())).into(ivUserProfile);
@@ -816,11 +764,18 @@ private void showBetaVersionMsg(){
         }
     }
 
+    private String saveAge(String age) {
+        int index = age.indexOf("Y");
+        if (index > 0)
+            age = age.substring(0, index);
+        return age;
+    }
+
     private void setupRecentVitalsData(ArrayList<ApiHomeHolder.ApiRecentVitals> apiRecentVitals) {
         /*if (apiRecentVitals == null || apiRecentVitals.size() == 0)
             llMyVitalSigns.setVisibility(View.GONE);
         else {*/
-            //recentVitalsArrayList.clear();
+        //recentVitalsArrayList.clear();
             /*for (int i = 0; i < apiRecentVitals.size(); i++) {
                 ApiHomeHolder.ApiRecentVitals vitalSign = apiRecentVitals.get(i);
                 if (vitalSign.getName().equals("Body height"))
@@ -829,9 +784,9 @@ private void showBetaVersionMsg(){
                     tvUserWeight.setText(vitalSign.getValue() + " " + vitalSign.getUnit());
                 else if (!vitalSign.getName().equals("G6PD") && !vitalSign.getName().equalsIgnoreCase("blood group"))
                     recentVitalsArrayList.add(vitalSign);*/
-            //}
-            /* setup my vital list */
-            setupMyVitalList(apiRecentVitals);
+        //}
+        /* setup my vital list */
+        setupMyVitalList(apiRecentVitals);
         //}
     }
 
@@ -845,9 +800,14 @@ private void showBetaVersionMsg(){
 
     private void setupAppointments(ArrayList<ApiHomeHolder.ApiAppointments> apiAppointments) {
         /* setup appointment list */
-        if (apiAppointments == null || apiAppointments.size() == 0)
-            llAppointments.setVisibility(View.GONE);
-        else
+        if (apiAppointments == null || apiAppointments.size() == 0) {
+            apiAppointments = new ArrayList<ApiHomeHolder.ApiAppointments>();
+            // llAppointments.setVisibility(View.GONE);
+            ApiHomeHolder.ApiAppointments defaultAppointmentMsg = new ApiHomeHolder().new ApiAppointments();
+            defaultAppointmentMsg.setDescription(getResources().getString(R.string.default_appointment_msg));
+            apiAppointments.add(defaultAppointmentMsg);
+            setupAppointmentList(apiAppointments);
+        } else
             setupAppointmentList(apiAppointments);
     }
 
@@ -962,7 +922,12 @@ private void showBetaVersionMsg(){
         } else if (dataToPass instanceof AppointmentsListFragment) {
             mMediatorCallback.changeFragmentTo(AppointmentsListFragment.newInstance(responseHolder.getmResult().getmHome().getInstitutesArrayList()), dataTitle);
         } else {
-            mMediatorCallback.changeFragmentTo((Fragment) dataToPass, dataTitle);
+          /*  if (dataToPass instanceof OrganDonationFragment && !user_age.equals("--") && Integer.parseInt(user_age) < 18) {
+                Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(android.R.id.content), getResources().getString(R.string.allowed_age_msg), Snackbar.LENGTH_SHORT)
+                        .setBackgroundTint(getResources().getColor(R.color.colorPrimary))
+                        .show();
+            } else*/
+                mMediatorCallback.changeFragmentTo((Fragment) dataToPass, dataTitle);
         }
     }
 
@@ -1344,6 +1309,7 @@ private void showBetaVersionMsg(){
         menuListScrollView.setVisibility(View.GONE);
         IS_SCROLL_LIST = false;
     }
+
     private void clearSharedPrefs() {
         SharedPreferences sharedPref;
         SharedPreferences.Editor editor;
@@ -1363,5 +1329,11 @@ private void showBetaVersionMsg(){
         editor = sharedPref.edit();
         editor.clear();
         editor.apply();
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.clear();
     }
 }
