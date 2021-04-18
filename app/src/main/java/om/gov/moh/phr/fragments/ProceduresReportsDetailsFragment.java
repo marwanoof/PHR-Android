@@ -199,7 +199,7 @@ public class ProceduresReportsDetailsFragment extends Fragment {
                 tvTime.setText(dateText);
             }
             isWebView = true;
-            String fullUrl = API_PROCEDURES_REPORTS_WEBVIEW + mProcedureReport.getReportId();
+            String fullUrl = API_PROCEDURES_REPORTS_WEBVIEW + radiology.getReportId();
 
             if (mMediatorCallback.isConnected()) {
                 getReportDetails(fullUrl);
