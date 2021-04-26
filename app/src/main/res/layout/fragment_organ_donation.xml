@@ -138,7 +138,28 @@
                         app:layout_constraintHorizontal_bias="0.5"
                         app:layout_constraintStart_toEndOf="@+id/et_nameFamily_organ"
                         app:layout_constraintTop_toTopOf="@+id/et_nameFamily_organ" />
-
+                    <EditText
+                        android:id="@+id/et_other_relation"
+                        android:layout_width="0dp"
+                        android:layout_height="30dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:background="@drawable/edit_text_round"
+                        android:ems="10"
+                        android:fontFamily="@font/sky"
+                        android:hint="Please specify"
+                        android:visibility="gone"
+                        android:inputType="text"
+                        android:maxLength="15"
+                        android:paddingStart="8sp"
+                        android:singleLine="true"
+                        android:textSize="@dimen/text_size_12sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.5"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/et_nameFamily_organ" />
                     <EditText
                         android:id="@+id/et_mobileNo_family"
                         android:layout_width="0dp"
@@ -160,7 +181,7 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="0.5"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/et_nameFamily_organ" />
+                        app:layout_constraintTop_toBottomOf="@+id/et_other_relation" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.cardview.widget.CardView>
 

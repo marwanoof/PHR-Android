@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -77,7 +78,7 @@ public class OrganDonationFragment extends Fragment {
     private Context mContext;
     private ToolbarControllerInterface mToolbarControllerCallback;
     private MediatorInterface mMediatorCallback;
-    private EditText mobileNo, email, familyMember, etMobileNoOfFamilyMember;
+    private EditText mobileNo, email, familyMember, etMobileNoOfFamilyMember, etOtherRelation;
     private CheckBox allOrgans, kidneys, liver, heart, lungs, pancreas, corneas;
     private Button saveBtn;
     private Spinner relation;
@@ -160,7 +161,7 @@ public class OrganDonationFragment extends Fragment {
         relation = parentView.findViewById(R.id.et_releation_organ);
         cvPersonalInfo = parentView.findViewById(R.id.cardView5);
         cvSelectionOrganDonated = parentView.findViewById(R.id.cardView6);
-
+        etOtherRelation = parentView.findViewById(R.id.et_other_relation);
         email.setText(UserEmailFetcher.getEmail(mContext));
 
         final RadioGroup radioGroup = parentView.findViewById(R.id.radioGroup);
@@ -231,7 +232,6 @@ public class OrganDonationFragment extends Fragment {
             }
         });
 
-
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @SuppressLint("NonConstantResourceId")
             @Override
@@ -267,8 +267,8 @@ public class OrganDonationFragment extends Fragment {
                 if (radioButtonYes.isChecked()) {
                     if (mobileNo.getText().toString().isEmpty())
                         mobileNo.setError(getResources().getString(R.string.alert_empty_field));
-                    else if(mobileNo.getText().toString().trim().length()<8)
-                             mobileNo.setError(getResources().getString(R.string.invalid_phoneNo));
+                    else if (mobileNo.getText().toString().trim().length() < 8)
+                        mobileNo.setError(getResources().getString(R.string.invalid_phoneNo));
                     else if (email.getText().toString().isEmpty())
                         email.setError(getResources().getString(R.string.alert_empty_field));
                     else if (!isEmailValid(email.getText().toString()))
@@ -283,11 +283,11 @@ public class OrganDonationFragment extends Fragment {
                         Snackbar.make(relation, getResources().getString(R.string.select_relation_msg), Snackbar.LENGTH_SHORT)
                                 .setBackgroundTint(getResources().getColor(R.color.colorPrimary))
                                 .show();
-                    } else if(!kidneys.isChecked()&&!liver.isChecked()&&!heart.isChecked()&&!lungs.isChecked()&&!pancreas.isChecked()&&!corneas.isChecked()){
+                    } else if (!kidneys.isChecked() && !liver.isChecked() && !heart.isChecked() && !lungs.isChecked() && !pancreas.isChecked() && !corneas.isChecked()) {
                         Snackbar.make(radioGroup, getResources().getString(R.string.select_organ_msg), Snackbar.LENGTH_SHORT)
                                 .setBackgroundTint(getResources().getColor(R.color.colorPrimary))
                                 .show();
-                    }else
+                    } else
                         saveOrgan();
                 } else
                     saveOrgan();
@@ -413,23 +413,14 @@ public class OrganDonationFragment extends Fragment {
         if (mDonerID != null) {
             params.put("donorId", mDonerID);
         }
+        if (mRelationCode == 395)
+            params.put("otherRelationDesc", etOtherRelation.getText().toString());
         params.put("afterDeathYn", afterDeath);
         return new JSONObject(params);
     }
 
     public void getRelationMast() {
-        relationMastArrayList.clear();
-        relationMastArrayList.add(getResources().getString(R.string.title_select_relation));
-        relationMastArrayList.add(getString(R.string.spouse));
-        relationMastArrayList.add(getString(R.string.father));
-        relationMastArrayList.add(getString(R.string.mother));
-        relationMastArrayList.add(getString(R.string.brother));
-        relationMastArrayList.add(getString(R.string.sister));
-        relationMastArrayList.add(getString(R.string.son));
-        relationMastArrayList.add(getString(R.string.daughter));
-        relationMastArrayList.add(getString(R.string.other));
-        setupSelectRelationSpinner(relationMastArrayList);
-       /* JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, API_URL_GET_RELATION_MAST, null
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, API_URL_GET_RELATION_MAST, null
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -484,7 +475,7 @@ public class OrganDonationFragment extends Fragment {
         RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
         jsonObjectRequest.setRetryPolicy(policy);
 
-        mQueue.add(jsonObjectRequest);*/
+        mQueue.add(jsonObjectRequest);
     }
 
     private void setupSelectRelationSpinner(final ArrayList<String> relationMaster) {
@@ -511,6 +502,22 @@ public class OrganDonationFragment extends Fragment {
             }
         };
         relation.setAdapter(spinnerArrayAdapter);
+        relation.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                getRelationCode();
+                if (mRelationCode == 395)
+                    etOtherRelation.setVisibility(View.VISIBLE);
+                else
+                    etOtherRelation.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                // your code here
+            }
+
+        });
     }
 
     public void getOrganDonationData() {
@@ -618,6 +625,7 @@ public class OrganDonationFragment extends Fragment {
             }
             if (result.getRelationContactNo() != 0)
                 etMobileNoOfFamilyMember.setText(String.valueOf(result.getRelationContactNo()));
+            etOtherRelation.setText(result.getOtherRelationDesc());
             saveBtn.setText(R.string.title_update);
         }
     }
@@ -677,6 +685,7 @@ public class OrganDonationFragment extends Fragment {
     private boolean checkIfAllOrgansChecked() {
         return (kidneys.isChecked() && liver.isChecked() && heart.isChecked() && lungs.isChecked() && pancreas.isChecked() && corneas.isChecked());
     }
+
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);

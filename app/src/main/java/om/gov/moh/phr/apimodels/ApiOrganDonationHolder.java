@@ -54,6 +54,9 @@ public class ApiOrganDonationHolder implements Serializable {
         @SerializedName("relationContactNo")
         private long relationContactNo;
 
+        @SerializedName("otherRelationDesc")
+        private String otherRelationDesc;
+
         public Long getDonorId() {
             return donorId;
         }
@@ -66,17 +69,17 @@ public class ApiOrganDonationHolder implements Serializable {
         }
 
         public String getEmail() {
-            if(email==null)
+            if (email == null)
                 return "";
             else
-            return email;
+                return email;
         }
 
         public String getFamilyMemberName() {
-            if(familyMemberName==null)
+            if (familyMemberName == null)
                 return "";
             else
-            return familyMemberName;
+                return familyMemberName;
         }
 
         public String getKidneysYn() {
@@ -91,6 +94,13 @@ public class ApiOrganDonationHolder implements Serializable {
                 return "";
             else
                 return liverYn;
+        }
+
+        public String getOtherRelationDesc() {
+            if (otherRelationDesc == null)
+                return "";
+            else
+                return otherRelationDesc;
         }
 
         public String getHeartYn() {

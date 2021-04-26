@@ -8,8 +8,8 @@ android {
         applicationId "om.gov.moh.phr"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 13
-        versionName "Beta-08-April-2021"
+        versionCode 14
+        versionName "Beta-18-April-2021"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         resConfigs "en", "zh-rCN", "ar", "ar-rOM"
     }
