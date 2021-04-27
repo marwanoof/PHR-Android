@@ -225,5 +225,6 @@
     <string name="daughter">daughter</string>
     <string name="other">other(please specify)</string>
     <string name="allowed_age_msg">You are under the age allowed to donate.</string>
+    <string name="please_attach_the_will_for_organ_donation">Please attach the will for organ donation</string>
 
 </resources>

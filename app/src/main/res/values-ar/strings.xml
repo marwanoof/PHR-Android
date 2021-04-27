@@ -228,4 +228,5 @@
     <string name="daughter">ابنه</string>
     <string name="other">آخر (حدد لطفًا)</string>
     <string name="allowed_age_msg">عمرك أقل من العمر المسموح له بالتبرع.</string>
+    <string name="please_attach_the_will_for_organ_donation">الرجاء إرفاق الوصية التبرع بالأعضاء</string>
 </resources>
