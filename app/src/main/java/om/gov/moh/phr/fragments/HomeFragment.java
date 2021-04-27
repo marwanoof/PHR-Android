@@ -922,11 +922,11 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
         } else if (dataToPass instanceof AppointmentsListFragment) {
             mMediatorCallback.changeFragmentTo(AppointmentsListFragment.newInstance(responseHolder.getmResult().getmHome().getInstitutesArrayList()), dataTitle);
         } else {
-          /*  if (dataToPass instanceof OrganDonationFragment && !user_age.equals("--") && Integer.parseInt(user_age) < 18) {
+            if (dataToPass instanceof OrganDonationFragment && !user_age.equals("--") && Integer.parseInt(user_age) < 18) {
                 Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(android.R.id.content), getResources().getString(R.string.allowed_age_msg), Snackbar.LENGTH_SHORT)
                         .setBackgroundTint(getResources().getColor(R.color.colorPrimary))
                         .show();
-            } else*/
+            } else
                 mMediatorCallback.changeFragmentTo((Fragment) dataToPass, dataTitle);
         }
     }

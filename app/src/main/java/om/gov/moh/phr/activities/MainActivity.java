@@ -147,7 +147,6 @@ import static om.gov.moh.phr.models.MyConstants.PREFS_IS_PARENT;
 import static om.gov.moh.phr.models.MyConstants.PREFS_SIDE_MENU;
 
 
-
 public class MainActivity extends AppCompatActivity implements MediatorInterface, ToolbarControllerInterface, NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = "MainActivity";
@@ -392,9 +391,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         //to add the badge of notifications
         if (AppCurrentUser.getInstance().getIsParent())
             checkNotificationsCounter();
-        if (checkPlayServices(this)) {
-            getNotificationCurrentToken();
-        }
+        getNotificationCurrentToken();
 
     }
 
@@ -831,14 +828,11 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
     protected void onResume() {
         super.onResume();
         changeLanguageTo(getStoredLanguage(), false);
-        if (checkPlayServices(this)) {
-
-            if (dataUpdateReceiver == null) dataUpdateReceiver = new DataUpdateReceiver();
-            IntentFilter intentFilter = new IntentFilter("TEST");
-            registerReceiver(dataUpdateReceiver, intentFilter);
-            // FCM
-            getNotificationCurrentToken();
-        }
+        if (dataUpdateReceiver == null) dataUpdateReceiver = new DataUpdateReceiver();
+        IntentFilter intentFilter = new IntentFilter("TEST");
+        registerReceiver(dataUpdateReceiver, intentFilter);
+        // FCM
+        getNotificationCurrentToken();
 
         if (getCurrentFragment() != null) {
             //if screen rotated retain Fragment
@@ -884,6 +878,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
                             }
                             // Get new Instance ID token
                             String deviceId = task.getResult().getToken();
+                            Log.i(TAG, "getToken:" + deviceId);
                             if (!getDeviceId().equals(deviceId)) {
                                 registerDevice(deviceId);
                             }
@@ -899,7 +894,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
                         // read from agconnect-services.json
                         String appId = AGConnectServicesConfig.fromContext(mContext).getString("client/app_id");
                         String token = HmsInstanceId.getInstance(mContext).getToken(appId, "HCM");
-                        Log.i(TAG, "get token:" + token);
+                        Log.i(TAG, "getToken:" + token);
                         if (!TextUtils.isEmpty(token)) {
                             if (!getDeviceId().equals(token)) {
                                 registerDevice(token);
@@ -1094,6 +1089,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         getBaseContext().getResources().updateConfiguration(configuration, metrics);
 
     }
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
