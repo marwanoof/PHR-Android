@@ -1,19 +1,30 @@
 package om.gov.moh.phr.fragments;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import android.provider.MediaStore;
 import android.text.InputFilter;
 import android.text.Spanned;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,6 +35,8 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
@@ -45,25 +58,36 @@ import com.google.gson.Gson;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.apimodels.ApiOrganDonationHolder;
 import om.gov.moh.phr.apimodels.ApiRelationMaster;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
+import om.gov.moh.phr.models.CameraUtils;
 import om.gov.moh.phr.models.GlobalMethodsKotlin;
 import om.gov.moh.phr.models.MyProgressDialog;
 import om.gov.moh.phr.models.UserEmailFetcher;
 
+import static android.app.Activity.RESULT_CANCELED;
+import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
 //import static om.gov.moh.phr.models.MyConstants.API_MSHIFA_URL;
 import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_MESSAGE;
+import static om.gov.moh.phr.models.MyConstants.CAMERA;
+import static om.gov.moh.phr.models.MyConstants.GALLERY;
 import static om.gov.moh.phr.models.MyConstants.LANGUAGE_ARABIC;
 import static om.gov.moh.phr.models.MyConstants.LANGUAGE_PREFS;
 import static om.gov.moh.phr.models.MyConstants.LANGUAGE_SELECTED;
@@ -77,9 +101,9 @@ public class OrganDonationFragment extends Fragment {
     private Context mContext;
     private ToolbarControllerInterface mToolbarControllerCallback;
     private MediatorInterface mMediatorCallback;
-    private EditText mobileNo, email, familyMember, etMobileNoOfFamilyMember;
+    private EditText mobileNo, email, familyMember, etMobileNoOfFamilyMember, etFileName;
     private CheckBox allOrgans, kidneys, liver, heart, lungs, pancreas, corneas;
-    private Button saveBtn;
+    private Button saveBtn, btnImageConfirm, btn_cancel;
     private Spinner relation;
     private RequestQueue mQueue;
     private MyProgressDialog mProgressDialog;
@@ -91,7 +115,12 @@ public class OrganDonationFragment extends Fragment {
     private RadioButton radioButtonYes, radioButtonNo, radioButtonD;
     private String afterDeath = "D";
     private String pageTitle;
-    private CardView cvPersonalInfo, cvSelectionOrganDonated;
+    private CardView cvPersonalInfo, cvSelectionOrganDonated, cvUploadWill;
+    private ImageButton ibGalleryFile, ibCameraFile;
+    private String imageStoragePath;
+    private ImageView ivImageView;
+    private LinearLayout ll_Image;
+    private Bitmap selectedImage , cameraBitmap;
 
 
     public OrganDonationFragment() {
@@ -160,6 +189,81 @@ public class OrganDonationFragment extends Fragment {
         relation = parentView.findViewById(R.id.et_releation_organ);
         cvPersonalInfo = parentView.findViewById(R.id.cardView5);
         cvSelectionOrganDonated = parentView.findViewById(R.id.cardView6);
+        cvUploadWill = parentView.findViewById(R.id.cardView4);
+        ivImageView = parentView.findViewById(R.id.imageView);
+        etFileName = parentView.findViewById(R.id.et_fileName);
+        ll_Image = parentView.findViewById(R.id.ll_Image);
+        btnImageConfirm = parentView.findViewById(R.id.btnImageConfirm);
+        btn_cancel = parentView.findViewById(R.id.btn_cancel);
+
+
+        ibGalleryFile = parentView.findViewById(R.id.ib_galleryFile_uploadWill);
+        ibGalleryFile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ContextCompat.checkSelfPermission(mContext, android.Manifest.permission.CAMERA) ==
+                        PackageManager.PERMISSION_GRANTED) {
+                    choosePhotoFromGallery();
+                }else {
+                    Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(android.R.id.content), getResources().getString(R.string.grant_gallery_permission), Snackbar.LENGTH_SHORT)
+                            .setBackgroundTint(getResources().getColor(R.color.colorPrimary))
+                            .show();
+                }
+            }
+        });
+
+        ibCameraFile = parentView.findViewById(R.id.ib_cameraFile_uploadWill);
+        ibCameraFile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ContextCompat.checkSelfPermission(mContext, android.Manifest.permission.CAMERA) ==
+                        PackageManager.PERMISSION_GRANTED) {
+                    captureImageFromCamera();
+                }else {
+                    Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(android.R.id.content), getResources().getString(R.string.grant_camera_permission), Snackbar.LENGTH_SHORT)
+                            .setBackgroundTint(getResources().getColor(R.color.colorPrimary))
+                            .show();
+                }
+            }
+        });
+
+        etFileName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(selectedImage != null){
+                    ll_Image.setVisibility(View.VISIBLE);
+                    ivImageView.setImageBitmap(selectedImage);
+                }
+                if(cameraBitmap != null){
+                    ll_Image.setVisibility(View.VISIBLE);
+                    ivImageView.setImageBitmap(cameraBitmap);
+                }
+            }
+        });
+
+        btnImageConfirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ll_Image.setVisibility(View.GONE);
+            }
+        });
+
+        btn_cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(selectedImage != null){
+                    ll_Image.setVisibility(View.GONE);
+                    selectedImage = null;
+                }
+                if(cameraBitmap != null){
+                    ll_Image.setVisibility(View.GONE);
+                    cameraBitmap = null;
+                }
+                imageStoragePath = "";
+                etFileName.setText(imageStoragePath);
+            }
+        });
+
 
         email.setText(UserEmailFetcher.getEmail(mContext));
 
@@ -240,18 +344,21 @@ public class OrganDonationFragment extends Fragment {
                 switch (checkedId) {
                     case R.id.radioButtonYes:
                         afterDeath = "Y";
+                        cvUploadWill.setVisibility(View.VISIBLE);
                         cvPersonalInfo.setVisibility(View.VISIBLE);
                         cvSelectionOrganDonated.setVisibility(View.VISIBLE);
                         break;
                     case R.id.radioButtonNo:
                         afterDeath = "N";
                         resetAllInfo();
+                        cvUploadWill.setVisibility(View.GONE);
                         cvPersonalInfo.setVisibility(View.GONE);
                         cvSelectionOrganDonated.setVisibility(View.GONE);
                         break;
                     case R.id.radioButtonD:
                         afterDeath = "D";
                         resetAllInfo();
+                        cvUploadWill.setVisibility(View.GONE);
                         cvPersonalInfo.setVisibility(View.GONE);
                         cvSelectionOrganDonated.setVisibility(View.GONE);
                         break;
@@ -287,6 +394,8 @@ public class OrganDonationFragment extends Fragment {
                         Snackbar.make(radioGroup, getResources().getString(R.string.select_organ_msg), Snackbar.LENGTH_SHORT)
                                 .setBackgroundTint(getResources().getColor(R.color.colorPrimary))
                                 .show();
+                    } else if (selectedImage != null || cameraBitmap != null || imageStoragePath ==""){
+                        etFileName.setError(getResources().getString(R.string.alert_empty_field));
                     }else
                         saveOrgan();
                 } else
@@ -682,4 +791,99 @@ public class OrganDonationFragment extends Fragment {
         super.onSaveInstanceState(outState);
         outState.clear();
     }
+
+    private void choosePhotoFromGallery() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Choose " +
+                "Picture"), GALLERY);
+    }
+
+    private void captureImageFromCamera() {
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        File file = CameraUtils.getOutputMediaFile(MEDIA_TYPE_IMAGE);
+        if (file != null) {
+            imageStoragePath = file.getAbsolutePath();
+            Uri fileUri = CameraUtils.getOutputMediaFileUri(mContext, file);
+            cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+            // start the image capture Intent
+            startActivityForResult(cameraIntent, CAMERA);
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_CANCELED) {
+            return;
+        }
+        if (requestCode == GALLERY) {
+            if (data != null) {
+                try {
+                    final Uri imageUri = data.getData();
+                    assert imageUri != null;
+                    final InputStream imageStream = mContext.getContentResolver().openInputStream
+                            (imageUri);
+
+                    selectedImage = BitmapFactory.decodeStream(imageStream);
+                    Uri imageRealUri = getImageUri(mContext, selectedImage);
+                    Bitmap bitmap = CameraUtils.optimizeBitmap(12,
+                            getRealPathFromURI(imageRealUri));
+                    imageStoragePath = getRealPathFromURI(imageRealUri);
+//                    ivImageView.setImageBitmap(selectedImage);
+                    ibCameraFile.setEnabled(false);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        } else if (requestCode == CAMERA) {
+            cameraBitmap = CameraUtils.optimizeBitmap(8,
+                    imageStoragePath);
+            Uri imageRealUri = getImageUri(mContext, cameraBitmap);
+            imageStoragePath = getRealPathFromURI(imageRealUri);
+//            ivImageView.setImageBitmap(cameraBitmap);
+            ibGalleryFile.setEnabled(false);
+        }
+        long currentTime = Calendar.getInstance().getTimeInMillis();
+        String output = "File" + mMediatorCallback.getCurrentUser().getCivilId() + currentTime + ".jpg";
+        etFileName.setText(output);
+    }
+
+    private String getRealPathFromURI(Uri uri) {
+        Cursor cursor = mContext.getContentResolver().query(uri, null, null, null, null);
+        assert cursor != null;
+        cursor.moveToFirst();
+        int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+        String realPath = cursor.getString(idx);
+        cursor.close();
+        return realPath;
+    }
+
+    private Uri getImageUri(Context inContext, Bitmap inImage) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "IMG_" + Calendar.getInstance().getTimeInMillis(), null);
+        return Uri.parse(path);
+    }
+
+//    private void getPermissionForAccessingCameraAndGallery() {
+//
+//        if (ContextCompat.checkSelfPermission(mContext, android.Manifest.permission.CAMERA) !=
+//                PackageManager.PERMISSION_GRANTED) {
+//            ActivityCompat.requestPermissions(Objects.requireNonNull(getActivity()), new String[]{android.Manifest
+//                    .permission.CAMERA, Manifest
+//                    .permission.WRITE_EXTERNAL_STORAGE}, 1);
+//        }
+//    }
+//
+//    private String convertPic(String path) {
+//        Bitmap bitmap = BitmapFactory.decodeFile(path);
+//        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//        bitmap.compress(Bitmap.CompressFormat.PNG, 90, baos);
+//        byte[] b = baos.toByteArray();
+//        return Base64.encodeToString(b, Base64.DEFAULT);
+//    }
 }

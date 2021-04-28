@@ -21,26 +21,29 @@
         android:id="@+id/ll_Image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="20dp"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:translationZ="10dp"
         android:clickable="true"
-        android:visibility="gone"
+
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/simple_toolbar"
         android:focusable="true">
 
+        <View
+            android:layout_height="0dp"
+            android:layout_width="fill_parent"
+            android:layout_weight="1"
+            />
+
         <androidx.cardview.widget.CardView
             android:id="@+id/cvImage"
             android:layout_gravity="center"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_margin="10dp"
+            android:layout_weight="7"
             app:cardCornerRadius="10dp"
             app:cardElevation="10dp"
             tools:layout_editor_absoluteY="36dp"
@@ -55,34 +58,66 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
+                android:weightSum="100"
                 >
 
                 <ImageView
                     android:id="@+id/imageView"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="90"
+                    android:layout_marginStart="5dp"
                     android:layout_marginTop="10dp"
-                    android:layout_marginEnd="10dp"
+                    android:layout_marginEnd="5dp"
                     android:layout_marginBottom="5dp"
-                    android:scaleType="fitCenter"/>
+                    android:scaleType="centerCrop"
+                    android:layout_gravity="center_horizontal"/>
 
-                <Button
-                    android:id="@+id/btnImageConfirm"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="40dp"
-                    android:layout_marginEnd="10dp"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginBottom="10dp"
-                    android:background="@drawable/upload_btn"
-                    android:fontFamily="@font/sky"
-                    android:text="@string/save"
-                    android:textColor="#FFFFFF" />
+                    android:layout_height="0dp"
+                    android:layout_weight="10"
+                    android:orientation="horizontal"
+                    >
+
+                    <Button
+                        android:id="@+id/btnImageConfirm"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="match_parent"
+                        android:layout_marginEnd="5dp"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginBottom="10dp"
+                        android:background="@drawable/upload_btn"
+                        android:fontFamily="@font/sky"
+                        android:text="@string/save"
+                        android:textColor="#FFFFFF" />
+
+                    <Button
+                        android:id="@+id/btn_cancel"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="5dp"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginBottom="10dp"
+                        android:background="@drawable/cancel_btn"
+                        android:fontFamily="@font/sky"
+                        android:text="@string/title_cancel"
+                        android:textColor="@color/colorPrimary" />
+                </LinearLayout>
+
 
             </LinearLayout>
 
 
         </androidx.cardview.widget.CardView>
+
+        <View
+            android:layout_height="0dp"
+            android:layout_width="fill_parent"
+            android:layout_weight="1"
+            />
 
 
     </LinearLayout>
@@ -608,14 +643,14 @@
                         app:layout_constraintTop_toBottomOf="@+id/textView6">
 
                         <ImageButton
-                            android:id="@+id/ib_galleryFile"
+                            android:id="@+id/ib_galleryFile_uploadWill"
                             android:layout_width="30dp"
                             android:layout_height="30dp"
                             android:backgroundTint="@color/colorWhite"
                             android:src="@drawable/ic_gallery" />
 
                         <ImageButton
-                            android:id="@+id/ib_cameraFile"
+                            android:id="@+id/ib_cameraFile_uploadWill"
                             android:layout_width="30dp"
                             android:layout_height="30dp"
                             android:backgroundTint="@color/colorWhite"
