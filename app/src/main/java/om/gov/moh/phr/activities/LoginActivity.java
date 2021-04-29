@@ -158,6 +158,7 @@ public class LoginActivity extends AppCompatActivity {
                         if (NetworkUtility.isConnected(LoginActivity.this)) {
                           //  getOTP(tietCivilId.getText().toString());
                             getDisclaimerByCivilId(tietCivilId.getText().toString());
+
                         } else {
                             GlobalMethodsKotlin.Companion.showAlertDialog(LoginActivity.this, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
                         }
