@@ -29,6 +29,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -101,9 +102,9 @@ public class OrganDonationFragment extends Fragment {
     private Context mContext;
     private ToolbarControllerInterface mToolbarControllerCallback;
     private MediatorInterface mMediatorCallback;
-    private EditText mobileNo, email, familyMember, etMobileNoOfFamilyMember, etFileName;
+    private EditText mobileNo, email, familyMember, etMobileNoOfFamilyMember, etOtherRelation,etFileName;
     private CheckBox allOrgans, kidneys, liver, heart, lungs, pancreas, corneas;
-    private Button saveBtn, btnImageConfirm, btn_cancel;
+    private Button saveBtn;
     private Spinner relation;
     private RequestQueue mQueue;
     private MyProgressDialog mProgressDialog;
@@ -119,7 +120,6 @@ public class OrganDonationFragment extends Fragment {
     private ImageButton ibGalleryFile, ibCameraFile;
     private String imageStoragePath;
     private ImageView ivImageView;
-    private LinearLayout ll_Image;
     private Bitmap selectedImage , cameraBitmap;
 
 
@@ -189,12 +189,10 @@ public class OrganDonationFragment extends Fragment {
         relation = parentView.findViewById(R.id.et_releation_organ);
         cvPersonalInfo = parentView.findViewById(R.id.cardView5);
         cvSelectionOrganDonated = parentView.findViewById(R.id.cardView6);
+        etOtherRelation = parentView.findViewById(R.id.et_other_relation);
         cvUploadWill = parentView.findViewById(R.id.cardView4);
         ivImageView = parentView.findViewById(R.id.imageView);
         etFileName = parentView.findViewById(R.id.et_fileName);
-        ll_Image = parentView.findViewById(R.id.ll_Image);
-        btnImageConfirm = parentView.findViewById(R.id.btnImageConfirm);
-        btn_cancel = parentView.findViewById(R.id.btn_cancel);
 
 
         ibGalleryFile = parentView.findViewById(R.id.ib_galleryFile_uploadWill);
@@ -231,38 +229,14 @@ public class OrganDonationFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if(selectedImage != null){
-                    ll_Image.setVisibility(View.VISIBLE);
                     ivImageView.setImageBitmap(selectedImage);
                 }
                 if(cameraBitmap != null){
-                    ll_Image.setVisibility(View.VISIBLE);
                     ivImageView.setImageBitmap(cameraBitmap);
                 }
             }
         });
 
-        btnImageConfirm.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ll_Image.setVisibility(View.GONE);
-            }
-        });
-
-        btn_cancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(selectedImage != null){
-                    ll_Image.setVisibility(View.GONE);
-                    selectedImage = null;
-                }
-                if(cameraBitmap != null){
-                    ll_Image.setVisibility(View.GONE);
-                    cameraBitmap = null;
-                }
-                imageStoragePath = "";
-                etFileName.setText(imageStoragePath);
-            }
-        });
 
 
         email.setText(UserEmailFetcher.getEmail(mContext));
@@ -375,7 +349,7 @@ public class OrganDonationFragment extends Fragment {
                     if (mobileNo.getText().toString().isEmpty())
                         mobileNo.setError(getResources().getString(R.string.alert_empty_field));
                     else if(mobileNo.getText().toString().trim().length()<8)
-                             mobileNo.setError(getResources().getString(R.string.invalid_phoneNo));
+                        mobileNo.setError(getResources().getString(R.string.invalid_phoneNo));
                     else if (email.getText().toString().isEmpty())
                         email.setError(getResources().getString(R.string.alert_empty_field));
                     else if (!isEmailValid(email.getText().toString()))
@@ -522,23 +496,14 @@ public class OrganDonationFragment extends Fragment {
         if (mDonerID != null) {
             params.put("donorId", mDonerID);
         }
+        if (mRelationCode == 395)
+            params.put("otherRelationDesc", etOtherRelation.getText().toString());
         params.put("afterDeathYn", afterDeath);
         return new JSONObject(params);
     }
 
     public void getRelationMast() {
-        relationMastArrayList.clear();
-        relationMastArrayList.add(getResources().getString(R.string.title_select_relation));
-        relationMastArrayList.add(getString(R.string.spouse));
-        relationMastArrayList.add(getString(R.string.father));
-        relationMastArrayList.add(getString(R.string.mother));
-        relationMastArrayList.add(getString(R.string.brother));
-        relationMastArrayList.add(getString(R.string.sister));
-        relationMastArrayList.add(getString(R.string.son));
-        relationMastArrayList.add(getString(R.string.daughter));
-        relationMastArrayList.add(getString(R.string.other));
-        setupSelectRelationSpinner(relationMastArrayList);
-       /* JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, API_URL_GET_RELATION_MAST, null
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, API_URL_GET_RELATION_MAST, null
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -593,7 +558,7 @@ public class OrganDonationFragment extends Fragment {
         RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
         jsonObjectRequest.setRetryPolicy(policy);
 
-        mQueue.add(jsonObjectRequest);*/
+        mQueue.add(jsonObjectRequest);
     }
 
     private void setupSelectRelationSpinner(final ArrayList<String> relationMaster) {
@@ -620,6 +585,22 @@ public class OrganDonationFragment extends Fragment {
             }
         };
         relation.setAdapter(spinnerArrayAdapter);
+        relation.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                getRelationCode();
+                if (mRelationCode == 395)
+                    etOtherRelation.setVisibility(View.VISIBLE);
+                else
+                    etOtherRelation.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                // your code here
+            }
+
+        });
     }
 
     public void getOrganDonationData() {
@@ -727,6 +708,7 @@ public class OrganDonationFragment extends Fragment {
             }
             if (result.getRelationContactNo() != 0)
                 etMobileNoOfFamilyMember.setText(String.valueOf(result.getRelationContactNo()));
+            etOtherRelation.setText(result.getOtherRelationDesc());
             saveBtn.setText(R.string.title_update);
         }
     }

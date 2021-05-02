@@ -718,11 +718,12 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
     }
 
     private void unRegisterDeviceId() {
-        String fullUrl = API_NEHR_URL + "device/unRegister?deviceId=" + getDeviceId() + "&flag=" + API_ANDROID_FLAG + "&appShortCode=" + API_ANDROID_APP_CODE + "&civilId=" + getCurrentUser().getCivilId();
+        final String fullUrl = API_NEHR_URL + "device/unRegister?deviceId=" + getDeviceId() + "&flag=" + API_ANDROID_FLAG + "&appShortCode=" + API_ANDROID_APP_CODE + "&civilId=" + getCurrentUser().getCivilId();
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, fullUrl, null
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
+                Log.d("unregisterDevice", fullUrl);
                 try {
                     if (response.getInt(API_RESPONSE_CODE) == 0) {
                     } else {
@@ -817,7 +818,12 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         @Override
         public void onReceive(Context context, Intent intent) {
             mProgressDialog.dismissDialog();
-            String newToken = Objects.requireNonNull(intent.getExtras()).getString("token");
+            String newToken = "";
+        /*    if(Objects.requireNonNull(intent.getExtras()).getString("com.huawei.codelabpush.ON_NEW_TOKEN")!=null)
+             newToken = Objects.requireNonNull(intent.getExtras()).getString("com.huawei.codelabpush.ON_NEW_TOKEN");
+            else if(Objects.requireNonNull(intent.getExtras()).getString("token")!=null)*/
+             newToken = Objects.requireNonNull(intent.getExtras()).getString("token");
+            Log.d("newDeviceID", newToken+"....");
             unRegisterDeviceId();
             clearSharedPrefs();
             registerDevice(newToken);
@@ -915,7 +921,6 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Log.d("registerDevice", response.toString());
                 try {
                     if (response.getInt(API_RESPONSE_CODE) == 0) {
                         saveRegisterDeviceDetails(deviceId);

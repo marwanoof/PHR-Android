@@ -41,7 +41,7 @@ public class HmsMessageService extends com.huawei.hms.push.HmsMessageService {
     }
 
     private void sendTokenToDisplay(String token) {
-        Intent intent = new Intent("com.huawei.codelabpush.ON_NEW_TOKEN");
+        Intent intent = new Intent("MyNewToken");
         intent.putExtra("token", token);
         sendBroadcast(intent);
     }

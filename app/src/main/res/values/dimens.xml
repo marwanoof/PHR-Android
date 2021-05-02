@@ -29,6 +29,7 @@
     <dimen name="text_18sp">18sp</dimen>
     <dimen name="space_20dp">20dp</dimen>
     <dimen name="space_30dp">30dp</dimen>
+    <dimen name="space_15">15dp</dimen>
 
 
 </resources>
