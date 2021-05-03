@@ -29,7 +29,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import androidx.annotation.NonNull;
@@ -611,12 +610,12 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
                                     setupRefferalsRecyclerView(rvReferrals);
                                 }
                                 if (responseHolder.getmResult().getmHome() != null) {
-                                    if (responseHolder.getmResult().getmHome().getClinicalNotesEnableYN() != null) {
+                                    if(responseHolder.getmResult().getmHome().getClinicalNotesEnableYN() != null){
                                         Clinical_Notes = responseHolder.getmResult().getmHome().getClinicalNotesEnableYN().equalsIgnoreCase("y");
                                     }
-                                    if (responseHolder.getmResult().getmHome().getChatEnableYN() != null)
+                                    if(responseHolder.getmResult().getmHome().getChatEnableYN() != null)
                                         Chat_Enable = responseHolder.getmResult().getmHome().getChatEnableYN();
-                                    if (responseHolder.getmResult().getmHome().getAppointmentEnableYN() != null)
+                                    if(responseHolder.getmResult().getmHome().getAppointmentEnableYN() != null)
                                         appointment_Enable = responseHolder.getmResult().getmHome().getAppointmentEnableYN();
                                     if (responseHolder.getmResult().getmHome().getmMainMenus() != null)
                                         mAdapter.updateList(responseHolder.getmResult().getmHome().getmMainMenus());
@@ -624,7 +623,6 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
                                         setupDempgraphicsData(responseHolder.getmResult().getmHome().getmDemographics());
 
                                     setupMyVitalList(responseHolder.getmResult().getmHome().getmRecentVitals());
-
                                     //setupRecentVitalsData(responseHolder.getmResult().getmHome().getmRecentVitals());
                                     isVitalShow = true;
                                     /*if (responseHolder.getmResult().getmHome().getmRecentVitals() != null) {

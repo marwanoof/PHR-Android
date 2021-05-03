@@ -8,14 +8,14 @@ android {
         applicationId "om.gov.moh.phr"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 15
-        versionName "Beta-26-April-2021"
+        versionCode 12
+        versionName "Beta-01-April-2021"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        resConfigs "en", "zh-rCN", "ar", "ar-rOM"
+        resConfigs "en","zh-rCN" ,"ar", "ar-rOM"
     }
     signingConfigs {
         config {
-            storeFile file('C:\\Users\\aysha.aloufi\\Documents\\MoHFiles\\upload-keystore-afiyati.jks')
+            storeFile file('C:\\Users\\Aaisha\\OneDrive\\Documents\\MoHFiles\\upload-keystore-afiyati.jks')
             storePassword 'oman_moh_play'
             keyPassword 'oman-moh-play'
             keyAlias 'upload'
@@ -27,11 +27,11 @@ android {
                 signingConfig signingConfigs.config
                 minifyEnabled true
                 shrinkResources true
-                debuggable false
+                debuggable true
                 proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             }
             debug {
-                 signingConfig signingConfigs.config
+                signingConfig signingConfigs.config
                 debuggable true
             }
         }
@@ -78,6 +78,10 @@ dependencies {
 
     //progress indicator
     implementation 'com.wang.avi:library:2.1.3'
+
+    /*implementation 'com.google.api-client:google-api-client:1.23.0'
+    implementation 'com.google.oauth-client:google-oauth-client-jetty:1.23.0'
+    implementation 'com.google.apis:google-api-services-calendar:v3-rev305-1.23.0'*/
 
     //dialog
     implementation 'com.github.chnouman:AwesomeDialog:1.0.5'
