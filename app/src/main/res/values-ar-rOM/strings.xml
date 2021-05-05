@@ -229,4 +229,8 @@
  <string name="allowed_age_msg">عمرك أقل من العمر المسموح له بالتبرع.</string>
  <string name="please_attach_the_will_for_organ_donation">الرجاء إرفاق وصية التبرع بالأعضاء</string>
  <string name="please_specify_the_relation">الرجاء تحديد صلة القرابة</string>
+ <string name="validate">تحقق</string>
+ <string name="enter_password">كلمة المرور</string>
+ <string name="credentials_error">الرقم المدني\ كلمة المرور غير صحيح. الرجاء التحقق من صحة بياناتك.</string>
+ <string name="successful_sign_in_msg">تم تسجيل الدخول بنجاح.</string>
 </resources>

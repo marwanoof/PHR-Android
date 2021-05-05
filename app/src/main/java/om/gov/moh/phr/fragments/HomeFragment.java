@@ -443,8 +443,6 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
         }
 
         final LinearLayoutManager layoutManager = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
-        //DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(myVital.getContext(),layoutManager.getOrientation());
-        // myVital.addItemDecoration(mDividerItemDecoration);
         LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(mContext, R.anim.delay_slide_down);
         myVital.setLayoutAnimation(animation);
         myVital.setLayoutManager(layoutManager);

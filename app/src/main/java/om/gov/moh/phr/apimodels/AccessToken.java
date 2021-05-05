@@ -7,6 +7,7 @@ public class AccessToken implements Serializable {
     private static final AccessToken ourInstance = new AccessToken();
     private String accessTokenString;
     private String accessCivilId;
+    private String accessLoginId;
     private String personName;
     private String image;
 
@@ -44,6 +45,14 @@ public class AccessToken implements Serializable {
 
     public String getAccessCivilId() {
         return accessCivilId;
+    }
+
+    public String getAccessLoginId() {
+        return accessLoginId;
+    }
+
+    public void setAccessLoginId(String accessLoginId) {
+        this.accessLoginId = accessLoginId;
     }
 
     public void setAccessCivilId(String accessCivilId) {

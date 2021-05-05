@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -25,9 +26,7 @@ import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.JsonRequest;
 import com.android.volley.toolbox.Volley;
-import com.bumptech.glide.RequestManager;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.gson.Gson;
@@ -38,7 +37,6 @@ import org.json.JSONObject;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -51,7 +49,6 @@ import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -63,9 +60,8 @@ import javax.net.ssl.TrustManagerFactory;
 
 import om.gov.moh.phr.R;
 import om.gov.moh.phr.apimodels.AccessToken;
-import om.gov.moh.phr.apimodels.ApiDependentsHolder;
 import om.gov.moh.phr.apimodels.ApiDisclaimerHolder;
-import om.gov.moh.phr.dialogfragments.CancelAppointmentDialogFragment;
+import om.gov.moh.phr.apimodels.ApiGetUserInfo;
 import om.gov.moh.phr.dialogfragments.DisclaimerDialogFragment;
 import om.gov.moh.phr.interfaces.DialogFragmentInterface;
 import om.gov.moh.phr.models.AppCurrentUser;
@@ -75,9 +71,10 @@ import om.gov.moh.phr.models.MyProgressDialog;
 import om.gov.moh.phr.models.NetworkUtility;
 
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_ACCESS_TOKEN;
+import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
+import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
 import static om.gov.moh.phr.models.MyConstants.API_PHR;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
-import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_MESSAGE;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_RESULT;
 import static om.gov.moh.phr.models.MyConstants.LANGUAGE_ARABIC;
 import static om.gov.moh.phr.models.MyConstants.LANGUAGE_PREFS;
@@ -103,6 +100,7 @@ public class LoginActivity extends AppCompatActivity {
     private ImageView ivMohLogo;
     private DisclaimerDialogFragment mDisclaimerDialogFragment;
     private String currentLanguage = getDeviceLanguage();
+    private String loginId = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -156,7 +154,7 @@ public class LoginActivity extends AppCompatActivity {
 
                     } else {
                         if (NetworkUtility.isConnected(LoginActivity.this)) {
-                          //  getOTP(tietCivilId.getText().toString());
+                            //  getOTP(tietCivilId.getText().toString());
                             getDisclaimerByCivilId(tietCivilId.getText().toString());
 
                         } else {
@@ -176,7 +174,7 @@ public class LoginActivity extends AppCompatActivity {
 
                     } else {
                         if (NetworkUtility.isConnected(LoginActivity.this)) {
-                          //  getOTP(tietCivilId.getText().toString());
+                            //  getOTP(tietCivilId.getText().toString());
                             getDisclaimerByCivilId(tietCivilId.getText().toString());
                         } else {
                             GlobalMethodsKotlin.Companion.showAlertDialog(LoginActivity.this, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
@@ -212,7 +210,10 @@ public class LoginActivity extends AppCompatActivity {
                     if (shouldLogin) {//NetworkUtility.isConnected(mContext) &
                         //showDisclaimerDialog();
                         if (NetworkUtility.isConnected(LoginActivity.this)) {
-                            login(tietCivilId.getText().toString(), tietOTP.getText().toString());
+                            if (loginId != null)
+                                validateDoctoreUser(tietCivilId.getText().toString(), tietOTP.getText().toString());
+                            else
+                                validateNormalUser(tietCivilId.getText().toString(), tietOTP.getText().toString());
                         } else {
                             GlobalMethodsKotlin.Companion.showAlertDialog(LoginActivity.this, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
                         }
@@ -295,7 +296,7 @@ public class LoginActivity extends AppCompatActivity {
         return null;
     }
 
-    private void getOTP(String civilId) {
+    private void login(String civilId) {
         mProgressDialog.showDialog();
         String fullUrl = API_PHR + "v2/getOtp";
 
@@ -304,12 +305,24 @@ public class LoginActivity extends AppCompatActivity {
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
+                Log.d("getOtpRes", response.toString());
                 try {
 
-                    if (response.getInt(API_RESPONSE_CODE) == 0) {
+                    if (response.getInt(API_RESPONSE_CODE) == 0 && response.getString(API_RESPONSE_RESULT).trim().toLowerCase().equals("true")) {
+                        //Normal User
+                        loginId = null;
                         GlobalMethodsKotlin.Companion.showSimpleAlertDialog(LoginActivity.this, "", getResources().getString(R.string.sent_otp_msg_dialog), getResources().getString(R.string.ok), R.drawable.completed);
                         displayLoginForm();
+                    } else if (response.getInt(API_RESPONSE_CODE) == 0) {
+                        // Doctor
+                        loginId = response.getString(API_RESPONSE_RESULT).trim();
+                        displayLoginForm();
+                        tvResetOtp.setVisibility(View.GONE);
+                        tietOTP.setHint("");
+                        tilOTP.setHint(getResources().getString(R.string.enter_password));
+                        tietOTP.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
                     } else {
+                        loginId = null;
                         Toast.makeText(LoginActivity.this, getResources().getString(R.string.invalid_civilID_msg), Toast.LENGTH_SHORT).show();
                         mProgressDialog.dismissDialog();
                     }
@@ -377,7 +390,7 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onAccept() {
-                getOTP(civilId);
+                login(civilId);
                 mDisclaimerDialogFragment.dismiss();
             }
 
@@ -396,7 +409,7 @@ public class LoginActivity extends AppCompatActivity {
         mDisclaimerDialogFragment.show(getSupportFragmentManager(), DisclaimerDialogFragment.class.getSimpleName());
     }
 
-    private void login(final String civilId, String otp) {
+    private void validateNormalUser(final String civilId, String otp) {
         mProgressDialog.showDialog();
         String fullUrl = API_PHR + "v2/validateOtp";
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, fullUrl, getValidateJSONRequestParams(civilId, otp)
@@ -409,11 +422,10 @@ public class LoginActivity extends AppCompatActivity {
                         if (jsonObject != null) {
                             //  showDisclaimerDialog(jsonObject.optString(API_GET_TOKEN_ACCESS_TOKEN), civilId, jsonObject.optString("personName"), jsonObject.optString("image"), Objects.requireNonNull(jsonObject.optJSONArray("menus")).toString());
                             storeAccessToken(jsonObject.optString(API_GET_TOKEN_ACCESS_TOKEN)
-                                    , civilId, jsonObject.optString("personName"), jsonObject.optString("image"), jsonObject.optJSONArray("menus").toString());
+                                    , civilId,null, jsonObject.optString("personName"), jsonObject.optString("image"), jsonObject.optJSONArray("menus").toString());
                         }
                     } else {
                         Toast.makeText(LoginActivity.this, getResources().getString(R.string.invalid_otp_msg), Toast.LENGTH_SHORT).show();
-                        mProgressDialog.dismissDialog();
                     }
                 } catch (JSONException e) {
                     GlobalMethodsKotlin.Companion.showAlertDialog(LoginActivity.this, getResources().getString(R.string.alert_error_title), getResources().getString(R.string.wrong_msg), getResources().getString(R.string.ok), R.drawable.ic_error);
@@ -446,12 +458,13 @@ public class LoginActivity extends AppCompatActivity {
         mQueue.add(jsonObjectRequest);
     }
 
-    private void storeAccessToken(String accessTokenValue, String civilId, String personName, String image, String menus) {
+    private void storeAccessToken(String accessTokenValue, String civilId, String loginId, String personName, String image, String menus) {
         SharedPreferences.Editor editor;
 
 
         AccessToken accessToken = AccessToken.getInstance();
         accessToken.setAccessCivilId(civilId);
+        accessToken.setAccessLoginId(loginId);
         accessToken.setAccessTokenString(accessTokenValue);
         accessToken.setPersonName(personName);
         accessToken.setImage(image);
@@ -487,7 +500,7 @@ public class LoginActivity extends AppCompatActivity {
         editor.apply();
 
 //        mDisclaimerDialogFragment.dismiss();
-        moveToMainActivity();
+            moveToMainActivity();
     }
 
     private void moveToMainActivity() {
@@ -563,7 +576,7 @@ public class LoginActivity extends AppCompatActivity {
                         ApiDisclaimerHolder disclaimerHolder = json.fromJson(response.toString(), ApiDisclaimerHolder.class);
                         if (disclaimerHolder.getmResult() != null) {
                             if (disclaimerHolder.getmResult().getAcceptYN() != null && disclaimerHolder.getmResult().getAcceptYN().equalsIgnoreCase("y"))
-                                getOTP(civilId);
+                                login(civilId);
                             else
                                 showDisclaimerDialog(civilId);
                         }
@@ -588,10 +601,110 @@ public class LoginActivity extends AppCompatActivity {
         jsonObjectRequest.setRetryPolicy(policy);
         mQueue.add(jsonObjectRequest);
     }
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         //Clear the Activity's bundle of the subsidiary fragments' bundles.
         outState.clear();
+    }
+
+    private void validateDoctoreUser(final String civilId, String password) {
+        mProgressDialog.showDialog();
+        String fullUrl = API_NEHR_URL + "login/getToken";
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, fullUrl, validateJSONRequestParams(password)
+                , new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                Log.d("resp-login", response.toString());
+                try {
+                    if (response.getInt(API_RESPONSE_CODE) == 0) {
+                        getUserInfo(response.optJSONObject(API_RESPONSE_RESULT).optString(API_GET_TOKEN_ACCESS_TOKEN), civilId);
+                    } else {
+                        GlobalMethodsKotlin.Companion.showAlertDialog(LoginActivity.this, getResources().getString(R.string.alert_error_title), getResources().getString(R.string.credentials_error), getResources().getString(R.string.ok), R.drawable.ic_error);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+
+                mProgressDialog.dismissDialog();
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+                mProgressDialog.dismissDialog();
+            }
+        }) {
+            //
+            @Override
+            public Map<String, String> getHeaders() {
+                HashMap<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                return headers;
+            }
+
+
+        };
+        int socketTimeout = 30000;//30 seconds - change to what you want
+        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        jsonObjectRequest.setRetryPolicy(policy);
+        mQueue.add(jsonObjectRequest);
+    }
+
+    private JSONObject validateJSONRequestParams( String password) {
+        Map<String, String> params = new HashMap<>();
+        params.put("password", password);
+        params.put("username", loginId);
+        return new JSONObject(params);
+    }
+
+    private void getUserInfo(final String accessToken, final String civilId) {
+        mProgressDialog.showDialog();
+        String fullUrl = API_NEHR_URL + "getUserInfo";
+        Log.d("resp-UserInfo_URl", fullUrl);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, fullUrl, null
+                , new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                Log.d("resp-UserInfo", response.toString());
+
+                try {
+                    if (response.getInt(API_RESPONSE_CODE) == 0) {
+                        Gson gson = new Gson();
+                        ApiGetUserInfo responseHolder = gson.fromJson(response.toString(), ApiGetUserInfo.class);
+                        if (responseHolder.getResult().getLoginId() != null && responseHolder.getResult().getPerson().getPersonName() != null)
+                            storeAccessToken(accessToken, civilId, loginId, responseHolder.getResult().getPerson().getPersonName(), null, null);
+                      //  Toast.makeText(LoginActivity.this, getString(R.string.successful_sign_in_msg), Toast.LENGTH_SHORT).show();
+                        mProgressDialog.dismissDialog();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("resp-UserInfo", error.toString());
+                error.printStackTrace();
+                mProgressDialog.dismissDialog();
+            }
+        }) {
+            //
+            @Override
+            public Map<String, String> getHeaders() {
+                HashMap<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", API_GET_TOKEN_BEARER + accessToken);
+                return headers;
+            }
+
+
+        };
+        int socketTimeout = 30000;//30 seconds - change to what you want
+        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        jsonObjectRequest.setRetryPolicy(policy);
+        mQueue.add(jsonObjectRequest);
     }
 }

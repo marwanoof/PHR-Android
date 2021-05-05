@@ -723,7 +723,6 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Log.d("unregisterDevice", fullUrl);
                 try {
                     if (response.getInt(API_RESPONSE_CODE) == 0) {
                     } else {
@@ -823,7 +822,6 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
              newToken = Objects.requireNonNull(intent.getExtras()).getString("com.huawei.codelabpush.ON_NEW_TOKEN");
             else if(Objects.requireNonNull(intent.getExtras()).getString("token")!=null)*/
              newToken = Objects.requireNonNull(intent.getExtras()).getString("token");
-            Log.d("newDeviceID", newToken+"....");
             unRegisterDeviceId();
             clearSharedPrefs();
             registerDevice(newToken);

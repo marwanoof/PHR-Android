@@ -129,23 +129,18 @@ public class OtherDocsRecyclerViewAdapter extends RecyclerView.Adapter<OtherDocs
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
-        TextView tvDocType, tvDosage, tvDateWritten, tvEstName, tvDate;
+        TextView tvDocType, tvDosage, tvDateWritten, tvEstName;
         CardView clOrderItem;
         ImageButton imageButton;
-        ImageView ivMoreArrow, ivDoctype, moreDetails;
+        ImageView  ivDoctype, moreDetails;
 
         public MyViewHolder(View view) {
             super(view);
             tvDocType = view.findViewById(R.id.tv_title_docs);
             tvDosage = view.findViewById(R.id.tv_hospital_docs);
             tvDateWritten = view.findViewById(R.id.tv_date_docs);
-            tvDate = view.findViewById(R.id.tvDate);
             clOrderItem = view.findViewById(R.id.constraintLayout_documents);
-            ivMoreArrow = view.findViewById(R.id.iv_moreArrow);
             ivDoctype = view.findViewById(R.id.ivDocType);
-
-            ivMoreArrow.setVisibility(View.GONE);
-            tvDate.setVisibility(View.GONE);
 
             moreDetails = view.findViewById(R.id.imgArrowDetails);
             Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(),R.drawable.ic_arrow_right);
