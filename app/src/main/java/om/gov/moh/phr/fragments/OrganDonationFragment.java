@@ -53,6 +53,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.Glide;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 
@@ -104,7 +105,7 @@ public class OrganDonationFragment extends Fragment {
     private MediatorInterface mMediatorCallback;
     private EditText mobileNo, email, familyMember, etMobileNoOfFamilyMember, etOtherRelation,etFileName;
     private CheckBox allOrgans, kidneys, liver, heart, lungs, pancreas, corneas;
-    private Button saveBtn;
+    private Button saveBtn, btnImageConfirm, btn_cancel;
     private Spinner relation;
     private RequestQueue mQueue;
     private MyProgressDialog mProgressDialog;
@@ -120,8 +121,9 @@ public class OrganDonationFragment extends Fragment {
     private ImageButton ibGalleryFile, ibCameraFile;
     private String imageStoragePath;
     private ImageView ivImageView;
+    private LinearLayout ll_Image;
     private Bitmap selectedImage , cameraBitmap;
-
+    private String imgString = "";
 
     public OrganDonationFragment() {
         // Required empty public constructor
@@ -193,8 +195,11 @@ public class OrganDonationFragment extends Fragment {
         cvUploadWill = parentView.findViewById(R.id.cardView4);
         ivImageView = parentView.findViewById(R.id.imageView);
         etFileName = parentView.findViewById(R.id.et_fileName);
+        ll_Image = parentView.findViewById(R.id.ll_Image);
+        btnImageConfirm = parentView.findViewById(R.id.btnImageConfirm);
+        btn_cancel = parentView.findViewById(R.id.btn_cancel);
 
-
+        ll_Image.setVisibility(View.GONE);
         ibGalleryFile = parentView.findViewById(R.id.ib_galleryFile_uploadWill);
         ibGalleryFile.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -228,15 +233,47 @@ public class OrganDonationFragment extends Fragment {
         etFileName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(selectedImage != null){
+                if (imgString != ""){
+                    byte[] decodedString = Base64.decode(imgString.getBytes(), Base64.DEFAULT);
+                    System.out.println(imgString);
+                    Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                    ll_Image.setVisibility(View.VISIBLE);
+                    Glide.with(mContext).load(decodedByte).into(ivImageView);
+                }
+
+               /* if(selectedImage != null){
+                    ll_Image.setVisibility(View.VISIBLE);
                     ivImageView.setImageBitmap(selectedImage);
                 }
                 if(cameraBitmap != null){
+                    ll_Image.setVisibility(View.VISIBLE);
                     ivImageView.setImageBitmap(cameraBitmap);
-                }
+                }*/
             }
         });
 
+        btnImageConfirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ll_Image.setVisibility(View.GONE);
+            }
+        });
+
+        btn_cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(selectedImage != null){
+                    ll_Image.setVisibility(View.GONE);
+                    selectedImage = null;
+                }
+                if(cameraBitmap != null){
+                    ll_Image.setVisibility(View.GONE);
+                    cameraBitmap = null;
+                }
+                imageStoragePath = "";
+                etFileName.setText(imageStoragePath);
+            }
+        });
 
 
         email.setText(UserEmailFetcher.getEmail(mContext));
@@ -499,10 +536,28 @@ public class OrganDonationFragment extends Fragment {
         if (mRelationCode == 395)
             params.put("otherRelationDesc", etOtherRelation.getText().toString());
         params.put("afterDeathYn", afterDeath);
+        if (imageStoragePath != "" || imageStoragePath != null){
+            Map<String, Object> organFileParams = new HashMap<>();
+            organFileParams.put("fileName", etFileName.getText().toString());
+            organFileParams.put("sourceString", convertPic(imageStoragePath));
+
+            params.put("organFile", organFileParams);
+        }
         return new JSONObject(params);
     }
 
     public void getRelationMast() {
+       /* relationMastArrayList.clear();
+        relationMastArrayList.add(getResources().getString(R.string.title_select_relation));
+        relationMastArrayList.add(getString(R.string.spouse));
+        relationMastArrayList.add(getString(R.string.father));
+        relationMastArrayList.add(getString(R.string.mother));
+        relationMastArrayList.add(getString(R.string.brother));
+        relationMastArrayList.add(getString(R.string.sister));
+        relationMastArrayList.add(getString(R.string.son));
+        relationMastArrayList.add(getString(R.string.daughter));
+        relationMastArrayList.add(getString(R.string.other));
+        setupSelectRelationSpinner(relationMastArrayList);*/
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, API_URL_GET_RELATION_MAST, null
                 , new Response.Listener<JSONObject>() {
             @Override
@@ -710,6 +765,12 @@ public class OrganDonationFragment extends Fragment {
                 etMobileNoOfFamilyMember.setText(String.valueOf(result.getRelationContactNo()));
             etOtherRelation.setText(result.getOtherRelationDesc());
             saveBtn.setText(R.string.title_update);
+            if (result.getOrganFile() != null){
+                if (result.getOrganFile().getFileName() != null || result.getOrganFile().getFileName() != ""){
+                    etFileName.setText(result.getOrganFile().getFileName());
+                }
+            }
+
         }
     }
 
@@ -814,6 +875,7 @@ public class OrganDonationFragment extends Fragment {
                     Bitmap bitmap = CameraUtils.optimizeBitmap(12,
                             getRealPathFromURI(imageRealUri));
                     imageStoragePath = getRealPathFromURI(imageRealUri);
+                    imgString = convertPic(imageStoragePath);
 //                    ivImageView.setImageBitmap(selectedImage);
                     ibCameraFile.setEnabled(false);
                 } catch (IOException e) {
@@ -826,6 +888,7 @@ public class OrganDonationFragment extends Fragment {
                     imageStoragePath);
             Uri imageRealUri = getImageUri(mContext, cameraBitmap);
             imageStoragePath = getRealPathFromURI(imageRealUri);
+            imgString = convertPic(imageStoragePath);
 //            ivImageView.setImageBitmap(cameraBitmap);
             ibGalleryFile.setEnabled(false);
         }
@@ -851,21 +914,21 @@ public class OrganDonationFragment extends Fragment {
         return Uri.parse(path);
     }
 
-//    private void getPermissionForAccessingCameraAndGallery() {
-//
-//        if (ContextCompat.checkSelfPermission(mContext, android.Manifest.permission.CAMERA) !=
-//                PackageManager.PERMISSION_GRANTED) {
-//            ActivityCompat.requestPermissions(Objects.requireNonNull(getActivity()), new String[]{android.Manifest
-//                    .permission.CAMERA, Manifest
-//                    .permission.WRITE_EXTERNAL_STORAGE}, 1);
-//        }
-//    }
-//
-//    private String convertPic(String path) {
-//        Bitmap bitmap = BitmapFactory.decodeFile(path);
-//        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//        bitmap.compress(Bitmap.CompressFormat.PNG, 90, baos);
-//        byte[] b = baos.toByteArray();
-//        return Base64.encodeToString(b, Base64.DEFAULT);
-//    }
+    private void getPermissionForAccessingCameraAndGallery() {
+
+        if (ContextCompat.checkSelfPermission(mContext, android.Manifest.permission.CAMERA) !=
+                PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(Objects.requireNonNull(getActivity()), new String[]{android.Manifest
+                    .permission.CAMERA, Manifest
+                    .permission.WRITE_EXTERNAL_STORAGE}, 1);
+        }
+    }
+
+    private String convertPic(String path) {
+        Bitmap bitmap = BitmapFactory.decodeFile(path);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 90, baos);
+        byte[] b = baos.toByteArray();
+        return Base64.encodeToString(b, Base64.DEFAULT);
+    }
 }

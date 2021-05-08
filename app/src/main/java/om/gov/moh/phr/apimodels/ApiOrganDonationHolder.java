@@ -57,6 +57,13 @@ public class ApiOrganDonationHolder implements Serializable {
         @SerializedName("otherRelationDesc")
         private String otherRelationDesc;
 
+        @SerializedName("organFile")
+        private OrganFile organFile;
+
+        public OrganFile getOrganFile() {
+            return organFile;
+        }
+
         public Long getDonorId() {
             return donorId;
         }
@@ -144,6 +151,28 @@ public class ApiOrganDonationHolder implements Serializable {
 
         public long getRelationContactNo() {
             return relationContactNo;
+        }
+    }
+    public class OrganFile{
+        @SerializedName("fileName")
+        private String fileName;
+
+        @SerializedName("contentType")
+        private String contentType;
+
+        @SerializedName("sourceString")
+        private String sourceString;
+
+        public String getFileName() {
+            return fileName;
+        }
+
+        public String getContentType() {
+            return contentType;
+        }
+
+        public String getSourceString() {
+            return sourceString;
         }
     }
 }

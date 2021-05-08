@@ -26,6 +26,7 @@ import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.JsonRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -154,8 +155,12 @@ public class LoginActivity extends AppCompatActivity {
 
                     } else {
                         if (NetworkUtility.isConnected(LoginActivity.this)) {
-                            //  getOTP(tietCivilId.getText().toString());
-                            getDisclaimerByCivilId(tietCivilId.getText().toString());
+                            String civilidStr = tietCivilId.getText().toString();
+                            if (civilidStr.length() > 12){
+                                GlobalMethodsKotlin.Companion.showAlertDialog(LoginActivity.this, getResources().getString(R.string.alert_error_title), getResources().getString(R.string.civilidCount), getResources().getString(R.string.ok), R.drawable.ic_error);
+                            }else{
+                                getDisclaimerByCivilId(tietCivilId.getText().toString());
+                            }
 
                         } else {
                             GlobalMethodsKotlin.Companion.showAlertDialog(LoginActivity.this, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
