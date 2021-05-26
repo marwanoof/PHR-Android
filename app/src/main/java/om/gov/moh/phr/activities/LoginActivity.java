@@ -1,5 +1,6 @@
 package om.gov.moh.phr.activities;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
@@ -28,9 +29,15 @@ import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.JsonRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.google.gson.Gson;
+import com.huawei.agconnect.config.AGConnectServicesConfig;
+import com.huawei.hms.aaid.HmsInstanceId;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -71,8 +78,12 @@ import om.gov.moh.phr.models.GlobalMethodsKotlin;
 import om.gov.moh.phr.models.MyProgressDialog;
 import om.gov.moh.phr.models.NetworkUtility;
 
+import static om.gov.moh.phr.activities.MainActivity.checkPlayServices;
+import static om.gov.moh.phr.models.MyConstants.API_ANDROID_APP_CODE;
+import static om.gov.moh.phr.models.MyConstants.API_ANDROID_FLAG;
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_ACCESS_TOKEN;
 import static om.gov.moh.phr.models.MyConstants.API_GET_TOKEN_BEARER;
+import static om.gov.moh.phr.models.MyConstants.API_HUAWEI_APP_CODE;
 import static om.gov.moh.phr.models.MyConstants.API_NEHR_URL;
 import static om.gov.moh.phr.models.MyConstants.API_PHR;
 import static om.gov.moh.phr.models.MyConstants.API_RESPONSE_CODE;
@@ -86,7 +97,9 @@ import static om.gov.moh.phr.models.MyConstants.PARAM_LOGIN_ID;
 import static om.gov.moh.phr.models.MyConstants.PARAM_PERSON_NAME;
 import static om.gov.moh.phr.models.MyConstants.PARAM_SIDE_MENU;
 import static om.gov.moh.phr.models.MyConstants.PREFS_API_GET_TOKEN;
+import static om.gov.moh.phr.models.MyConstants.PREFS_API_REGISTER_DEVICE;
 import static om.gov.moh.phr.models.MyConstants.PREFS_CURRENT_USER;
+import static om.gov.moh.phr.models.MyConstants.PREFS_DEVICE_ID;
 import static om.gov.moh.phr.models.MyConstants.PREFS_IS_PARENT;
 import static om.gov.moh.phr.models.MyConstants.PREFS_SIDE_MENU;
 
@@ -103,7 +116,7 @@ public class LoginActivity extends AppCompatActivity {
     private DisclaimerDialogFragment mDisclaimerDialogFragment;
     private String currentLanguage = getDeviceLanguage();
     private String loginId = null;
-
+    private static final String TAG = "LoginActivity";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -463,6 +476,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void storeAccessToken(String accessTokenValue, String civilId, String loginId, String personName, String image, String menus) {
+     getNotificationCurrentToken(accessTokenValue, civilId);
         SharedPreferences.Editor editor;
 
 
@@ -505,7 +519,7 @@ public class LoginActivity extends AppCompatActivity {
         editor.apply();
 
 //        mDisclaimerDialogFragment.dismiss();
-        moveToMainActivity();
+      //  moveToMainActivity();
     }
 
     private void moveToMainActivity() {
@@ -708,5 +722,118 @@ public class LoginActivity extends AppCompatActivity {
         RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
         jsonObjectRequest.setRetryPolicy(policy);
         mQueue.add(jsonObjectRequest);
+    }
+   // FCM
+    private void getNotificationCurrentToken(final String accessTokenValue, final String civilId) {
+        // Get token
+        // [START retrieve_current_token]
+        if (checkPlayServices(this)) {
+            FirebaseInstanceId.getInstance().getInstanceId()
+                    .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                            if (!task.isSuccessful()) {
+                                Log.w(TAG, "getInstanceId failed", task.getException());
+                                return;
+                            }
+                            // Get new Instance ID token
+                            String deviceId = task.getResult().getToken();
+                            Log.i(TAG, "getToken:" + deviceId);
+                            if (!getDeviceId().equals(deviceId)) {
+                                registerDevice(deviceId, accessTokenValue, civilId);
+                            }
+
+
+                        }
+                    });
+        } else {
+            new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        // read from agconnect-services.json
+                        String appId = AGConnectServicesConfig.fromContext(LoginActivity.this).getString("client/app_id");
+                        String token = HmsInstanceId.getInstance(LoginActivity.this).getToken(appId, "HCM");
+                        Log.i(TAG, "getToken:" + token);
+                            if (!getDeviceId().equals(token)) {
+                                registerDevice(token, accessTokenValue, civilId);
+                            }
+                    } catch (com.huawei.hms.common.ApiException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }.start();
+        }
+// [END retrieve_current_token]
+    }
+
+    private void registerDevice(final String deviceId, final String accessTokenValue, String civilId) {
+        String fullUrl = API_NEHR_URL + "v2/device/register";
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, fullUrl, getJSONRequestParam(deviceId, civilId)
+                , new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                Log.d(TAG+"register", response.toString());
+                try {
+                    if (response.getInt(API_RESPONSE_CODE) == 0) {
+                        saveRegisterDeviceDetails(deviceId);
+                        moveToMainActivity();
+                    } else {
+                        mProgressDialog.dismissDialog();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                mProgressDialog.dismissDialog();
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+                mProgressDialog.dismissDialog();
+            }
+        }) {
+            //
+            @Override
+            public Map<String, String> getHeaders() {
+                HashMap<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", API_GET_TOKEN_BEARER + accessTokenValue);
+                return headers;
+            }
+
+        };
+        int socketTimeout = 30000;//30 seconds - change to what you want
+        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        jsonObjectRequest.setRetryPolicy(policy);
+
+        mQueue.add(jsonObjectRequest);
+    }
+
+    private JSONObject getJSONRequestParam( String deviceId, String civilId) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("deviceId", deviceId);
+        params.put("flag", API_ANDROID_FLAG);
+        if (checkPlayServices(this))
+            params.put("appShortCode", API_ANDROID_APP_CODE);
+        else
+            params.put("appShortCode", API_HUAWEI_APP_CODE);
+        params.put("civilId", Long.parseLong(civilId));
+        params.put("loginId", "");
+        Log.d("registerParams", params.toString());
+        return new JSONObject(params);
+    }
+
+    private void saveRegisterDeviceDetails(String deviceId) {
+        SharedPreferences sharedPref = getSharedPreferences(PREFS_API_REGISTER_DEVICE, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString(PREFS_DEVICE_ID, deviceId);
+        editor.apply();
+    }
+    private String getDeviceId() {
+        SharedPreferences sharedPref = getSharedPreferences(PREFS_API_REGISTER_DEVICE, Context.MODE_PRIVATE);
+        return sharedPref.getString(PREFS_DEVICE_ID, "");
     }
 }

@@ -595,7 +595,7 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Log.d("demographicsResp", response.toString());
+                Log.d("registerDemo", response.toString());
                 if (mContext != null && isAdded()) {
                     try {
                         if (response.getInt(API_RESPONSE_CODE) == 0) {

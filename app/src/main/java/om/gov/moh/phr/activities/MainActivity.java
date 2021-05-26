@@ -372,7 +372,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         //to add the badge of notifications
         if (AppCurrentUser.getInstance().getIsParent())
             checkNotificationsCounter();
-        getNotificationCurrentToken();
+        //getNotificationCurrentToken();
 
     }
 
@@ -820,29 +820,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         // FCM
         getNotificationCurrentToken();
 
-        if (getCurrentFragment() != null) {
-            //if screen rotated retain Fragment
-            if (getCurrentFragment() instanceof HomeFragment || getCurrentFragment() instanceof HomeNEHRFragment) {
-                changeSideMenuToolBarVisibility(View.VISIBLE);
-            } else {
-                changeSideMenuToolBarVisibility(View.GONE);
-                changeFragmentTo(getCurrentFragment(), getCurrentFragment().getTag());
-            }
 
-        } else {
-            //set Home/Main/default fragment
-            changeSideMenuToolBarVisibility(View.VISIBLE);
-            if (getIntent().getStringExtra("civilId") != null){
-                changeFragmentTo(HomeFragment.newInstance(), HomeFragment.class.getSimpleName());
-            }else if(getIntent().getStringExtra(DEPENDENT_CIVILID) != null){
-                changeFragmentTo(HomeFragment.newInstance(), HomeFragment.class.getSimpleName());
-            }else {
-                if (getAccessToken().getAccessLoginId() != null && !getAccessToken().getAccessLoginId().equals(""))
-                    changeFragmentTo(HomeNEHRFragment.newInstance(), HomeNEHRFragment.class.getSimpleName());
-                else
-                    changeFragmentTo(HomeFragment.newInstance(), HomeFragment.class.getSimpleName());
-            }
-        }
     }
 
     @Override
@@ -876,6 +854,30 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
                             Log.i(TAG, "getToken:" + deviceId);
                             if (!getDeviceId().equals(deviceId)) {
                                 registerDevice(deviceId);
+                            }else {
+                                if (getCurrentFragment() != null) {
+                                    //if screen rotated retain Fragment
+                                    if (getCurrentFragment() instanceof HomeFragment || getCurrentFragment() instanceof HomeNEHRFragment) {
+                                        changeSideMenuToolBarVisibility(View.VISIBLE);
+                                    } else {
+                                        changeSideMenuToolBarVisibility(View.GONE);
+                                        changeFragmentTo(getCurrentFragment(), getCurrentFragment().getTag());
+                                    }
+
+                                } else {
+                                    //set Home/Main/default fragment
+                                    changeSideMenuToolBarVisibility(View.VISIBLE);
+                                    if (getIntent().getStringExtra("civilId") != null){
+                                        changeFragmentTo(HomeFragment.newInstance(), HomeFragment.class.getSimpleName());
+                                    }else if(getIntent().getStringExtra(DEPENDENT_CIVILID) != null){
+                                        changeFragmentTo(HomeFragment.newInstance(), HomeFragment.class.getSimpleName());
+                                    }else {
+                                        if (getAccessToken().getAccessLoginId() != null && !getAccessToken().getAccessLoginId().equals(""))
+                                            changeFragmentTo(HomeNEHRFragment.newInstance(), HomeNEHRFragment.class.getSimpleName());
+                                        else
+                                            changeFragmentTo(HomeFragment.newInstance(), HomeFragment.class.getSimpleName());
+                                    }
+                                }
                             }
 
 
@@ -890,11 +892,33 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
                         String appId = AGConnectServicesConfig.fromContext(mContext).getString("client/app_id");
                         String token = HmsInstanceId.getInstance(mContext).getToken(appId, "HCM");
                         Log.i(TAG, "getToken:" + token);
-                        if (!TextUtils.isEmpty(token)) {
                             if (!getDeviceId().equals(token)) {
                                 registerDevice(token);
+                            }else {
+                                if (getCurrentFragment() != null) {
+                                    //if screen rotated retain Fragment
+                                    if (getCurrentFragment() instanceof HomeFragment || getCurrentFragment() instanceof HomeNEHRFragment) {
+                                        changeSideMenuToolBarVisibility(View.VISIBLE);
+                                    } else {
+                                        changeSideMenuToolBarVisibility(View.GONE);
+                                        changeFragmentTo(getCurrentFragment(), getCurrentFragment().getTag());
+                                    }
+
+                                } else {
+                                    //set Home/Main/default fragment
+                                    changeSideMenuToolBarVisibility(View.VISIBLE);
+                                    if (getIntent().getStringExtra("civilId") != null){
+                                        changeFragmentTo(HomeFragment.newInstance(), HomeFragment.class.getSimpleName());
+                                    }else if(getIntent().getStringExtra(DEPENDENT_CIVILID) != null){
+                                        changeFragmentTo(HomeFragment.newInstance(), HomeFragment.class.getSimpleName());
+                                    }else {
+                                        if (getAccessToken().getAccessLoginId() != null && !getAccessToken().getAccessLoginId().equals(""))
+                                            changeFragmentTo(HomeNEHRFragment.newInstance(), HomeNEHRFragment.class.getSimpleName());
+                                        else
+                                            changeFragmentTo(HomeFragment.newInstance(), HomeFragment.class.getSimpleName());
+                                    }
+                                }
                             }
-                        }
                     } catch (com.huawei.hms.common.ApiException e) {
                         e.printStackTrace();
                     }
@@ -910,9 +934,33 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
+                Log.d("MainregisterDevice", response.toString());
                 try {
                     if (response.getInt(API_RESPONSE_CODE) == 0) {
                         saveRegisterDeviceDetails(deviceId);
+                        if (getCurrentFragment() != null) {
+                            //if screen rotated retain Fragment
+                            if (getCurrentFragment() instanceof HomeFragment || getCurrentFragment() instanceof HomeNEHRFragment) {
+                                changeSideMenuToolBarVisibility(View.VISIBLE);
+                            } else {
+                                changeSideMenuToolBarVisibility(View.GONE);
+                                changeFragmentTo(getCurrentFragment(), getCurrentFragment().getTag());
+                            }
+
+                        } else {
+                            //set Home/Main/default fragment
+                            changeSideMenuToolBarVisibility(View.VISIBLE);
+                            if (getIntent().getStringExtra("civilId") != null){
+                                changeFragmentTo(HomeFragment.newInstance(), HomeFragment.class.getSimpleName());
+                            }else if(getIntent().getStringExtra(DEPENDENT_CIVILID) != null){
+                                changeFragmentTo(HomeFragment.newInstance(), HomeFragment.class.getSimpleName());
+                            }else {
+                                if (getAccessToken().getAccessLoginId() != null && !getAccessToken().getAccessLoginId().equals(""))
+                                    changeFragmentTo(HomeNEHRFragment.newInstance(), HomeNEHRFragment.class.getSimpleName());
+                                else
+                                    changeFragmentTo(HomeFragment.newInstance(), HomeFragment.class.getSimpleName());
+                            }
+                        }
                     } else {
                         mProgressDialog.dismissDialog();
                     }
