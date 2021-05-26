@@ -158,12 +158,12 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        isArabic = getStoredLanguage().equals(LANGUAGE_ARABIC);
-        animation = AnimationUtils.loadLayoutAnimation(mContext, R.anim.delay_slide_down);
-        showBetaVersionMsg();
         if (parentView == null) {
             // Inflate the layout for this fragment
             parentView = inflater.inflate(R.layout.fragment_home, container, false);
+            isArabic = getStoredLanguage().equals(LANGUAGE_ARABIC);
+            animation = AnimationUtils.loadLayoutAnimation(mContext, R.anim.delay_slide_down);
+           // showBetaVersionMsg();
             //pageView = pageView.findViewById(R.id.view1);
             mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, mMediatorCallback.getSocketFactory()));
             mProgressDialog = new MyProgressDialog(mContext);
@@ -595,6 +595,7 @@ public class HomeFragment extends Fragment implements AdapterToFragmentConnector
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
+                Log.d("demographicsResp", response.toString());
                 if (mContext != null && isAdded()) {
                     try {
                         if (response.getInt(API_RESPONSE_CODE) == 0) {

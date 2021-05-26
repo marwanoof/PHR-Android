@@ -6,10 +6,6 @@
     * PHR-DOC : AndroidManifest
 
     * phr app has to activities LoginFragment and MainActivity, where the activity that run first is LoginFragment.
-
-    * Required Permissions for the app are app :
-      <uses-permission android:name="android.permission.INTERNET" />
-      <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -41,9 +37,6 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:targetApi="n">
-        <activity android:name=".activities.DisclaimerActivity"
-            android:configChanges="locale"
-            android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".activities.Splash"
             android:configChanges="locale"
@@ -103,17 +96,19 @@
                 <action android:name="com.huawei.push.action.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
         <meta-data
             android:name="push_kit_auto_init_enabled"
             android:value="true" />
         <meta-data
             android:name="com.huawei.hms.client.channel.androidMarket"
             android:value="false" />
+
         <activity
             android:name=".activities.MainActivity"
             android:configChanges="locale"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="adjustPan"/>
+            android:windowSoftInputMode="adjustPan" />
     </application>
 
 </manifest>

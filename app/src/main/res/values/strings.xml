@@ -232,5 +232,14 @@
     <string name="enter_password">Enter Password</string>
     <string name="credentials_error">Invalid username\ password.  Please verify your credentials.</string>
     <string name="successful_sign_in_msg">Sign in successfully.</string>
-
+    <string name="recently_searched">Recently searched:</string>
+    <string name="search_with_patient_id_civil_id_or_name">Search with patient ID, civil ID or name</string>
+    <string name="chats">Chats</string>
+    <string name="notifications">Notifications</string>
+    <string name="all">All</string>
+    <string name="no_unread_chats_msg">No unread chats available.</string>
+    <string name="hello">Hello, </string>
+    <string name="dots"> ...</string>
+    <string name="auth_failure">Your token is expired. Please login again.</string>
+    <string name="msg_token_fmt" translatable="false">InstanceID Token: %s</string>
 </resources>

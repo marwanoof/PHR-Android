@@ -36,11 +36,6 @@ class Splash : AppCompatActivity() {
 
         indicatorView.smoothToShow()
 
-        /*     if (Locale.getDefault().displayLanguage == "English") {
-                 pageBackground.setImageResource(R.drawable.splash_en)
-             } else {
-                 pageBackground.setImageResource(R.drawable.splash_ar)
-             }*/
         if (getStoredLanguage().equals(LANGUAGE_ENGLISH))
             pageBackground.setImageResource(R.drawable.splash_en)
         else

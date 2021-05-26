@@ -110,6 +110,7 @@ import om.gov.moh.phr.fragments.ChatMessagesFragment;
 import om.gov.moh.phr.fragments.DemographicsFragment;
 import om.gov.moh.phr.fragments.FeedbackFragment;
 import om.gov.moh.phr.fragments.HomeFragment;
+import om.gov.moh.phr.fragments.HomeNEHRFragment;
 import om.gov.moh.phr.fragments.WebSideMenuFragment;
 import om.gov.moh.phr.interfaces.MediatorInterface;
 import om.gov.moh.phr.interfaces.ToolbarControllerInterface;
@@ -118,6 +119,7 @@ import om.gov.moh.phr.models.AppLanguage;
 import om.gov.moh.phr.models.ComponentConstants;
 import om.gov.moh.phr.models.CustomTypefaceSpan;
 import om.gov.moh.phr.models.HomePagerAdapter;
+import om.gov.moh.phr.models.MyConstants;
 import om.gov.moh.phr.models.MyProgressDialog;
 import om.gov.moh.phr.models.NetworkUtility;
 import om.gov.moh.phr.models.ViewPagerCustomDuration;
@@ -137,6 +139,7 @@ import static om.gov.moh.phr.models.MyConstants.LANGUAGE_PREFS;
 import static om.gov.moh.phr.models.MyConstants.LANGUAGE_SELECTED;
 import static om.gov.moh.phr.models.MyConstants.PARAM_CIVIL_ID;
 import static om.gov.moh.phr.models.MyConstants.PARAM_IMAGE;
+import static om.gov.moh.phr.models.MyConstants.PARAM_LOGIN_ID;
 import static om.gov.moh.phr.models.MyConstants.PARAM_PERSON_NAME;
 import static om.gov.moh.phr.models.MyConstants.PARAM_SIDE_MENU;
 import static om.gov.moh.phr.models.MyConstants.PREFS_API_GET_TOKEN;
@@ -197,6 +200,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         setContentView(R.layout.side_menu_main_page);
         storeLanguage(currentLanguage);
         setAppLanguage(currentLanguage);
+
         requestNotificationPermission();
         checkPermission(callbackId, Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR);
         toolbar = findViewById(R.id.toolbar);
@@ -230,42 +234,19 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         mProgressDialog = new MyProgressDialog(mContext);// initializes progress dialog
         mQueue = Volley.newRequestQueue(mContext, new HurlStack(null, getSocketFactory())); // initializes mQueue : we need to use  Volley.newRequestQueue(this, new HurlStack(null, getSocketFactory())) because we need to connect the app to secure server "https".
         Intent intent = getIntent();
-        if (intent.getStringExtra(DEPENDENT_CIVILID) != null) {
+        if (getIntent().getStringExtra("civilId") != null) {
+            setPatientCivilId(getIntent().getStringExtra("civilId"), true);
+            ivLogout.setBackground(getResources().getDrawable(R.drawable.ic_close));
+        } else if (intent.getStringExtra(DEPENDENT_CIVILID) != null) {
             ivLogout.setBackground(getResources().getDrawable(R.drawable.ic_close));
             String civilId = intent.getStringExtra(DEPENDENT_CIVILID);
             SharedPreferences.Editor editor;
             boolean isParent = getAccessToken().getAccessCivilId().equalsIgnoreCase(civilId);
-
-            SharedPreferences sharedPrefCurrentUser = mContext.getSharedPreferences(PREFS_CURRENT_USER, Context.MODE_PRIVATE);
-            editor = sharedPrefCurrentUser.edit();
-            editor.putString(PARAM_CIVIL_ID, civilId);
-            editor.putBoolean(PREFS_IS_PARENT, isParent);
-            editor.apply();
-
-
-            AppCurrentUser appCurrentUser = AppCurrentUser.getInstance();
-            appCurrentUser.setIsParent(isParent);
-            appCurrentUser.setCivilId(civilId);
+            setPatientCivilId(getIntent().getStringExtra(DEPENDENT_CIVILID), isParent);
         } else {
-            SharedPreferences.Editor editor;
-
-            SharedPreferences sharedPrefCurrentUser = mContext.getSharedPreferences(PREFS_CURRENT_USER, Context.MODE_PRIVATE);
-            editor = sharedPrefCurrentUser.edit();
-            editor.putString(PARAM_CIVIL_ID, getCurrentUser().getCivilId());
-            editor.putBoolean(PREFS_IS_PARENT, true);
-            editor.apply();
-
-            AppCurrentUser appCurrentUser = AppCurrentUser.getInstance();
-            appCurrentUser.setIsParent(true);
-            appCurrentUser.setCivilId(getAccessToken().getAccessCivilId());
+            setPatientCivilId(getCurrentUser().getCivilId(), true);
         }
         setupMainActivity();
-    /*    if (getSharedPreferences(PREFS_API_GET_TOKEN, Context.MODE_PRIVATE).contains(API_GET_TOKEN_ACCESS_TOKEN)) {
-            setupMainActivity();
-        } else {
-            setupLoginFragment();
-        }*/
-
     }
 
     private void checkPermission(int callbackId, String... permissionsId) {
@@ -484,6 +465,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
             accessToken.setAccessCivilId(sharedPref.getString(PARAM_CIVIL_ID, ""));
             accessToken.setPersonName(sharedPref.getString(PARAM_PERSON_NAME, ""));
             accessToken.setImage(sharedPref.getString(PARAM_IMAGE, ""));
+            accessToken.setAccessLoginId(sharedPref.getString(PARAM_LOGIN_ID, ""));
             return accessToken;
         }
     }
@@ -532,10 +514,10 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
 
     @Override
     public void onBackPressed() {
-        if (getCurrentFragment() instanceof HomeFragment) {
+        if (getCurrentFragment() instanceof HomeFragment|| getCurrentFragment() instanceof HomeNEHRFragment) {
             moveTaskToBack(true);
         } else {
-            super.onBackPressed();
+           super.onBackPressed();
         }
     }
 
@@ -821,7 +803,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         /*    if(Objects.requireNonNull(intent.getExtras()).getString("com.huawei.codelabpush.ON_NEW_TOKEN")!=null)
              newToken = Objects.requireNonNull(intent.getExtras()).getString("com.huawei.codelabpush.ON_NEW_TOKEN");
             else if(Objects.requireNonNull(intent.getExtras()).getString("token")!=null)*/
-             newToken = Objects.requireNonNull(intent.getExtras()).getString("token");
+            newToken = Objects.requireNonNull(intent.getExtras()).getString("token");
             unRegisterDeviceId();
             clearSharedPrefs();
             registerDevice(newToken);
@@ -840,7 +822,7 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
 
         if (getCurrentFragment() != null) {
             //if screen rotated retain Fragment
-            if (getCurrentFragment() instanceof HomeFragment) {
+            if (getCurrentFragment() instanceof HomeFragment || getCurrentFragment() instanceof HomeNEHRFragment) {
                 changeSideMenuToolBarVisibility(View.VISIBLE);
             } else {
                 changeSideMenuToolBarVisibility(View.GONE);
@@ -850,7 +832,16 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         } else {
             //set Home/Main/default fragment
             changeSideMenuToolBarVisibility(View.VISIBLE);
-            changeFragmentTo(HomeFragment.newInstance(), HomeFragment.class.getSimpleName());
+            if (getIntent().getStringExtra("civilId") != null){
+                changeFragmentTo(HomeFragment.newInstance(), HomeFragment.class.getSimpleName());
+            }else if(getIntent().getStringExtra(DEPENDENT_CIVILID) != null){
+                changeFragmentTo(HomeFragment.newInstance(), HomeFragment.class.getSimpleName());
+            }else {
+                if (getAccessToken().getAccessLoginId() != null && !getAccessToken().getAccessLoginId().equals(""))
+                    changeFragmentTo(HomeNEHRFragment.newInstance(), HomeNEHRFragment.class.getSimpleName());
+                else
+                    changeFragmentTo(HomeFragment.newInstance(), HomeFragment.class.getSimpleName());
+            }
         }
     }
 
@@ -977,13 +968,26 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
     }
 
     public void logoutUser(View view) {
-        if (AppCurrentUser.getInstance().getIsParent())
-            logout();
-        else {
+        if(getIntent().getStringExtra("civilId")!=null) {
             finish();
             Intent ParentHome = new Intent(MainActivity.this, MainActivity.class);
             ParentHome.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(ParentHome);
+        }else if(getIntent().getStringExtra(DEPENDENT_CIVILID)!=null) {
+            finish();
+            Intent ParentHome = new Intent(MainActivity.this, MainActivity.class);
+            ParentHome.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(ParentHome);
+        }else {
+            logout();
+          /*  if (AppCurrentUser.getInstance().getIsParent())
+                logout();
+            else {
+                finish();
+                *//*Intent ParentHome = new Intent(MainActivity.this, MainActivity.class);
+                ParentHome.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(ParentHome);*//*
+            }*/
         }
     }
 
@@ -1098,6 +1102,19 @@ public class MainActivity extends AppCompatActivity implements MediatorInterface
         super.onSaveInstanceState(outState);
         //Clear the Activity's bundle of the subsidiary fragments' bundles.
         outState.clear();
+    }
+
+    private void setPatientCivilId(String civilId, boolean isParent) {
+        SharedPreferences.Editor editor;
+        SharedPreferences sharedPrefAccessToken = getSharedPreferences(PREFS_API_GET_TOKEN, Context.MODE_PRIVATE);
+        editor = sharedPrefAccessToken.edit();
+        editor.putString(PARAM_CIVIL_ID, civilId);
+        editor.putBoolean(PREFS_IS_PARENT, isParent);
+        editor.apply();
+
+        AppCurrentUser currentUser = AppCurrentUser.getInstance();
+        currentUser.setCivilId(civilId);
+        currentUser.setIsParent(isParent);
     }
 }
 

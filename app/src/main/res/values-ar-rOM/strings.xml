@@ -157,7 +157,7 @@
  <string name="title_update">تحديث</string>
  <string name="other_commets">ملاحظات أخرى ..</string>
  <string name="name_of_the_family_member_aware_of_your_wish"><font size="10">*اسم فرد من العائلة يعلم برغبتك في التبرع</font></string>
- <string name="oragen_statment">مع التفاصيل أدناه ، أعرب عن رغبتي في التبرع بأعضائي لزرعها لمريض محتاج.</string>
+ <string name="oragen_statment">\"أوصي أنا المبين بياناته أدناه بالتبرع بأعضائي بعد وفاتي وذلك من أجل زرعها لمن يحتاجها من المرضى\"</string>
  <string name="mobile_no_of_the_family_member">رقم هاتف الشخص*</string>
  <string name="select_relation_msg">الرجاء اختيار صلة القرابة !</string>
  <string name="liver">الكبد</string>
@@ -198,7 +198,7 @@
  <string name="description">التفاصيل: </string>
  <string name="msg_no_vital">لا توجد بيانات مسجلة عن هذه العلامة الحيوية</string>
  <string name="add_new_appointment">إضافة موعد جديد</string>
- <string name="invalid_otp_msg">رمز التحقق غير صحيحة !</string>
+ <string name="invalid_otp_msg">رمز التحقق غير صحيح !</string>
  <string name="invalid_civilID_msg">الرقم المدني غير صحيح\ غير مسجل !</string>
  <string name="reset_otp">إعادة إرسال رمز التحقق</string>
  <string name="no_chats_msg">لا توجد محادثات متوفرة.</string>
@@ -212,7 +212,8 @@
  <string name="betaTitle">نسخة تجريبية</string>
  <string name="betaMsg">شكراً على موافقتك لاستخدام هذه النسخة التجريبية من تطبيق شفاء\nلقد تم اختيارك لتكون من ضمن الفئة المحددة لاختبار مدى فعالية هذا التطبيق\nيرجى تسجيل التقييم والملاحظات في خانة "تقييم التطبيق" الموجودة في القائمة الجانبية للتطبيق، أو التواصل عبر\n
         البريد الإلكتروني: app.support@moh.gov.om\n
-        الهاتف: 22357426 | 93244095 | 98994998 \n\nمع تحيات وزارة الصحة - سلطنة عُمان</string><string name="grant_gallery_permission">الرجاء منح الأذونات المطلوبة لتحميل الملف من المعرض الخاص بك!</string>
+        الهاتف: 22357426 | 93244095 | 98994998 \n\nمع تحيات وزارة الصحة - سلطنة عُمان</string>
+ <string name="grant_gallery_permission">الرجاء منح الأذونات المطلوبة لتحميل الملف من المعرض الخاص بك!</string>
  <string name="grant_camera_permission">الرجاء منح الأذونات المطلوبة لالتقاط صورة للمستند.</string>
  <string name="contact_us_txt">في حالة واجهتك أي صعوبات فنية الرجاء التواصل عبر: </string>
  <string name="grant_calender_permission_msg">الرجاء منح أذونات الوصول للتقويم لإضافة الدواء للتقويم الخاص بك!</string>
@@ -227,8 +228,7 @@
  <string name="daughter">ابنه</string>
  <string name="other">آخر (حدد لطفًا)</string>
  <string name="allowed_age_msg">عمرك أقل من العمر المسموح له بالتبرع.</string>
- <string name="please_attach_the_will_for_organ_donation">الرجاء إرفاق الوصية التبرع بالأعضاء</string>
-    <string name="civilidCount">الرجاء ادخال رقم مدني صحيح</string>
+ <string name="civilidCount">الرجاء ادخال رقم مدني صحيح</string>
  <string name="please_attach_the_will_for_organ_donation">الرجاء إرفاق وصية التبرع بالأعضاء</string>
  <string name="please_specify_the_relation">الرجاء تحديد صلة القرابة</string>
  <string name="validate">تحقق</string>

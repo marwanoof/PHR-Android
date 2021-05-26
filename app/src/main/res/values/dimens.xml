@@ -30,6 +30,7 @@
     <dimen name="space_20dp">20dp</dimen>
     <dimen name="space_30dp">30dp</dimen>
     <dimen name="space_15">15dp</dimen>
+    <dimen name="space_5">5dp</dimen>
 
 
 </resources>

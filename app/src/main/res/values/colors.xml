@@ -19,6 +19,6 @@
     <color name="colorStatusBar">#f9f8f8</color>
     <color name="colorTextViewFontNormal">@color/colorLiteBlack</color>
     <color name="colorTimeItemGray">#B1BCBE</color>
-
+    <color name="divider">#E6E6EC</color>
 
 </resources>

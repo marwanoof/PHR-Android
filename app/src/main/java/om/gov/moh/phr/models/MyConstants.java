@@ -3,6 +3,7 @@ package om.gov.moh.phr.models;
 public class MyConstants {
     //PARAM
     public static final String PARAM_CIVIL_ID = "PARAM_CIVIL_ID";
+    public static final String PARAM_LOGIN_ID = "PARAM_LOGIN_ID";
     public static final String PARAM_PERSON_NAME = "PARAM_PERSON_NAME";
     public static final String PARAM_IMAGE = "PARAM_IMAGE";
     public static final String PARAM_API_DEMOGRAPHICS_ITEM = "PARAM_API_DEMOGRAPHICS_ITEM";

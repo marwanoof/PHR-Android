@@ -82,6 +82,7 @@ import static om.gov.moh.phr.models.MyConstants.LANGUAGE_PREFS;
 import static om.gov.moh.phr.models.MyConstants.LANGUAGE_SELECTED;
 import static om.gov.moh.phr.models.MyConstants.PARAM_CIVIL_ID;
 import static om.gov.moh.phr.models.MyConstants.PARAM_IMAGE;
+import static om.gov.moh.phr.models.MyConstants.PARAM_LOGIN_ID;
 import static om.gov.moh.phr.models.MyConstants.PARAM_PERSON_NAME;
 import static om.gov.moh.phr.models.MyConstants.PARAM_SIDE_MENU;
 import static om.gov.moh.phr.models.MyConstants.PREFS_API_GET_TOKEN;
@@ -109,32 +110,12 @@ public class LoginActivity extends AppCompatActivity {
         changeLanguageTo(getStoredLanguage(), false);
         adjustFontScale(getResources().getConfiguration());
         setContentView(R.layout.activity_login);
-
         storeLanguage(currentLanguage);
         setAppLanguage(currentLanguage);
         mProgressDialog = new MyProgressDialog(this);// initializes progress dialog
         mQueue = Volley.newRequestQueue(this, new HurlStack(null, getSocketFactory())); // initializes mQueue : we need to use  Volley.newRequestQueue(this, new HurlStack(null, getSocketFactory())) because we need to connect the app to secure server "https".
 
-        tietCivilId = findViewById(R.id.tiet_civil_id);
-        tilOTP = findViewById(R.id.til_otp);
-        tietOTP = findViewById(R.id.tiet_otp);
-        tvResetOtp = findViewById(R.id.tv_resetOtp);
-        btnGetOTP = findViewById(R.id.btn_get_otp);
-        btnLogin = findViewById(R.id.btn_login);
-        ImageView ivLogo = findViewById(R.id.imageView);
-        ivMohLogo = findViewById(R.id.iv_logo_moh);
-        if (getStoredLanguage().equals(LANGUAGE_ARABIC))
-            ivMohLogo.setImageResource(R.drawable.moh_logo_ar);
-        tvCancel = findViewById(R.id.tv_cancel);
-        tvChangeCivilID = findViewById(R.id.tv_changeCivilID);
-        tvCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
-        if (getStoredLanguage().equals(LANGUAGE_ARABIC))
-            ivLogo.setBackground(getResources().getDrawable(R.drawable.phr_logo_ar));
+        setupViews();
         {
             tietOTP.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -156,9 +137,9 @@ public class LoginActivity extends AppCompatActivity {
                     } else {
                         if (NetworkUtility.isConnected(LoginActivity.this)) {
                             String civilidStr = tietCivilId.getText().toString();
-                            if (civilidStr.length() > 12){
+                            if (civilidStr.length() > 12) {
                                 GlobalMethodsKotlin.Companion.showAlertDialog(LoginActivity.this, getResources().getString(R.string.alert_error_title), getResources().getString(R.string.civilidCount), getResources().getString(R.string.ok), R.drawable.ic_error);
-                            }else{
+                            } else {
                                 getDisclaimerByCivilId(tietCivilId.getText().toString());
                             }
 
@@ -179,7 +160,6 @@ public class LoginActivity extends AppCompatActivity {
 
                     } else {
                         if (NetworkUtility.isConnected(LoginActivity.this)) {
-                            //  getOTP(tietCivilId.getText().toString());
                             getDisclaimerByCivilId(tietCivilId.getText().toString());
                         } else {
                             GlobalMethodsKotlin.Companion.showAlertDialog(LoginActivity.this, getResources().getString(R.string.no_internet_title), getResources().getString(R.string.alert_no_connection), getResources().getString(R.string.ok), R.drawable.ic_error);
@@ -212,8 +192,7 @@ public class LoginActivity extends AppCompatActivity {
                         shouldLogin = false;
                     }
 
-                    if (shouldLogin) {//NetworkUtility.isConnected(mContext) &
-                        //showDisclaimerDialog();
+                    if (shouldLogin) {
                         if (NetworkUtility.isConnected(LoginActivity.this)) {
                             if (loginId != null)
                                 validateDoctoreUser(tietCivilId.getText().toString(), tietOTP.getText().toString());
@@ -226,6 +205,29 @@ public class LoginActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    private void setupViews() {
+        tietCivilId = findViewById(R.id.tiet_civil_id);
+        tilOTP = findViewById(R.id.til_otp);
+        tietOTP = findViewById(R.id.tiet_otp);
+        tvResetOtp = findViewById(R.id.tv_resetOtp);
+        btnGetOTP = findViewById(R.id.btn_get_otp);
+        btnLogin = findViewById(R.id.btn_login);
+        ImageView ivLogo = findViewById(R.id.imageView);
+        ivMohLogo = findViewById(R.id.iv_logo_moh);
+        if (getStoredLanguage().equals(LANGUAGE_ARABIC))
+            ivMohLogo.setImageResource(R.drawable.moh_logo_ar);
+        tvCancel = findViewById(R.id.tv_cancel);
+        tvChangeCivilID = findViewById(R.id.tv_changeCivilID);
+        tvCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        if (getStoredLanguage().equals(LANGUAGE_ARABIC))
+            ivLogo.setBackground(getResources().getDrawable(R.drawable.phr_logo_ar));
     }
 
     private void storeLanguage(String language) {
@@ -310,9 +312,7 @@ public class LoginActivity extends AppCompatActivity {
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Log.d("getOtpRes", response.toString());
                 try {
-
                     if (response.getInt(API_RESPONSE_CODE) == 0 && response.getString(API_RESPONSE_RESULT).trim().toLowerCase().equals("true")) {
                         //Normal User
                         loginId = null;
@@ -329,7 +329,6 @@ public class LoginActivity extends AppCompatActivity {
                     } else {
                         loginId = null;
                         Toast.makeText(LoginActivity.this, getResources().getString(R.string.invalid_civilID_msg), Toast.LENGTH_SHORT).show();
-                        mProgressDialog.dismissDialog();
                     }
                 } catch (JSONException e) {
                     GlobalMethodsKotlin.Companion.showAlertDialog(LoginActivity.this, getResources().getString(R.string.alert_error_title), getResources().getString(R.string.wrong_msg), getResources().getString(R.string.ok), R.drawable.ic_error);
@@ -427,7 +426,7 @@ public class LoginActivity extends AppCompatActivity {
                         if (jsonObject != null) {
                             //  showDisclaimerDialog(jsonObject.optString(API_GET_TOKEN_ACCESS_TOKEN), civilId, jsonObject.optString("personName"), jsonObject.optString("image"), Objects.requireNonNull(jsonObject.optJSONArray("menus")).toString());
                             storeAccessToken(jsonObject.optString(API_GET_TOKEN_ACCESS_TOKEN)
-                                    , civilId,null, jsonObject.optString("personName"), jsonObject.optString("image"), jsonObject.optJSONArray("menus").toString());
+                                    , civilId, null, jsonObject.optString("personName"), jsonObject.optString("image"), jsonObject.optJSONArray("menus").toString());
                         }
                     } else {
                         Toast.makeText(LoginActivity.this, getResources().getString(R.string.invalid_otp_msg), Toast.LENGTH_SHORT).show();
@@ -484,6 +483,7 @@ public class LoginActivity extends AppCompatActivity {
         editor = sharedPrefAccessToken.edit();
         editor.putString(API_GET_TOKEN_ACCESS_TOKEN, accessTokenValue);
         editor.putString(PARAM_CIVIL_ID, civilId);
+        editor.putString(PARAM_LOGIN_ID, loginId);
         editor.putString(PARAM_PERSON_NAME, personName);
         editor.putString(PARAM_IMAGE, image);
         editor.apply();
@@ -505,7 +505,7 @@ public class LoginActivity extends AppCompatActivity {
         editor.apply();
 
 //        mDisclaimerDialogFragment.dismiss();
-            moveToMainActivity();
+        moveToMainActivity();
     }
 
     private void moveToMainActivity() {
@@ -621,7 +621,6 @@ public class LoginActivity extends AppCompatActivity {
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Log.d("resp-login", response.toString());
                 try {
                     if (response.getInt(API_RESPONSE_CODE) == 0) {
                         getUserInfo(response.optJSONObject(API_RESPONSE_RESULT).optString(API_GET_TOKEN_ACCESS_TOKEN), civilId);
@@ -658,7 +657,7 @@ public class LoginActivity extends AppCompatActivity {
         mQueue.add(jsonObjectRequest);
     }
 
-    private JSONObject validateJSONRequestParams( String password) {
+    private JSONObject validateJSONRequestParams(String password) {
         Map<String, String> params = new HashMap<>();
         params.put("password", password);
         params.put("username", loginId);
@@ -668,12 +667,10 @@ public class LoginActivity extends AppCompatActivity {
     private void getUserInfo(final String accessToken, final String civilId) {
         mProgressDialog.showDialog();
         String fullUrl = API_NEHR_URL + "getUserInfo";
-        Log.d("resp-UserInfo_URl", fullUrl);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, fullUrl, null
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Log.d("resp-UserInfo", response.toString());
 
                 try {
                     if (response.getInt(API_RESPONSE_CODE) == 0) {
@@ -681,12 +678,12 @@ public class LoginActivity extends AppCompatActivity {
                         ApiGetUserInfo responseHolder = gson.fromJson(response.toString(), ApiGetUserInfo.class);
                         if (responseHolder.getResult().getLoginId() != null && responseHolder.getResult().getPerson().getPersonName() != null)
                             storeAccessToken(accessToken, civilId, loginId, responseHolder.getResult().getPerson().getPersonName(), null, null);
-                      //  Toast.makeText(LoginActivity.this, getString(R.string.successful_sign_in_msg), Toast.LENGTH_SHORT).show();
-                        mProgressDialog.dismissDialog();
+
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                mProgressDialog.dismissDialog();
             }
         }, new Response.ErrorListener() {
             @Override
